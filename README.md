@@ -1,1 +1,1 @@
-The UC San Diego Library DAMS repository
+The UC San Diego Library DAMS repository.
