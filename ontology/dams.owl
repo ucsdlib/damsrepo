@@ -1,0 +1,1885 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE rdf:RDF [
+  <!ENTITY dc 'http://purl.org/dc/elements/1.1/'>
+  <!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#'>
+  <!ENTITY ns4 'http://library.ucsd.edu/ontology/dams/'>
+  <!ENTITY xsd 'http://www.w3.org/2001/XMLSchema#'>
+  <!ENTITY owl 'http://www.w3.org/2002/07/owl#'>
+  <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>]>
+
+<rdf:RDF 
+  xmlns="http://library.ucsd.edu/ontology/dams/#"
+  xmlns:dc="&dc;"
+  xmlns:rdfs="&rdfs;"
+  xmlns:ns4="&ns4;"
+  xmlns:xsd="&xsd;"
+  xmlns:owl="&owl;"
+  xmlns:rdf="&rdf;">
+
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Ontology"/>
+    <rdfs:comment>OWL ontology for DAMS content.  Developed at The UC San Diego Library by Esmé Cowles, Matt Critchlow, Arwen Hutt, Longshou Situ and Brad Westbrook.</rdfs:comment>
+    <rdfs:label>DAMS Data Model</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Collection">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>An aggregate of objects and/or collections.  One type of collection is that in which all members of the collection have the same provenance.  A second type of collection is a sub-part of the first type but having a title that distinguishes it from the parent collection.  A third type of collection is a collection assembled by authorized library agents. This collection may be composed on other collections and/or discrete objects. Provenance is not a binder for the collection, as the assembled collection is typically constructed around a topical facet, e.g. Archive for New Poetry, Southworth Spanish Civil War, Melanesian, University Archives, etc. </rdfs:comment>
+    <rdfs:comment>Mandatory event: collection record creation.</rdfs:comment>
+    <rdfs:comment>Collection relationships need to be defined by policy TBD.</rdfs:comment>
+    <rdfs:comment>Title and Language: cardinality overrides superclass.</rdfs:comment>
+    <rdfs:comment>Note: only required note is ScopeContentNote</rdfs:comment>
+    <rdfs:comment>additional requirements TBD </rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSResource"/>
+    <rdfs:subClassOf rdf:nodeID="_node484027"/>
+    <rdfs:subClassOf rdf:nodeID="_node484028"/>
+    <rdfs:subClassOf rdf:nodeID="_node484029"/>
+    <rdfs:subClassOf rdf:nodeID="_node484030"/>
+    <rdfs:label>Collection</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Object">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>A representation of an intellectual entity, sometimes referred to as a &quot;work.&quot; The object is composed of three distinct types of information: 1) one or more content files, 2) one or more metadata records, and 3) a binder (unique ID) holding all the parts of the object together and maintaining the correct internal associations among the parts.</rdfs:comment>
+    <rdfs:comment>Title and Language: cardinality overrides superclass.</rdfs:comment>
+    <rdfs:comment> Every object must be linked to one, and only one, Repository. It may be linked to as many collections as are pertinent. </rdfs:comment>
+    <rdfs:comment>DAMS Object requirements need to be changed to reflect this (RCI Levy &amp; SIO examples) </rdfs:comment>
+    <rdfs:comment>Mandatory event: object creation.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSResource"/>
+    <rdfs:subClassOf rdf:nodeID="_node484031"/>
+    <rdfs:subClassOf rdf:nodeID="_node484032"/>
+    <rdfs:subClassOf rdf:nodeID="_node484033"/>
+    <rdfs:subClassOf rdf:nodeID="_node484034"/>
+    <rdfs:subClassOf rdf:nodeID="_node484035"/>
+    <rdfs:subClassOf rdf:nodeID="_node484036"/>
+    <rdfs:subClassOf rdf:nodeID="_node484037"/>
+    <rdfs:label>Object</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Component">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>A logical or physical part of an object and contained exclusively within the object. The component may consist of metadata and one or more content files bound together within the context of the object. A component that has no directly associated content files is a logical component, whereas a component that has associated content files is a physical component. There is no constraint on how many components may occur at any given level or how deep the component hierarchy may go. 
+</rdfs:comment>
+    <rdfs:comment>Components are bounded by, unique to an object context and only link to other objects having the same object context. Must link to the object the component is associated with. If the child of another component, must also link to it.
+</rdfs:comment>
+    <rdfs:comment>Must have at least one child component or file.
+</rdfs:comment>
+    <rdfs:comment>Must link to parent component if there is one.
+</rdfs:comment>
+    <rdfs:comment>Mandatory event: component record creation.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSResource"/>
+    <rdfs:subClassOf rdf:nodeID="_node484038"/>
+    <rdfs:subClassOf rdf:nodeID="_node484039"/>
+    <rdfs:subClassOf rdf:nodeID="_node484040"/>
+    <rdfs:subClassOf rdf:nodeID="_node484041"/>
+    <rdfs:subClassOf rdf:nodeID="_node484042"/>
+    <rdfs:subClassOf rdf:nodeID="_node484043"/>
+    <rdfs:subClassOf rdf:nodeID="_node484044"/>
+    <rdfs:label>Component</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Name">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>The name form for a person, family, corporate body, or software agent represented in the DAMS and pertinent to a collection, object, object component, rights statement, or event.
+</rdfs:comment>
+    <rdfs:comment>The name may be composed of name parts per its type as a personal, family, or corporate body name. 
+(See http://www.loc.gov/standards/mods/userguide/name.html
+</rdfs:comment>
+    <rdfs:comment>Display form to be generated from name parts by presentation process
+</rdfs:comment>
+    <rdfs:comment>DisplayLabel should be suppressed. </rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#VocabularyEntry"/>
+    <rdfs:subClassOf rdf:nodeID="_node484045"/>
+    <rdfs:subClassOf rdf:nodeID="_node484046"/>
+    <rdfs:subClassOf rdf:nodeID="_node484047"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Repository">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>The identification of a library unit (or non-library data provider) that is responsible for supplying content to the DAMS and for administering that content over time, including answering queries from users.
+</rdfs:comment>
+    <rdfs:comment>All objects in the DAMS must be linked to one and only one repository.
+</rdfs:comment>
+    <rdfs:comment>Mandatory event: repository record creation.
+</rdfs:comment>
+    <rdfs:comment>Will revisit the need for Agency Code and Country Code properties. These attributes may be conducive for sharing records. </rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSThing"/>
+    <rdfs:subClassOf rdf:nodeID="_node484048"/>
+    <rdfs:subClassOf rdf:nodeID="_node484049"/>
+    <rdfs:subClassOf rdf:nodeID="_node484050"/>
+    <rdfs:label>Repository</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#File">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>A file containing content capable of being rendered by a computer. May be of any mime type. The DAMS includes a description of each master file, that supports its preservation management. 
+</rdfs:comment>
+    <rdfs:comment>Ontology: METS
+</rdfs:comment>
+    <rdfs:comment>Mandatory event: file ingest.
+</rdfs:comment>
+    <rdfs:comment>Must link to the object the file is associated with. If associated with a component, must also link to it.
+</rdfs:comment>
+    <rdfs:comment>Mandatory checksum: initial ingest checksum. Currently have best coverage in crc32, switch to sha256?</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSThing"/>
+    <rdfs:subClassOf rdf:nodeID="_node484051"/>
+    <rdfs:subClassOf rdf:nodeID="_node484052"/>
+    <rdfs:subClassOf rdf:nodeID="_node484053"/>
+    <rdfs:subClassOf rdf:nodeID="_node484054"/>
+    <rdfs:subClassOf rdf:nodeID="_node484055"/>
+    <rdfs:subClassOf rdf:nodeID="_node484056"/>
+    <rdfs:subClassOf rdf:nodeID="_node484057"/>
+    <rdfs:subClassOf rdf:nodeID="_node484058"/>
+    <rdfs:subClassOf rdf:nodeID="_node484059"/>
+    <rdfs:subClassOf rdf:nodeID="_node484060"/>
+    <rdfs:subClassOf rdf:nodeID="_node484061"/>
+    <rdfs:subClassOf rdf:nodeID="_node484062"/>
+    <rdfs:subClassOf rdf:nodeID="_node484063"/>
+    <rdfs:subClassOf rdf:nodeID="_node484064"/>
+    <rdfs:subClassOf rdf:nodeID="_node484065"/>
+    <rdfs:subClassOf rdf:nodeID="_node484066"/>
+    <rdfs:subClassOf rdf:nodeID="_node484067"/>
+    <rdfs:subClassOf rdf:nodeID="_node484068"/>
+    <rdfs:subClassOf rdf:nodeID="_node484069"/>
+    <rdfs:label>File</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#relatedCollection">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Peer collection relationship.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Collection"/>
+    <rdfs:label>relatedCollection</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Collection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#hasObject">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links from a parent Collection or Repository to an Object it contains.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Object"/>
+    <rdfs:label>hasObject</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Collection"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Repository"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#hasCollection">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links from a parent Collection to a child Collection.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Collection"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Collection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#hasComponent">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links from a parent Component or Object to a Component it contains.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Component"/>
+    <rdfs:label>hasComponent</rdfs:label>
+    <owl:inverseOf rdf:resource="http://library.ucsd.edu/ontology/dams/#component"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Object"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Component"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#hasFile">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links from a parent Component or Object to a File it contains.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+    <rdfs:label>hasFile</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Object"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Component"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#description">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Basic description.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>description</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#type">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Qualifier of a metadata element to differentiate different kinds of values.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>type</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#authority">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Name of controlled vocabulary or other authority for a given metadata element.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>authority</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#VocabularyEntry"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Title"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Role">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>A term describing the relationship between a Name and an Collection, Object, Component, Events, and Rights Status. 
+</rdfs:comment>
+    <rdfs:comment>A list of terms for the relationship of name to Collection, Object, Component, Events, and Rights Status. The predicates can be derived from standard and local list of role terms. Role may be a subclass of higher level entity such as Functional Relationship.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#VocabularyEntry"/>
+    <rdfs:subClassOf rdf:nodeID="_node484070"/>
+    <rdfs:label>Role</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#value">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Primary value of a metadata element.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>value</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#DAMSThing">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>Parent of all DAMS classes.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#DAMSResource">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>Parent of DAMS classes with common descriptive metadata attached (Collection, Object, and Component)
+</rdfs:comment>
+    <rdfs:comment>Mandatory event: DAMS Resource creation (collection, object, component). </rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSThing"/>
+    <rdfs:subClassOf rdf:nodeID="_node484071"/>
+    <rdfs:label>DAMS Resource</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#repositoryName">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> The name of the repository or organizational unit assuming custodial responsibility for DAMS content. </rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>repository Name</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Repository"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#repositoryURI">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>The URI linking to a webpage for the repository that contains contact and access information about the repository. </rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>repository URI</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Repository"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Event">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>Any event occurring in the DAMS slated to being tracked. Such events can include uploading of content files, creation and updating of metadata records, deletion of objects, and transfer of objects and collections to preservation management. 
+</rdfs:comment>
+    <rdfs:comment>Ontology: PREMIS
+</rdfs:comment>
+    <rdfs:comment>Required name/role: event initiator. </rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSThing"/>
+    <rdfs:subClassOf rdf:nodeID="_node484072"/>
+    <rdfs:subClassOf rdf:nodeID="_node484073"/>
+    <rdfs:subClassOf rdf:nodeID="_node484074"/>
+    <rdfs:subClassOf rdf:nodeID="_node484075"/>
+    <rdfs:subClassOf rdf:nodeID="_node484076"/>
+    <rdfs:subClassOf rdf:nodeID="_node484077"/>
+    <rdfs:subClassOf rdf:nodeID="_node484078"/>
+    <rdfs:label>Event</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#endDate">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Date when the date range or event finished (ISO 8601).</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label>endDate</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Event"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Date"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#detail">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> Description of the event, containing any relevant details. </rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>detail</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Event"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#outcome">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> Whether the event succeeded or failed. </rdfs:comment>
+    <rdfs:range rdf:nodeID="_node484079"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Event"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#outcomeNote">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> Extended information about the event, including any relevant status message and timestamp. </rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>Outcome Note</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Event"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#collection">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links from a child Collection to its parent Collection.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Collection"/>
+    <rdfs:label>collection</rdfs:label>
+    <owl:inverseOf rdf:resource="http://library.ucsd.edu/ontology/dams/#hasCollection"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Collection"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Object"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#event">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links a metadata record to an Event that is related to it.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Event"/>
+    <rdfs:label>event</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Repository"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSResource"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#VocabularyEntry"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Relationship"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Title"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Date"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Note"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Vocabulary"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Cartographics"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#RelatedResource"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Rights"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#RightsAction"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#SourceCapture"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#use">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Type of file and its role to the object.</rdfs:comment>
+    <rdfs:range rdf:nodeID="_node484080"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#preservationLevel">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdfs:comment> Level of preservation of the file (bit-level, full, 0, 1, 2, fully supported with future migrations).  Neccessary?</rdfs:comment>
+    <rdfs:range rdf:nodeID="_node484081"/>
+    <rdfs:label>preservation Level</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#objectCategory">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> Whether the entity is a bitstream, file or object.  Neccessary?</rdfs:comment>
+    <rdfs:range rdf:nodeID="_node484082"/>
+    <rdfs:label>object Category</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#compositionLevel">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> Decoding/unbundling steps required to extract file. Neccessary? </rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    <rdfs:label>composition Level</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#size">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> Size of the file in bytes. </rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    <rdfs:label>size</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#formatName">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> Name of the file format (MIME type).</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>format Name</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#formatVersion">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> Version of the format in formatName (6.0, 2003, etc.)</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>format Version</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#dateCreatedByApplication">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> Date and time the file was created. (ISO 8601)</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label>date Created By Application</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#checksum">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Records the Checksum of a File.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#hexBinary"/>
+    <rdfs:label>checksum</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#VocabularyEntry">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>Item in a controlled vocabulary list.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSThing"/>
+    <rdfs:subClassOf rdf:nodeID="_node484083"/>
+    <rdfs:subClassOf rdf:nodeID="_node484084"/>
+    <rdfs:subClassOf rdf:nodeID="_node484085"/>
+    <rdfs:subClassOf rdf:nodeID="_node484086"/>
+    <rdfs:subClassOf rdf:nodeID="_node484087"/>
+    <rdfs:subClassOf rdf:nodeID="_node484088"/>
+    <rdfs:subClassOf rdf:nodeID="_node484089"/>
+    <rdfs:label>Vocabulary Entry</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#term">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Actionable term name.  If the source vocabulary contains both coded and human-readable forms, use the coded form here.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>term</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#VocabularyEntry"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#displayLabel">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>User display value.  If the source vocabulary contains both coded and human-readable forms, use the human-readable form here.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>display Label</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Language">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment> The language(s) of the collection, object, or object component (ISO 639-2).</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#VocabularyEntry"/>
+    <rdfs:label>Language</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Subject">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>A heading indicating the content of the collection, object, or object component. Subject headings may be specified as topic, genre/form, geographical name, title, function, occupation, title, name, cartographics, etc.
+</rdfs:comment>
+    <rdfs:comment>Subject headings may include subject parts.
+</rdfs:comment>
+    <rdfs:comment>Look at MADS class &quot;authority&quot; (and subclasses) for modeling of subject and possibly name.
+</rdfs:comment>
+    <rdfs:comment>Subject requires one of: Title, Name, Subject Part, Cartographics
+</rdfs:comment>
+    <rdfs:comment>term and displayLabel should be suppressed. 
+</rdfs:comment>
+    <rdfs:comment>Additional rules TBD.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#VocabularyEntry"/>
+    <rdfs:subClassOf rdf:nodeID="_node484090"/>
+    <rdfs:subClassOf rdf:nodeID="_node484091"/>
+    <rdfs:subClassOf rdf:nodeID="_node484092"/>
+    <rdfs:subClassOf rdf:nodeID="_node484093"/>
+    <rdfs:subClassOf rdf:nodeID="_node484094"/>
+    <rdfs:label>Subject</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#SubjectPart">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment> A singular subject term, which may be added to other subject terms to compose a complete subject expression for a collection, object, or object component. </rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#VocabularyEntry"/>
+    <rdfs:subClassOf rdf:nodeID="_node484095"/>
+    <rdfs:subClassOf rdf:nodeID="_node484096"/>
+    <rdfs:subClassOf rdf:nodeID="_node484097"/>
+    <rdfs:label>Subject Part</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Relationship">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment> Name/Role bundle which is linked to from Collection, Object, etc. </rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSThing"/>
+    <rdfs:subClassOf rdf:nodeID="_node484098"/>
+    <rdfs:subClassOf rdf:nodeID="_node484099"/>
+    <rdfs:label>Relationship</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Title">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment> A term or phrase describing a collection, object, or object component. The title may be transcribed from the work, from previous metadata, or supplied. 
+</rdfs:comment>
+    <rdfs:comment>relatedTitle should be used to link to equivalent transliterated, translated, abbreviated, etc. titles. </rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSThing"/>
+    <rdfs:subClassOf rdf:nodeID="_node484100"/>
+    <rdfs:subClassOf rdf:nodeID="_node484101"/>
+    <rdfs:subClassOf rdf:nodeID="_node484102"/>
+    <rdfs:subClassOf rdf:nodeID="_node484103"/>
+    <rdfs:subClassOf rdf:nodeID="_node484104"/>
+    <rdfs:subClassOf rdf:nodeID="_node484105"/>
+    <rdfs:subClassOf rdf:nodeID="_node484106"/>
+    <rdfs:subClassOf rdf:nodeID="_node484107"/>
+    <rdfs:subClassOf rdf:nodeID="_node484108"/>
+    <rdfs:subClassOf rdf:nodeID="_node484109"/>
+    <rdfs:subClassOf rdf:nodeID="_node484110"/>
+    <rdfs:subClassOf rdf:nodeID="_node484111"/>
+    <rdfs:subClassOf rdf:nodeID="_node484112"/>
+    <rdfs:label>Title</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#title">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links from a metadata record to a Title.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Title"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSResource"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Subject"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#partName">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Volume, issue, etc. name.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>partName</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Title"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#partNumber">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Volume, issue, etc. number.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>partNumber</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Title"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#subtitle">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Explanatory or alternate title.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>subtitle</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Title"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#nonsortCharacters">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> Initial characters which should not affect sort order. 
+</rdfs:comment>
+    <rdfs:comment>Included to facilitate generating sort form without having to build complex algorithm to handle multiple languages. </rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Title"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#authorityURI">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>URI identifying the authority used for a given metadata element, typically used when a valueURI is not available.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+    <rdfs:label>authority URI</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#valueURI">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>URI uniquely identifying the term used for a given metadata element.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#script">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Writing system used for a given metadata element.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Title"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#order">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Numerical order of the metadata element within the larger grouping.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Date">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment> The date(s) for the collection, object, or object component. May be a single date or a combination of inclusive dates and/or bulk dates. May indicate if it is the date for creation, issuance, capture, copyright, or otherwise. </rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSThing"/>
+    <rdfs:subClassOf rdf:nodeID="_node484113"/>
+    <rdfs:label>Date</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#expression">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Text form of a date, which does not necessarily correspond to a specific numeric date (e.g., &quot;Easter&quot;).</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>expression</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Date"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#beginDate">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>The date when the date range started (ISO 8601).</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:label>beginDate</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Date"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#encoding">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Encoding used for date values (could be implemented as typed literals or separate property).</rdfs:comment>
+    <rdfs:range rdf:nodeID="_node484114"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Date"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Note">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment> A description of some facet of a collection, object, or object component. Facets may range form abstract and scope content notes to specific aspects such as rights status. 
+</rdfs:comment>
+    <rdfs:comment>mods:originInfo will be created as an unstructured note.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSThing"/>
+    <rdfs:subClassOf rdf:nodeID="_node484115"/>
+    <rdfs:subClassOf rdf:nodeID="_node484116"/>
+    <rdfs:subClassOf rdf:nodeID="_node484117"/>
+    <rdfs:subClassOf rdf:nodeID="_node484118"/>
+    <rdfs:label>Note</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#internalOnly">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> If true, accessible to all users or only to repository and DAMS managers. 
+</rdfs:comment>
+    <rdfs:comment>false = public, true = custodial repository</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Note"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#ScopeContentNote">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>Note describing the contents of a collection.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#Note"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#PreferredCitationNote">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>Note containing the preferred citation form.
+</rdfs:comment>
+    <rdfs:comment>Investigate automating this value.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#Note"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#CustodialResponsibilityNote">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>Note declaring the custodial repository for an object.
+</rdfs:comment>
+    <rdfs:comment>Should be populated by Repository for an object.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#Note"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Vocabulary">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>A collection of terms which can serve as values for a metadata element.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSThing"/>
+    <rdfs:subClassOf rdf:nodeID="_node484119"/>
+    <rdfs:label>Vocabulary</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#name">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links a Relationship to a Name.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Name"/>
+    <rdfs:label>name</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Subject"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Relationship"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Cartographics">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment> Information about geographic location (coordinates) or about a representation of geographic information (i.e. map, chart, model) for a collection, object, or object component. </rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSThing"/>
+    <rdfs:subClassOf rdf:nodeID="_node484120"/>
+    <rdfs:subClassOf rdf:nodeID="_node484121"/>
+    <rdfs:subClassOf rdf:nodeID="_node484122"/>
+    <rdfs:subClassOf rdf:nodeID="_node484123"/>
+    <rdfs:subClassOf rdf:nodeID="_node484124"/>
+    <rdfs:subClassOf rdf:nodeID="_node484125"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#scale">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> The relative size of the representation or rendering of geographic information (i.e. map, chart, model) to the actual location. </rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Cartographics"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#line">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Coordinates for a line (last point is not assumed to link to the first point)
+</rdfs:comment>
+    <rdfs:comment>Need content standard for data being entered (delimiters between lat, long and alt and between coordinate sets). </rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Cartographics"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#polygon">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Need content standard for data being entered (delimiters between lat, long and alt and between coordinate sets). </rdfs:comment>
+    <rdfs:comment>Coordinates for a polygon (last point is assumed to link to the first point to form an enclosed area).
+</rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Cartographics"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#point">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Need content standard for data being entered (delimiters between lat, long and alt and between coordinate sets). </rdfs:comment>
+    <rdfs:comment>Coordinates for a single point.
+</rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Cartographics"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#projection">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> The method of representing the surface of a sphere or other three-dimensional body on a plane. 
+</rdfs:comment>
+    <rdfs:comment>See http://en.wikipedia.org/wiki/List_of_map_projections</rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Cartographics"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#referenceSystem">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> The standard coordinate frame for the coordinates being used (WGS66, WGS72, WGS84).</rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Cartographics"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#RelatedResource">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment> Describes a related resource either internal to the DAMS or in a system external to the DAMS. This could include metadata in another format, content version in another system, relationship between objects and relationship between collections in respect to a specified property. 
+</rdfs:comment>
+    <rdfs:comment>We may need to either write policy to enforce relationships between classes (object to object, collection to collection, etc.) or subclass Related Resource to enforce relationships. </rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSThing"/>
+    <rdfs:subClassOf rdf:nodeID="_node484126"/>
+    <rdfs:subClassOf rdf:nodeID="_node484127"/>
+    <rdfs:subClassOf rdf:nodeID="_node484128"/>
+    <rdfs:label>Related Resource</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#uri">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>URI where the related resource can be accessed.  In the case of internal links, a DAMS URI should be used.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#RelatedResource"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#scanningSoftwareVersion">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Version number of the software used to scan an image.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#SourceCapture"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#captureSource">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Type of device used to scan an image.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#SourceCapture"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#imageProducer">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Organization that scanned an image.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#SourceCapture"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#scannerManufacturer">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Manufacturer of the scanner used to scan an image.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#SourceCapture"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#scannerModelName">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Model name of the scanner used to scan an image.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#SourceCapture"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#scanningSoftware">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Name of the software application used to scan an image.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#SourceCapture"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#sourceType">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>The medium of the analog source material scanned to create an image.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#SourceCapture"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Rights">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>Superclass of classes which describe intellectual property rights which allow or deny access to an item.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSThing"/>
+    <rdfs:subClassOf rdf:nodeID="_node484136"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Copyright">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment> The copyright status of an object or object component, indicating if the object or object component is under copyright, if it is in the public domain, or if copyright is unknown. 
+</rdfs:comment>
+    <rdfs:comment>Relationship for Rights Holder.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#Rights"/>
+    <rdfs:subClassOf rdf:nodeID="_node484137"/>
+    <rdfs:subClassOf rdf:nodeID="_node484138"/>
+    <rdfs:subClassOf rdf:nodeID="_node484139"/>
+    <rdfs:subClassOf rdf:nodeID="_node484140"/>
+    <rdfs:subClassOf rdf:nodeID="_node484141"/>
+    <rdfs:subClassOf rdf:nodeID="_node484142"/>
+    <rdfs:subClassOf rdf:nodeID="_node484143"/>
+    <rdfs:label>Copyright</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#copyrightStatus">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> An value indicating the copyright status for an object 
+</rdfs:comment>
+    <rdfs:comment>In context of UCSD, &quot;Under copyright -- 1st Party&quot; refers always and only to &quot;UC Regents&quot; as the rights holder, whereas &quot;Under copyright -- 3rd party&quot; refers to copyright held by any agent other than the UC Regents. </rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Copyright"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#copyrightNote">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> boilerplate copyright note referencing copyright status and jurisdiction. 
+</rdfs:comment>
+    <rdfs:comment>Estimate that there will be 6 of these Note objects. </rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Copyright"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#copyrightJurisdiction">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> An indication of the legal jurisdiction (typically national) in with the copyright status statement is true (ISO 3166-1)</rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Copyright"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#purposeNote">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> boilerplate text stating the content is made available for educational purposes. </rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Copyright"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Statute">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment> A national or regional statute that pertains to content and typically limits access to it on some degree, e.g. Federal Educational Rights and Privacy Act (FERPA), which limits dissemination of student records for a specified period of time. 
+</rdfs:comment>
+    <rdfs:comment>Statutes typically limit access to content in some way, often because the content is of a type protected by privacy / confidentiality laws, e.g. FERPA, HIPA, etc.
+</rdfs:comment>
+    <rdfs:comment>Currently we do not include in the DAMS any content subject to statutory regulation. That, of course, can change.
+</rdfs:comment>
+    <rdfs:comment>Statues link to a permissions and / or restriction records, and they link to dates. Thus, statutes link indirectly to dates.
+</rdfs:comment>
+    <rdfs:comment>Required Rights Action: whether the statute allows or prohibits display. </rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#Rights"/>
+    <rdfs:subClassOf rdf:nodeID="_node484144"/>
+    <rdfs:subClassOf rdf:nodeID="_node484145"/>
+    <rdfs:subClassOf rdf:nodeID="_node484146"/>
+    <rdfs:subClassOf rdf:nodeID="_node484147"/>
+    <rdfs:label>Statute</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#statuteJurisdiction">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> The country or regional jurisdiction in which the statute applies (ISO 3166-1 for country codes, ISO 3166-2 for state codes).</rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Statute"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#statuteNote">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Summary of a statute and obligation to it, e.g., students records must be restricted for 50 years after creation or death (or whatever the actual terms are now) </rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Statute"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#statuteCitation">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> The name of the statute, e.g., Family Education Rights and Privacy Act (FERPA) </rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Statute"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#License">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment> A contract between the rights holder for content and the repository indicating the rights and constraints placed upon the content for the repository. Purchase agreements, deeds of gift, transfer agreements are construable as kinds of licenses. 
+</rdfs:comment>
+    <rdfs:comment>It is possible for a license to be granted at specific time but for some or all eventual permissions to be restricted for a period of time initially. This is basically how embargoed ETDs are now modeled in the DAMS.
+</rdfs:comment>
+    <rdfs:comment>Licenses statements must link to permission and/or restrictions statements, and those statements link to dates. Thus, license statements do not directly link to dates. The active dates of the license should be capable of being inferred from the whole of the related permission / restriction statements, if there is cause to assign a collective date to a license.
+</rdfs:comment>
+    <rdfs:comment>Required name/role: rights holder. </rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#Rights"/>
+    <rdfs:subClassOf rdf:nodeID="_node484148"/>
+    <rdfs:subClassOf rdf:nodeID="_node484149"/>
+    <rdfs:subClassOf rdf:nodeID="_node484150"/>
+    <rdfs:subClassOf rdf:nodeID="_node484151"/>
+    <rdfs:label>License</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#licenseNote">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Summary of a license and its terms, either in place of a license or as an abstract on a license linked to. </rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#License"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#licenseURI">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Actionable link to a license document or terms.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#License"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#otherRightsNote">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Summary of institutional policy.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#OtherRights"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#otherRightsBasis">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> For indicating the type or source of the other rights, e.g., UC San Diego Policy, UC Policy, etc. </rdfs:comment>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#OtherRights"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#RightsAction">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment> An action that is permitted or restricted according to the rights status for an object or object component. </rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSThing"/>
+    <rdfs:subClassOf rdf:nodeID="_node484152"/>
+    <rdfs:subClassOf rdf:nodeID="_node484153"/>
+    <rdfs:subClassOf rdf:nodeID="_node484154"/>
+    <rdfs:subClassOf rdf:nodeID="_node484155"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Permission">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>An action that is allowed.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#RightsAction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#Restriction">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>An action is not allowed.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#RightsAction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#date">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links an item to a Date.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Date"/>
+    <rdfs:label>date</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#language">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links an item to a Language.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Language"/>
+    <rdfs:label>language</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#note">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links an item to a Note.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Note"/>
+    <rdfs:label>note</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSResource"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#relationship">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links an item to a Relationship.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Relationship"/>
+    <rdfs:label>relationship</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#subject">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links an item to a Subject.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Subject"/>
+    <rdfs:label>subject</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSResource"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#relatedResource">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links an item to a RelatedResource.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#RelatedResource"/>
+    <rdfs:label>relatedResource</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSResource"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#repository">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:comment>Links an Object to the Repository that manages it.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Repository"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Object"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#copyright">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links an item to a Copyright statement.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Copyright"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#statute">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links an item to a Statute.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Statute"/>
+    <rdfs:label>statute</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Object"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Component"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#license">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links an item to a License.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#License"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#otherRights">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links an item to an OtherRights.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#OtherRights"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Object"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Component"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#OtherRights">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment> Any other rights not covered by copyright, statute, or license. This typically includes library policies that restrict access to content out of respect to cultural sensitivities. 
+</rdfs:comment>
+    <rdfs:comment>We currently do not use Other Rights in the DAMS, but that is because this element was only recently added to PREMIS. We do have objects that have been restricted due to institutional policy, the culturally sensitive objects in Lambert being a case in point. We also have objects that UCSD has decided to display under the principles of fair use.
+</rdfs:comment>
+    <rdfs:comment>Other Rights, like other right types, link indirectly to dates via Rights Action.
+</rdfs:comment>
+    <rdfs:comment>Required Relationship: decision maker. </rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#Rights"/>
+    <rdfs:subClassOf rdf:nodeID="_node484156"/>
+    <rdfs:subClassOf rdf:nodeID="_node484157"/>
+    <rdfs:subClassOf rdf:nodeID="_node484158"/>
+    <rdfs:subClassOf rdf:nodeID="_node484159"/>
+    <rdfs:subClassOf rdf:nodeID="_node484160"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#object">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links a Component or File to the Object that contains it.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Object"/>
+    <rdfs:label>object</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Component"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#component">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links a Component or File to the Component that contains it.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Component"/>
+    <rdfs:label>component</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Component"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#label">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Label describing a component; can be a literal or URI referencing a Title or Date.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Component"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#SourceCapture">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment> An indication of software and hardware used to produce the content file. 
+</rdfs:comment>
+    <rdfs:comment>Ontology: MIX</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://library.ucsd.edu/ontology/dams/#DAMSThing"/>
+    <rdfs:subClassOf rdf:nodeID="_node484129"/>
+    <rdfs:subClassOf rdf:nodeID="_node484130"/>
+    <rdfs:subClassOf rdf:nodeID="_node484131"/>
+    <rdfs:subClassOf rdf:nodeID="_node484132"/>
+    <rdfs:subClassOf rdf:nodeID="_node484133"/>
+    <rdfs:subClassOf rdf:nodeID="_node484134"/>
+    <rdfs:subClassOf rdf:nodeID="_node484135"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#role">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links a Relationship to a Role.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Role"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Relationship"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#relatedTitle">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links a Title to another form of the same Title (e.g., transliterated, translated, abbreviated, etc.).</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Title"/>
+    <rdfs:label>relatedTitle</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Title"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#vocabulary">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links a VocabularyEntry to the Vocabulary that contains it.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Vocabulary"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#VocabularyEntry"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#rightsAction">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links a Rights element to an actionable RightsAction.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#RightsAction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#md5checksum">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Checksum calculated using the MD5 algorithm.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#hexBinary"/>
+    <rdfs:subPropertyOf rdf:resource="http://library.ucsd.edu/ontology/dams/#checksum"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#crc32checksum">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Checksum calculated using the CRC32 algorithm.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#hexBinary"/>
+    <rdfs:subPropertyOf rdf:resource="http://library.ucsd.edu/ontology/dams/#checksum"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#sha512checksum">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdfs:comment>Checksum calculated using the SHA-512 algorithm.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#hexBinary"/>
+    <rdfs:subPropertyOf rdf:resource="http://library.ucsd.edu/ontology/dams/#checksum"/>
+    <rdfs:label>sha512checksum</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#sha256checksum">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdfs:comment>Checksum calculated using the SHA-256 algorithm.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#hexBinary"/>
+    <rdfs:subPropertyOf rdf:resource="http://library.ucsd.edu/ontology/dams/#checksum"/>
+    <rdfs:label>sha256checksum</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#sha1checksum">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdfs:comment>Checksum calculated using the SHA-1 algorithm.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#hexBinary"/>
+    <rdfs:subPropertyOf rdf:resource="http://library.ucsd.edu/ontology/dams/#checksum"/>
+    <rdfs:label>sha1checksum</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#scopeContentNote">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links a Collection to a ScopeContentNote.
+</rdfs:comment>
+    <rdfs:comment>This should be a literal, not a class.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#ScopeContentNote"/>
+    <rdfs:subPropertyOf rdf:resource="http://library.ucsd.edu/ontology/dams/#note"/>
+    <rdfs:label>scopeContentNote</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Collection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#cartographics">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links a Subject to a Cartographics.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#Cartographics"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Subject"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#subjectPart">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links a Subject to a SubjectPart</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#SubjectPart"/>
+    <rdfs:label>subjectPart</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#Subject"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#sourceCapture">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Links a File to SourceCapture describing its digitization.</rdfs:comment>
+    <rdfs:range rdf:resource="http://library.ucsd.edu/ontology/dams/#SourceCapture"/>
+    <rdfs:label>sourceCapture</rdfs:label>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#File"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://library.ucsd.edu/ontology/dams/#otherRightsURI">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment> An actionable link to the documentation containing the institutional policy or other rights being applied </rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+    <rdfs:domain rdf:resource="http://library.ucsd.edu/ontology/dams/#OtherRights"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484027">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#language"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484028">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#title"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484029">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#scopeContentNote"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484030">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#collection"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484031">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#repository"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484032">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#copyright"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484033">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#otherRights"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484034">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#license"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484035">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#statute"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484036">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#title"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484037">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#language"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484038">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#statute"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484039">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#otherRights"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484040">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#component"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484041">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#license"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484042">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#copyright"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484043">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#object"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484044">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#order"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484045">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#type"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484046">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#authority"/>
+    <owl:allValuesFrom rdf:nodeID="_node484165"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484047">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#type"/>
+    <owl:allValuesFrom rdf:nodeID="_node484163"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484048">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#event"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484049">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#repositoryName"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484050">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#repositoryURI"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484051">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#use"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484052">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#size"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484053">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#checksum"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484054">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#sha512checksum"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484055">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#sha256checksum"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484056">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#sha1checksum"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484057">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#sourceCapture"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484058">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#compositionLevel"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484059">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#compositionLevel"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484060">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#crc32checksum"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484061">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#objectCategory"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484062">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#preservationLevel"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484063">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#md5checksum"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484064">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#formatVersion"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484065">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#dateCreatedByApplication"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484066">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#dateCreatedByApplication"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484067">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#formatName"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484068">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#component"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484069">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#object"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484070">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#term"/>
+    <owl:allValuesFrom rdf:nodeID="_node484180"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484071">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#event"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484072">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#type"/>
+    <owl:allValuesFrom rdf:nodeID="_node484171"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484073">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#type"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484074">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#endDate"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484075">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#detail"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484076">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#outcome"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484077">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#outcomeNote"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484078">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#relationship"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484079">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484173"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484080">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484174"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484081">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484175"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484082">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484176"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484083">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#term"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484084">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#valueURI"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484085">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#authorityURI"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484086">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#vocabulary"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484087">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#displayLabel"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484088">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#description"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484089">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#authority"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484090">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#authority"/>
+    <owl:allValuesFrom rdf:nodeID="_node484182"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484091">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#name"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484092">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#cartographics"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484093">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#subjectPart"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484094">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#title"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484095">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#order"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484096">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#type"/>
+    <owl:allValuesFrom rdf:nodeID="_node484184"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484097">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#type"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484098">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#name"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484099">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#role"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484100">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#type"/>
+    <owl:allValuesFrom rdf:nodeID="_node484178"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484101">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#authorityURI"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484102">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#valueURI"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484103">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#language"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484104">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#nonsortCharacters"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484105">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#partName"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484106">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#script"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484107">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#partNumber"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484108">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#authorityURI"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484109">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#displayLabel"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484110">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#valueURI"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484111">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#authority"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484112">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484113">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#type"/>
+    <owl:allValuesFrom rdf:nodeID="_node484186"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484114">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484204"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484115">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#type"/>
+    <owl:allValuesFrom rdf:nodeID="_node484188"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484116">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#internalOnly"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484117">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#internalOnly"/>
+    <owl:allValuesFrom rdf:nodeID="_node484192"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484118">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#value"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484119">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#description"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484120">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#scale"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484121">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#line"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484122">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#polygon"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484123">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#point"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484124">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#projection"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484125">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#referenceSystem"/>
+    <owl:allValuesFrom rdf:nodeID="_node484194"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484126">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#uri"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484127">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#type"/>
+    <owl:allValuesFrom rdf:nodeID="_node484196"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484128">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#description"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484129">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#scanningSoftwareVersion"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484130">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#captureSource"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484131">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#imageProducer"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484132">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#scannerManufacturer"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484133">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#scannerModelName"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484134">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#scanningSoftware"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484135">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#sourceType"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484136">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#event"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484137">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#copyrightStatus"/>
+    <owl:allValuesFrom rdf:nodeID="_node484198"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484138">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#copyrightStatus"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484139">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#copyrightNote"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484140">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#copyrightJurisdiction"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484141">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#purposeNote"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484142">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#relationship"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484143">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#date"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484144">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#statuteJurisdiction"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484145">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#statuteNote"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484146">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#statuteCitation"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484147">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#rightsAction"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484148">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#licenseNote"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484149">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#licenseURI"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484150">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#rightsAction"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484151">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#relationship"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484152">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#endDate"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484153">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#type"/>
+    <owl:allValuesFrom rdf:nodeID="_node484202"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484154">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#type"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484155">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#beginDate"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484156">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#otherRightsBasis"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484157">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#otherRightsURI"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484158">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#rightsAction"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484159">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#relationship"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484160">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#otherRightsNote"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484161">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484162"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484162">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">primary</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484163">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484164"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484164">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;personal&apos;, &apos;corporate&apos;, &apos;conference&apos;, &apos;family&apos;, &apos;software&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484165">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484166"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484166">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;abne&apos;, &apos;bibalex&apos;, &apos;conorsi&apos;, &apos;gkd&apos;, &apos;gnd&apos;, &apos;hapi&apos;, &apos;hkcan&apos;, &apos;lacnaf&apos;, &apos;naf&apos;, &apos;nalnaf&apos;, &apos;nlmnaf&apos;, &apos;nznb&apos;, &apos;sanb&apos;, &apos;ulan&apos;, &apos;unbisn&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484167">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484168"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484168">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;date&apos;, &apos;family&apos;, &apos;given&apos;, &apos;termsOfAddress&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484169">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484170"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484170">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;code&apos;, &apos;text&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484171">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484172"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484172">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;augmentation--content&apos;, &apos;creation--collection&apos;, &apos;creation--object&apos;, &apos;deletion--object&apos;, &apos;creation--derivative&apos;, &apos;verification--checksum&apos;, &apos;indexing&apos;, &apos;calculation--checksum&apos;, &apos;revision--metadata&apos;, &apos;transformation--metadata&apos;, &apos;migration--content&apos;, &apos;modification--content&apos;, &apos;replication--object&apos;, &apos;validation--object&apos;, &apos;virus check--content&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484173">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;Action succeeded&apos;, &apos;Action failed&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484174">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;visual-source&apos;, &apos;visual-service&apos;, &apos;visual-thumbnail&apos;, &apos;visual-alternate&apos;, &apos;document-source&apos;, &apos;document-service&apos;, &apos;document-alternate&apos;, &apos;audio-source&apos;, &apos;audio-service&apos;, &apos;audio-alternate&apos;, &apos;data-source&apos;, &apos;data-service&apos;, &apos;data-alternate&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484175">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;bit-level&apos;, &apos;full&apos;, &apos;0&apos;, &apos;1&apos;, &apos;2&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484176">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">file</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484177">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://library.ucsd.edu/ontology/dams/#value"/>
+    <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484178">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484179"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484179">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;translated&apos;, &apos;transliterated&apos;, &apos;enumerated&apos;, &apos;abbreviated&apos;, &apos;uniform&apos;, &apos;main&apos;, &apos;alternative&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484180">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484181"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484181">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;creator&apos;, &apos;author&apos;, &apos;publisher&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484182">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484183"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484183">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;aat&apos;, &apos;naf&apos;, &apos;lcsh&apos;, &apos;mesh&apos;, &apos;tgn&apos;, &apos;local&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484184">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484185"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484185">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;topic&apos;, &apos;geographic&apos;, &apos;temporal&apos;, &apos;genre&apos;, &apos;occupation&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484186">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484187"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484187">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;issued&apos;, &apos;created&apos;, &apos;captured&apos;, &apos;valid&apos;, &apos;modified&apos;, &apos;copyright&apos;, &apos;other&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484188">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484189"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484189">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;abstract&apos;, &apos;inscription&apos;, &apos;identifier:doi&apos;, &apos;identifier:filename&apos;, &apos;identifier:local&apos;, &apos;extent&apos;, &apos;digitalOrigin&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484190">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484191"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484191">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;yes&apos;, &apos;no&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484192">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484193"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484193">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;yes&apos;, &apos;no&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484194">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484195"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484195">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;WGS84&apos;, &apos;WGS72&apos;, &apos;WGS66&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484196">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484197"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484197">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;online exhibit&apos;, &apos;source&apos;, &apos;parallel description&apos;, &apos;depicts&apos;, &apos;derived from&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484198">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484199"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484199">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;Under copyright -- 1st Party&apos;, &apos;Under copyright -- 3rd Party&apos;, &apos;Public domain&apos;, &apos;Copyright unknown&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484200">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484201"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484201">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;fair use&apos;, &apos;cultural sensitivity&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484202">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DataRange"/>
+    <owl:oneOf rdf:nodeID="_node484203"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484203">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">&apos;display&apos;, &apos;migrate&apos;, &apos;replicate&apos;, &apos;modify&apos;</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="_node484204">
+    <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ISO 8601</rdf:first>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+</rdf:RDF>
