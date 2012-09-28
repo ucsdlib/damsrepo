@@ -146,7 +146,7 @@
         <rdfs:domain rdf:resource="&dams;Repository"/>
         <rdfs:domain rdf:resource="&dams;Rights"/>
         <rdfs:domain rdf:resource="&dams;RightsAction"/>
-        <rdfs:domain rdf:resource="&dams;Source-Capture"/>
+        <rdfs:domain rdf:resource="&dams;SourceCapture"/>
         <rdfs:domain rdf:resource="&dams;Title"/>
         <rdfs:domain rdf:resource="&dams;Vocabulary"/>
         <rdfs:domain rdf:resource="&dams;VocabularyEntry"/>
@@ -159,7 +159,7 @@
     <owl:ObjectProperty rdf:about="&dams;generalCaptureInformation">
         <rdfs:label>generalCaptureInformation</rdfs:label>
         <rdfs:domain rdf:resource="&dams;File"/>
-        <rdfs:range rdf:resource="&dams;Source-Capture"/>
+        <rdfs:range rdf:resource="&dams;SourceCapture"/>
     </owl:ObjectProperty>
     
 
@@ -482,7 +482,7 @@
     <!-- http://library.ucsd.edu/ontology/dams/#captureSource -->
 
     <owl:DatatypeProperty rdf:about="&dams;captureSource">
-        <rdfs:domain rdf:resource="&dams;Source-Capture"/>
+        <rdfs:domain rdf:resource="&dams;SourceCapture"/>
     </owl:DatatypeProperty>
     
 
@@ -630,7 +630,7 @@
     <!-- http://library.ucsd.edu/ontology/dams/#imageProducer -->
 
     <owl:DatatypeProperty rdf:about="&dams;imageProducer">
-        <rdfs:domain rdf:resource="&dams;Source-Capture"/>
+        <rdfs:domain rdf:resource="&dams;SourceCapture"/>
     </owl:DatatypeProperty>
     
 
@@ -731,9 +731,9 @@
     
 
 
-    <!-- http://library.ucsd.edu/ontology/dams/#otherRightsDocumentationURI -->
+    <!-- http://library.ucsd.edu/ontology/dams/#otherRightsURI -->
 
-    <owl:DatatypeProperty rdf:about="&dams;otherRightsDocumentationURI">
+    <owl:DatatypeProperty rdf:about="&dams;otherRightsURI">
         <rdfs:domain rdf:resource="&dams;OtherRights"/>
         <rdfs:range rdf:resource="&xsd;anyURI"/>
     </owl:DatatypeProperty>
@@ -888,7 +888,7 @@
     <!-- http://library.ucsd.edu/ontology/dams/#scannerManufacturer -->
 
     <owl:DatatypeProperty rdf:about="&dams;scannerManufacturer">
-        <rdfs:domain rdf:resource="&dams;Source-Capture"/>
+        <rdfs:domain rdf:resource="&dams;SourceCapture"/>
     </owl:DatatypeProperty>
     
 
@@ -896,7 +896,7 @@
     <!-- http://library.ucsd.edu/ontology/dams/#scannerModelName -->
 
     <owl:DatatypeProperty rdf:about="&dams;scannerModelName">
-        <rdfs:domain rdf:resource="&dams;Source-Capture"/>
+        <rdfs:domain rdf:resource="&dams;SourceCapture"/>
     </owl:DatatypeProperty>
     
 
@@ -904,7 +904,7 @@
     <!-- http://library.ucsd.edu/ontology/dams/#scanningSoftware -->
 
     <owl:DatatypeProperty rdf:about="&dams;scanningSoftware">
-        <rdfs:domain rdf:resource="&dams;Source-Capture"/>
+        <rdfs:domain rdf:resource="&dams;SourceCapture"/>
     </owl:DatatypeProperty>
     
 
@@ -912,7 +912,7 @@
     <!-- http://library.ucsd.edu/ontology/dams/#scanningSoftwareVersion -->
 
     <owl:DatatypeProperty rdf:about="&dams;scanningSoftwareVersion">
-        <rdfs:domain rdf:resource="&dams;Source-Capture"/>
+        <rdfs:domain rdf:resource="&dams;SourceCapture"/>
     </owl:DatatypeProperty>
     
 
@@ -966,7 +966,7 @@
     <!-- http://library.ucsd.edu/ontology/dams/#sourceType -->
 
     <owl:DatatypeProperty rdf:about="&dams;sourceType">
-        <rdfs:domain rdf:resource="&dams;Source-Capture"/>
+        <rdfs:domain rdf:resource="&dams;SourceCapture"/>
     </owl:DatatypeProperty>
     
 
@@ -1736,7 +1736,7 @@
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&dams;otherRightsDocumentationURI"/>
+                <owl:onProperty rdf:resource="&dams;otherRightsURI"/>
                 <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -1960,9 +1960,9 @@
     
 
 
-    <!-- http://library.ucsd.edu/ontology/dams/#Source-Capture -->
+    <!-- http://library.ucsd.edu/ontology/dams/#SourceCapture -->
 
-    <owl:Class rdf:about="&dams;Source-Capture">
+    <owl:Class rdf:about="&dams;SourceCapture">
         <rdfs:subClassOf rdf:resource="&dams;DAMSThing"/>
         <rdfs:subClassOf>
             <owl:Restriction>
