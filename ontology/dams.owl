@@ -7,21 +7,21 @@
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
     <!ENTITY error "http://org.semanticweb.owlapi/error#" >
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
-    <!ENTITY ns4 "http://library.ucsd.edu/ontology/dams/" >
+    <!ENTITY dams "http://library.ucsd.edu/ontology/dams/#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
 ]>
 
 
-<rdf:RDF xmlns="&ns4;#"
-     xml:base="http://library.ucsd.edu/ontology/dams/"
+<rdf:RDF xmlns="&dams;"
+     xml:base="http://library.ucsd.edu/ontology/dams/#"
      xmlns:dc="http://purl.org/dc/elements/1.1/"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-     xmlns:ns4="http://library.ucsd.edu/ontology/dams/"
+     xmlns:dams="http://library.ucsd.edu/ontology/dams/#"
      xmlns:error="http://org.semanticweb.owlapi/error#"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <owl:Ontology rdf:about="http://library.ucsd.edu/ontology/dams/">
+    <owl:Ontology rdf:about="http://library.ucsd.edu/ontology/dams/#">
         <rdfs:label>DAMS Data Model</rdfs:label>
         <rdfs:comment>OWL ontology for DAMS content.  Developed at The UC San Diego
       Library by Esmé Cowles, Matt Critchlow, Arwen Hutt, Longshou Situ and Brad
@@ -71,25 +71,25 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#cartographics -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#cartographics">
+    <owl:ObjectProperty rdf:about="&dams;cartographics">
         <rdfs:comment>Links a Subject to a Cartographics.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#Cartographics"/>
-        <rdfs:domain rdf:resource="&ns4;#Subject"/>
+        <rdfs:range rdf:resource="&dams;Cartographics"/>
+        <rdfs:domain rdf:resource="&dams;Subject"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#collection -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#collection">
+    <owl:ObjectProperty rdf:about="&dams;collection">
         <rdfs:comment>Links from a child Collection to its parent Collection.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#Collection"/>
-        <owl:inverseOf rdf:resource="&ns4;#hasCollection"/>
+        <rdfs:range rdf:resource="&dams;Collection"/>
+        <owl:inverseOf rdf:resource="&dams;hasCollection"/>
         <rdfs:domain>
             <owl:Class>
                 <owl:unionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&ns4;#Collection"/>
-                    <rdf:Description rdf:about="&ns4;#Object"/>
+                    <rdf:Description rdf:about="&dams;Collection"/>
+                    <rdf:Description rdf:about="&dams;Object"/>
                 </owl:unionOf>
             </owl:Class>
         </rdfs:domain>
@@ -99,15 +99,14 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#component -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#component">
-        <rdfs:label>component</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;component">
         <rdfs:comment>Links a Component or File to the Component that contains it.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#Component"/>
+        <rdfs:range rdf:resource="&dams;Component"/>
         <rdfs:domain>
             <owl:Class>
                 <owl:unionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&ns4;#Component"/>
-                    <rdf:Description rdf:about="&ns4;#File"/>
+                    <rdf:Description rdf:about="&dams;Component"/>
+                    <rdf:Description rdf:about="&dams;File"/>
                 </owl:unionOf>
             </owl:Class>
         </rdfs:domain>
@@ -117,14 +116,14 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#copyright -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#copyright">
+    <owl:ObjectProperty rdf:about="&dams;copyright">
         <rdfs:comment>Links an item to a Copyright statement.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#Copyright"/>
+        <rdfs:range rdf:resource="&dams;Copyright"/>
         <rdfs:domain>
             <owl:Class>
                 <owl:unionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&ns4;#Component"/>
-                    <rdf:Description rdf:about="&ns4;#Object"/>
+                    <rdf:Description rdf:about="&dams;Component"/>
+                    <rdf:Description rdf:about="&dams;Object"/>
                 </owl:unionOf>
             </owl:Class>
         </rdfs:domain>
@@ -134,15 +133,14 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#date -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#date">
-        <rdfs:label>date</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;date">
         <rdfs:comment>Links an item to a Date.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#Date"/>
+        <rdfs:range rdf:resource="&dams;Date"/>
         <rdfs:domain>
             <owl:Class>
                 <owl:unionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&ns4;#Copyright"/>
-                    <rdf:Description rdf:about="&ns4;#DAMSResource"/>
+                    <rdf:Description rdf:about="&dams;Copyright"/>
+                    <rdf:Description rdf:about="&dams;DAMSResource"/>
                 </owl:unionOf>
             </owl:Class>
         </rdfs:domain>
@@ -152,37 +150,35 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#event -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#event">
-        <rdfs:label>event</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;event">
         <rdfs:comment>Links a metadata record to an Event that is related to it.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#DAMSEvent"/>
-        <rdfs:domain rdf:resource="&ns4;#DAMSThing"/>
+        <rdfs:range rdf:resource="&dams;DAMSEvent"/>
+        <rdfs:domain rdf:resource="&dams;DAMSThing"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#hasCollection -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#hasCollection">
+    <owl:ObjectProperty rdf:about="&dams;hasCollection">
         <rdfs:comment>Links from a parent Collection to a child Collection.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#Collection"/>
-        <rdfs:domain rdf:resource="&ns4;#Collection"/>
+        <rdfs:range rdf:resource="&dams;Collection"/>
+        <rdfs:domain rdf:resource="&dams;Collection"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#hasComponent -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#hasComponent">
-        <rdfs:label>hasComponent</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;hasComponent">
         <rdfs:comment>Links from a parent Component or Object to a Component it contains.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#Component"/>
-        <owl:inverseOf rdf:resource="&ns4;#component"/>
+        <rdfs:range rdf:resource="&dams;Component"/>
+        <owl:inverseOf rdf:resource="&dams;component"/>
         <rdfs:domain>
             <owl:Class>
                 <owl:unionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&ns4;#Component"/>
-                    <rdf:Description rdf:about="&ns4;#Object"/>
+                    <rdf:Description rdf:about="&dams;Component"/>
+                    <rdf:Description rdf:about="&dams;Object"/>
                 </owl:unionOf>
             </owl:Class>
         </rdfs:domain>
@@ -192,15 +188,14 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#hasFile -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#hasFile">
-        <rdfs:label>hasFile</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;hasFile">
         <rdfs:comment>Links from a parent Component or Object to a File it contains.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#File"/>
+        <rdfs:range rdf:resource="&dams;File"/>
         <rdfs:domain>
             <owl:Class>
                 <owl:unionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&ns4;#Component"/>
-                    <rdf:Description rdf:about="&ns4;#Object"/>
+                    <rdf:Description rdf:about="&dams;Component"/>
+                    <rdf:Description rdf:about="&dams;Object"/>
                 </owl:unionOf>
             </owl:Class>
         </rdfs:domain>
@@ -210,15 +205,14 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#hasObject -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#hasObject">
-        <rdfs:label>hasObject</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;hasObject">
         <rdfs:comment>Links from a parent Collection or Repository to an Object it contains.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#Object"/>
+        <rdfs:range rdf:resource="&dams;Object"/>
         <rdfs:domain>
             <owl:Class>
                 <owl:unionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&ns4;#Collection"/>
-                    <rdf:Description rdf:about="&ns4;#Repository"/>
+                    <rdf:Description rdf:about="&dams;Collection"/>
+                    <rdf:Description rdf:about="&dams;Repository"/>
                 </owl:unionOf>
             </owl:Class>
         </rdfs:domain>
@@ -228,35 +222,34 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#hasPart -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#hasPart">
+    <owl:ObjectProperty rdf:about="&dams;hasPart">
         <rdfs:comment>Links from a parent ProvenanceCollection to a child ProvenanceCollectionPart.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;ProvenanceCollection"/>
-        <rdfs:range rdf:resource="&ns4;ProvenanceCollectionPart"/>
+        <rdfs:domain rdf:resource="&dams;ProvenanceCollection"/>
+        <rdfs:range rdf:resource="&dams;ProvenanceCollectionPart"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#hasProvenanceCollection -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#hasProvenanceCollection">
+    <owl:ObjectProperty rdf:about="&dams;hasProvenanceCollection">
         <rdfs:comment>Links from a parent Collection to a child ProvenanceCollection</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;ProvenanceCollection"/>
-        <rdfs:domain rdf:resource="&ns4;#Collection"/>
+        <rdfs:range rdf:resource="&dams;ProvenanceCollection"/>
+        <rdfs:domain rdf:resource="&dams;Collection"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#language -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#language">
-        <rdfs:label>language</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;language">
         <rdfs:comment>Links an item to a Language.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#Language"/>
+        <rdfs:range rdf:resource="&dams;Language"/>
         <rdfs:domain>
             <owl:Class>
                 <owl:unionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&ns4;#DAMSResource"/>
-                    <rdf:Description rdf:about="&ns4;#Title"/>
+                    <rdf:Description rdf:about="&dams;DAMSResource"/>
+                    <rdf:Description rdf:about="&dams;Title"/>
                 </owl:unionOf>
             </owl:Class>
         </rdfs:domain>
@@ -266,14 +259,14 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#license -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#license">
+    <owl:ObjectProperty rdf:about="&dams;license">
         <rdfs:comment>Links an item to a License.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#License"/>
+        <rdfs:range rdf:resource="&dams;License"/>
         <rdfs:domain>
             <owl:Class>
                 <owl:unionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&ns4;#Component"/>
-                    <rdf:Description rdf:about="&ns4;#Object"/>
+                    <rdf:Description rdf:about="&dams;Component"/>
+                    <rdf:Description rdf:about="&dams;Object"/>
                 </owl:unionOf>
             </owl:Class>
         </rdfs:domain>
@@ -283,15 +276,14 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#name -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#name">
-        <rdfs:label>name</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;name">
         <rdfs:comment>Links a Relationship to a Name.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#Name"/>
+        <rdfs:range rdf:resource="&dams;Name"/>
         <rdfs:domain>
             <owl:Class>
                 <owl:unionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&ns4;#Relationship"/>
-                    <rdf:Description rdf:about="&ns4;#Subject"/>
+                    <rdf:Description rdf:about="&dams;Relationship"/>
+                    <rdf:Description rdf:about="&dams;Subject"/>
                 </owl:unionOf>
             </owl:Class>
         </rdfs:domain>
@@ -301,26 +293,24 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#note -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#note">
-        <rdfs:label>note</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;note">
         <rdfs:comment>Links an item to a Note.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#DAMSResource"/>
-        <rdfs:range rdf:resource="&ns4;#Note"/>
+        <rdfs:domain rdf:resource="&dams;DAMSResource"/>
+        <rdfs:range rdf:resource="&dams;Note"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#object -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#object">
-        <rdfs:label>object</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;object">
         <rdfs:comment>Links a Component or File to the Object that contains it.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#Object"/>
+        <rdfs:range rdf:resource="&dams;Object"/>
         <rdfs:domain>
             <owl:Class>
                 <owl:unionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&ns4;#Component"/>
-                    <rdf:Description rdf:about="&ns4;#File"/>
+                    <rdf:Description rdf:about="&dams;Component"/>
+                    <rdf:Description rdf:about="&dams;File"/>
                 </owl:unionOf>
             </owl:Class>
         </rdfs:domain>
@@ -330,15 +320,15 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#otherRights -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#otherRights">
+    <owl:ObjectProperty rdf:about="&dams;otherRights">
         <rdfs:comment>Links an item to an OtherRights.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#OtherRights"/>
+        <rdfs:range rdf:resource="&dams;OtherRights"/>
         <rdfs:domain>
             <owl:Class>
                 <owl:unionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&ns4;#Component"/>
-                    <rdf:Description rdf:about="&ns4;#File"/>
-                    <rdf:Description rdf:about="&ns4;#Object"/>
+                    <rdf:Description rdf:about="&dams;Component"/>
+                    <rdf:Description rdf:about="&dams;File"/>
+                    <rdf:Description rdf:about="&dams;Object"/>
                 </owl:unionOf>
             </owl:Class>
         </rdfs:domain>
@@ -348,61 +338,57 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#provenanceCollection -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#provenanceCollection">
+    <owl:ObjectProperty rdf:about="&dams;provenanceCollection">
         <rdfs:comment>Links from a child ProvenanceCollectionPart to a parent ProvenanceCollection.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;ProvenanceCollection"/>
-        <rdfs:domain rdf:resource="&ns4;ProvenanceCollectionPart"/>
+        <rdfs:range rdf:resource="&dams;ProvenanceCollection"/>
+        <rdfs:domain rdf:resource="&dams;ProvenanceCollectionPart"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#relatedCollection -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#relatedCollection">
-        <rdfs:label>relatedCollection</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;relatedCollection">
         <rdfs:comment>Peer collection relationship.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Collection"/>
-        <rdfs:range rdf:resource="&ns4;#Collection"/>
+        <rdfs:domain rdf:resource="&dams;Collection"/>
+        <rdfs:range rdf:resource="&dams;Collection"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#relatedResource -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#relatedResource">
-        <rdfs:label>relatedResource</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;relatedResource">
         <rdfs:comment>Links an item to a RelatedResource.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#DAMSResource"/>
-        <rdfs:range rdf:resource="&ns4;#RelatedResource"/>
+        <rdfs:domain rdf:resource="&dams;DAMSResource"/>
+        <rdfs:range rdf:resource="&dams;RelatedResource"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#relatedTitle -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#relatedTitle">
-        <rdfs:label>relatedTitle</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;relatedTitle">
         <rdfs:comment>Links a Title to another form of the same Title (e.g., transliterated,
        translated, abbreviated, etc.).</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#Title"/>
-        <rdfs:domain rdf:resource="&ns4;#Title"/>
+        <rdfs:range rdf:resource="&dams;Title"/>
+        <rdfs:domain rdf:resource="&dams;Title"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#relationship -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#relationship">
-        <rdfs:label>relationship</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;relationship">
         <rdfs:comment>Links an item to a Relationship.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#Relationship"/>
+        <rdfs:range rdf:resource="&dams;Relationship"/>
         <rdfs:domain>
             <owl:Class>
                 <owl:unionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&ns4;#Copyright"/>
-                    <rdf:Description rdf:about="&ns4;#DAMSResource"/>
-                    <rdf:Description rdf:about="&ns4;#License"/>
-                    <rdf:Description rdf:about="&ns4;#OtherRights"/>
+                    <rdf:Description rdf:about="&dams;Copyright"/>
+                    <rdf:Description rdf:about="&dams;DAMSResource"/>
+                    <rdf:Description rdf:about="&dams;License"/>
+                    <rdf:Description rdf:about="&dams;OtherRights"/>
                 </owl:unionOf>
             </owl:Class>
         </rdfs:domain>
@@ -412,70 +398,67 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#repository -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#repository">
+    <owl:ObjectProperty rdf:about="&dams;repository">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdfs:comment>Links an Object to the Repository that manages it.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Object"/>
-        <rdfs:range rdf:resource="&ns4;#Repository"/>
+        <rdfs:domain rdf:resource="&dams;Object"/>
+        <rdfs:range rdf:resource="&dams;Repository"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#rightsAction -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#rightsAction">
+    <owl:ObjectProperty rdf:about="&dams;rightsAction">
         <rdfs:comment>Links a Rights element to an actionable RightsAction.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Rights"/>
-        <rdfs:range rdf:resource="&ns4;#RightsAction"/>
+        <rdfs:domain rdf:resource="&dams;Rights"/>
+        <rdfs:range rdf:resource="&dams;RightsAction"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#role -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#role">
+    <owl:ObjectProperty rdf:about="&dams;role">
         <rdfs:comment>Links a Relationship to a Role.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Relationship"/>
-        <rdfs:range rdf:resource="&ns4;#Role"/>
+        <rdfs:domain rdf:resource="&dams;Relationship"/>
+        <rdfs:range rdf:resource="&dams;Role"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#scopeContentNote -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#scopeContentNote">
-        <rdfs:label>scopeContentNote</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;scopeContentNote">
         <rdfs:comment>This should be a literal, not a class.</rdfs:comment>
         <rdfs:comment>Links a Collection to a ScopeContentNote.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Collection"/>
-        <rdfs:range rdf:resource="&ns4;#ScopeContentNote"/>
-        <rdfs:subPropertyOf rdf:resource="&ns4;#note"/>
+        <rdfs:domain rdf:resource="&dams;Collection"/>
+        <rdfs:range rdf:resource="&dams;ScopeContentNote"/>
+        <rdfs:subPropertyOf rdf:resource="&dams;note"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#sourceCapture -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#sourceCapture">
-        <rdfs:label>sourceCapture</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;sourceCapture">
         <rdfs:comment>Links a File to SourceCapture describing its digitization.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#File"/>
-        <rdfs:range rdf:resource="&ns4;#SourceCapture"/>
+        <rdfs:domain rdf:resource="&dams;File"/>
+        <rdfs:range rdf:resource="&dams;SourceCapture"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#statute -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#statute">
-        <rdfs:label>statute</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;statute">
         <rdfs:comment>Links an item to a Statute.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#Statute"/>
+        <rdfs:range rdf:resource="&dams;Statute"/>
         <rdfs:domain>
             <owl:Class>
                 <owl:unionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&ns4;#Component"/>
-                    <rdf:Description rdf:about="&ns4;#Object"/>
+                    <rdf:Description rdf:about="&dams;Component"/>
+                    <rdf:Description rdf:about="&dams;Object"/>
                 </owl:unionOf>
             </owl:Class>
         </rdfs:domain>
@@ -485,36 +468,34 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#subject -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#subject">
-        <rdfs:label>subject</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;subject">
         <rdfs:comment>Links an item to a Subject.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#DAMSResource"/>
-        <rdfs:range rdf:resource="&ns4;#Subject"/>
+        <rdfs:domain rdf:resource="&dams;DAMSResource"/>
+        <rdfs:range rdf:resource="&dams;Subject"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#subjectPart -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#subjectPart">
-        <rdfs:label>subjectPart</rdfs:label>
+    <owl:ObjectProperty rdf:about="&dams;subjectPart">
         <rdfs:comment>Links a Subject to a SubjectPart</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Subject"/>
-        <rdfs:range rdf:resource="&ns4;#SubjectPart"/>
+        <rdfs:domain rdf:resource="&dams;Subject"/>
+        <rdfs:range rdf:resource="&dams;SubjectPart"/>
     </owl:ObjectProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#title -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#title">
+    <owl:ObjectProperty rdf:about="&dams;title">
         <rdfs:comment>Links from a metadata record to a Title.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#Title"/>
+        <rdfs:range rdf:resource="&dams;Title"/>
         <rdfs:domain>
             <owl:Class>
                 <owl:unionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&ns4;#DAMSResource"/>
-                    <rdf:Description rdf:about="&ns4;#Subject"/>
+                    <rdf:Description rdf:about="&dams;DAMSResource"/>
+                    <rdf:Description rdf:about="&dams;Subject"/>
                 </owl:unionOf>
             </owl:Class>
         </rdfs:domain>
@@ -524,10 +505,10 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#vocabulary -->
 
-    <owl:ObjectProperty rdf:about="&ns4;#vocabulary">
+    <owl:ObjectProperty rdf:about="&dams;vocabulary">
         <rdfs:comment>Links a VocabularyEntry to the Vocabulary that contains it.</rdfs:comment>
-        <rdfs:range rdf:resource="&ns4;#Vocabulary"/>
-        <rdfs:domain rdf:resource="&ns4;#VocabularyEntry"/>
+        <rdfs:range rdf:resource="&dams;Vocabulary"/>
+        <rdfs:domain rdf:resource="&dams;VocabularyEntry"/>
     </owl:ObjectProperty>
     
 
@@ -545,11 +526,10 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#authority -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#authority">
-        <rdfs:label>authority</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;authority">
         <rdfs:comment>Name of controlled vocabulary or other authority for a given metadata element.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Title"/>
-        <rdfs:domain rdf:resource="&ns4;#VocabularyEntry"/>
+        <rdfs:domain rdf:resource="&dams;Title"/>
+        <rdfs:domain rdf:resource="&dams;VocabularyEntry"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -557,7 +537,7 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#authorityURI -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#authorityURI">
+    <owl:DatatypeProperty rdf:about="&dams;authorityURI">
         <rdfs:comment>URI identifying the authority used for a given metadata element, typically used
       when a valueURI is not available.</rdfs:comment>
         <rdfs:range rdf:resource="&xsd;anyURI"/>
@@ -567,10 +547,9 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#beginDate -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#beginDate">
-        <rdfs:label>beginDate</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;beginDate">
         <rdfs:comment>The date when the date range started (ISO 8601).</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Date"/>
+        <rdfs:domain rdf:resource="&dams;Date"/>
         <rdfs:range rdf:resource="&xsd;dateTime"/>
     </owl:DatatypeProperty>
     
@@ -578,19 +557,18 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#captureSource -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#captureSource">
+    <owl:DatatypeProperty rdf:about="&dams;captureSource">
         <rdfs:comment>Type of device used to scan an image.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#SourceCapture"/>
+        <rdfs:domain rdf:resource="&dams;SourceCapture"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#checksum -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#checksum">
-        <rdfs:label>checksum</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;checksum">
         <rdfs:comment>Records the Checksum of a File.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#File"/>
+        <rdfs:domain rdf:resource="&dams;File"/>
         <rdfs:range rdf:resource="&xsd;hexBinary"/>
     </owl:DatatypeProperty>
     
@@ -598,15 +576,15 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#code -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#code"/>
+    <owl:DatatypeProperty rdf:about="&dams;code"/>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#compositionLevel -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#compositionLevel">
+    <owl:DatatypeProperty rdf:about="&dams;compositionLevel">
         <rdfs:comment>Decoding/unbundling steps required to extract file. Neccessary?</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#File"/>
+        <rdfs:domain rdf:resource="&dams;File"/>
         <rdfs:range rdf:resource="&xsd;integer"/>
     </owl:DatatypeProperty>
     
@@ -614,42 +592,42 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#copyrightJurisdiction -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#copyrightJurisdiction">
+    <owl:DatatypeProperty rdf:about="&dams;copyrightJurisdiction">
         <rdfs:comment>An indication of the legal jurisdiction (typically national) in with the
       copyright status statement is true (ISO 3166-1)</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Copyright"/>
+        <rdfs:domain rdf:resource="&dams;Copyright"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#copyrightNote -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#copyrightNote">
+    <owl:DatatypeProperty rdf:about="&dams;copyrightNote">
         <rdfs:comment>boilerplate copyright note referencing copyright status and jurisdiction.</rdfs:comment>
         <rdfs:comment>Estimate that there will be 6 of these Note objects.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Copyright"/>
+        <rdfs:domain rdf:resource="&dams;Copyright"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#copyrightStatus -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#copyrightStatus">
+    <owl:DatatypeProperty rdf:about="&dams;copyrightStatus">
         <rdfs:comment>In context of UCSD, &quot;Under copyright -- 1st Party&quot; refers always and
       only to &quot;UC Regents&quot; as the rights holder, whereas &quot;Under copyright -- 3rd
       party&quot; refers to copyright held by any agent other than the UC Regents.</rdfs:comment>
         <rdfs:comment>An value indicating the copyright status for an object</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Copyright"/>
+        <rdfs:domain rdf:resource="&dams;Copyright"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#crc32checksum -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#crc32checksum">
+    <owl:DatatypeProperty rdf:about="&dams;crc32checksum">
         <rdfs:comment>Checksum calculated using the CRC32 algorithm.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#File"/>
-        <rdfs:subPropertyOf rdf:resource="&ns4;#checksum"/>
+        <rdfs:domain rdf:resource="&dams;File"/>
+        <rdfs:subPropertyOf rdf:resource="&dams;checksum"/>
         <rdfs:range rdf:resource="&xsd;hexBinary"/>
     </owl:DatatypeProperty>
     
@@ -657,9 +635,9 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#dateCreatedByApplication -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#dateCreatedByApplication">
+    <owl:DatatypeProperty rdf:about="&dams;dateCreatedByApplication">
         <rdfs:comment>Date and time the file was created. (ISO 8601)</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#File"/>
+        <rdfs:domain rdf:resource="&dams;File"/>
         <rdfs:range rdf:resource="&xsd;dateTime"/>
     </owl:DatatypeProperty>
     
@@ -667,8 +645,7 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#description -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#description">
-        <rdfs:label>description</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;description">
         <rdfs:comment>Basic description.</rdfs:comment>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
@@ -677,10 +654,9 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#detail -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#detail">
-        <rdfs:label>detail</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;detail">
         <rdfs:comment>Description of the event, containing any relevant details.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#DAMSEvent"/>
+        <rdfs:domain rdf:resource="&dams;DAMSEvent"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -688,7 +664,7 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#displayLabel -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#displayLabel">
+    <owl:DatatypeProperty rdf:about="&dams;displayLabel">
         <rdfs:comment>User display value.  If the source vocabulary contains both coded and
       human-readable forms, use the human-readable form here.</rdfs:comment>
         <rdfs:range rdf:resource="&xsd;string"/>
@@ -698,10 +674,10 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#encoding -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#encoding">
+    <owl:DatatypeProperty rdf:about="&dams;encoding">
         <rdfs:comment>Encoding used for date values (could be implemented as typed literals or
       separate property).</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Date"/>
+        <rdfs:domain rdf:resource="&dams;Date"/>
         <rdfs:range>
             <rdfs:Datatype>
                 <owl:oneOf>
@@ -719,11 +695,10 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#endDate -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#endDate">
-        <rdfs:label>endDate</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;endDate">
         <rdfs:comment>Date when the date range or event finished (ISO 8601).</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#DAMSEvent"/>
-        <rdfs:domain rdf:resource="&ns4;#Date"/>
+        <rdfs:domain rdf:resource="&dams;DAMSEvent"/>
+        <rdfs:domain rdf:resource="&dams;Date"/>
         <rdfs:range rdf:resource="&xsd;dateTime"/>
     </owl:DatatypeProperty>
     
@@ -731,11 +706,10 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#expression -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#expression">
-        <rdfs:label>expression</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;expression">
         <rdfs:comment>Text form of a date, which does not necessarily correspond to a specific numeric
       date (e.g., &quot;Easter&quot;).</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Date"/>
+        <rdfs:domain rdf:resource="&dams;Date"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -743,9 +717,9 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#formatName -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#formatName">
+    <owl:DatatypeProperty rdf:about="&dams;formatName">
         <rdfs:comment>Name of the file format (MIME type).</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#File"/>
+        <rdfs:domain rdf:resource="&dams;File"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -753,9 +727,9 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#formatVersion -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#formatVersion">
+    <owl:DatatypeProperty rdf:about="&dams;formatVersion">
         <rdfs:comment>Version of the format in formatName (6.0, 2003, etc.)</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#File"/>
+        <rdfs:domain rdf:resource="&dams;File"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -763,19 +737,19 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#imageProducer -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#imageProducer">
+    <owl:DatatypeProperty rdf:about="&dams;imageProducer">
         <rdfs:comment>Organization that scanned an image.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#SourceCapture"/>
+        <rdfs:domain rdf:resource="&dams;SourceCapture"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#internalOnly -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#internalOnly">
+    <owl:DatatypeProperty rdf:about="&dams;internalOnly">
         <rdfs:comment>If true, accessible to all users or only to repository and DAMS managers.</rdfs:comment>
         <rdfs:comment>false = public, true = custodial repository</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Note"/>
+        <rdfs:domain rdf:resource="&dams;Note"/>
         <rdfs:range rdf:resource="&xsd;boolean"/>
     </owl:DatatypeProperty>
     
@@ -783,9 +757,9 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#label -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#label">
+    <owl:DatatypeProperty rdf:about="&dams;label">
         <rdfs:comment>Label describing a component; can be a literal or URI referencing a Title or Date.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Component"/>
+        <rdfs:domain rdf:resource="&dams;Component"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -793,19 +767,19 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#licenseNote -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#licenseNote">
+    <owl:DatatypeProperty rdf:about="&dams;licenseNote">
         <rdfs:comment>Summary of a license and its terms, either in place of a license or as an
       abstract on a license linked to.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#License"/>
+        <rdfs:domain rdf:resource="&dams;License"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#licenseURI -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#licenseURI">
+    <owl:DatatypeProperty rdf:about="&dams;licenseURI">
         <rdfs:comment>Actionable link to a license document or terms.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#License"/>
+        <rdfs:domain rdf:resource="&dams;License"/>
         <rdfs:range rdf:resource="&xsd;anyURI"/>
     </owl:DatatypeProperty>
     
@@ -813,22 +787,22 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#line -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#line">
+    <owl:DatatypeProperty rdf:about="&dams;line">
         <rdfs:comment>Coordinates for a line (last point is not assumed to link to the first
       point)</rdfs:comment>
         <rdfs:comment>Need content standard for data being entered (delimiters between lat, long and
       alt and between coordinate sets).</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Cartographics"/>
+        <rdfs:domain rdf:resource="&dams;Cartographics"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#md5checksum -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#md5checksum">
+    <owl:DatatypeProperty rdf:about="&dams;md5checksum">
         <rdfs:comment>Checksum calculated using the MD5 algorithm.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#File"/>
-        <rdfs:subPropertyOf rdf:resource="&ns4;#checksum"/>
+        <rdfs:domain rdf:resource="&dams;File"/>
+        <rdfs:subPropertyOf rdf:resource="&dams;checksum"/>
         <rdfs:range rdf:resource="&xsd;hexBinary"/>
     </owl:DatatypeProperty>
     
@@ -836,11 +810,11 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#nonsortCharacters -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#nonsortCharacters">
+    <owl:DatatypeProperty rdf:about="&dams;nonsortCharacters">
         <rdfs:comment>Initial characters which should not affect sort order.</rdfs:comment>
         <rdfs:comment>Included to facilitate generating sort form without having to build complex
       algorithm to handle multiple languages.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Title"/>
+        <rdfs:domain rdf:resource="&dams;Title"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -848,9 +822,9 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#objectCategory -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#objectCategory">
+    <owl:DatatypeProperty rdf:about="&dams;objectCategory">
         <rdfs:comment>Whether the entity is a bitstream, file or object.  Neccessary?</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#File"/>
+        <rdfs:domain rdf:resource="&dams;File"/>
         <rdfs:range>
             <rdfs:Datatype>
                 <owl:oneOf>
@@ -868,7 +842,7 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#order -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#order">
+    <owl:DatatypeProperty rdf:about="&dams;order">
         <rdfs:comment>Numerical order of the metadata element within the larger grouping.</rdfs:comment>
         <rdfs:range rdf:resource="&xsd;integer"/>
     </owl:DatatypeProperty>
@@ -877,29 +851,29 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#otherRightsBasis -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#otherRightsBasis">
+    <owl:DatatypeProperty rdf:about="&dams;otherRightsBasis">
         <rdfs:comment>For indicating the type or source of the other rights, e.g., UC San Diego
        Policy, UC Policy, etc.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#OtherRights"/>
+        <rdfs:domain rdf:resource="&dams;OtherRights"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#otherRightsNote -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#otherRightsNote">
+    <owl:DatatypeProperty rdf:about="&dams;otherRightsNote">
         <rdfs:comment>Summary of institutional policy.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#OtherRights"/>
+        <rdfs:domain rdf:resource="&dams;OtherRights"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#otherRightsURI -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#otherRightsURI">
+    <owl:DatatypeProperty rdf:about="&dams;otherRightsURI">
         <rdfs:comment>An actionable link to the documentation containing the institutional policy or
        other rights being applied</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#OtherRights"/>
+        <rdfs:domain rdf:resource="&dams;OtherRights"/>
         <rdfs:range rdf:resource="&xsd;anyURI"/>
     </owl:DatatypeProperty>
     
@@ -907,9 +881,9 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#outcome -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#outcome">
+    <owl:DatatypeProperty rdf:about="&dams;outcome">
         <rdfs:comment>Whether the event succeeded or failed.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#DAMSEvent"/>
+        <rdfs:domain rdf:resource="&dams;DAMSEvent"/>
         <rdfs:range>
             <rdfs:Datatype>
                 <owl:oneOf>
@@ -927,10 +901,10 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#outcomeNote -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#outcomeNote">
+    <owl:DatatypeProperty rdf:about="&dams;outcomeNote">
         <rdfs:comment>Extended information about the event, including any relevant status message
       and timestamp.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#DAMSEvent"/>
+        <rdfs:domain rdf:resource="&dams;DAMSEvent"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -938,10 +912,9 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#partName -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#partName">
-        <rdfs:label>partName</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;partName">
         <rdfs:comment>Volume, issue, etc. name.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Title"/>
+        <rdfs:domain rdf:resource="&dams;Title"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -949,10 +922,9 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#partNumber -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#partNumber">
-        <rdfs:label>partNumber</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;partNumber">
         <rdfs:comment>Volume, issue, etc. number.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Title"/>
+        <rdfs:domain rdf:resource="&dams;Title"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -960,33 +932,33 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#point -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#point">
+    <owl:DatatypeProperty rdf:about="&dams;point">
         <rdfs:comment>Coordinates for a single point.</rdfs:comment>
         <rdfs:comment>Need content standard for data being entered (delimiters between lat, long and
       alt and between coordinate sets).</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Cartographics"/>
+        <rdfs:domain rdf:resource="&dams;Cartographics"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#polygon -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#polygon">
+    <owl:DatatypeProperty rdf:about="&dams;polygon">
         <rdfs:comment>Need content standard for data being entered (delimiters between lat, long and
       alt and between coordinate sets).</rdfs:comment>
         <rdfs:comment>Coordinates for a polygon (last point is assumed to link to the first point to
       form an enclosed area).</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Cartographics"/>
+        <rdfs:domain rdf:resource="&dams;Cartographics"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#preservationLevel -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#preservationLevel">
+    <owl:DatatypeProperty rdf:about="&dams;preservationLevel">
         <rdfs:comment>Level of preservation of the file (bit-level, full, 0, 1, 2, fully supported
       with future migrations).  Neccessary?</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#File"/>
+        <rdfs:domain rdf:resource="&dams;File"/>
         <rdfs:range>
             <rdfs:Datatype>
                 <owl:oneOf>
@@ -1004,41 +976,41 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#projection -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#projection">
+    <owl:DatatypeProperty rdf:about="&dams;projection">
         <rdfs:comment>See http://en.wikipedia.org/wiki/List_of_map_projections</rdfs:comment>
         <rdfs:comment>The method of representing the surface of a sphere or other three-dimensional
       body on a plane.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Cartographics"/>
+        <rdfs:domain rdf:resource="&dams;Cartographics"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#purposeNote -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#purposeNote">
+    <owl:DatatypeProperty rdf:about="&dams;purposeNote">
         <rdfs:comment>boilerplate text stating the content is made available for educational
       purposes.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Copyright"/>
+        <rdfs:domain rdf:resource="&dams;Copyright"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#referenceSystem -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#referenceSystem">
+    <owl:DatatypeProperty rdf:about="&dams;referenceSystem">
         <rdfs:comment>The standard coordinate frame for the coordinates being used (WGS66, WGS72,
       WGS84).</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Cartographics"/>
+        <rdfs:domain rdf:resource="&dams;Cartographics"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#repositoryName -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#repositoryName">
+    <owl:DatatypeProperty rdf:about="&dams;repositoryName">
         <rdfs:comment>The name of the repository or organizational unit assuming custodial
       responsibility for DAMS content.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Repository"/>
+        <rdfs:domain rdf:resource="&dams;Repository"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -1046,10 +1018,10 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#repositoryURI -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#repositoryURI">
+    <owl:DatatypeProperty rdf:about="&dams;repositoryURI">
         <rdfs:comment>The URI linking to a webpage for the repository that contains contact and
       access information about the repository.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Repository"/>
+        <rdfs:domain rdf:resource="&dams;Repository"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -1057,55 +1029,55 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#scale -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#scale">
+    <owl:DatatypeProperty rdf:about="&dams;scale">
         <rdfs:comment>The relative size of the representation or rendering of geographic information
       (i.e. map, chart, model) to the actual location.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Cartographics"/>
+        <rdfs:domain rdf:resource="&dams;Cartographics"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#scannerManufacturer -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#scannerManufacturer">
+    <owl:DatatypeProperty rdf:about="&dams;scannerManufacturer">
         <rdfs:comment>Manufacturer of the scanner used to scan an image.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#SourceCapture"/>
+        <rdfs:domain rdf:resource="&dams;SourceCapture"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#scannerModelName -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#scannerModelName">
+    <owl:DatatypeProperty rdf:about="&dams;scannerModelName">
         <rdfs:comment>Model name of the scanner used to scan an image.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#SourceCapture"/>
+        <rdfs:domain rdf:resource="&dams;SourceCapture"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#scanningSoftware -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#scanningSoftware">
+    <owl:DatatypeProperty rdf:about="&dams;scanningSoftware">
         <rdfs:comment>Name of the software application used to scan an image.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#SourceCapture"/>
+        <rdfs:domain rdf:resource="&dams;SourceCapture"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#scanningSoftwareVersion -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#scanningSoftwareVersion">
+    <owl:DatatypeProperty rdf:about="&dams;scanningSoftwareVersion">
         <rdfs:comment>Version number of the software used to scan an image.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#SourceCapture"/>
+        <rdfs:domain rdf:resource="&dams;SourceCapture"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#script -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#script">
+    <owl:DatatypeProperty rdf:about="&dams;script">
         <rdfs:comment>Writing system used for a given metadata element.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Title"/>
+        <rdfs:domain rdf:resource="&dams;Title"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -1113,11 +1085,10 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#sha1checksum -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#sha1checksum">
-        <rdfs:label>sha1checksum</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;sha1checksum">
         <rdfs:comment>Checksum calculated using the SHA-1 algorithm.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#File"/>
-        <rdfs:subPropertyOf rdf:resource="&ns4;#checksum"/>
+        <rdfs:domain rdf:resource="&dams;File"/>
+        <rdfs:subPropertyOf rdf:resource="&dams;checksum"/>
         <rdfs:range rdf:resource="&xsd;hexBinary"/>
     </owl:DatatypeProperty>
     
@@ -1125,11 +1096,10 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#sha256checksum -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#sha256checksum">
-        <rdfs:label>sha256checksum</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;sha256checksum">
         <rdfs:comment>Checksum calculated using the SHA-256 algorithm.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#File"/>
-        <rdfs:subPropertyOf rdf:resource="&ns4;#checksum"/>
+        <rdfs:domain rdf:resource="&dams;File"/>
+        <rdfs:subPropertyOf rdf:resource="&dams;checksum"/>
         <rdfs:range rdf:resource="&xsd;hexBinary"/>
     </owl:DatatypeProperty>
     
@@ -1137,11 +1107,10 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#sha512checksum -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#sha512checksum">
-        <rdfs:label>sha512checksum</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;sha512checksum">
         <rdfs:comment>Checksum calculated using the SHA-512 algorithm.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#File"/>
-        <rdfs:subPropertyOf rdf:resource="&ns4;#checksum"/>
+        <rdfs:domain rdf:resource="&dams;File"/>
+        <rdfs:subPropertyOf rdf:resource="&dams;checksum"/>
         <rdfs:range rdf:resource="&xsd;hexBinary"/>
     </owl:DatatypeProperty>
     
@@ -1149,10 +1118,9 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#size -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#size">
-        <rdfs:label>size</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;size">
         <rdfs:comment>Size of the file in bytes.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#File"/>
+        <rdfs:domain rdf:resource="&dams;File"/>
         <rdfs:range rdf:resource="&xsd;integer"/>
     </owl:DatatypeProperty>
     
@@ -1160,51 +1128,50 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#sourceType -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#sourceType">
+    <owl:DatatypeProperty rdf:about="&dams;sourceType">
         <rdfs:comment>The medium of the analog source material scanned to create an
       image.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#SourceCapture"/>
+        <rdfs:domain rdf:resource="&dams;SourceCapture"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#statuteCitation -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#statuteCitation">
+    <owl:DatatypeProperty rdf:about="&dams;statuteCitation">
         <rdfs:comment>The name of the statute, e.g., Family Education Rights and Privacy Act
       (FERPA)</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Statute"/>
+        <rdfs:domain rdf:resource="&dams;Statute"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#statuteJurisdiction -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#statuteJurisdiction">
+    <owl:DatatypeProperty rdf:about="&dams;statuteJurisdiction">
         <rdfs:comment>The country or regional jurisdiction in which the statute applies (ISO 3166-1
       for country codes, ISO 3166-2 for state codes).</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Statute"/>
+        <rdfs:domain rdf:resource="&dams;Statute"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#statuteNote -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#statuteNote">
+    <owl:DatatypeProperty rdf:about="&dams;statuteNote">
         <rdfs:comment>Summary of a statute and obligation to it, e.g., students records must be
       restricted for 50 years after creation or death (or whatever the actual terms are
       now)</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Statute"/>
+        <rdfs:domain rdf:resource="&dams;Statute"/>
     </owl:DatatypeProperty>
     
 
 
     <!-- http://library.ucsd.edu/ontology/dams/#subtitle -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#subtitle">
-        <rdfs:label>subtitle</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;subtitle">
         <rdfs:comment>Explanatory or alternate title.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#Title"/>
+        <rdfs:domain rdf:resource="&dams;Title"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -1212,11 +1179,10 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#term -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#term">
-        <rdfs:label>term</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;term">
         <rdfs:comment>Actionable term name.  If the source vocabulary contains both coded and
       human-readable forms, use the coded form here.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#VocabularyEntry"/>
+        <rdfs:domain rdf:resource="&dams;VocabularyEntry"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -1224,8 +1190,7 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#type -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#type">
-        <rdfs:label>type</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;type">
         <rdfs:comment>Qualifier of a metadata element to differentiate different kinds of values.</rdfs:comment>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
@@ -1234,10 +1199,10 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#uri -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#uri">
+    <owl:DatatypeProperty rdf:about="&dams;uri">
         <rdfs:comment>URI where the related resource can be accessed.  In the case of internal links,
       a DAMS URI should be used.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#RelatedResource"/>
+        <rdfs:domain rdf:resource="&dams;RelatedResource"/>
         <rdfs:range rdf:resource="&xsd;anyURI"/>
     </owl:DatatypeProperty>
     
@@ -1245,9 +1210,9 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#use -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#use">
+    <owl:DatatypeProperty rdf:about="&dams;use">
         <rdfs:comment>Type of file and its role to the object.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ns4;#File"/>
+        <rdfs:domain rdf:resource="&dams;File"/>
         <rdfs:range>
             <rdfs:Datatype>
                 <owl:oneOf>
@@ -1265,8 +1230,7 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#value -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#value">
-        <rdfs:label>value</rdfs:label>
+    <owl:DatatypeProperty rdf:about="&dams;value">
         <rdfs:comment>Primary value of a metadata element.</rdfs:comment>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
@@ -1275,7 +1239,7 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#valueURI -->
 
-    <owl:DatatypeProperty rdf:about="&ns4;#valueURI">
+    <owl:DatatypeProperty rdf:about="&dams;valueURI">
         <rdfs:comment>URI uniquely identifying the term used for a given metadata element.</rdfs:comment>
         <rdfs:range rdf:resource="&xsd;anyURI"/>
     </owl:DatatypeProperty>
@@ -1295,24 +1259,26 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/ProvenanceCollection -->
 
-    <owl:Class rdf:about="&ns4;ProvenanceCollection">
-        <rdfs:subClassOf rdf:resource="&ns4;#Collection"/>
+    <owl:Class rdf:about="&dams;ProvenanceCollection">
+        <rdfs:subClassOf rdf:resource="&dams;Collection"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#hasCollection"/>
-                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:cardinality>
+                <owl:onProperty rdf:resource="&dams;hasProvenanceCollection"/>
+                <owl:onClass rdf:resource="&dams;Collection"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:qualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#hasPart"/>
-                <owl:allValuesFrom rdf:resource="&ns4;ProvenanceCollectionPart"/>
+                <owl:onProperty rdf:resource="&dams;hasPart"/>
+                <owl:allValuesFrom rdf:resource="&dams;ProvenanceCollectionPart"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#hasProvenanceCollection"/>
-                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:cardinality>
+                <owl:onProperty rdf:resource="&dams;hasCollection"/>
+                <owl:onClass rdf:resource="&dams;Collection"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:qualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
@@ -1321,25 +1287,27 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/ProvenanceCollectionPart -->
 
-    <owl:Class rdf:about="&ns4;ProvenanceCollectionPart">
-        <rdfs:subClassOf rdf:resource="&ns4;#Collection"/>
+    <owl:Class rdf:about="&dams;ProvenanceCollectionPart">
+        <rdfs:subClassOf rdf:resource="&dams;Collection"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#hasCollection"/>
-                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:cardinality>
+                <owl:onProperty rdf:resource="&dams;hasCollection"/>
+                <owl:onClass rdf:resource="&dams;Collection"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:qualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#provenanceCollection"/>
-                <owl:onClass rdf:resource="&ns4;ProvenanceCollection"/>
+                <owl:onProperty rdf:resource="&dams;hasProvenanceCollection"/>
+                <owl:onClass rdf:resource="&dams;Collection"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;provenanceCollection"/>
+                <owl:onClass rdf:resource="&dams;ProvenanceCollection"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#hasProvenanceCollection"/>
-                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:cardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
@@ -1348,25 +1316,32 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Cartographics -->
 
-    <owl:Class rdf:about="&ns4;#Cartographics">
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSThing"/>
+    <owl:Class rdf:about="&dams;Cartographics">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSThing"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#scale"/>
+                <owl:onProperty rdf:resource="&dams;polygon"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#line"/>
+                <owl:onProperty rdf:resource="&dams;scale"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#referenceSystem"/>
+                <owl:onProperty rdf:resource="&dams;point"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;referenceSystem"/>
                 <owl:allValuesFrom>
                     <rdfs:Datatype>
                         <owl:oneOf>
@@ -1382,21 +1357,14 @@
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#polygon"/>
+                <owl:onProperty rdf:resource="&dams;projection"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#projection"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#point"/>
+                <owl:onProperty rdf:resource="&dams;line"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
@@ -1410,40 +1378,39 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Collection -->
 
-    <owl:Class rdf:about="&ns4;#Collection">
-        <rdfs:label>Collection</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSResource"/>
+    <owl:Class rdf:about="&dams;Collection">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSResource"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#scopeContentNote"/>
-                <owl:onClass rdf:resource="&ns4;#ScopeContentNote"/>
-                <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#title"/>
-                <owl:onClass rdf:resource="&ns4;#Title"/>
-                <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#hasProvenanceCollection"/>
-                <owl:allValuesFrom rdf:resource="&ns4;ProvenanceCollection"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#collection"/>
-                <owl:onClass rdf:resource="&ns4;#Collection"/>
+                <owl:onProperty rdf:resource="&dams;collection"/>
+                <owl:onClass rdf:resource="&dams;Collection"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#language"/>
-                <owl:onClass rdf:resource="&ns4;#Language"/>
+                <owl:onProperty rdf:resource="&dams;hasProvenanceCollection"/>
+                <owl:allValuesFrom rdf:resource="&dams;ProvenanceCollection"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;scopeContentNote"/>
+                <owl:onClass rdf:resource="&dams;ScopeContentNote"/>
+                <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;title"/>
+                <owl:onClass rdf:resource="&dams;Title"/>
+                <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;language"/>
+                <owl:onClass rdf:resource="&dams;Language"/>
                 <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -1468,56 +1435,55 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Component -->
 
-    <owl:Class rdf:about="&ns4;#Component">
-        <rdfs:label>Component</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSResource"/>
+    <owl:Class rdf:about="&dams;Component">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSResource"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#copyright"/>
-                <owl:onClass rdf:resource="&ns4;#Copyright"/>
+                <owl:onProperty rdf:resource="&dams;statute"/>
+                <owl:onClass rdf:resource="&dams;Statute"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#order"/>
+                <owl:onProperty rdf:resource="&dams;license"/>
+                <owl:onClass rdf:resource="&dams;License"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;otherRights"/>
+                <owl:onClass rdf:resource="&dams;OtherRights"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;copyright"/>
+                <owl:onClass rdf:resource="&dams;Copyright"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;order"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;integer"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#otherRights"/>
-                <owl:onClass rdf:resource="&ns4;#OtherRights"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#statute"/>
-                <owl:onClass rdf:resource="&ns4;#Statute"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#component"/>
-                <owl:onClass rdf:resource="&ns4;#Component"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#license"/>
-                <owl:onClass rdf:resource="&ns4;#License"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#object"/>
-                <owl:onClass rdf:resource="&ns4;#Object"/>
+                <owl:onProperty rdf:resource="&dams;object"/>
+                <owl:onClass rdf:resource="&dams;Object"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;component"/>
+                <owl:onClass rdf:resource="&dams;Component"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment>Components are bounded by, unique to an object context and only
@@ -1540,31 +1506,11 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Copyright -->
 
-    <owl:Class rdf:about="&ns4;#Copyright">
-        <rdfs:label>Copyright</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&ns4;#Rights"/>
+    <owl:Class rdf:about="&dams;Copyright">
+        <rdfs:subClassOf rdf:resource="&dams;Rights"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#copyrightNote"/>
-                <owl:allValuesFrom rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#rightsAction"/>
-                <owl:onClass rdf:resource="&ns4;#RightsAction"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:qualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#purposeNote"/>
-                <owl:allValuesFrom rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#copyrightStatus"/>
+                <owl:onProperty rdf:resource="&dams;copyrightStatus"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange>
                     <rdfs:Datatype>
@@ -1581,21 +1527,40 @@
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#date"/>
-                <owl:onClass rdf:resource="&ns4;#Date"/>
+                <owl:onProperty rdf:resource="&dams;relationship"/>
+                <owl:onClass rdf:resource="&dams;Relationship"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#relationship"/>
-                <owl:onClass rdf:resource="&ns4;#Relationship"/>
+                <owl:onProperty rdf:resource="&dams;copyrightNote"/>
+                <owl:allValuesFrom rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;date"/>
+                <owl:onClass rdf:resource="&dams;Date"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#copyrightJurisdiction"/>
+                <owl:onProperty rdf:resource="&dams;rightsAction"/>
+                <owl:onClass rdf:resource="&dams;RightsAction"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;purposeNote"/>
+                <owl:allValuesFrom rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;copyrightJurisdiction"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
@@ -1610,11 +1575,11 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#CustodialResponsibilityNote -->
 
-    <owl:Class rdf:about="&ns4;#CustodialResponsibilityNote">
-        <rdfs:subClassOf rdf:resource="&ns4;#Note"/>
+    <owl:Class rdf:about="&dams;CustodialResponsibilityNote">
+        <rdfs:subClassOf rdf:resource="&dams;Note"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#type"/>
+                <owl:onProperty rdf:resource="&dams;type"/>
                 <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:cardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -1626,24 +1591,38 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#DAMSEvent -->
 
-    <owl:Class rdf:about="&ns4;#DAMSEvent">
+    <owl:Class rdf:about="&dams;DAMSEvent">
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#outcome"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#detail"/>
+                <owl:onProperty rdf:resource="&dams;detail"/>
                 <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#type"/>
+                <owl:onProperty rdf:resource="&dams;outcome"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;relationship"/>
+                <owl:onClass rdf:resource="&dams;Relationship"/>
+                <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;endDate"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;type"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange>
                     <rdfs:Datatype>
@@ -1658,20 +1637,6 @@
                 </owl:onDataRange>
             </owl:Restriction>
         </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#endDate"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#relationship"/>
-                <owl:onClass rdf:resource="&ns4;#Relationship"/>
-                <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <rdfs:comment>Required name/role: event initiator.</rdfs:comment>
         <rdfs:comment>Any event occurring in the DAMS slated to being tracked. Such events can include
       uploading of content files, creation and updating of metadata records, deletion of objects,
@@ -1683,12 +1648,12 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#DAMSResource -->
 
-    <owl:Class rdf:about="&ns4;#DAMSResource">
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSThing"/>
+    <owl:Class rdf:about="&dams;DAMSResource">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSThing"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#event"/>
-                <owl:onClass rdf:resource="&ns4;#DAMSEvent"/>
+                <owl:onProperty rdf:resource="&dams;event"/>
+                <owl:onClass rdf:resource="&dams;DAMSEvent"/>
                 <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -1701,11 +1666,11 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#DAMSThing -->
 
-    <owl:Class rdf:about="&ns4;#DAMSThing">
+    <owl:Class rdf:about="&dams;DAMSThing">
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#event"/>
-                <owl:allValuesFrom rdf:resource="&ns4;#DAMSEvent"/>
+                <owl:onProperty rdf:resource="&dams;event"/>
+                <owl:allValuesFrom rdf:resource="&dams;DAMSEvent"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment>Parent of all DAMS classes.</rdfs:comment>
@@ -1715,12 +1680,11 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Date -->
 
-    <owl:Class rdf:about="&ns4;#Date">
-        <rdfs:label>Date</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSThing"/>
+    <owl:Class rdf:about="&dams;Date">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSThing"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#type"/>
+                <owl:onProperty rdf:resource="&dams;type"/>
                 <owl:allValuesFrom>
                     <rdfs:Datatype>
                         <owl:oneOf>
@@ -1743,123 +1707,122 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#File -->
 
-    <owl:Class rdf:about="&ns4;#File">
-        <rdfs:label>File</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSThing"/>
+    <owl:Class rdf:about="&dams;File">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSThing"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#component"/>
-                <owl:onClass rdf:resource="&ns4;#Component"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onProperty rdf:resource="&dams;object"/>
+                <owl:onClass rdf:resource="&dams;Object"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#preservationLevel"/>
+                <owl:onProperty rdf:resource="&dams;preservationLevel"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#sha1checksum"/>
+                <owl:onProperty rdf:resource="&dams;use"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;md5checksum"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;hexBinary"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#checksum"/>
+                <owl:onProperty rdf:resource="&dams;formatVersion"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;sourceCapture"/>
+                <owl:onClass rdf:resource="&dams;SourceCapture"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;compositionLevel"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;integer"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;objectCategory"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;sha256checksum"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;hexBinary"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;sha512checksum"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;hexBinary"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;checksum"/>
                 <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;hexBinary"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#md5checksum"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;hexBinary"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#compositionLevel"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;integer"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#objectCategory"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#sha256checksum"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;hexBinary"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#sourceCapture"/>
-                <owl:onClass rdf:resource="&ns4;#SourceCapture"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#size"/>
+                <owl:onProperty rdf:resource="&dams;size"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;integer"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#object"/>
-                <owl:onClass rdf:resource="&ns4;#Object"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#formatVersion"/>
+                <owl:onProperty rdf:resource="&dams;formatName"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#sha512checksum"/>
+                <owl:onProperty rdf:resource="&dams;sha1checksum"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;hexBinary"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#use"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
+                <owl:onProperty rdf:resource="&dams;component"/>
+                <owl:onClass rdf:resource="&dams;Component"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#dateCreatedByApplication"/>
+                <owl:onProperty rdf:resource="&dams;dateCreatedByApplication"/>
                 <owl:allValuesFrom rdf:resource="&xsd;dateTime"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#formatName"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#crc32checksum"/>
+                <owl:onProperty rdf:resource="&dams;crc32checksum"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;hexBinary"/>
             </owl:Restriction>
@@ -1879,9 +1842,8 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Language -->
 
-    <owl:Class rdf:about="&ns4;#Language">
-        <rdfs:label>Language</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&ns4;#VocabularyEntry"/>
+    <owl:Class rdf:about="&dams;Language">
+        <rdfs:subClassOf rdf:resource="&dams;VocabularyEntry"/>
         <rdfs:comment>The language(s) of the collection, object, or object component
       (ISO 639-2).</rdfs:comment>
     </owl:Class>
@@ -1890,33 +1852,32 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#License -->
 
-    <owl:Class rdf:about="&ns4;#License">
-        <rdfs:label>License</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&ns4;#Rights"/>
+    <owl:Class rdf:about="&dams;License">
+        <rdfs:subClassOf rdf:resource="&dams;Rights"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#licenseURI"/>
+                <owl:onProperty rdf:resource="&dams;licenseURI"/>
                 <owl:allValuesFrom rdf:resource="&xsd;anyURI"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#licenseNote"/>
+                <owl:onProperty rdf:resource="&dams;rightsAction"/>
+                <owl:onClass rdf:resource="&dams;RightsAction"/>
+                <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;licenseNote"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#rightsAction"/>
-                <owl:onClass rdf:resource="&ns4;#RightsAction"/>
-                <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#relationship"/>
-                <owl:onClass rdf:resource="&ns4;#Relationship"/>
+                <owl:onProperty rdf:resource="&dams;relationship"/>
+                <owl:onClass rdf:resource="&dams;Relationship"/>
                 <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -1938,11 +1899,11 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Name -->
 
-    <owl:Class rdf:about="&ns4;#Name">
-        <rdfs:subClassOf rdf:resource="&ns4;#VocabularyEntry"/>
+    <owl:Class rdf:about="&dams;Name">
+        <rdfs:subClassOf rdf:resource="&dams;VocabularyEntry"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#type"/>
+                <owl:onProperty rdf:resource="&dams;type"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange>
                     <rdfs:Datatype>
@@ -1959,7 +1920,7 @@
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#authority"/>
+                <owl:onProperty rdf:resource="&dams;authority"/>
                 <owl:allValuesFrom>
                     <rdfs:Datatype>
                         <owl:oneOf>
@@ -1986,26 +1947,25 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Note -->
 
-    <owl:Class rdf:about="&ns4;#Note">
-        <rdfs:label>Note</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSThing"/>
+    <owl:Class rdf:about="&dams;Note">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSThing"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#value"/>
+                <owl:onProperty rdf:resource="&dams;internalOnly"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
+                <owl:onDataRange rdf:resource="&xsd;boolean"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#displayLabel"/>
+                <owl:onProperty rdf:resource="&dams;displayLabel"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#type"/>
+                <owl:onProperty rdf:resource="&dams;type"/>
                 <owl:allValuesFrom>
                     <rdfs:Datatype>
                         <owl:oneOf>
@@ -2021,9 +1981,9 @@
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#internalOnly"/>
+                <owl:onProperty rdf:resource="&dams;value"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;boolean"/>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment>A description of some facet of a collection, object, or object component. Facets
@@ -2036,56 +1996,55 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Object -->
 
-    <owl:Class rdf:about="&ns4;#Object">
-        <rdfs:label>Object</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSResource"/>
+    <owl:Class rdf:about="&dams;Object">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSResource"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#language"/>
-                <owl:onClass rdf:resource="&ns4;#Language"/>
+                <owl:onProperty rdf:resource="&dams;title"/>
+                <owl:onClass rdf:resource="&dams;Title"/>
                 <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#license"/>
-                <owl:onClass rdf:resource="&ns4;#License"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#copyright"/>
-                <owl:onClass rdf:resource="&ns4;#Copyright"/>
+                <owl:onProperty rdf:resource="&dams;copyright"/>
+                <owl:onClass rdf:resource="&dams;Copyright"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#otherRights"/>
-                <owl:onClass rdf:resource="&ns4;#OtherRights"/>
+                <owl:onProperty rdf:resource="&dams;statute"/>
+                <owl:onClass rdf:resource="&dams;Statute"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#statute"/>
-                <owl:onClass rdf:resource="&ns4;#Statute"/>
+                <owl:onProperty rdf:resource="&dams;repository"/>
+                <owl:onClass rdf:resource="&dams;Repository"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;license"/>
+                <owl:onClass rdf:resource="&dams;License"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#title"/>
-                <owl:onClass rdf:resource="&ns4;#Title"/>
+                <owl:onProperty rdf:resource="&dams;otherRights"/>
+                <owl:onClass rdf:resource="&dams;OtherRights"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;language"/>
+                <owl:onClass rdf:resource="&dams;Language"/>
                 <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#repository"/>
-                <owl:onClass rdf:resource="&ns4;#Repository"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment>A representation of an intellectual entity, sometimes referred
@@ -2105,41 +2064,41 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#OtherRights -->
 
-    <owl:Class rdf:about="&ns4;#OtherRights">
-        <rdfs:subClassOf rdf:resource="&ns4;#Rights"/>
+    <owl:Class rdf:about="&dams;OtherRights">
+        <rdfs:subClassOf rdf:resource="&dams;Rights"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#rightsAction"/>
-                <owl:onClass rdf:resource="&ns4;#RightsAction"/>
+                <owl:onProperty rdf:resource="&dams;otherRightsBasis"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;rightsAction"/>
+                <owl:onClass rdf:resource="&dams;RightsAction"/>
                 <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#otherRightsURI"/>
+                <owl:onProperty rdf:resource="&dams;otherRightsURI"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;anyURI"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#relationship"/>
-                <owl:onClass rdf:resource="&ns4;#Relationship"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#otherRightsBasis"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#otherRightsNote"/>
+                <owl:onProperty rdf:resource="&dams;otherRightsNote"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;relationship"/>
+                <owl:onClass rdf:resource="&dams;Relationship"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment>Required Relationship: decision maker.</rdfs:comment>
@@ -2158,8 +2117,8 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Permission -->
 
-    <owl:Class rdf:about="&ns4;#Permission">
-        <rdfs:subClassOf rdf:resource="&ns4;#RightsAction"/>
+    <owl:Class rdf:about="&dams;Permission">
+        <rdfs:subClassOf rdf:resource="&dams;RightsAction"/>
         <rdfs:comment>An action that is allowed.</rdfs:comment>
     </owl:Class>
     
@@ -2167,11 +2126,11 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#PreferredCitationNote -->
 
-    <owl:Class rdf:about="&ns4;#PreferredCitationNote">
-        <rdfs:subClassOf rdf:resource="&ns4;#Note"/>
+    <owl:Class rdf:about="&dams;PreferredCitationNote">
+        <rdfs:subClassOf rdf:resource="&dams;Note"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#type"/>
+                <owl:onProperty rdf:resource="&dams;type"/>
                 <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:cardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -2183,11 +2142,24 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#RelatedResource -->
 
-    <owl:Class rdf:about="&ns4;#RelatedResource">
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSThing"/>
+    <owl:Class rdf:about="&dams;RelatedResource">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSThing"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#type"/>
+                <owl:onProperty rdf:resource="&dams;uri"/>
+                <owl:allValuesFrom rdf:resource="&xsd;anyURI"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;description"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;type"/>
                 <owl:allValuesFrom>
                     <rdfs:Datatype>
                         <owl:oneOf>
@@ -2199,19 +2171,6 @@
                         </owl:oneOf>
                     </rdfs:Datatype>
                 </owl:allValuesFrom>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#description"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#uri"/>
-                <owl:allValuesFrom rdf:resource="&xsd;anyURI"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment>We may need to either write policy to enforce relationships between classes
@@ -2227,20 +2186,19 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Relationship -->
 
-    <owl:Class rdf:about="&ns4;#Relationship">
-        <rdfs:label>Relationship</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSThing"/>
+    <owl:Class rdf:about="&dams;Relationship">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSThing"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#name"/>
-                <owl:onClass rdf:resource="&ns4;#Name"/>
+                <owl:onProperty rdf:resource="&dams;name"/>
+                <owl:onClass rdf:resource="&dams;Name"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#role"/>
-                <owl:onClass rdf:resource="&ns4;#Role"/>
+                <owl:onProperty rdf:resource="&dams;role"/>
+                <owl:onClass rdf:resource="&dams;Role"/>
                 <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -2251,26 +2209,25 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Repository -->
 
-    <owl:Class rdf:about="&ns4;#Repository">
-        <rdfs:label>Repository</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSThing"/>
+    <owl:Class rdf:about="&dams;Repository">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSThing"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#event"/>
-                <owl:onClass rdf:resource="&ns4;#DAMSEvent"/>
+                <owl:onProperty rdf:resource="&dams;event"/>
+                <owl:onClass rdf:resource="&dams;DAMSEvent"/>
                 <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#repositoryURI"/>
+                <owl:onProperty rdf:resource="&dams;repositoryURI"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;anyURI"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#repositoryName"/>
+                <owl:onProperty rdf:resource="&dams;repositoryName"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
@@ -2288,11 +2245,11 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Restriction -->
 
-    <owl:Class rdf:about="&ns4;#Restriction">
-        <rdfs:subClassOf rdf:resource="&ns4;#RightsAction"/>
+    <owl:Class rdf:about="&dams;Restriction">
+        <rdfs:subClassOf rdf:resource="&dams;RightsAction"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#endDate"/>
+                <owl:onProperty rdf:resource="&dams;endDate"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;date"/>
             </owl:Restriction>
@@ -2304,12 +2261,12 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Rights -->
 
-    <owl:Class rdf:about="&ns4;#Rights">
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSThing"/>
+    <owl:Class rdf:about="&dams;Rights">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSThing"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#event"/>
-                <owl:allValuesFrom rdf:resource="&ns4;#DAMSEvent"/>
+                <owl:onProperty rdf:resource="&dams;event"/>
+                <owl:allValuesFrom rdf:resource="&dams;DAMSEvent"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment>Superclass of classes which describe intellectual property rights which allow
@@ -2320,17 +2277,11 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#RightsAction -->
 
-    <owl:Class rdf:about="&ns4;#RightsAction">
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSThing"/>
+    <owl:Class rdf:about="&dams;RightsAction">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSThing"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#endDate"/>
-                <owl:allValuesFrom rdf:resource="&xsd;date"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#type"/>
+                <owl:onProperty rdf:resource="&dams;type"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange>
                     <rdfs:Datatype>
@@ -2347,7 +2298,13 @@
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#beginDate"/>
+                <owl:onProperty rdf:resource="&dams;beginDate"/>
+                <owl:allValuesFrom rdf:resource="&xsd;date"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;endDate"/>
                 <owl:allValuesFrom rdf:resource="&xsd;date"/>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -2359,12 +2316,11 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Role -->
 
-    <owl:Class rdf:about="&ns4;#Role">
-        <rdfs:label>Role</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&ns4;#VocabularyEntry"/>
+    <owl:Class rdf:about="&dams;Role">
+        <rdfs:subClassOf rdf:resource="&dams;VocabularyEntry"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#term"/>
+                <owl:onProperty rdf:resource="&dams;term"/>
                 <owl:allValuesFrom>
                     <rdfs:Datatype>
                         <owl:oneOf>
@@ -2390,11 +2346,11 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#ScopeContentNote -->
 
-    <owl:Class rdf:about="&ns4;#ScopeContentNote">
-        <rdfs:subClassOf rdf:resource="&ns4;#Note"/>
+    <owl:Class rdf:about="&dams;ScopeContentNote">
+        <rdfs:subClassOf rdf:resource="&dams;Note"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#type"/>
+                <owl:onProperty rdf:resource="&dams;type"/>
                 <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:cardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -2405,53 +2361,53 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#SourceCapture -->
 
-    <owl:Class rdf:about="&ns4;#SourceCapture">
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSThing"/>
+    <owl:Class rdf:about="&dams;SourceCapture">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSThing"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#sourceType"/>
+                <owl:onProperty rdf:resource="&dams;scanningSoftware"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#scanningSoftwareVersion"/>
+                <owl:onProperty rdf:resource="&dams;captureSource"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#captureSource"/>
+                <owl:onProperty rdf:resource="&dams;scannerModelName"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#scannerManufacturer"/>
+                <owl:onProperty rdf:resource="&dams;scannerManufacturer"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#scannerModelName"/>
+                <owl:onProperty rdf:resource="&dams;imageProducer"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#scanningSoftware"/>
+                <owl:onProperty rdf:resource="&dams;sourceType"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#imageProducer"/>
+                <owl:onProperty rdf:resource="&dams;scanningSoftwareVersion"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
@@ -2464,35 +2420,34 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Statute -->
 
-    <owl:Class rdf:about="&ns4;#Statute">
-        <rdfs:label>Statute</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&ns4;#Rights"/>
+    <owl:Class rdf:about="&dams;Statute">
+        <rdfs:subClassOf rdf:resource="&dams;Rights"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#statuteJurisdiction"/>
+                <owl:onProperty rdf:resource="&dams;statuteJurisdiction"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#statuteNote"/>
+                <owl:onProperty rdf:resource="&dams;rightsAction"/>
+                <owl:onClass rdf:resource="&dams;RightsAction"/>
+                <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;statuteCitation"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;statuteNote"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#statuteCitation"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#rightsAction"/>
-                <owl:onClass rdf:resource="&ns4;#RightsAction"/>
-                <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment>Statutes typically limit access to content in some way, often because the
@@ -2513,12 +2468,38 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Subject -->
 
-    <owl:Class rdf:about="&ns4;#Subject">
-        <rdfs:label>Subject</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&ns4;#VocabularyEntry"/>
+    <owl:Class rdf:about="&dams;Subject">
+        <rdfs:subClassOf rdf:resource="&dams;VocabularyEntry"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#authority"/>
+                <owl:onProperty rdf:resource="&dams;subjectPart"/>
+                <owl:allValuesFrom rdf:resource="&dams;SubjectPart"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;cartographics"/>
+                <owl:onClass rdf:resource="&dams;Cartographics"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;title"/>
+                <owl:onClass rdf:resource="&dams;Title"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;name"/>
+                <owl:onClass rdf:resource="&dams;Name"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;authority"/>
                 <owl:allValuesFrom>
                     <rdfs:Datatype>
                         <owl:oneOf>
@@ -2530,33 +2511,6 @@
                         </owl:oneOf>
                     </rdfs:Datatype>
                 </owl:allValuesFrom>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#cartographics"/>
-                <owl:onClass rdf:resource="&ns4;#Cartographics"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#title"/>
-                <owl:onClass rdf:resource="&ns4;#Title"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#name"/>
-                <owl:onClass rdf:resource="&ns4;#Name"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#subjectPart"/>
-                <owl:allValuesFrom rdf:resource="&ns4;#SubjectPart"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment>term and displayLabel should be suppressed.</rdfs:comment>
@@ -2574,11 +2528,17 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#SubjectPart -->
 
-    <owl:Class rdf:about="&ns4;#SubjectPart">
-        <rdfs:subClassOf rdf:resource="&ns4;#VocabularyEntry"/>
+    <owl:Class rdf:about="&dams;SubjectPart">
+        <rdfs:subClassOf rdf:resource="&dams;VocabularyEntry"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#type"/>
+                <owl:onProperty rdf:resource="&dams;order"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;type"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange>
                     <rdfs:Datatype>
@@ -2593,12 +2553,6 @@
                 </owl:onDataRange>
             </owl:Restriction>
         </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#order"/>
-                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <rdfs:comment>A singular subject term, which may be added to other subject terms to compose
       a complete subject expression for a collection, object, or object component.</rdfs:comment>
     </owl:Class>
@@ -2607,33 +2561,87 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Title -->
 
-    <owl:Class rdf:about="&ns4;#Title">
-        <rdfs:label>Title</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSThing"/>
+    <owl:Class rdf:about="&dams;Title">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSThing"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#authority"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
+                <owl:onProperty rdf:resource="&dams;title"/>
+                <owl:allValuesFrom rdf:resource="&dams;Title"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#partName"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#value"/>
+                <owl:onProperty rdf:resource="&dams;value"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#type"/>
+                <owl:onProperty rdf:resource="&dams;script"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;authorityURI"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;anyURI"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;valueURI"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;anyURI"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;displayLabel"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;partName"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;authority"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;partNumber"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;nonsortCharacters"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;language"/>
+                <owl:onClass rdf:resource="&dams;Language"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;type"/>
                 <owl:allValuesFrom>
                     <rdfs:Datatype>
                         <owl:oneOf>
@@ -2647,61 +2655,6 @@
                 </owl:allValuesFrom>
             </owl:Restriction>
         </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#nonsortCharacters"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#partNumber"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#script"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#language"/>
-                <owl:onClass rdf:resource="&ns4;#Language"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#title"/>
-                <owl:allValuesFrom rdf:resource="&ns4;#Title"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#displayLabel"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#authorityURI"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;anyURI"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#valueURI"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;anyURI"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <rdfs:comment>A term or phrase describing a collection, object, or object component. The title
       may be transcribed from the work, from previous metadata, or supplied.</rdfs:comment>
         <rdfs:comment>relatedTitle should be used to link to equivalent transliterated, translated,
@@ -2712,12 +2665,11 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#Vocabulary -->
 
-    <owl:Class rdf:about="&ns4;#Vocabulary">
-        <rdfs:label>Vocabulary</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSThing"/>
+    <owl:Class rdf:about="&dams;Vocabulary">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSThing"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#description"/>
+                <owl:onProperty rdf:resource="&dams;description"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
@@ -2729,54 +2681,54 @@
 
     <!-- http://library.ucsd.edu/ontology/dams/#VocabularyEntry -->
 
-    <owl:Class rdf:about="&ns4;#VocabularyEntry">
-        <rdfs:subClassOf rdf:resource="&ns4;#DAMSThing"/>
+    <owl:Class rdf:about="&dams;VocabularyEntry">
+        <rdfs:subClassOf rdf:resource="&dams;DAMSThing"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#vocabulary"/>
-                <owl:onClass rdf:resource="&ns4;#Vocabulary"/>
+                <owl:onProperty rdf:resource="&dams;value"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;authority"/>
+                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;vocabulary"/>
+                <owl:onClass rdf:resource="&dams;Vocabulary"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#valueURI"/>
+                <owl:onProperty rdf:resource="&dams;authorityURI"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;anyURI"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#authority"/>
+                <owl:onProperty rdf:resource="&dams;code"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#authorityURI"/>
+                <owl:onProperty rdf:resource="&dams;valueURI"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;anyURI"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#description"/>
+                <owl:onProperty rdf:resource="&dams;description"/>
                 <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#code"/>
-                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns4;#value"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
