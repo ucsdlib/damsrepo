@@ -684,7 +684,7 @@
                 <owl:oneOf>
                     <rdf:Description>
                         <rdf:type rdf:resource="&rdf;List"/>
-                        <rdf:first>ISO 8601</rdf:first>
+                        <rdf:first rdf:datatype="&xsd;string">ISO 8601</rdf:first>
                         <rdf:rest rdf:resource="&rdf;nil"/>
                     </rdf:Description>
                 </owl:oneOf>
@@ -890,11 +890,11 @@
                 <owl:oneOf>
                     <rdf:Description>
                         <rdf:type rdf:resource="&rdf;List"/>
-                        <rdf:first>Action failed</rdf:first>
+                        <rdf:first rdf:datatype="&xsd;string">Action failed</rdf:first>
                         <rdf:rest>
                             <rdf:Description>
                                 <rdf:type rdf:resource="&rdf;List"/>
-                                <rdf:first>Action succeeded</rdf:first>
+                                <rdf:first rdf:datatype="&xsd;string">Action succeeded</rdf:first>
                                 <rdf:rest rdf:resource="&rdf;nil"/>
                             </rdf:Description>
                         </rdf:rest>
@@ -971,23 +971,23 @@
                 <owl:oneOf>
                     <rdf:Description>
                         <rdf:type rdf:resource="&rdf;List"/>
-                        <rdf:first>0</rdf:first>
+                        <rdf:first rdf:datatype="&xsd;string">0</rdf:first>
                         <rdf:rest>
                             <rdf:Description>
                                 <rdf:type rdf:resource="&rdf;List"/>
-                                <rdf:first>1</rdf:first>
+                                <rdf:first rdf:datatype="&xsd;string">1</rdf:first>
                                 <rdf:rest>
                                     <rdf:Description>
                                         <rdf:type rdf:resource="&rdf;List"/>
-                                        <rdf:first>2</rdf:first>
+                                        <rdf:first rdf:datatype="&xsd;string">2</rdf:first>
                                         <rdf:rest>
                                             <rdf:Description>
                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                <rdf:first>bit-level</rdf:first>
+                                                <rdf:first rdf:datatype="&xsd;string">bit-level</rdf:first>
                                                 <rdf:rest>
                                                     <rdf:Description>
                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                        <rdf:first>full</rdf:first>
+                                                        <rdf:first rdf:datatype="&xsd;string">full</rdf:first>
                                                         <rdf:rest rdf:resource="&rdf;nil"/>
                                                     </rdf:Description>
                                                 </rdf:rest>
@@ -1249,55 +1249,55 @@
                 <owl:oneOf>
                     <rdf:Description>
                         <rdf:type rdf:resource="&rdf;List"/>
-                        <rdf:first>audio-alternate</rdf:first>
+                        <rdf:first rdf:datatype="&xsd;string">audio-alternate</rdf:first>
                         <rdf:rest>
                             <rdf:Description>
                                 <rdf:type rdf:resource="&rdf;List"/>
-                                <rdf:first>audio-service</rdf:first>
+                                <rdf:first rdf:datatype="&xsd;string">audio-service</rdf:first>
                                 <rdf:rest>
                                     <rdf:Description>
                                         <rdf:type rdf:resource="&rdf;List"/>
-                                        <rdf:first>audio-source</rdf:first>
+                                        <rdf:first rdf:datatype="&xsd;string">audio-source</rdf:first>
                                         <rdf:rest>
                                             <rdf:Description>
                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                <rdf:first>data-alternate</rdf:first>
+                                                <rdf:first rdf:datatype="&xsd;string">data-alternate</rdf:first>
                                                 <rdf:rest>
                                                     <rdf:Description>
                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                        <rdf:first>data-service</rdf:first>
+                                                        <rdf:first rdf:datatype="&xsd;string">data-service</rdf:first>
                                                         <rdf:rest>
                                                             <rdf:Description>
                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                <rdf:first>data-source</rdf:first>
+                                                                <rdf:first rdf:datatype="&xsd;string">data-source</rdf:first>
                                                                 <rdf:rest>
                                                                     <rdf:Description>
                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                        <rdf:first>document-alternate</rdf:first>
+                                                                        <rdf:first rdf:datatype="&xsd;string">document-alternate</rdf:first>
                                                                         <rdf:rest>
                                                                             <rdf:Description>
                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                <rdf:first>document-service</rdf:first>
+                                                                                <rdf:first rdf:datatype="&xsd;string">document-service</rdf:first>
                                                                                 <rdf:rest>
                                                                                     <rdf:Description>
                                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                                        <rdf:first>document-source</rdf:first>
+                                                                                        <rdf:first rdf:datatype="&xsd;string">document-source</rdf:first>
                                                                                         <rdf:rest>
                                                                                             <rdf:Description>
                                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                <rdf:first>visual-alternate</rdf:first>
+                                                                                                <rdf:first rdf:datatype="&xsd;string">visual-alternate</rdf:first>
                                                                                                 <rdf:rest>
                                                                                                     <rdf:Description>
                                                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                        <rdf:first>visual-service</rdf:first>
+                                                                                                        <rdf:first rdf:datatype="&xsd;string">visual-service</rdf:first>
                                                                                                         <rdf:rest>
                                                                                                             <rdf:Description>
                                                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                                <rdf:first>visual-source</rdf:first>
+                                                                                                                <rdf:first rdf:datatype="&xsd;string">visual-source</rdf:first>
                                                                                                                 <rdf:rest>
                                                                                                                     <rdf:Description>
                                                                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                                        <rdf:first>visual-thumbnail</rdf:first>
+                                                                                                                        <rdf:first rdf:datatype="&xsd;string">visual-thumbnail</rdf:first>
                                                                                                                         <rdf:rest rdf:resource="&rdf;nil"/>
                                                                                                                     </rdf:Description>
                                                                                                                 </rdf:rest>
@@ -1407,15 +1407,15 @@
                         <owl:oneOf>
                             <rdf:Description>
                                 <rdf:type rdf:resource="&rdf;List"/>
-                                <rdf:first>WGS66</rdf:first>
+                                <rdf:first rdf:datatype="&xsd;string">WGS66</rdf:first>
                                 <rdf:rest>
                                     <rdf:Description>
                                         <rdf:type rdf:resource="&rdf;List"/>
-                                        <rdf:first>WGS72</rdf:first>
+                                        <rdf:first rdf:datatype="&xsd;string">WGS72</rdf:first>
                                         <rdf:rest>
                                             <rdf:Description>
                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                <rdf:first>WGS84</rdf:first>
+                                                <rdf:first rdf:datatype="&xsd;string">WGS84</rdf:first>
                                                 <rdf:rest rdf:resource="&rdf;nil"/>
                                             </rdf:Description>
                                         </rdf:rest>
@@ -1601,19 +1601,19 @@
                         <owl:oneOf>
                             <rdf:Description>
                                 <rdf:type rdf:resource="&rdf;List"/>
-                                <rdf:first>Copyright unknown</rdf:first>
+                                <rdf:first rdf:datatype="&xsd;string">Copyright unknown</rdf:first>
                                 <rdf:rest>
                                     <rdf:Description>
                                         <rdf:type rdf:resource="&rdf;List"/>
-                                        <rdf:first>Public domain</rdf:first>
+                                        <rdf:first rdf:datatype="&xsd;string">Public domain</rdf:first>
                                         <rdf:rest>
                                             <rdf:Description>
                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                <rdf:first>Under copyright -- 1st Party</rdf:first>
+                                                <rdf:first rdf:datatype="&xsd;string">Under copyright -- 1st Party</rdf:first>
                                                 <rdf:rest>
                                                     <rdf:Description>
                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                        <rdf:first>Under copyright -- 3rd Party</rdf:first>
+                                                        <rdf:first rdf:datatype="&xsd;string">Under copyright -- 3rd Party</rdf:first>
                                                         <rdf:rest rdf:resource="&rdf;nil"/>
                                                     </rdf:Description>
                                                 </rdf:rest>
@@ -1697,63 +1697,63 @@
                         <owl:oneOf>
                             <rdf:Description>
                                 <rdf:type rdf:resource="&rdf;List"/>
-                                <rdf:first>augmentation--content</rdf:first>
+                                <rdf:first rdf:datatype="&xsd;string">augmentation--content</rdf:first>
                                 <rdf:rest>
                                     <rdf:Description>
                                         <rdf:type rdf:resource="&rdf;List"/>
-                                        <rdf:first>calculation--checksum</rdf:first>
+                                        <rdf:first rdf:datatype="&xsd;string">calculation--checksum</rdf:first>
                                         <rdf:rest>
                                             <rdf:Description>
                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                <rdf:first>creation--collection</rdf:first>
+                                                <rdf:first rdf:datatype="&xsd;string">creation--collection</rdf:first>
                                                 <rdf:rest>
                                                     <rdf:Description>
                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                        <rdf:first>creation--derivative</rdf:first>
+                                                        <rdf:first rdf:datatype="&xsd;string">creation--derivative</rdf:first>
                                                         <rdf:rest>
                                                             <rdf:Description>
                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                <rdf:first>creation--object</rdf:first>
+                                                                <rdf:first rdf:datatype="&xsd;string">creation--object</rdf:first>
                                                                 <rdf:rest>
                                                                     <rdf:Description>
                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                        <rdf:first>deletion--object</rdf:first>
+                                                                        <rdf:first rdf:datatype="&xsd;string">deletion--object</rdf:first>
                                                                         <rdf:rest>
                                                                             <rdf:Description>
                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                <rdf:first>indexing</rdf:first>
+                                                                                <rdf:first rdf:datatype="&xsd;string">indexing</rdf:first>
                                                                                 <rdf:rest>
                                                                                     <rdf:Description>
                                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                                        <rdf:first>migration--content</rdf:first>
+                                                                                        <rdf:first rdf:datatype="&xsd;string">migration--content</rdf:first>
                                                                                         <rdf:rest>
                                                                                             <rdf:Description>
                                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                <rdf:first>modification--content</rdf:first>
+                                                                                                <rdf:first rdf:datatype="&xsd;string">modification--content</rdf:first>
                                                                                                 <rdf:rest>
                                                                                                     <rdf:Description>
                                                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                        <rdf:first>replication--object</rdf:first>
+                                                                                                        <rdf:first rdf:datatype="&xsd;string">replication--object</rdf:first>
                                                                                                         <rdf:rest>
                                                                                                             <rdf:Description>
                                                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                                <rdf:first>revision--metadata</rdf:first>
+                                                                                                                <rdf:first rdf:datatype="&xsd;string">revision--metadata</rdf:first>
                                                                                                                 <rdf:rest>
                                                                                                                     <rdf:Description>
                                                                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                                        <rdf:first>transformation--metadata</rdf:first>
+                                                                                                                        <rdf:first rdf:datatype="&xsd;string">transformation--metadata</rdf:first>
                                                                                                                         <rdf:rest>
                                                                                                                             <rdf:Description>
                                                                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                                                <rdf:first>validation--object</rdf:first>
+                                                                                                                                <rdf:first rdf:datatype="&xsd;string">validation--object</rdf:first>
                                                                                                                                 <rdf:rest>
                                                                                                                                     <rdf:Description>
                                                                                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                                                        <rdf:first>verification--checksum</rdf:first>
+                                                                                                                                        <rdf:first rdf:datatype="&xsd;string">verification--checksum</rdf:first>
                                                                                                                                         <rdf:rest>
                                                                                                                                             <rdf:Description>
                                                                                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                                                                <rdf:first>virus check--content</rdf:first>
+                                                                                                                                                <rdf:first rdf:datatype="&xsd;string">virus check--content</rdf:first>
                                                                                                                                                 <rdf:rest rdf:resource="&rdf;nil"/>
                                                                                                                                             </rdf:Description>
                                                                                                                                         </rdf:rest>
@@ -1849,31 +1849,31 @@
                         <owl:oneOf>
                             <rdf:Description>
                                 <rdf:type rdf:resource="&rdf;List"/>
-                                <rdf:first>captured</rdf:first>
+                                <rdf:first rdf:datatype="&xsd;string">captured</rdf:first>
                                 <rdf:rest>
                                     <rdf:Description>
                                         <rdf:type rdf:resource="&rdf;List"/>
-                                        <rdf:first>copyright</rdf:first>
+                                        <rdf:first rdf:datatype="&xsd;string">copyright</rdf:first>
                                         <rdf:rest>
                                             <rdf:Description>
                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                <rdf:first>created</rdf:first>
+                                                <rdf:first rdf:datatype="&xsd;string">created</rdf:first>
                                                 <rdf:rest>
                                                     <rdf:Description>
                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                        <rdf:first>issued</rdf:first>
+                                                        <rdf:first rdf:datatype="&xsd;string">issued</rdf:first>
                                                         <rdf:rest>
                                                             <rdf:Description>
                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                <rdf:first>modified</rdf:first>
+                                                                <rdf:first rdf:datatype="&xsd;string">modified</rdf:first>
                                                                 <rdf:rest>
                                                                     <rdf:Description>
                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                        <rdf:first>other</rdf:first>
+                                                                        <rdf:first rdf:datatype="&xsd;string">other</rdf:first>
                                                                         <rdf:rest>
                                                                             <rdf:Description>
                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                <rdf:first>valid</rdf:first>
+                                                                                <rdf:first rdf:datatype="&xsd;string">valid</rdf:first>
                                                                                 <rdf:rest rdf:resource="&rdf;nil"/>
                                                                             </rdf:Description>
                                                                         </rdf:rest>
@@ -2105,23 +2105,23 @@
                         <owl:oneOf>
                             <rdf:Description>
                                 <rdf:type rdf:resource="&rdf;List"/>
-                                <rdf:first>conference</rdf:first>
+                                <rdf:first rdf:datatype="&xsd;string">conference</rdf:first>
                                 <rdf:rest>
                                     <rdf:Description>
                                         <rdf:type rdf:resource="&rdf;List"/>
-                                        <rdf:first>corporate</rdf:first>
+                                        <rdf:first rdf:datatype="&xsd;string">corporate</rdf:first>
                                         <rdf:rest>
                                             <rdf:Description>
                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                <rdf:first>family</rdf:first>
+                                                <rdf:first rdf:datatype="&xsd;string">family</rdf:first>
                                                 <rdf:rest>
                                                     <rdf:Description>
                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                        <rdf:first>personal</rdf:first>
+                                                        <rdf:first rdf:datatype="&xsd;string">personal</rdf:first>
                                                         <rdf:rest>
                                                             <rdf:Description>
                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                <rdf:first>software</rdf:first>
+                                                                <rdf:first rdf:datatype="&xsd;string">software</rdf:first>
                                                                 <rdf:rest rdf:resource="&rdf;nil"/>
                                                             </rdf:Description>
                                                         </rdf:rest>
@@ -2145,63 +2145,63 @@
                         <owl:oneOf>
                             <rdf:Description>
                                 <rdf:type rdf:resource="&rdf;List"/>
-                                <rdf:first>abne</rdf:first>
+                                <rdf:first rdf:datatype="&xsd;string">abne</rdf:first>
                                 <rdf:rest>
                                     <rdf:Description>
                                         <rdf:type rdf:resource="&rdf;List"/>
-                                        <rdf:first>bibalex</rdf:first>
+                                        <rdf:first rdf:datatype="&xsd;string">bibalex</rdf:first>
                                         <rdf:rest>
                                             <rdf:Description>
                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                <rdf:first>conorsi</rdf:first>
+                                                <rdf:first rdf:datatype="&xsd;string">conorsi</rdf:first>
                                                 <rdf:rest>
                                                     <rdf:Description>
                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                        <rdf:first>gkd</rdf:first>
+                                                        <rdf:first rdf:datatype="&xsd;string">gkd</rdf:first>
                                                         <rdf:rest>
                                                             <rdf:Description>
                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                <rdf:first>gnd</rdf:first>
+                                                                <rdf:first rdf:datatype="&xsd;string">gnd</rdf:first>
                                                                 <rdf:rest>
                                                                     <rdf:Description>
                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                        <rdf:first>hapi</rdf:first>
+                                                                        <rdf:first rdf:datatype="&xsd;string">hapi</rdf:first>
                                                                         <rdf:rest>
                                                                             <rdf:Description>
                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                <rdf:first>hkcan</rdf:first>
+                                                                                <rdf:first rdf:datatype="&xsd;string">hkcan</rdf:first>
                                                                                 <rdf:rest>
                                                                                     <rdf:Description>
                                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                                        <rdf:first>lacnaf</rdf:first>
+                                                                                        <rdf:first rdf:datatype="&xsd;string">lacnaf</rdf:first>
                                                                                         <rdf:rest>
                                                                                             <rdf:Description>
                                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                <rdf:first>naf</rdf:first>
+                                                                                                <rdf:first rdf:datatype="&xsd;string">naf</rdf:first>
                                                                                                 <rdf:rest>
                                                                                                     <rdf:Description>
                                                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                        <rdf:first>nalnaf</rdf:first>
+                                                                                                        <rdf:first rdf:datatype="&xsd;string">nalnaf</rdf:first>
                                                                                                         <rdf:rest>
                                                                                                             <rdf:Description>
                                                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                                <rdf:first>nlmnaf</rdf:first>
+                                                                                                                <rdf:first rdf:datatype="&xsd;string">nlmnaf</rdf:first>
                                                                                                                 <rdf:rest>
                                                                                                                     <rdf:Description>
                                                                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                                        <rdf:first>nznb</rdf:first>
+                                                                                                                        <rdf:first rdf:datatype="&xsd;string">nznb</rdf:first>
                                                                                                                         <rdf:rest>
                                                                                                                             <rdf:Description>
                                                                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                                                <rdf:first>sanb</rdf:first>
+                                                                                                                                <rdf:first rdf:datatype="&xsd;string">sanb</rdf:first>
                                                                                                                                 <rdf:rest>
                                                                                                                                     <rdf:Description>
                                                                                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                                                        <rdf:first>ulan</rdf:first>
+                                                                                                                                        <rdf:first rdf:datatype="&xsd;string">ulan</rdf:first>
                                                                                                                                         <rdf:rest>
                                                                                                                                             <rdf:Description>
                                                                                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                                                                <rdf:first>unbisn</rdf:first>
+                                                                                                                                                <rdf:first rdf:datatype="&xsd;string">unbisn</rdf:first>
                                                                                                                                                 <rdf:rest rdf:resource="&rdf;nil"/>
                                                                                                                                             </rdf:Description>
                                                                                                                                         </rdf:rest>
@@ -2267,31 +2267,31 @@
                         <owl:oneOf>
                             <rdf:Description>
                                 <rdf:type rdf:resource="&rdf;List"/>
-                                <rdf:first>abstract</rdf:first>
+                                <rdf:first rdf:datatype="&xsd;string">abstract</rdf:first>
                                 <rdf:rest>
                                     <rdf:Description>
                                         <rdf:type rdf:resource="&rdf;List"/>
-                                        <rdf:first>digitalOrigin</rdf:first>
+                                        <rdf:first rdf:datatype="&xsd;string">digitalOrigin</rdf:first>
                                         <rdf:rest>
                                             <rdf:Description>
                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                <rdf:first>extent</rdf:first>
+                                                <rdf:first rdf:datatype="&xsd;string">extent</rdf:first>
                                                 <rdf:rest>
                                                     <rdf:Description>
                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                        <rdf:first>identifier:doi</rdf:first>
+                                                        <rdf:first rdf:datatype="&xsd;string">identifier:doi</rdf:first>
                                                         <rdf:rest>
                                                             <rdf:Description>
                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                <rdf:first>identifier:filename</rdf:first>
+                                                                <rdf:first rdf:datatype="&xsd;string">identifier:filename</rdf:first>
                                                                 <rdf:rest>
                                                                     <rdf:Description>
                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                        <rdf:first>identifier:local</rdf:first>
+                                                                        <rdf:first rdf:datatype="&xsd;string">identifier:local</rdf:first>
                                                                         <rdf:rest>
                                                                             <rdf:Description>
                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                <rdf:first>inscription</rdf:first>
+                                                                                <rdf:first rdf:datatype="&xsd;string">inscription</rdf:first>
                                                                                 <rdf:rest rdf:resource="&rdf;nil"/>
                                                                             </rdf:Description>
                                                                         </rdf:rest>
@@ -2561,23 +2561,23 @@
                         <owl:oneOf>
                             <rdf:Description>
                                 <rdf:type rdf:resource="&rdf;List"/>
-                                <rdf:first>depicts</rdf:first>
+                                <rdf:first rdf:datatype="&xsd;string">depicts</rdf:first>
                                 <rdf:rest>
                                     <rdf:Description>
                                         <rdf:type rdf:resource="&rdf;List"/>
-                                        <rdf:first>derived from</rdf:first>
+                                        <rdf:first rdf:datatype="&xsd;string">derived from</rdf:first>
                                         <rdf:rest>
                                             <rdf:Description>
                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                <rdf:first>online exhibit</rdf:first>
+                                                <rdf:first rdf:datatype="&xsd;string">online exhibit</rdf:first>
                                                 <rdf:rest>
                                                     <rdf:Description>
                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                        <rdf:first>parallel description</rdf:first>
+                                                        <rdf:first rdf:datatype="&xsd;string">parallel description</rdf:first>
                                                         <rdf:rest>
                                                             <rdf:Description>
                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                <rdf:first>source</rdf:first>
+                                                                <rdf:first rdf:datatype="&xsd;string">source</rdf:first>
                                                                 <rdf:rest rdf:resource="&rdf;nil"/>
                                                             </rdf:Description>
                                                         </rdf:rest>
@@ -2714,19 +2714,19 @@
                         <owl:oneOf>
                             <rdf:Description>
                                 <rdf:type rdf:resource="&rdf;List"/>
-                                <rdf:first>display</rdf:first>
+                                <rdf:first rdf:datatype="&xsd;string">display</rdf:first>
                                 <rdf:rest>
                                     <rdf:Description>
                                         <rdf:type rdf:resource="&rdf;List"/>
-                                        <rdf:first>migrate</rdf:first>
+                                        <rdf:first rdf:datatype="&xsd;string">migrate</rdf:first>
                                         <rdf:rest>
                                             <rdf:Description>
                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                <rdf:first>modify</rdf:first>
+                                                <rdf:first rdf:datatype="&xsd;string">modify</rdf:first>
                                                 <rdf:rest>
                                                     <rdf:Description>
                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                        <rdf:first>replicate</rdf:first>
+                                                        <rdf:first rdf:datatype="&xsd;string">replicate</rdf:first>
                                                         <rdf:rest rdf:resource="&rdf;nil"/>
                                                     </rdf:Description>
                                                 </rdf:rest>
@@ -2764,15 +2764,15 @@
                         <owl:oneOf>
                             <rdf:Description>
                                 <rdf:type rdf:resource="&rdf;List"/>
-                                <rdf:first>author</rdf:first>
+                                <rdf:first rdf:datatype="&xsd;string">author</rdf:first>
                                 <rdf:rest>
                                     <rdf:Description>
                                         <rdf:type rdf:resource="&rdf;List"/>
-                                        <rdf:first>creator</rdf:first>
+                                        <rdf:first rdf:datatype="&xsd;string">creator</rdf:first>
                                         <rdf:rest>
                                             <rdf:Description>
                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                <rdf:first>publisher</rdf:first>
+                                                <rdf:first rdf:datatype="&xsd;string">publisher</rdf:first>
                                                 <rdf:rest rdf:resource="&rdf;nil"/>
                                             </rdf:Description>
                                         </rdf:rest>
@@ -2928,27 +2928,27 @@
                         <owl:oneOf>
                             <rdf:Description>
                                 <rdf:type rdf:resource="&rdf;List"/>
-                                <rdf:first>aat</rdf:first>
+                                <rdf:first rdf:datatype="&xsd;string">aat</rdf:first>
                                 <rdf:rest>
                                     <rdf:Description>
                                         <rdf:type rdf:resource="&rdf;List"/>
-                                        <rdf:first>lcsh</rdf:first>
+                                        <rdf:first rdf:datatype="&xsd;string">lcsh</rdf:first>
                                         <rdf:rest>
                                             <rdf:Description>
                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                <rdf:first>local</rdf:first>
+                                                <rdf:first rdf:datatype="&xsd;string">local</rdf:first>
                                                 <rdf:rest>
                                                     <rdf:Description>
                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                        <rdf:first>mesh</rdf:first>
+                                                        <rdf:first rdf:datatype="&xsd;string">mesh</rdf:first>
                                                         <rdf:rest>
                                                             <rdf:Description>
                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                <rdf:first>naf</rdf:first>
+                                                                <rdf:first rdf:datatype="&xsd;string">naf</rdf:first>
                                                                 <rdf:rest>
                                                                     <rdf:Description>
                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                        <rdf:first>tgn</rdf:first>
+                                                                        <rdf:first rdf:datatype="&xsd;string">tgn</rdf:first>
                                                                         <rdf:rest rdf:resource="&rdf;nil"/>
                                                                     </rdf:Description>
                                                                 </rdf:rest>
@@ -3026,51 +3026,51 @@
                         <owl:oneOf>
                             <rdf:Description>
                                 <rdf:type rdf:resource="&rdf;List"/>
-                                <rdf:first>buildworkPlace</rdf:first>
+                                <rdf:first rdf:datatype="&xsd;string">buildworkPlace</rdf:first>
                                 <rdf:rest>
                                     <rdf:Description>
                                         <rdf:type rdf:resource="&rdf;List"/>
-                                        <rdf:first>culturalContext</rdf:first>
+                                        <rdf:first rdf:datatype="&xsd;string">culturalContext</rdf:first>
                                         <rdf:rest>
                                             <rdf:Description>
                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                <rdf:first>function</rdf:first>
+                                                <rdf:first rdf:datatype="&xsd;string">function</rdf:first>
                                                 <rdf:rest>
                                                     <rdf:Description>
                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                        <rdf:first>genre</rdf:first>
+                                                        <rdf:first rdf:datatype="&xsd;string">genre</rdf:first>
                                                         <rdf:rest>
                                                             <rdf:Description>
                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                <rdf:first>geographic</rdf:first>
+                                                                <rdf:first rdf:datatype="&xsd;string">geographic</rdf:first>
                                                                 <rdf:rest>
                                                                     <rdf:Description>
                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                        <rdf:first>iconography</rdf:first>
+                                                                        <rdf:first rdf:datatype="&xsd;string">iconography</rdf:first>
                                                                         <rdf:rest>
                                                                             <rdf:Description>
                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                <rdf:first>occupation</rdf:first>
+                                                                                <rdf:first rdf:datatype="&xsd;string">occupation</rdf:first>
                                                                                 <rdf:rest>
                                                                                     <rdf:Description>
                                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                                        <rdf:first>scientificName</rdf:first>
+                                                                                        <rdf:first rdf:datatype="&xsd;string">scientificName</rdf:first>
                                                                                         <rdf:rest>
                                                                                             <rdf:Description>
                                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                <rdf:first>stylePeriod</rdf:first>
+                                                                                                <rdf:first rdf:datatype="&xsd;string">stylePeriod</rdf:first>
                                                                                                 <rdf:rest>
                                                                                                     <rdf:Description>
                                                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                        <rdf:first>technique</rdf:first>
+                                                                                                        <rdf:first rdf:datatype="&xsd;string">technique</rdf:first>
                                                                                                         <rdf:rest>
                                                                                                             <rdf:Description>
                                                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                                <rdf:first>temporal</rdf:first>
+                                                                                                                <rdf:first rdf:datatype="&xsd;string">temporal</rdf:first>
                                                                                                                 <rdf:rest>
                                                                                                                     <rdf:Description>
                                                                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                                                                        <rdf:first>topic</rdf:first>
+                                                                                                                        <rdf:first rdf:datatype="&xsd;string">topic</rdf:first>
                                                                                                                         <rdf:rest rdf:resource="&rdf;nil"/>
                                                                                                                     </rdf:Description>
                                                                                                                 </rdf:rest>
@@ -3167,31 +3167,31 @@
                         <owl:oneOf>
                             <rdf:Description>
                                 <rdf:type rdf:resource="&rdf;List"/>
-                                <rdf:first>abbreviated</rdf:first>
+                                <rdf:first rdf:datatype="&xsd;string">abbreviated</rdf:first>
                                 <rdf:rest>
                                     <rdf:Description>
                                         <rdf:type rdf:resource="&rdf;List"/>
-                                        <rdf:first>alternative</rdf:first>
+                                        <rdf:first rdf:datatype="&xsd;string">alternative</rdf:first>
                                         <rdf:rest>
                                             <rdf:Description>
                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                <rdf:first>enumerated</rdf:first>
+                                                <rdf:first rdf:datatype="&xsd;string">enumerated</rdf:first>
                                                 <rdf:rest>
                                                     <rdf:Description>
                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                        <rdf:first>main</rdf:first>
+                                                        <rdf:first rdf:datatype="&xsd;string">main</rdf:first>
                                                         <rdf:rest>
                                                             <rdf:Description>
                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                <rdf:first>translated</rdf:first>
+                                                                <rdf:first rdf:datatype="&xsd;string">translated</rdf:first>
                                                                 <rdf:rest>
                                                                     <rdf:Description>
                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                        <rdf:first>transliterated</rdf:first>
+                                                                        <rdf:first rdf:datatype="&xsd;string">transliterated</rdf:first>
                                                                         <rdf:rest>
                                                                             <rdf:Description>
                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                <rdf:first>uniform</rdf:first>
+                                                                                <rdf:first rdf:datatype="&xsd;string">uniform</rdf:first>
                                                                                 <rdf:rest rdf:resource="&rdf;nil"/>
                                                                             </rdf:Description>
                                                                         </rdf:rest>
