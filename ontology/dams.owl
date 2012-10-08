@@ -2515,6 +2515,20 @@ Video: longest dimension and/or bitrate e.g. &#39;320px&#39;, &#39;640px/1000kbp
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;value"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dams;internalOnly"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;boolean"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
                 <owl:onProperty rdf:resource="&dams;type"/>
                 <owl:allValuesFrom>
                     <rdfs:Datatype>
@@ -2525,28 +2539,184 @@ Video: longest dimension and/or bitrate e.g. &#39;320px&#39;, &#39;640px/1000kbp
                                 <rdf:rest>
                                     <rdf:Description>
                                         <rdf:type rdf:resource="&rdf;List"/>
-                                        <rdf:first rdf:datatype="&xsd;string">digitalOrigin</rdf:first>
+                                        <rdf:first rdf:datatype="&xsd;string">appraisal</rdf:first>
                                         <rdf:rest>
                                             <rdf:Description>
                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                <rdf:first rdf:datatype="&xsd;string">extent</rdf:first>
+                                                <rdf:first rdf:datatype="&xsd;string">arrangement</rdf:first>
                                                 <rdf:rest>
                                                     <rdf:Description>
                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                        <rdf:first rdf:datatype="&xsd;string">identifier:doi</rdf:first>
+                                                        <rdf:first rdf:datatype="&xsd;string">biography/history</rdf:first>
                                                         <rdf:rest>
                                                             <rdf:Description>
                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                <rdf:first rdf:datatype="&xsd;string">identifier:filename</rdf:first>
+                                                                <rdf:first rdf:datatype="&xsd;string">citation</rdf:first>
                                                                 <rdf:rest>
                                                                     <rdf:Description>
                                                                         <rdf:type rdf:resource="&rdf;List"/>
-                                                                        <rdf:first rdf:datatype="&xsd;string">identifier:local</rdf:first>
+                                                                        <rdf:first rdf:datatype="&xsd;string">computer / data type conditions governing access</rdf:first>
                                                                         <rdf:rest>
                                                                             <rdf:Description>
                                                                                 <rdf:type rdf:resource="&rdf;List"/>
-                                                                                <rdf:first rdf:datatype="&xsd;string">inscription</rdf:first>
-                                                                                <rdf:rest rdf:resource="&rdf;nil"/>
+                                                                                <rdf:first rdf:datatype="&xsd;string">conditions governing use</rdf:first>
+                                                                                <rdf:rest>
+                                                                                    <rdf:Description>
+                                                                                        <rdf:type rdf:resource="&rdf;List"/>
+                                                                                        <rdf:first rdf:datatype="&xsd;string">creation/production credits</rdf:first>
+                                                                                        <rdf:rest>
+                                                                                            <rdf:Description>
+                                                                                                <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                <rdf:first rdf:datatype="&xsd;string">custodial history</rdf:first>
+                                                                                                <rdf:rest>
+                                                                                                    <rdf:Description>
+                                                                                                        <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                        <rdf:first rdf:datatype="&xsd;string">dimensions</rdf:first>
+                                                                                                        <rdf:rest>
+                                                                                                            <rdf:Description>
+                                                                                                                <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                <rdf:first rdf:datatype="&xsd;string">dissertation</rdf:first>
+                                                                                                                <rdf:rest>
+                                                                                                                    <rdf:Description>
+                                                                                                                        <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                        <rdf:first rdf:datatype="&xsd;string">existence and location of copies</rdf:first>
+                                                                                                                        <rdf:rest>
+                                                                                                                            <rdf:Description>
+                                                                                                                                <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                <rdf:first rdf:datatype="&xsd;string">existence and location of originals</rdf:first>
+                                                                                                                                <rdf:rest>
+                                                                                                                                    <rdf:Description>
+                                                                                                                                        <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                        <rdf:first rdf:datatype="&xsd;string">funding information</rdf:first>
+                                                                                                                                        <rdf:rest>
+                                                                                                                                            <rdf:Description>
+                                                                                                                                                <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                <rdf:first rdf:datatype="&xsd;string">general note</rdf:first>
+                                                                                                                                                <rdf:rest>
+                                                                                                                                                    <rdf:Description>
+                                                                                                                                                        <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                        <rdf:first rdf:datatype="&xsd;string">general physical description</rdf:first>
+                                                                                                                                                        <rdf:rest>
+                                                                                                                                                            <rdf:Description>
+                                                                                                                                                                <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                <rdf:first rdf:datatype="&xsd;string">geographic coverage</rdf:first>
+                                                                                                                                                                <rdf:rest>
+                                                                                                                                                                    <rdf:Description>
+                                                                                                                                                                        <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                        <rdf:first rdf:datatype="&xsd;string">identifier</rdf:first>
+                                                                                                                                                                        <rdf:rest>
+                                                                                                                                                                            <rdf:Description>
+                                                                                                                                                                                <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                                <rdf:first rdf:datatype="&xsd;string">immediate source of acquisition</rdf:first>
+                                                                                                                                                                                <rdf:rest>
+                                                                                                                                                                                    <rdf:Description>
+                                                                                                                                                                                        <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                                        <rdf:first rdf:datatype="&xsd;string">inscription</rdf:first>
+                                                                                                                                                                                        <rdf:rest>
+                                                                                                                                                                                            <rdf:Description>
+                                                                                                                                                                                                <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                                                <rdf:first rdf:datatype="&xsd;string">language of materials</rdf:first>
+                                                                                                                                                                                                <rdf:rest>
+                                                                                                                                                                                                    <rdf:Description>
+                                                                                                                                                                                                        <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                                                        <rdf:first rdf:datatype="&xsd;string">location</rdf:first>
+                                                                                                                                                                                                        <rdf:rest>
+                                                                                                                                                                                                            <rdf:Description>
+                                                                                                                                                                                                                <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                                                                <rdf:first rdf:datatype="&xsd;string">material specific details</rdf:first>
+                                                                                                                                                                                                                <rdf:rest>
+                                                                                                                                                                                                                    <rdf:Description>
+                                                                                                                                                                                                                        <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                                                                        <rdf:first rdf:datatype="&xsd;string">methodology note</rdf:first>
+                                                                                                                                                                                                                        <rdf:rest>
+                                                                                                                                                                                                                            <rdf:Description>
+                                                                                                                                                                                                                                <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                                                                                <rdf:first rdf:datatype="&xsd;string">numbering peculiarities</rdf:first>
+                                                                                                                                                                                                                                <rdf:rest>
+                                                                                                                                                                                                                                    <rdf:Description>
+                                                                                                                                                                                                                                        <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                                                                                        <rdf:first rdf:datatype="&xsd;string">participant/performer</rdf:first>
+                                                                                                                                                                                                                                        <rdf:rest>
+                                                                                                                                                                                                                                            <rdf:Description>
+                                                                                                                                                                                                                                                <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                                                                                                <rdf:first rdf:datatype="&xsd;string">physical characteristics and technical requirements</rdf:first>
+                                                                                                                                                                                                                                                <rdf:rest>
+                                                                                                                                                                                                                                                    <rdf:Description>
+                                                                                                                                                                                                                                                        <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                                                                                                        <rdf:first rdf:datatype="&xsd;string">physical facet</rdf:first>
+                                                                                                                                                                                                                                                        <rdf:rest>
+                                                                                                                                                                                                                                                            <rdf:Description>
+                                                                                                                                                                                                                                                                <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                                                                                                                <rdf:first rdf:datatype="&xsd;string">preferred citation</rdf:first>
+                                                                                                                                                                                                                                                                <rdf:rest>
+                                                                                                                                                                                                                                                                    <rdf:Description>
+                                                                                                                                                                                                                                                                        <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                                                                                                                        <rdf:first rdf:datatype="&xsd;string">publication</rdf:first>
+                                                                                                                                                                                                                                                                        <rdf:rest>
+                                                                                                                                                                                                                                                                            <rdf:Description>
+                                                                                                                                                                                                                                                                                <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                                                                                                                                <rdf:first rdf:datatype="&xsd;string">related materials</rdf:first>
+                                                                                                                                                                                                                                                                                <rdf:rest>
+                                                                                                                                                                                                                                                                                    <rdf:Description>
+                                                                                                                                                                                                                                                                                        <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                                                                                                                                        <rdf:first rdf:datatype="&xsd;string">scope and content</rdf:first>
+                                                                                                                                                                                                                                                                                        <rdf:rest>
+                                                                                                                                                                                                                                                                                            <rdf:Description>
+                                                                                                                                                                                                                                                                                                <rdf:type rdf:resource="&rdf;List"/>
+                                                                                                                                                                                                                                                                                                <rdf:first rdf:datatype="&xsd;string">separated materials</rdf:first>
+                                                                                                                                                                                                                                                                                                <rdf:rest rdf:resource="&rdf;nil"/>
+                                                                                                                                                                                                                                                                                            </rdf:Description>
+                                                                                                                                                                                                                                                                                        </rdf:rest>
+                                                                                                                                                                                                                                                                                    </rdf:Description>
+                                                                                                                                                                                                                                                                                </rdf:rest>
+                                                                                                                                                                                                                                                                            </rdf:Description>
+                                                                                                                                                                                                                                                                        </rdf:rest>
+                                                                                                                                                                                                                                                                    </rdf:Description>
+                                                                                                                                                                                                                                                                </rdf:rest>
+                                                                                                                                                                                                                                                            </rdf:Description>
+                                                                                                                                                                                                                                                        </rdf:rest>
+                                                                                                                                                                                                                                                    </rdf:Description>
+                                                                                                                                                                                                                                                </rdf:rest>
+                                                                                                                                                                                                                                            </rdf:Description>
+                                                                                                                                                                                                                                        </rdf:rest>
+                                                                                                                                                                                                                                    </rdf:Description>
+                                                                                                                                                                                                                                </rdf:rest>
+                                                                                                                                                                                                                            </rdf:Description>
+                                                                                                                                                                                                                        </rdf:rest>
+                                                                                                                                                                                                                    </rdf:Description>
+                                                                                                                                                                                                                </rdf:rest>
+                                                                                                                                                                                                            </rdf:Description>
+                                                                                                                                                                                                        </rdf:rest>
+                                                                                                                                                                                                    </rdf:Description>
+                                                                                                                                                                                                </rdf:rest>
+                                                                                                                                                                                            </rdf:Description>
+                                                                                                                                                                                        </rdf:rest>
+                                                                                                                                                                                    </rdf:Description>
+                                                                                                                                                                                </rdf:rest>
+                                                                                                                                                                            </rdf:Description>
+                                                                                                                                                                        </rdf:rest>
+                                                                                                                                                                    </rdf:Description>
+                                                                                                                                                                </rdf:rest>
+                                                                                                                                                            </rdf:Description>
+                                                                                                                                                        </rdf:rest>
+                                                                                                                                                    </rdf:Description>
+                                                                                                                                                </rdf:rest>
+                                                                                                                                            </rdf:Description>
+                                                                                                                                        </rdf:rest>
+                                                                                                                                    </rdf:Description>
+                                                                                                                                </rdf:rest>
+                                                                                                                            </rdf:Description>
+                                                                                                                        </rdf:rest>
+                                                                                                                    </rdf:Description>
+                                                                                                                </rdf:rest>
+                                                                                                            </rdf:Description>
+                                                                                                        </rdf:rest>
+                                                                                                    </rdf:Description>
+                                                                                                </rdf:rest>
+                                                                                            </rdf:Description>
+                                                                                        </rdf:rest>
+                                                                                    </rdf:Description>
+                                                                                </rdf:rest>
                                                                             </rdf:Description>
                                                                         </rdf:rest>
                                                                     </rdf:Description>
@@ -2563,20 +2733,6 @@ Video: longest dimension and/or bitrate e.g. &#39;320px&#39;, &#39;640px/1000kbp
                         </owl:oneOf>
                     </rdfs:Datatype>
                 </owl:allValuesFrom>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&dams;value"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&dams;internalOnly"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;boolean"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment>A description of some facet of a collection, object, or object component. Facets
