@@ -667,7 +667,7 @@
     <owl:DatatypeProperty rdf:about="&dams;dateCreatedByApplication">
         <rdfs:comment>Date and time the file was created. (ISO 8601)</rdfs:comment>
         <rdfs:domain rdf:resource="&dams;File"/>
-        <rdfs:range rdf:resource="&xsd;dateTime"/>
+        <rdfs:range rdf:resource="&xsd;dateTimeStamp"/>
     </owl:DatatypeProperty>
     
 
@@ -750,7 +750,7 @@
 
     <owl:DatatypeProperty rdf:about="&dams;eventDate">
         <rdfs:domain rdf:resource="&dams;DAMSEvent"/>
-        <rdfs:range rdf:resource="&xsd;dateTime"/>
+        <rdfs:range rdf:resource="&xsd;dateTimeStamp"/>
     </owl:DatatypeProperty>
     
 
