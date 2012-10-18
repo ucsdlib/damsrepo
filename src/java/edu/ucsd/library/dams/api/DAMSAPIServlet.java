@@ -42,20 +42,35 @@ public class DAMSAPIServlet extends APIBase
 		// collection
 		else if ( path.length > 2 && path[2].equals("collections") )
 		{
+			// GET /api/collections
+			if ( path.length == 3 )
+			{
+				collectionListAll( params );
+			}
+			// GET /api/collections/bb1234567x
+			else if ( path.length == 4 )
+			{
+				collectionListObjects( path[3], params );
+			}
 			// GET /api/collections/bb1234567x/count
-			if ( path[4].equals("count") )
+			else if ( path[4].equals("count") )
 			{
 				collectionCount( path[3], params );
 			}
-			// GET /api/collections/bb1234567x/validate
-			if ( path[4].equals("validate") )
+			// GET /api/collections/bb1234567x/embargo
+			else if ( path[4].equals("embargo") )
 			{
-				objectValidate( path[3], params );
+				collectionEmbargo( path[3], params );
 			}
 			// GET /api/collections/bb1234567x/fixity	
-			if ( path[4].equals("fixity") )
+			else if ( path[4].equals("fixity") )
 			{
 				collectionFixity( path[3], params );
+			}
+			// GET /api/collections/bb1234567x/validate
+			else if ( path[4].equals("validate") )
+			{
+				objectValidate( path[3], params );
 			}
 		}
 		// objects
@@ -85,6 +100,25 @@ public class DAMSAPIServlet extends APIBase
 			{
 				fileFixity( path[3], path[4], params );
 			}
+		}
+		// client
+		else if ( path.length == 4 && path[2].equals("client") )
+		{
+			// GET /api/client/authorize
+			if ( path[3].equals("authorize") )
+			{
+				clientAuthorize( params );
+			}
+			// GET /api/client/info
+			else if ( path[3].equals("info") )
+			{
+				clientInfo( params );
+			}
+		}
+		// predicates
+		else if ( path.length == 3 && path[2].equals("predicates") )
+		{
+			predicateList( params );
 		}
 		else
 		{
