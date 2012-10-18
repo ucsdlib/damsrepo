@@ -29,35 +29,73 @@ public class APIBase
 	/*************************************************************************/
 	/* Core Java API                                                         */
 	/*************************************************************************/
-	public void createFile( String id, String file, Map<String,String> params,
-		InputStream in ) { }
-	public void createIdentifier( Map<String,String> params ) { }
-	public void createObject( String id, Map<String,String> params,
-		InputStream in ) { }
-	public void createRelationship( String id, Map<String,String> params ) { }
-	public void deleteFile( String id, String file,
+	public void clientAuthorize( Map<String,String> params ) { }
+	public void clientInfo( Map<String,String> params ) { }
+	public void collectionCharacterize( String colid,
 		Map<String,String> params ) { }
-	public void deleteObject( String id, Map<String,String> params ) { }
-	public void deleteRelationship( String id, Map<String,String> params ) { }
-	public void describeRepository( Map<String,String> params ) { }
+	public void collectionCount( String colid, Map<String,String> params ) { }
+	public void collectionEmbargo( String colid, Map<String,String> params ) { }
+	public void collectionDerivatives( String colid,
+		Map<String,String> params ) { }
+	public void collectionFixity( String colid, Map<String,String> params ) { }
+	public void collectionIndexDelete( String colid,
+		Map<String,String> params ) { }
+	public void collectionIndexUpdate( String colid,
+		Map<String,String> params ) { }
+	public void collectionListAll( Map<String,String> params ) { }
+	public void collectionListObjects( String colid,
+		Map<String,String> params ) { }
+	public void collectionTransform( String colid,
+		Map<String,String> params ) { }
+	public void collectionValidate( String colid,
+		Map<String,String> params ) { }
+	public void fileCharacterize( String objid, String fileid,
+		Map<String,String> params ) { }
+	public void fileCreate( String objid, String fileid,
+		Map<String,String> params, InputStream in ) { }
+	public void fileDelete( String objid, String fileid,
+		Map<String,String> params ) { }
+	public void fileDerivatives( String objid, String fileid,
+		Map<String,String> params ) { }
+	public void fileFixity( String objid, String fileid,
+		Map<String,String> params ) { }
+	public void fileShow( String objid, String fileid,
+		Map<String,String> params ) { }
+	public void fileUpdate( String objid, String fileid,
+		Map<String,String> params, InputStream in ) { }
+	public void identifierCreate( Map<String,String> params ) { }
+	public void indexSearch( Map<String,String> params ) { }
+	public void objectCreate( String objid, Map<String,String> params,
+		InputStream in ) { }
+	public void objectDelete( String objid, Map<String,String> params ) { }
+	public void objectIndexDelete( String objid, Map<String,String> params ) { }
+	public void objectIndexUpdate( String objid, Map<String,String> params ) { }
+	public void objectShow( String objid, boolean export,
+		Map<String,String> params ) { }
+	public void objectTransform( String objid, Map<String,String> params ) { }
+	public void objectUpdate( String objid, Map<String,String> params,
+		InputStream in ) { }
+	public void objectValidate( String objid, Map<String,String> params ) { }
+	public void predicateList( Map<String,String> params ) { }
+
 	public void error( String msg ) { }
-	public void fileHistory( String id, String file,
+
+	/*************************************************************************/
+	/* Fedora API                                                            */
+	/*************************************************************************/
+	public void relationshipCreate( String objid,
 		Map<String,String> params ) { }
-	public void fileMetadata( String id, String file,
+	public void relationshipDelete( String objid,
 		Map<String,String> params ) { }
-	public void getFile( String id, String file, Map<String,String> params ) { }
-	public void listFiles( String id, Map<String,String> params ) { }
-	public void listRelationships( String id, Map<String,String> params ) { }
-	public void listVersions( String id, Map<String,String> params ) { }
-	public void objectMetadata( String id, boolean export,
+	public void describeRepository( Map<String,String> params ) { }
+	public void fileHistory( String objid, String fileid,
 		Map<String,String> params ) { }
-	public void objectProfile( String id, Map<String,String> params ) { }
-	public void searchRepository( Map<String,String> params ) { }
-	public void updateFile( String id, String file, Map<String,String> params,
-		InputStream in ) { }
-	public void updateObject( String id, Map<String,String> params,
-		InputStream in ) { }
-	public void validateObject( String id, Map<String,String> params ) { }
+	public void fileProfile( String objid, String fileid,
+		Map<String,String> params ) { }
+	public void fileList( String objid, Map<String,String> params ) { }
+	public void relationshipShow( String objid, Map<String,String> params ) { }
+	public void objectVersions( String objid, Map<String,String> params ) { }
+	public void objectProfile( String objid, Map<String,String> params ) { }
 
 
 	/*************************************************************************/

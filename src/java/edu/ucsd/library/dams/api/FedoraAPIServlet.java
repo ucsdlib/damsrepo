@@ -39,7 +39,7 @@ public class FedoraAPIServlet extends APIBase
 		// GET /objects
 		else if ( path.length == 2 && path[1].equals("objects") )
 		{
-			searchRepository( parameters(req) );
+			indexSearch( parameters(req) );
 		}
 		// GET /objects/$pid
 		else if ( path.length == 3 && path[1].equals("objects") )
@@ -49,32 +49,32 @@ public class FedoraAPIServlet extends APIBase
 		// GET /objects/$pid/export
 		else if ( path.length == 4 && path[3].equals("export") )
 		{
-			objectMetadata( path[2], true, parameters(req) );
+			objectShow( path[2], true, parameters(req) );
 		}
 		// GET /objects/$pid/objectXML
 		else if ( path.length == 4 && path[3].equals("objectXML") )
 		{
-			objectMetadata( path[2], false, parameters(req) );
+			objectShow( path[2], false, parameters(req) );
 		}
 		// GET /objects/$pid/validate
 		else if ( path.length == 4 && path[3].equals("validate") )
 		{
-			validateObject( path[2], parameters(req) );
+			objectValidate( path[2], parameters(req) );
 		}
 		// GET /objects/$pid/versions
 		else if ( path.length == 4 && path[3].equals("versions") )
 		{
-			listVersions( path[2], parameters(req) );
+			objectVersions( path[2], parameters(req) );
 		}
 		// GET /objects/$pid/datastreams
 		else if ( path.length == 4 && path[3].equals("datastreams") )
 		{
-			listFiles( path[2], parameters(req) );
+			fileList( path[2], parameters(req) );
 		}
 		// GET /objects/$pid/datastreams/$dsid
 		else if ( path.length == 5 && path[3].equals("datastreams") )
 		{
-			fileMetadata( path[2], path[4], parameters(req) );
+			fileProfile( path[2], path[4], parameters(req) );
 		}
 		// GET /objects/$pid/datastreams/$dsid/history
 		else if ( path.length == 6 && path[3].equals("datastreams")
@@ -86,12 +86,12 @@ public class FedoraAPIServlet extends APIBase
 		else if ( path.length == 6 && path[3].equals("datastreams")
 			&& path[5].equals("content") )
 		{
-			getFile( path[2], path[4], parameters(req) );
+			fileShow( path[2], path[4], parameters(req) );
 		}
 		// GET /objects/$pid/relationships
 		else if ( path.length == 4 && path[3].equals("relationships") )
 		{
-			listRelationships( path[2], parameters(req) );
+			relationshipShow( path[2], parameters(req) );
 		}
 		// GET /objects/$pid/methods -- NOT IMPLEMENTED
 		// GET /objects/$pid/methods/$sdef/$method -- NOT IMPLEMENTED
@@ -115,23 +115,23 @@ public class FedoraAPIServlet extends APIBase
 		// POST /objects/nextPID
 		if ( path.length == 3 && path[2].equals("nextPID") )
 		{
-			createIdentifier( params );
+			identifierCreate( params );
 		}
 		// POST /objects/$pid
 		else if ( path.length == 3 )
 		{
-			createObject( path[1], params, in );
+			objectCreate( path[1], params, in );
 		}
 		// POST /objects/$pid/datastreams/$dsid
 		else if ( path.length == 5 && path[3].equals("datastreams") )
 		{
-			createFile( path[1], path[3], params, in );
+			fileCreate( path[1], path[3], params, in );
 		}
 		// POST /objects/$pid/relationships/new
 		else if ( path.length == 5 && path[3].equals("relationships")
 			&& path[4].equals("new") )
 		{
-			createRelationship( path[1], params );
+			relationshipCreate( path[1], params );
 		}
 		else
 		{
@@ -154,12 +154,12 @@ public class FedoraAPIServlet extends APIBase
 		// PUT /objects/$pid
 		if ( path.length == 3 )
 		{
-			updateObject( path[1], params, in );
+			objectUpdate( path[1], params, in );
 		}
 		// PUT /objects/$pid/datastreams/$sid
 		else if ( path.length == 5 && path[3].equals("datastreams") )
 		{
-			updateFile( path[2], path[4], params, in );
+			fileUpdate( path[2], path[4], params, in );
 		}
 		else
 		{
@@ -178,17 +178,17 @@ public class FedoraAPIServlet extends APIBase
 		// DELETE /objects/$pid
 		if ( path.length == 3 )
 		{
-			deleteObject( path[2], parameters(req) );
+			objectDelete( path[2], parameters(req) );
 		}
 		// DELETE /objects/$pid/datastreams/$sid
 		else if ( path.length == 5 && path[3].equals("datastreams") )
 		{
-			deleteFile( path[2], path[4], parameters(req) );
+			fileDelete( path[2], path[4], parameters(req) );
 		}
 		// DELETE /objects/$pid/relationships
 		else if ( path.length == 4 && path[3].equals("relationships") )
 		{
-			deleteRelationship( path[2], parameters(req) );
+			relationshipDelete( path[2], parameters(req) );
 		}
 		else
 		{
