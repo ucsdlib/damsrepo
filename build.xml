@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<project name="dams" default="compile" basedir=".">
+  <property name="appName" value="dams"/>
+    <property file="${user.home}/build.properties"/>
+  <property name="src"       value="${basedir}/src"/>
+  <property name="java"      value="${src}/java"/>
+  <property name="lib"       value="${src}/lib"/>
+  <property name="metainf"   value="${src}/metainf"/>
+  <property name="webinf"    value="${src}/webinf"/>
+  <property name="dist"      value="${basedir}/dist"/>
+  <property name="tmp"       value="${basedir}/tmp"/>
+  <property name="webapp"    value="${tmp}/webapp"/>
+
+  <tstamp>
+    <format property="build_date" pattern="yyyy-MM-dd"/>
+    <format property="build_time" pattern="HH:mm:ss"/>
+  </tstamp>
+
+  <!-- version numbering -->
+  <target name="version">
+    <propertyfile file="version.properties" comment="${comment}">
+      <entry key="major.version" default="0"/>
+      <entry key="minor.version" default="0"/>
+      <entry key="build.number" type="int" operation="+" value="1" pattern="#####"/>
+      <entry key="user.version" default=""/>
+    </propertyfile>
+    <property file="version.properties"/>
+    <property name="version_string" value="${major.version}.${minor.version}.${build.number}"/>
+    <echo level="info" message="app version: ${version_string}"/>
+    <echo level="info" message="user version: ${user.version}"/>
+  </target>
+
+  <path id="classpath">
+    <fileset dir="${lib}">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <!-- clean -->
+  <target name="clean" description="Delete generated directories">
+    <delete dir="${tmp}"/>
+  </target>
+
+
+  <!-- distclean -->
+  <target name="distclean" description="Delete WAR files">
+    <delete dir="${dist}"/>
+    <delete dir="${tmp}"/>
+  </target>
+
+  <!-- prepare -->
+  <target name="prepare" description="Create output directories.">
+    <mkdir dir="${dist}"/>
+    <mkdir dir="${tmp}"/>
+    <mkdir dir="${webapp}/META-INF"/>
+    <mkdir dir="${webapp}/WEB-INF"/>
+    <mkdir dir="${webapp}/WEB-INF/lib"/>
+    <mkdir dir="${webapp}/WEB-INF/classes"/>
+  </target>
+  <!-- compile -->
+  <target name="compile" description="Compile Java classes."
+      depends="prepare,version">
+    <!-- compile -->
+    <javac destdir="${webapp}/WEB-INF/classes" srcdir="${java}"
+        deprecation="on" debug="true" debuglevel="lines,source" target="1.5"
+        includeantruntime="false" source="1.5">
+      <classpath refid="classpath"/>
+      <!-- <compilerarg line="-Xlint:unchecked"/> -->
+    </javac>
+
+    <!-- copy properties and jar files -->
+    <copy todir="${webapp}/WEB-INF/lib">
+      <fileset refid="lib"/>
+      <fileset refid="extlib"/>
+      <fileset refid="compile-only3"/>
+    </copy>
+    <copy todir="${webapp}/WEB-INF/classes">
+      <fileset dir="${props}" includes="**/*.properties"/>
+    </copy>
+  </target>
+  <!-- webapp -->
+  <target name="webapp" description="Build WAR file" depends="compile">
+    <!-- move old war file out of the way -->
+    <move file="${dist}/${appName}.war" tofile="${dist}/${appName}.bak"
+      failonerror="false"/>
+
+    <!-- generate new war file -->
+    <war destfile="${dist}/${appName}.war" webxml="${webapp}/WEB-INF/web.xml">
+      <fileset dir="${webapp}">
+        <exclude name="WEB-INF/**"/>
+        <exclude name="META-INF/**"/>
+      </fileset>
+      <webinf dir="${webapp}/WEB-INF" excludes="web.xml"/>
+      <metainf dir="${webapp}/META-INF"/>
+    </war>
+  </target>
+
+  <!-- LOCAL DEPLOY -->
+  <target name="local-deploy" description="Deploy webapp to local dir (farm)">
+    <echo level="info" message="war = 'file://${dist}/${appName}.war'"/>
+    <copy file="${dist}/${appName}.war" todir="${local.farm.dir}"/>
+  </target>
+</project>
