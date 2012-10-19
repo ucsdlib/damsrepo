@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
  * Servlet implementing the key portions of the Fedora REST API.
  * @author escowles@ucsd.edu
 **/
-public class FedoraAPIServlet extends APIBase
+public class FedoraAPIServlet extends HttpServlet
 {
 	/*************************************************************************/
 	/* REST API methods                                                      */
@@ -103,6 +103,8 @@ public class FedoraAPIServlet extends APIBase
 	**/
 	public void doPost( HttpServletRequest req, HttpServletResponse res )
 	{
+		// XXX: redirect overloaded PUT/DELETE requests
+
 		// parse request URI
 		String[] path = path( req );
 
@@ -195,4 +197,45 @@ public class FedoraAPIServlet extends APIBase
 			error( "Invalid request" );
 		}
 	}
+    public void relationshipCreate( String objid,
+        Map<String,String> params )
+    {
+        // YYY: map to objectUpdate
+    }
+    public void relationshipDelete( String objid,
+        Map<String,String> params )
+    {
+        // YYY: map to objectUpdate
+    }
+    public void describeRepository( Map<String,String> params )
+    {
+        // YYY: stub info
+    }
+    public void fileHistory( String objid, String fileid,
+        Map<String,String> params )
+    {
+        // YYY: stub version based on lastmod date
+    }
+    public void fileProfile( String objid, String fileid,
+        Map<String,String> params )
+    {
+        // YYY: stub info
+    }
+    public void fileList( String objid, Map<String,String> params )
+    {
+        // YYY: map to objectShow
+    }
+    public void relationshipShow( String objid, Map<String,String> params )
+    {
+        // YYY: map to objectShow
+    }
+    public void objectVersions( String objid, Map<String,String> params )
+    {
+        // YYY: stub version based on lastmod date
+    }
+    public void objectProfile( String objid, Map<String,String> params )
+    {
+        // YYY: stub info
+    }
+
 }
