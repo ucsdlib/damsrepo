@@ -20,10 +20,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import edu.ucsd.library.dams.util.HttpUtil;
-
 // logging
 import org.apache.log4j.Logger;
+
+// http utility
+import edu.ucsd.library.dams.util.HttpUtil;
 
 
 /**
@@ -39,11 +40,6 @@ public class SolrProxy extends HttpServlet
 	private String solrBase = null;
 	private String baseDir = null;
 
-	// clientinfo vars
-	private static String[] catNames  = null;
-	private static String catDefault = null;
-	private static Map<String,List<String>> catMap = null;
-
 	public void init( ServletConfig config ) throws ServletException
 	{
 		try
@@ -54,25 +50,6 @@ public class SolrProxy extends HttpServlet
 			solrBase = (String)ctx.lookup( prefix + "solrBase" );
 			if (solrBase.endsWith("/")) { solrBase = solrBase.substring(0,solrBase.length()-1); }
 			baseDir = (String)ctx.lookup("java:comp/env/clusterSharedPath");
-
-			// clientinfo init
-			catDefault = config.getInitParameter( "categoryDefault" );
-			String catList = config.getInitParameter( "categoryList" );
-			log.info("catList = " + catList);
-			catNames = catList.split(",");
-			catMap = new HashMap<String,List<String>>();
-			for ( int i = 0; i < catNames.length; i++ )
-			{
-				String cat = catNames[i];
-				String rlst = config.getInitParameter( "category" + cat);
-				String[] rarr = rlst.split(",");
-				List<String> ranges = new ArrayList<String>();
-				for ( int j = 0; j < rarr.length; j++ )
-				{
-					ranges.add( rarr[j] );
-				}
-				catMap.put( cat, ranges );
-			}
 		}
 		catch ( Exception ex )
 		{
@@ -142,18 +119,11 @@ public class SolrProxy extends HttpServlet
 		if ( username == null || username.equals("") )
 		{
 			// not logged in, check ip addr status
-			String status = getStatus( req.getRemoteAddr() );
+			String status = (String)req.getAttribute("X-DAMS-Role");
 			statusFilter = getServletConfig().getInitParameter(
 				"filter" + status
-			);
+			); // XXX: convert to JNDI
 		}
-/*
-		// allow overriding status filter
-		if ( req.getParameter("statusFilter") != null )
-		{
-			statusFilter = req.getParameter("statusFilter");
-		}
-*/
 		// build URL
 		String url = solrBase + "/" + ds + "/" + name
 			+ "?" + req.getQueryString();
@@ -288,42 +258,4 @@ public class SolrProxy extends HttpServlet
 		long dur = System.currentTimeMillis() - start;
 		log.info("SolrProxy dur: " + dur + ", params: " + req.getQueryString());
 	}
-
-	/**
-	 * copied from ClientInfo.java -- need to share somehow... 
-	**/
-	private String getStatus( String ip )
-	{
-		// bogus or unavailable ip, use default
-		if ( ip == null || ip.trim().equals("") )
-		{
-			return catDefault;
-		}
-
-		// check each category in order
-		for ( int i = 0; i < catNames.length; i++ )
-		{
-			// check each range
-			List<String> ranges = catMap.get( catNames[i] );
-			for ( int j = 0; j < ranges.size(); j++ )
-			{
-				String range = ranges.get(j);
-				if ( range.endsWith(".") )
-				{
-					if ( ip.startsWith(range) )
-					{
-						return catNames[i];
-					}
-				}
-				else if ( range.equals(ip) )
-				{
-					return catNames[i];
-				}
-			}
-		}
-
-		// nothing matched, use default
-		return catDefault;
-	}
-
 }
