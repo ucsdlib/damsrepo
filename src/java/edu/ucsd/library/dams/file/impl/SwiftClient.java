@@ -21,6 +21,7 @@ import java.util.Properties;
 
 // for content type detection
 import javax.activation.FileDataSource;
+import javax.security.auth.login.LoginException;
 
 // http client 4.x
 import org.apache.http.client.HttpClient;
@@ -112,6 +113,7 @@ public class SwiftClient
 				http.debug(out);
 			}
 		}
+		catch ( LoginException ex ) { throw new FileStoreAuthException(ex); }
 		finally
 		{
 			get.reset();
@@ -203,6 +205,7 @@ public class SwiftClient
 				http.debug(out);
 			}
 		}
+		catch ( LoginException ex ) { throw new FileStoreAuthException(ex); }
 		finally
 		{
 			head.reset();
@@ -286,6 +289,7 @@ public class SwiftClient
 				http.debug(out);
 			}
 		}
+		catch ( LoginException ex ) { throw new FileStoreAuthException(ex); }
 		finally
 		{
 			get.reset();
@@ -351,7 +355,8 @@ public class SwiftClient
 		}
 		else
 		{
-			http.debug(out);
+			try { http.debug(out); }
+			catch ( LoginException ex ) { throw new FileStoreAuthException(ex); }
 		}
 		return in;
 	}
@@ -440,6 +445,7 @@ public class SwiftClient
 				http.debug(out);
 			}
 		}
+		catch ( LoginException ex ) { throw new FileStoreAuthException(ex); }
 		finally
 		{
 			put.reset();
@@ -492,6 +498,7 @@ public class SwiftClient
 					http.debug(out);
 				}
 			}
+			catch ( LoginException ex ) { throw new FileStoreAuthException(ex); }
 			finally
 			{
 				put.reset();
@@ -559,6 +566,7 @@ public class SwiftClient
 				http.debug(out);
 			}
 		}
+		catch ( LoginException ex ) { throw new FileStoreAuthException(ex); }
 		finally
 		{
 			put.reset();
@@ -593,6 +601,7 @@ public class SwiftClient
 				http.debug(out);
 			}
 		}
+		catch ( LoginException ex ) { throw new FileStoreAuthException(ex); }
 		finally
 		{
 			put.reset();
@@ -631,6 +640,7 @@ public class SwiftClient
 				http.debug(out);
 			}
 		}
+		catch ( LoginException ex ) { throw new FileStoreAuthException(ex); }
 		finally
 		{
 			del.reset();
@@ -663,6 +673,7 @@ public class SwiftClient
 				http.debug(out);
 			}
 		}
+		catch ( LoginException ex ) { throw new FileStoreAuthException(ex); }
 		finally
 		{
 			del.reset();
@@ -719,6 +730,7 @@ public class SwiftClient
 				http.debug(out);
 			}
 		}
+		catch ( LoginException ex ) { throw new FileStoreAuthException(ex); }
 		finally
 		{
 			head.reset();
@@ -775,6 +787,7 @@ public class SwiftClient
 				http.debug(out);
 			}
 		}
+		catch ( LoginException ex ) { throw new FileStoreAuthException(ex); }
 		finally
 		{
 			post.reset();

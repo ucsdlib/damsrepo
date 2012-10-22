@@ -44,8 +44,9 @@ public class SolrProxy extends HttpServlet
 	{
 		try
 		{
+			// XXX: JNDI cleanup
 			InitialContext ctx = new InitialContext();
-			String prefix = "java:comp/env/xdre/";
+			String prefix = "java:comp/env/dams/";
 			defaultDS = (String)ctx.lookup( prefix + "defaultDataSource" );
 			solrBase = (String)ctx.lookup( prefix + "solrBase" );
 			if (solrBase.endsWith("/")) { solrBase = solrBase.substring(0,solrBase.length()-1); }
@@ -84,9 +85,16 @@ public class SolrProxy extends HttpServlet
 		String profile = req.getParameter("profile");
 		if ( profile != null )
 		{
-			profileFilter = getServletConfig().getInitParameter(
-				"profile-" + profile
-			);
+			try
+			{
+				profileFilter = (String)new InitialContext().lookup(
+					"java:comp/env/dams/profile-" + profile
+				);
+			}
+			catch ( Exception ex )
+			{
+				log.warn("Error lookup up profile filter (" + profile + "): " + ex.toString());
+			}
 		}
 
 		// velocity
@@ -120,9 +128,16 @@ public class SolrProxy extends HttpServlet
 		{
 			// not logged in, check ip addr status
 			String status = (String)req.getAttribute("X-DAMS-Role");
-			statusFilter = getServletConfig().getInitParameter(
-				"filter" + status
-			); // XXX: convert to JNDI
+			try
+			{
+				statusFilter = (String)new InitialContext().lookup(
+					"java:comp/env/dams/filter" + status
+				);
+			}
+			catch ( Exception ex )
+			{
+				log.warn("Error lookup up status filter (" + status + "): " + ex.toString());
+			}
 		}
 		// build URL
 		String url = solrBase + "/" + ds + "/" + name

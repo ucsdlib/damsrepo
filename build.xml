@@ -31,7 +31,7 @@
   </target>
 
   <path id="classpath">
-    <fileset dir="${lib}">
+    <fileset dir="${lib}" id="lib">
       <include name="*.jar"/>
     </fileset>
   </path>
@@ -71,8 +71,6 @@
     <!-- copy properties and jar files -->
     <copy todir="${webapp}/WEB-INF/lib">
       <fileset refid="lib"/>
-      <fileset refid="extlib"/>
-      <fileset refid="compile-only3"/>
     </copy>
     <copy todir="${webapp}/WEB-INF/classes">
       <fileset dir="${props}" includes="**/*.properties"/>

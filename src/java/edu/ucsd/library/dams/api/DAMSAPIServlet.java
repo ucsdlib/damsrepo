@@ -1,6 +1,7 @@
 package edu.ucsd.library.dams.api;
 
 // java core api
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -26,6 +27,7 @@ import org.apache.log4j.Logger;
 // post/put file attachments
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
@@ -41,7 +43,12 @@ import org.json.simple.JSONValue;
 // dams
 import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.file.FileStoreUtil;
+import edu.ucsd.library.dams.triple.Identifier;
 import edu.ucsd.library.dams.triple.TripleStore;
+import edu.ucsd.library.dams.triple.TripleStoreException;
+import edu.ucsd.library.dams.triple.TripleStoreUtil;
+import edu.ucsd.library.dams.triple.edit.Edit;
+import edu.ucsd.library.dams.triple.edit.EditBackup;
 import edu.ucsd.library.dams.util.HttpUtil;
 
 /**
@@ -64,9 +71,10 @@ public class DAMSAPIServlet extends HttpServlet
 	private String fsDefault;    // FileStore to be used when not specified
 	private String tsDefault;    // TripleStore to be used when not specified
 
-	// id minters
+	// identifiers
 	private String idDefault;    // ID series to be used when not specified
 	private Map<String,String> idMinters; // ID series name=>url map
+	private String nsDefault;    // Namespace prefix to use when not specified
 
 	// uploads
 	private int uploadCount = 0; // current number of uploads being processed
@@ -91,7 +99,8 @@ public class DAMSAPIServlet extends HttpServlet
             fsDefault = (String)ctx.lookup("java:comp/env/dams/fsDefault");
             tsDefault = (String)ctx.lookup("java:comp/env/dams/tsDefault");
 
-			// id minters
+			// identifiers
+			nsDefault = (String)ctx.lookup("java:comp/env/dams/nsDefault");
             idDefault = (String)ctx.lookup("java:comp/env/dams/idDefault");
 			idMinters = new HashMap<String,String>();
 			String minterConfig = (String)ctx.lookup(
@@ -427,7 +436,7 @@ public class DAMSAPIServlet extends HttpServlet
 		info.put( "ip", ip );
 		info.put( "role", role );
 		info.put( "user", user );
-		status( info, req, res );
+		output( res.SC_OK, info, req, res );
 	}
 	public void collectionCharacterize( String colid,
 		HttpServletRequest req, HttpServletResponse res )
@@ -588,21 +597,30 @@ public class DAMSAPIServlet extends HttpServlet
 	
         	if ( successful )
 			{
-				Map info = new LinkedHashMap();
-				info.put("status","OK");
-				info.put("message","File uploaded successfully");
-				info.put("object",objid);
-				info.put("file",fileid);
-				status( info, req, res );
+				status( "File uploaded successfully", req, res );
 			}
 			else
         	{
             	error( "Failed to upload file: " + objid + "/" + fileid, req, res );
         	}
 		}
+		catch ( Exception ex )
+		{
+			error( "Error uploading file: " + ex.toString(), req, res );
+		}
 		finally
 		{
-			if ( fs != null ) { fs.close(); }
+			if ( fs != null )
+			{
+				try
+				{
+					fs.close();
+				}
+				catch ( Exception ex2 )
+				{
+					log.error("Error closing filestore: " + ex2.toString());
+				}
+			}
 		}
 	}
 	public void fileDelete( String objid, String fileid,
@@ -644,21 +662,30 @@ public class DAMSAPIServlet extends HttpServlet
 	
         	if ( successful )
 			{
-				Map info = new LinkedHashMap();
-				info.put("status","OK");
-				info.put("message","File deleted successfully");
-				info.put("object",objid);
-				info.put("file",fileid);
-				status( info, req, res );
+				status( "File deleted successfully", req, res );
 			}
 			else
         	{
             	error( "Failed to delete file: " + objid + "/" + fileid, req, res );
         	}
 		}
+		catch ( Exception ex )
+		{
+			error( "Error deleting file: " + ex.toString(), req, res );
+		}
 		finally
 		{
-			if ( fs != null ) { fs.close(); }
+			if ( fs != null )
+			{
+				try
+				{
+					fs.close();
+				}
+				catch ( Exception ex2 )
+				{
+					log.error("Error closing filestore: " + ex2.toString());
+				}
+			}
 		}
 	}
 	public void fileDerivatives( String objid, String fileid,
@@ -676,7 +703,7 @@ public class DAMSAPIServlet extends HttpServlet
 		// output = status message
 		// EVENT_META: update event metadata
 	}
-	public InputStream fileShow( HttpServletRequest req,
+	public void fileShow( HttpServletRequest req,
 		HttpServletResponse res, String objid, String fileid )
 	{
 		// AAA: delegate to file servlet
@@ -692,19 +719,26 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		minterURL += count;
 
-		// generate id and check output
-		String result = HttpUtil.get(minterURL);
-		if ( result == null || result.trim().equals("") )
+		try
 		{
-			error("Failed to generate id", req, res);
+			// generate id and check output
+			String result = HttpUtil.get(minterURL);
+			if ( result == null || result.trim().equals("") )
+			{
+				error("Failed to generate id", req, res);
+			}
+			else
+			{
+				String[] ids = result.split("\\n");
+				List idList = Arrays.asList(ids);
+				Map info = new LinkedHashMap();
+				info.put("ids",idList);
+				output( res.SC_OK, info, req, res );
+			}
 		}
-		else
+		catch ( Exception ex )
 		{
-			String[] ids = result.split("\\n");
-			List idList = Arrays.asList(ids);
-			Map info = new LinkedHashMap();
-			info.put("ids",idList);
-			status( info, req, res );
+			error( "Error generating id", req, res );
 		}
 	}
 	public void indexSearch( HttpServletRequest req, HttpServletResponse res )
@@ -716,15 +750,146 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public void objectCreate( String objid, HttpServletRequest req, HttpServletResponse res )
 	{
-		// XXX: see controller servlet
+		objectEdit( objid, true, req, res );
+	}
+	public void objectUpdate( String objid, HttpServletRequest req, HttpServletResponse res )
+	{
+		objectEdit( objid, false, req, res );
+	}
+	private void objectEdit( String objid, boolean create, HttpServletRequest req, HttpServletResponse res )
+	{
 		// output = status message
-		// EVENT_META: update event metadata
+		// EVENT_META: create/update event metadata
+
+		try
+		{
+			// make sure an identifier is specified
+			if ( objid == null || objid.trim().equals("") )
+			{
+				error( res.SC_BAD_REQUEST, "No subject provided", req, res );
+				return;
+			}
+
+			// parse request entity
+			Map<String,String> params = new HashMap<String,String>();
+			InputStream in = null;
+			input( req, params, in );
+
+			// connect to triplestore
+			String tsName = getParamString(req,"ts",tsDefault);
+			TripleStore ts = TripleStoreUtil.getTripleStore(tsName);
+
+       		// make sure appropriate method is being used to create/update
+			if ( !objid.startsWith("http") )
+			{
+				objid = nsDefault + objid;
+			}
+			Identifier id = Identifier.publicURI(objid);
+			if ( create && ts.exists(id) )
+			{
+           		error(
+               		HttpServletResponse.SC_FORBIDDEN,
+               		"Object already exists, use PUT to update", req, res
+           		);
+				return;
+			}
+			else if ( !create && !ts.exists(id) )
+			{
+           		error(
+               		HttpServletResponse.SC_FORBIDDEN,
+               		"Object does not exist, use POST to create", req, res
+          		);
+				return;
+			}
+
+			// process uploaded file if present
+			if ( in != null )
+			{
+				// DAMS_MGR
+			}
+			// otherwise, look for JSON adds
+			else
+			{
+				String adds = getParamString(req,"adds","");
+				String updates = null;
+				String deletes = null;
+				if ( !create )
+				{
+					updates = getParamString(req,"updates","");
+					deletes = getParamString(req,"deletes","");
+				}
+				if ( adds != null && !adds.equals("") )
+				{
+					// save data to the triplestore
+					Edit edit = new Edit(
+						adds, updates, deletes, objid, ts, nsDefault
+					);
+					edit.saveBackup();
+					if ( edit.update() )
+					{
+						// success
+						status( "Object saved successfully", req, res );
+						edit.removeBackup();
+					}
+					else
+					{
+						// failure
+						error(
+							"Error saving object: "
+								+ edit.getException().toString(), req, res
+						);
+					}
+				}
+				else
+				{
+					error( res.SC_BAD_REQUEST, "Object metadata must be supplied as a file upload or in the adds parameter", req, res );
+				}
+			}
+		}
+		catch ( Exception ex )
+		{
+			error( "Error editing object: " + ex.toString(), req, res );
+		}
 	}
 	public void objectDelete( String objid, HttpServletRequest req, HttpServletResponse res )
 	{
 		// output = status message
 		// EVENT_META: update event metadata
 		// XXX: Triplestore.removeObject(subj);
+		// XXX: ControllerServlet deleteRecord:
+
+/********
+        GenericObjectPool pool = null;
+        TripleStore ts = null;
+        try
+        {
+            pool = TripleStorePool.getPool( tsName );
+            ts = (TripleStore)pool.borrowObject();
+            ts.removeObject(id);
+            ts.addLiteralStatement(id,updatedFlag,"delete",id);
+
+			String userID = request.getParameter("userID");
+            if ( userID != null && !userID.trim().equals("") )
+            {
+                ts.addLiteralStatement(id,updatedFlag,userID,id);
+            }
+
+            pool.returnObject( ts );
+            return true;
+        }
+        catch ( Exception ex )
+        {
+            return false;
+        }
+        finally
+        {
+            if ( pool != null && ts != null )
+            {
+                try { pool.returnObject( ts ); }
+                catch ( Exception ex2 ) { }
+            }
+        }
+**********/
 	}
 	public void objectIndexDelete( String objid, HttpServletRequest req, HttpServletResponse res )
 	{
@@ -750,12 +915,6 @@ public class DAMSAPIServlet extends HttpServlet
 		// output = metadata: object
 		// EVENT_META: update event metadata
 	}
-	public void objectUpdate( String objid, HttpServletRequest req, HttpServletResponse res )
-	{
-		// DAMS_MGR
-		// output = status message
-		// EVENT_META: update event metadata
-	}
 	public void objectValidate( String objid, HttpServletRequest req, HttpServletResponse res )
 	{
 		// DAMS_MGR
@@ -773,36 +932,70 @@ public class DAMSAPIServlet extends HttpServlet
 		// DAMS_MGR
 	}
 
-	public void error( String msg, HttpServletRequest req,
+	protected void error( String msg, HttpServletRequest req,
 		HttpServletResponse res )
 	{
 		error( res.SC_INTERNAL_SERVER_ERROR, msg, req, res );
 	}
-	public void error( int errorCode, String msg, HttpServletRequest req,
+	protected void error( int errorCode, String msg, HttpServletRequest req,
 		HttpServletResponse res )
 	{
 		// output = error message
-		// XXX: format as JSON, XML or HTML
+		Map info = new LinkedHashMap();
+		info.put( "status", "ERROR" );
+		info.put( "message", msg );
+		output( errorCode, info, req, res );
 	}
-	public void status( Map<String,String> info, HttpServletRequest req,
+	protected void status( String msg, HttpServletRequest req,
 		HttpServletResponse res )
 	{
-		String response = null;
+		// output = error message
+		Map info = new LinkedHashMap();
+		info.put( "status", "OK" );
+		info.put( "message", msg );
+		output( res.SC_OK, info, req, res );
+	}
+	protected void output( int statusCode, Map<String,String> info,
+		HttpServletRequest req, HttpServletResponse res )
+	{
+		// XXX: standard parameters here like request URI, objid, fileid, etc.
+		// XXX: convert errors to 200/OK + error message for Flash, etc.
+
+		String content = null;
 		String format = getParamString(req,"format",formatDefault);
 		if ( format.equals("json") )
 		{
-			response = JSONValue.toJSONString(info);
-			output( res, response, "application/json" );
+			content = JSONValue.toJSONString(info);
+			res.setContentType( "application/json" );
 		}
 		else if ( format.equals("xml") )
 		{
-			response = toXML(info);
-			output( res, response, "text/xml" );
+			content = toXML(info);
+			res.setContentType( "text/xml" );
 		}
 		else if ( format.equals("html") )
 		{
-			response = toHTML(info);
-			output( res, response, "text/html" );
+			content = toHTML(info);
+			res.setContentType( "text/html" );
+		}
+
+		// output content
+		try
+		{
+			if ( statusCode < 400 )
+			{
+				PrintWriter out = res.getWriter();
+				out.print( content );
+				out.close();
+			}
+			else
+			{
+				res.sendError( statusCode, content );
+			}
+		}
+		catch ( Exception ex )
+		{
+			log.error("Error sending output: " + ex.toString());
 		}
 	}
 	public static String toXML( Map m )
@@ -866,14 +1059,6 @@ public class DAMSAPIServlet extends HttpServlet
 			valCell.setText(buf.toString());
 		}
 		return doc.asXML();
-	}
-	private void output( HttpServletResponse res, String content,
-		String contentType )
-	{
-		res.setContentType( contentType );
-		PrintWriter out = res.getWriter();
-		out.print( content );
-		out.close();
 	}
 
 	/*************************************************************************/
@@ -976,6 +1161,7 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	protected void input( HttpServletRequest req,
 		Map<String,String> params, InputStream in )
+		throws IOException, FileUploadException
 	{
 		// get parameters using vanilla api when there is not file upload
 		if ( ! ServletFileUpload.isMultipartContent(req) )

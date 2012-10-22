@@ -12,6 +12,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -41,6 +46,18 @@ public class TripleStoreUtil
 {
 	private static Logger log = Logger.getLogger( TripleStoreUtil.class );
 	private static String ns = "http://libraries.ucsd.edu/ark:/20775/";
+
+    public static TripleStore getTripleStore( String jndiName )
+        throws ClassNotFoundException, IllegalAccessException,
+            InstantiationException, InvocationTargetException,
+            NoSuchMethodException, NamingException
+    {
+        InitialContext ctx = new InitialContext();
+        String name = jndiName;
+        if ( name.indexOf("/") == -1 ) { name = "ts/" + name; }
+        Properties props = (Properties)ctx.lookup("java:comp/env/" + name);
+        return getTripleStore( props );
+    }
 
 	/**
 	 * Get an instance of a triplestore class.

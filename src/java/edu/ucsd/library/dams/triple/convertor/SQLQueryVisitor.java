@@ -32,8 +32,24 @@ import com.hp.hpl.jena.sparql.syntax.ElementOptional;
 import com.hp.hpl.jena.sparql.syntax.ElementService;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementUnion;
-import com.hp.hpl.jena.sparql.syntax.ElementUnsaid;
 import com.hp.hpl.jena.sparql.syntax.ElementVisitor;
+//XXX import com.hp.hpl.jena.sparql.syntax.ElementUnsaid;
+import com.hp.hpl.jena.sparql.expr.ExprAggregator;
+import com.hp.hpl.jena.sparql.expr.ExprFunctionOp;
+import com.hp.hpl.jena.sparql.expr.ExprFunction3;
+import com.hp.hpl.jena.sparql.expr.ExprFunction1;
+import com.hp.hpl.jena.sparql.expr.ExprFunction2;
+import com.hp.hpl.jena.sparql.expr.ExprFunction0;
+import com.hp.hpl.jena.sparql.expr.ExprFunctionN;
+import com.hp.hpl.jena.sparql.syntax.ElementSubQuery;
+import com.hp.hpl.jena.sparql.syntax.ElementFetch;
+import com.hp.hpl.jena.sparql.syntax.ElementMinus;
+import com.hp.hpl.jena.sparql.syntax.ElementExists;
+import com.hp.hpl.jena.sparql.syntax.ElementNotExists;
+import com.hp.hpl.jena.sparql.syntax.ElementPathBlock;
+import com.hp.hpl.jena.sparql.syntax.ElementBind;
+import com.hp.hpl.jena.sparql.syntax.ElementAssign;
+import com.hp.hpl.jena.sparql.syntax.ElementData;
 
 /**
  * Class SQLQueryVisitor convert SPARQL to SQL
@@ -164,6 +180,11 @@ public class SQLQueryVisitor implements QueryVisitor{
 				sqlQuery += "\n GROUP BY " + varStr;
 			}			
 		}
+		public void visitValues(Query query)
+		{
+			// XXX: impl
+			log.error("Function NOT implemented - visitValues(Query query): " + query);			
+		}
 	}
 	
 	/**
@@ -206,10 +227,10 @@ public class SQLQueryVisitor implements QueryVisitor{
 		}
 		
 		public void visit(ElementTriplesBlock elem) {
-			BasicPattern pattern = elem.getTriples();
-			for(int i=0; i<pattern.size(); i++){
-				Triple triple = pattern.get(i);
-				triples.add(triple);
+			Iterator<Triple> it = elem.patternElts();
+			while ( it.hasNext() )
+			{
+				triples.add( it.next() );
 			}
 		}
 
@@ -264,8 +285,44 @@ public class SQLQueryVisitor implements QueryVisitor{
 			log.error("Function NOT implemented - visit(ElementNamedGraph elem): " + elem);
 		}
 
-		public void visit(ElementUnsaid elem) {
-			log.error("Function NOT implemented - (ElementUnsaid elem): " + elem);			
+// XXX		public void visit(ElementUnsaid elem) {
+// XXX			log.error("Function NOT implemented - (ElementUnsaid elem): " + elem);			
+// XXX		}
+		public void visit(ElementSubQuery elem) {
+			// XXX
+			log.error("Function NOT implemented - (ElementSubQuery elem): " + elem);			
+		}
+		public void visit(ElementFetch elem) {
+			// XXX
+			log.error("Function NOT implemented - (ElementFetch elem): " + elem);			
+		}
+		public void visit(ElementMinus elem) {
+			// XXX
+			log.error("Function NOT implemented - (ElementMinus elem): " + elem);			
+		}
+		public void visit(ElementData elem) {
+			// XXX
+			log.error("Function NOT implemented - (ElementData elem): " + elem);			
+		}
+		public void visit(ElementBind elem) {
+			// XXX
+			log.error("Function NOT implemented - (ElementBind elem): " + elem);			
+		}
+		public void visit(ElementAssign elem) {
+			// XXX
+			log.error("Function NOT implemented - (ElementAssign elem): " + elem);			
+		}
+		public void visit(ElementPathBlock elem) {
+			// XXX
+			log.error("Function NOT implemented - (ElementPathBlock elem): " + elem);			
+		}
+		public void visit(ElementNotExists elem) {
+			// XXX
+			log.error("Function NOT implemented - (ElementNotExists elem): " + elem);			
+		}
+		public void visit(ElementExists elem) {
+			// XXX
+			log.error("Function NOT implemented - (ElementExists elem): " + elem);			
 		}
 
 		public void visit(ElementService elem) {
@@ -593,6 +650,41 @@ public class SQLQueryVisitor implements QueryVisitor{
 
 			public void visit(ExprVar var) {
 				sqlExpr += getColumnName(var);
+			}
+			public void visit(ExprAggregator expr)
+			{
+				// XXX
+				log.error("Function NOT implemented - visit(ExprAggregator expr): " + expr);			
+			}
+			public void visit(ExprFunctionN expr)
+			{
+				// XXX
+				log.error("Function NOT implemented - visit(ExprFunctionN expr): " + expr);			
+			}
+			public void visit(ExprFunction0 expr)
+			{
+				// XXX
+				log.error("Function NOT implemented - visit(ExprFunction0 expr): " + expr);			
+			}
+			public void visit(ExprFunction3 expr)
+			{
+				// XXX
+				log.error("Function NOT implemented - visit(ExprFunction3 expr): " + expr);			
+			}
+			public void visit(ExprFunction2 expr)
+			{
+				// XXX
+				log.error("Function NOT implemented - visit(ExprFunction2 expr): " + expr);			
+			}
+			public void visit(ExprFunction1 expr)
+			{
+				// XXX
+				log.error("Function NOT implemented - visit(ExprFunction1 expr): " + expr);			
+			}
+			public void visit(ExprFunctionOp expr)
+			{
+				// XXX
+				log.error("Function NOT implemented - visit(ExprFunctionOp expr): " + expr);			
 			}
 			
 			public String getSQLExpr(){

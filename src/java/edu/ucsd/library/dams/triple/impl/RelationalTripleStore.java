@@ -735,6 +735,13 @@ public class RelationalTripleStore implements TripleStore
 	{
 		return Identifier.blankNode( id, subject.toString() );
 	}
+	public boolean exists( Identifier subject ) throws TripleStoreException
+	{
+		String sql = "SELECT * from " + tableName()
+			+ " WHERE parent = '<" + subject.getId() + ">'";
+		long objCount = sqlCount( sql );
+		return objCount > 0L;
+	}
 	public SubjectIterator listSubjects() throws TripleStoreException
 	{
 		String sql = "SELECT distinct subject from " + tableName()
@@ -892,6 +899,7 @@ public class RelationalTripleStore implements TripleStore
 			throw new TripleStoreException(ex);
 		}
 	}
+	public String name() { return tsName; }
 	public void init() throws TripleStoreException
 	{
 		String tbl = tsName + "_triples";

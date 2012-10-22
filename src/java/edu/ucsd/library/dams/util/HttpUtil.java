@@ -52,25 +52,25 @@ public class HttpUtil
 	}
 
 	public static String post( String url, String content, String mimeType,
-		String encoding )
+		String encoding ) throws IOException
 	{
 		HttpPost post = new HttpPost( url );
 		ContentType contentType = ContentType.create(mimeType,encoding);
 		post.setEntity( new StringEntity(content,contentType) );
 		return exec( post );
 	}
-	public static String get( String url )
+	public static String get( String url ) throws IOException
 	{
 		HttpGet get = new HttpGet(url);
 		return exec( get );
 	}
-	private static String exec( HttpRequestBase req )
+	private static String exec( HttpRequestBase req ) throws IOException
 	{
 		HttpUtil http = new HttpUtil( new DefaultHttpClient(), req );
 		http.exec();
 		return http.contentBodyAsString();
 	}
-	public int exec()
+	public int exec() throws IOException
 	{
 		response = client.execute( request );
 		return status();
@@ -95,7 +95,7 @@ public class HttpUtil
 	/**
 	 * Output response information.
 	**/
-	public void debug(PrintStream out) throws IOException
+	public void debug(PrintStream out) throws IOException, LoginException
 	{
 		int status = response.getStatusLine().getStatusCode();
 

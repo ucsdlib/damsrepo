@@ -60,6 +60,11 @@ public interface TripleStore
     **/
     public SubjectIterator listSubjects() throws TripleStoreException;
 
+	/**
+	 * Test whether an object is described in the triplestore.
+	**/
+	public boolean exists( Identifier subject ) throws TripleStoreException;
+
 
     /**************************************************************************/
 	/*** Read-Write Triple API ************************************************/
@@ -182,6 +187,11 @@ public interface TripleStore
      * Get the number of triples in the triplestore.
     **/
     public long size() throws TripleStoreException;
+
+	/**
+	 * Get the name of this triplestore.
+	**/
+	public String name();
 
 
     /**************************************************************************/
