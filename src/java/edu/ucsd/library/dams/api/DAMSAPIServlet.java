@@ -93,7 +93,9 @@ public class DAMSAPIServlet extends HttpServlet
             InitialContext ctx = new InitialContext();
 
 			// default output format
-            formatDefault = (String)ctx.lookup("java:comp/env/dams/formatDefault");
+            formatDefault = (String)ctx.lookup(
+				"java:comp/env/dams/formatDefault"
+			);
 
 			// default data stores
             fsDefault = (String)ctx.lookup("java:comp/env/dams/fsDefault");
@@ -254,7 +256,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		else
 		{
-			error( "Invalid request", req, res );
+			error( res.SC_BAD_REQUEST, "Invalid request", req, res );
 		}
 	}
 
@@ -351,7 +353,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		else
 		{
-			error( "Invalid request", req, res );
+			error( res.SC_BAD_REQUEST, "Invalid request", req, res );
 		}
 	}
 	/**
@@ -375,7 +377,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		else
 		{
-			error( "Invalid request", req, res );
+			error( res.SC_BAD_REQUEST, "Invalid request", req, res );
 		}
 	}
 
@@ -412,7 +414,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		else
 		{
-			error( "Invalid request", req, res );
+			error( res.SC_BAD_REQUEST, "Invalid request", req, res );
 		}
 	}
 
@@ -966,6 +968,10 @@ public class DAMSAPIServlet extends HttpServlet
 		// DAMS_MGR: get status from session and send message
 	}
 
+	/*************************************************************************/
+	/* Output formatting                                                     */
+	/*************************************************************************/
+
 	protected void error( String msg, HttpServletRequest req,
 		HttpServletResponse res )
 	{
@@ -1105,7 +1111,7 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 
 	/*************************************************************************/
-	/* Utility methods                                                       */
+	/* Request parsing, input, etc.                                          */
 	/*************************************************************************/
 	public String getRole( String ip )
 	{
