@@ -42,7 +42,8 @@ public class Edit
 	private JSONArray updates = null;
 	private String ark = null;
 	private TripleStore ts = null;
-	private String ns = null;
+	private String idNS = null;
+	private String prNS = null;
 	private EditBackup backup = null;
 	//the following data structures could change
 	private List triplesData = null;
@@ -53,24 +54,27 @@ public class Edit
 	private String status = "";
 
 	public Edit( JSONArray adds, JSONArray updates, JSONArray deletes,
-		String ark, TripleStore ts, String ns )
+		String ark, TripleStore ts, String idNS, String prNS )
 	{
 		this.adds = adds;
 		this.updates = updates;
 		this.deletes = deletes;
 		this.ark = ark;
 		this.ts = ts;
-		this.ns = ns;
+		this.idNS = idNS;
+		this.prNS = prNS;
 		status = "init";
 	}
 	public Edit( JSONArray adds, JSONArray updates, JSONArray deletes,
-		String ark, String tsName, String ns ) throws TripleStoreException
+		String ark, String tsName, String idNS, String prNS )
+		throws TripleStoreException
 	{
 		this.adds = adds;
 		this.updates = updates;
 		this.deletes = deletes;
 		this.ark = ark;
-		this.ns = ns;
+		this.idNS = idNS;
+		this.prNS = prNS;
 		try
 		{
 			this.ts = TripleStoreUtil.getTripleStore(tsName);
@@ -85,7 +89,7 @@ public class Edit
 	}
 	
 	public Edit( String adds, String updates, String deletes, String ark,
-		TripleStore ts, String ns )
+		TripleStore ts, String idNS, String prNS )
 	{
 		status = "init";
 		if(!adds.equals(""))
@@ -105,7 +109,8 @@ public class Edit
 		}
 		this.ark = ark.substring(ark.indexOf("/")+1);
 		this.ts = ts;
-		this.ns = ns;
+		this.idNS = idNS;
+		this.prNS = prNS;
 	}
 
 	private static String urldec( String s )
@@ -135,7 +140,7 @@ public class Edit
 	**/
 	public void saveBackup()
 	{
-		backup = new EditBackup(adds,updates,deletes,ark,ts.name(),ns);
+		backup = new EditBackup(adds,updates,deletes,ark,ts.name(),idNS,prNS);
 		status = "saving1";
 		backup.saveDataToFile();
 		status = "saving2";
@@ -336,8 +341,8 @@ public class Edit
 	public boolean addTriple( TripleStore ts, Object subject,
 		String predicate, Object object)
 	{
-		Identifier parent = Identifier.publicURI(ns+ark);
-		Identifier pred = Identifier.publicURI(ns+predicate);
+		Identifier parent = Identifier.publicURI(idNS+ark);
+		Identifier pred = Identifier.publicURI(prNS+predicate);
 		try
 		{
 			if( subject instanceof String )
@@ -346,11 +351,11 @@ public class Edit
 				//System.out.println("addTriple(): s = " + s);
 				if(s.startsWith("_:"))
 				{
-					subject = ts.blankNode(Identifier.publicURI(ns+ark), s);
+					subject = ts.blankNode(Identifier.publicURI(idNS+ark), s);
 				}
 				else
 				{
-					subject = Identifier.publicURI(ns+s);
+					subject = Identifier.publicURI(idNS+s);
 				}
 			}
 			if( object instanceof String )
@@ -387,12 +392,12 @@ public class Edit
 		try
 		{
 			//System.out.println("removeTriples(): " + subject + ", " + predicate + ", " + object);
-			Identifier pred = Identifier.publicURI(ns+predicate);
-			Identifier subj = (subject.startsWith("_:")) ? ts.blankNode(Identifier.publicURI(ns+ark), subject) : Identifier.publicURI(ns+subject);
+			Identifier pred = Identifier.publicURI(prNS+predicate);
+			Identifier subj = (subject.startsWith("_:")) ? ts.blankNode(Identifier.publicURI(idNS+ark), subject) : Identifier.publicURI(idNS+subject);
 			if( object.startsWith("_:") )
 			{
 				//System.out.println("   bnode");
-				Identifier obj = ts.blankNode(Identifier.publicURI(ns+ark), object);
+				Identifier obj = ts.blankNode(Identifier.publicURI(idNS+ark), object);
 				//System.out.println("Going into removeTriples() with object: "+obj.toString());
 				removeTriples( ts, obj ); //remove all children
 				ts.removeStatements(subj, pred, obj);
@@ -495,7 +500,7 @@ public class Edit
 			if(newObj==null){
 				newObj="";
 			}
-			Identifier parent = Identifier.publicURI(ns+ark);
+			Identifier parent = Identifier.publicURI(idNS+ark);
 			StatementIterator iter = null;
 			//get Subject
 			Identifier s = null;
@@ -506,14 +511,14 @@ public class Edit
 			{
 				subjNode = ts.blankNode(parent, subject);
 				ts.removeLiteralStatements(
-					subjNode, Identifier.publicURI(ns+predicate), currentObj
+					subjNode, Identifier.publicURI(prNS+predicate), currentObj
 				);
 			}
 			else
 			{
 				iter = ts.listLiteralStatements(
-					Identifier.publicURI(ns+subject),
-					Identifier.publicURI(ns+predicate),
+					Identifier.publicURI(idNS+subject),
+					Identifier.publicURI(prNS+predicate),
 					currentObj
 				);
 				if(iter.hasNext())
@@ -527,7 +532,7 @@ public class Edit
 			}
 			if (iter != null) { iter.close(); }
 			ts.addLiteralStatement(
-				subjNode, Identifier.publicURI(ns+predicate), newObj, parent
+				subjNode, Identifier.publicURI(prNS+predicate), newObj, parent
 			);
 		}
 		catch (TripleStoreException e)

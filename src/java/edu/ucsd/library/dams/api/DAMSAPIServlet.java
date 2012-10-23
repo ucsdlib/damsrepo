@@ -43,6 +43,7 @@ import org.json.simple.JSONValue;
 // dams
 import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.file.FileStoreUtil;
+import edu.ucsd.library.dams.model.Event;
 import edu.ucsd.library.dams.triple.Identifier;
 import edu.ucsd.library.dams.triple.TripleStore;
 import edu.ucsd.library.dams.triple.TripleStoreException;
@@ -71,10 +72,13 @@ public class DAMSAPIServlet extends HttpServlet
 	private String fsDefault;    // FileStore to be used when not specified
 	private String tsDefault;    // TripleStore to be used when not specified
 
-	// identifiers
+	// identifiers and namespaces
 	private String idDefault;    // ID series to be used when not specified
 	private Map<String,String> idMinters; // ID series name=>url map
-	private String nsDefault;    // Namespace prefix to use when not specified
+	private String idNS;    // Namespace prefix for unqualified identifiers
+	private String prNS;    // Namespace prefix for unqualified predicates
+	// XXX: idNS=http://library.ucsd.edu/ark:/20775/
+	// XXX: prNS=http://library.ucsd.edu/ontology/dams/#
 
 	// uploads
 	private int uploadCount = 0; // current number of uploads being processed
@@ -102,7 +106,8 @@ public class DAMSAPIServlet extends HttpServlet
             tsDefault = (String)ctx.lookup("java:comp/env/dams/tsDefault");
 
 			// identifiers
-			nsDefault = (String)ctx.lookup("java:comp/env/dams/nsDefault");
+			idNS = (String)ctx.lookup("java:comp/env/dams/identifierNS");
+			prNS = (String)ctx.lookup("java:comp/env/dams/predicateNS");
             idDefault = (String)ctx.lookup("java:comp/env/dams/idDefault");
 			idMinters = new HashMap<String,String>();
 			String minterConfig = (String)ctx.lookup(
@@ -520,7 +525,7 @@ public class DAMSAPIServlet extends HttpServlet
 	public void fileUpload( String objid, String fileid, boolean overwrite,
 		 HttpServletRequest req, HttpServletResponse res )
 	{
-		// EVENT_META: update event metadata
+		// EVENT_METAX: update event metadata
 		// FILE_META: update file metadata
 		FileStore fs = null;
 		try
@@ -597,12 +602,19 @@ public class DAMSAPIServlet extends HttpServlet
             	&& fs.length(objid,fileid) > 0;
         	in.close();
 	
+			String type = overwrite ? "file modification" : "file creation";
         	if ( successful )
 			{
+				createEvent(
+					req, null, objid, fileid, type, true, "EVENT_DETAIL_SPEC", null
+				);
 				status( "File uploaded successfully", req, res );
 			}
 			else
         	{
+				createEvent(
+					req, null, objid, fileid, type, false, "EVENT_DETAIL_SPEC", "Failed to upload file XXX"
+				);
             	error( "Failed to upload file: " + objid + "/" + fileid, req, res );
         	}
 		}
@@ -628,7 +640,7 @@ public class DAMSAPIServlet extends HttpServlet
 	public void fileDelete( String objid, String fileid,
 		HttpServletRequest req, HttpServletResponse res )
 	{
-		// EVENT_META: update event metadata
+		// EVENT_METAX: update event metadata
 		// FILE_META: update file metadata
 		FileStore fs = null;
 		try
@@ -664,10 +676,12 @@ public class DAMSAPIServlet extends HttpServlet
 	
         	if ( successful )
 			{
+				createEvent( req, null, objid, fileid, "file deletion", true, "Deleting file EVENT_DETAIL_SPEC", null );
 				status( "File deleted successfully", req, res );
 			}
 			else
         	{
+				createEvent( req, null, objid, fileid, "file deletion", false, "Deleting file EVENT_DETAIL_SPEC", "XXX" );
             	error( "Failed to delete file: " + objid + "/" + fileid, req, res );
         	}
 		}
@@ -761,7 +775,7 @@ public class DAMSAPIServlet extends HttpServlet
 	private void objectEdit( String objid, boolean create, HttpServletRequest req, HttpServletResponse res )
 	{
 		// output = status message
-		// EVENT_META: create/update event metadata
+		// EVENT_METAX: create/update event metadata
 
 		TripleStore ts = null;
 		try
@@ -785,7 +799,7 @@ public class DAMSAPIServlet extends HttpServlet
        		// make sure appropriate method is being used to create/update
 			if ( !objid.startsWith("http") )
 			{
-				objid = nsDefault + objid;
+				objid = idNS + objid;
 			}
 			Identifier id = Identifier.publicURI(objid);
 			if ( create && ts.exists(id) )
@@ -825,22 +839,24 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					// save data to the triplestore
 					Edit edit = new Edit(
-						adds, updates, deletes, objid, ts, nsDefault
+						adds, updates, deletes, objid, ts, idNS, prNS
 					);
 					edit.saveBackup();
+					String type = create ?
+						"object creation" : "object modification";
 					if ( edit.update() )
 					{
 						// success
+						createEvent( req, ts, objid, null, type, true, "EVENT_DETAIL_SPEC", null );
 						status( "Object saved successfully", req, res );
 						edit.removeBackup();
 					}
 					else
 					{
 						// failure
-						error(
-							"Error saving object: "
-								+ edit.getException().toString(), req, res
-						);
+						String msg = edit.getException().toString();
+						createEvent( req, ts, objid, null, type, false, "EVENT_DETAIL_SPEC", msg );
+						error( msg, req, res );
 					}
 				}
 				else
@@ -871,7 +887,7 @@ public class DAMSAPIServlet extends HttpServlet
 	public void objectDelete( String objid, HttpServletRequest req, HttpServletResponse res )
 	{
 		// output = status message
-		// EVENT_META: update event metadata
+		// EVENT_METAX: update event metadata
 
 		TripleStore ts = null;
 		try
@@ -890,7 +906,7 @@ public class DAMSAPIServlet extends HttpServlet
        		// make sure appropriate method is being used to create/update
 			if ( !objid.startsWith("http") )
 			{
-				objid = nsDefault + objid;
+				objid = idNS + objid;
 			}
 			Identifier id = Identifier.publicURI(objid);
 			if ( !ts.exists(id) )
@@ -902,6 +918,17 @@ public class DAMSAPIServlet extends HttpServlet
 				return;
 			}
             ts.removeObject(id);
+
+			if ( ! ts.exists(id) )
+			{
+				createEvent( req, ts, objid, null, "object deletion", true, "Deleting object EVENT_DETAIL_SPEC", null );
+				// XXXX status
+			}
+			else
+			{
+				createEvent( req, ts, objid, null, "object deletion", false, "Deleting object EVENT_DETAIL_SPEC", "XXX error" );
+				// XXXX error
+			}
             //ts.addLiteralStatement(id,updatedFlag,"delete",id);
 			//String userID = request.getParameter("userID");
             //if ( userID != null && !userID.trim().equals("") )
@@ -966,6 +993,63 @@ public class DAMSAPIServlet extends HttpServlet
 	public void statusToken( String jobid )
 	{
 		// DAMS_MGR: get status from session and send message
+	}
+
+	private void createEvent( HttpServletRequest req, TripleStore ts,
+		String objid, String fileid, String type, boolean success,
+		String detail, String outcomeNote ) throws TripleStoreException
+	{
+		// instantiate triplestore if not already loaded
+		boolean closeTS = false;
+		if ( ts == null )
+		{
+			closeTS = true;
+			try
+			{
+				String tsName = getParamString(req,"ts",tsDefault);
+				ts = TripleStoreUtil.getTripleStore(tsName);
+			}
+			catch ( Exception ex )
+			{
+				throw new TripleStoreException("Error loading triplestore", ex);
+			}
+		}
+
+		try
+		{
+			// mint ARK for event
+			String minterURL = idMinters.get(idDefault) + "1";
+			String eventARK = HttpUtil.get(minterURL);
+			Identifier eventID = Identifier.publicURI( idNS, eventARK );
+	
+			// lookup user identifier
+			Identifier userID = null; // XXX SolrProxy.lookup( req.getRemoteUser() );
+	
+			// create event object and save to the triplestore
+			String obj = objid.startsWith("http") ? objid : idNS + objid;
+			if ( fileid != null ) { obj += "/" + fileid; }
+			Identifier subID = Identifier.publicURI( idNS + obj );
+			Event e = new Event(
+				eventID, subID, userID, success, type,
+				detail, outcomeNote, prNS
+			);
+			e.save(ts);
+		}
+		catch ( IOException ex )
+		{
+			log.error("Error minting event ARK: " + ex.toString());
+		}
+		finally
+		{
+			if ( closeTS && ts != null )
+			{
+				try { ts.close(); }
+				catch ( Exception ex2 )
+				{
+					log.error("Error closing triplestore: " + ex2.toString());
+				}
+			}
+		}
 	}
 
 	/*************************************************************************/

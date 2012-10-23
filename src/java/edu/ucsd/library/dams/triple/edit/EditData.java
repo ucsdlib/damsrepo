@@ -15,7 +15,8 @@ public class EditData implements Serializable
 	private JSONArray updates = null;
 	private String ark = null;
 	private String tsName = null;
-	private String ns = null;
+	private String idNS = null;
+	private String prNS = null;
 	
 	public JSONArray getAdds()
 	{
@@ -67,24 +68,35 @@ public class EditData implements Serializable
 		this.tsName = tsName;
 	}
 
-	public String getNS()
+	public String getIdNS()
 	{
-		return ns;
+		return idNS;
 	}
 
-	public void setNS( String ns )
+	public void setIdNS( String idNS )
 	{
-		this.ns = ns;
+		this.idNS = idNS;
+	}
+
+	public String getPrNS()
+	{
+		return prNS;
+	}
+
+	public void setPrNS( String prNS )
+	{
+		this.prNS = prNS;
 	}
 
 	public EditData( JSONArray adds, JSONArray updates, JSONArray deletes,
-		String ark, String tsName, String ns )
+		String ark, String tsName, String idNS, String prNS )
 	{
 		this.adds = adds;
 		this.updates = updates;
 		this.deletes = deletes;
 		this.ark = ark;
 		this.tsName = tsName;
-		this.ns = ns;
+		this.idNS = idNS;
+		this.prNS = prNS;
 	}
 }

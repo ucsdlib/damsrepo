@@ -30,9 +30,9 @@ public class EditBackup implements Serializable
 	
 	public EditBackup(){}
 	public EditBackup( JSONArray adds, JSONArray updates, JSONArray deletes,
-		String ark, String tsName, String ns )
+		String ark, String tsName, String idNS, String prNS )
 	{
-		data = new EditData( adds, updates, deletes, ark, tsName, ns );
+		data = new EditData( adds, updates, deletes, ark, tsName, idNS, prNS );
 	}
 
 	/** SECTION TO SAVE NEW BACKUPS **/
@@ -147,7 +147,7 @@ public class EditBackup implements Serializable
 				Edit edit = new Edit(
 					data.getAdds(), data.getUpdates(),
 					data.getDeletes(), data.getArk(), data.getTsName(),
-					data.getNS()
+					data.getIdNS(), data.getPrNS()
 				);
 				if(edit.update())
 				{
