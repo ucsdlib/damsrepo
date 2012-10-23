@@ -11,9 +11,12 @@ public class STSTableSchema {
 	public static final String COLUMN_PREDICATE = "PREDICATE";
 	public static final String COLUMN_OBJECT = "OBJECT";
 	public static final String COLUMN_PARENT = "PARENT";
+	public static enum DataBaseType {MYSQL, ORACLE, POSTGRESQL};
 	
 	private String tableName = null;
 	private Column[] columns = null;
+	private String dbDriverName = "com.mysql.jdbc.Driver";
+	
 	public STSTableSchema(){}
 	public STSTableSchema(String tableName, Column[] columns){
 		this.tableName = tableName;
@@ -30,6 +33,20 @@ public class STSTableSchema {
 	}
 	public void setTableName(String tableName) {
 		this.tableName = tableName;
+	}
+	public DataBaseType getDataBaseType() {
+		if(dbDriverName != null){
+			if(dbDriverName.indexOf("oracle") >= 0)
+				return DataBaseType.ORACLE;
+			else if(dbDriverName.indexOf("postgresql") >= 0)
+				return DataBaseType.POSTGRESQL;
+			else
+				return DataBaseType.MYSQL;
+		}else
+			return DataBaseType.MYSQL;
+	}
+	public void setDbDriverName(String dbDriverName) {
+		this.dbDriverName = dbDriverName;
 	}
 	public String getColumnName(int columnIndex) {
 		String columnName = null;
