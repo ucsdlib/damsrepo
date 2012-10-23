@@ -761,6 +761,7 @@ public class DAMSAPIServlet extends HttpServlet
 		// output = status message
 		// EVENT_META: create/update event metadata
 
+		TripleStore ts = null;
 		try
 		{
 			// make sure an identifier is specified
@@ -777,7 +778,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// connect to triplestore
 			String tsName = getParamString(req,"ts",tsDefault);
-			TripleStore ts = TripleStoreUtil.getTripleStore(tsName);
+			ts = TripleStoreUtil.getTripleStore(tsName);
 
        		// make sure appropriate method is being used to create/update
 			if ( !objid.startsWith("http") )
@@ -850,46 +851,80 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			error( "Error editing object: " + ex.toString(), req, res );
 		}
+		finally
+		{
+			if ( ts != null )
+			{
+				try
+				{
+					ts.close();
+				}
+				catch ( Exception ex2 )
+				{
+					log.error("Error closing triplestore: " + ex2.toString());
+				}
+			}
+		}
 	}
 	public void objectDelete( String objid, HttpServletRequest req, HttpServletResponse res )
 	{
 		// output = status message
 		// EVENT_META: update event metadata
-		// XXX: Triplestore.removeObject(subj);
-		// XXX: ControllerServlet deleteRecord:
 
-/********
-        GenericObjectPool pool = null;
-        TripleStore ts = null;
-        try
-        {
-            pool = TripleStorePool.getPool( tsName );
-            ts = (TripleStore)pool.borrowObject();
+		TripleStore ts = null;
+		try
+		{
+			// make sure an identifier is specified
+			if ( objid == null || objid.trim().equals("") )
+			{
+				error( res.SC_BAD_REQUEST, "No subject provided", req, res );
+				return;
+			}
+
+			// connect to triplestore
+			String tsName = getParamString(req,"ts",tsDefault);
+			ts = TripleStoreUtil.getTripleStore(tsName);
+
+       		// make sure appropriate method is being used to create/update
+			if ( !objid.startsWith("http") )
+			{
+				objid = nsDefault + objid;
+			}
+			Identifier id = Identifier.publicURI(objid);
+			if ( !ts.exists(id) )
+			{
+           		error(
+               		HttpServletResponse.SC_BAD_REQUEST,
+               		"Object does not exist", req, res
+           		);
+				return;
+			}
             ts.removeObject(id);
-            ts.addLiteralStatement(id,updatedFlag,"delete",id);
-
-			String userID = request.getParameter("userID");
-            if ( userID != null && !userID.trim().equals("") )
-            {
-                ts.addLiteralStatement(id,updatedFlag,userID,id);
-            }
-
-            pool.returnObject( ts );
-            return true;
+            //ts.addLiteralStatement(id,updatedFlag,"delete",id);
+			//String userID = request.getParameter("userID");
+            //if ( userID != null && !userID.trim().equals("") )
+            //{
+            //    ts.addLiteralStatement(id,updatedFlag,userID,id);
+            //}
         }
-        catch ( Exception ex )
-        {
-            return false;
-        }
-        finally
-        {
-            if ( pool != null && ts != null )
-            {
-                try { pool.returnObject( ts ); }
-                catch ( Exception ex2 ) { }
-            }
-        }
-**********/
+		catch ( Exception ex )
+		{
+			error( "Error deleting object: " + ex.toString(), req, res );
+		}
+		finally
+		{
+			if ( ts != null )
+			{
+				try
+				{
+					ts.close();
+				}
+				catch ( Exception ex2 )
+				{
+					log.error("Error closing triplestore: " + ex2.toString());
+				}
+			}
+		}
 	}
 	public void objectIndexDelete( String objid, HttpServletRequest req, HttpServletResponse res )
 	{
@@ -928,8 +963,7 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public void statusToken( String jobid )
 	{
-		// XXX: get status from session and send message
-		// DAMS_MGR
+		// DAMS_MGR: get status from session and send message
 	}
 
 	protected void error( String msg, HttpServletRequest req,
@@ -942,7 +976,6 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		// output = error message
 		Map info = new LinkedHashMap();
-		info.put( "status", "ERROR" );
 		info.put( "message", msg );
 		output( errorCode, info, req, res );
 	}
@@ -951,15 +984,25 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		// output = error message
 		Map info = new LinkedHashMap();
-		info.put( "status", "OK" );
 		info.put( "message", msg );
 		output( res.SC_OK, info, req, res );
 	}
 	protected void output( int statusCode, Map<String,String> info,
 		HttpServletRequest req, HttpServletResponse res )
 	{
-		// XXX: standard parameters here like request URI, objid, fileid, etc.
-		// XXX: convert errors to 200/OK + error message for Flash, etc.
+		// auto-populate basic request info
+		info.put("request",req.getPathInfo());
+		if ( statusCode < 400 ) { info.put("status","ERROR"); }
+		else { info.put("status","OK"); }
+
+		// convert errors to 200/OK + error message for Flash, etc.
+		String flash = getParamString(req,"flash","");
+		if ( flash != null && flash.equals("true") )
+		{
+			info.put("flash","true");
+			info.put("statusCode",String.valueOf(statusCode));
+			statusCode = res.SC_OK;
+		}
 
 		String content = null;
 		String format = getParamString(req,"format",formatDefault);
@@ -1138,6 +1181,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			catch ( Exception ex )
 			{
+				log.debug("Error parsing integer parameter: " + ex.toString());
 			}
 		}
 		return defaultValue;

@@ -72,9 +72,11 @@
     <copy todir="${webapp}/WEB-INF/lib">
       <fileset refid="lib"/>
     </copy>
+<!--
     <copy todir="${webapp}/WEB-INF/classes">
       <fileset dir="${props}" includes="**/*.properties"/>
     </copy>
+-->
   </target>
   <!-- webapp -->
   <target name="webapp" description="Build WAR file" depends="compile">
