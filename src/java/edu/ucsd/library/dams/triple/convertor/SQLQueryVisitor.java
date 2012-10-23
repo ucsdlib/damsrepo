@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -13,46 +14,49 @@ import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryVisitor;
 import com.hp.hpl.jena.query.SortCondition;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
+import com.hp.hpl.jena.sparql.core.PathBlock;
 import com.hp.hpl.jena.sparql.core.Prologue;
+import com.hp.hpl.jena.sparql.core.TriplePath;
 import com.hp.hpl.jena.sparql.core.Var;
 import com.hp.hpl.jena.sparql.core.VarExprList;
 import com.hp.hpl.jena.sparql.expr.Expr;
+import com.hp.hpl.jena.sparql.expr.ExprAggregator;
 import com.hp.hpl.jena.sparql.expr.ExprFunction;
+import com.hp.hpl.jena.sparql.expr.ExprFunction0;
+import com.hp.hpl.jena.sparql.expr.ExprFunction1;
+import com.hp.hpl.jena.sparql.expr.ExprFunction2;
+import com.hp.hpl.jena.sparql.expr.ExprFunction3;
+import com.hp.hpl.jena.sparql.expr.ExprFunctionN;
+import com.hp.hpl.jena.sparql.expr.ExprFunctionOp;
 import com.hp.hpl.jena.sparql.expr.ExprVar;
 import com.hp.hpl.jena.sparql.expr.ExprVisitor;
 import com.hp.hpl.jena.sparql.expr.FunctionLabel;
 import com.hp.hpl.jena.sparql.expr.NodeValue;
 import com.hp.hpl.jena.sparql.syntax.Element;
+import com.hp.hpl.jena.sparql.syntax.ElementAssign;
+import com.hp.hpl.jena.sparql.syntax.ElementBind;
+import com.hp.hpl.jena.sparql.syntax.ElementData;
 import com.hp.hpl.jena.sparql.syntax.ElementDataset;
+import com.hp.hpl.jena.sparql.syntax.ElementExists;
+import com.hp.hpl.jena.sparql.syntax.ElementFetch;
 import com.hp.hpl.jena.sparql.syntax.ElementFilter;
 import com.hp.hpl.jena.sparql.syntax.ElementGroup;
+import com.hp.hpl.jena.sparql.syntax.ElementMinus;
 import com.hp.hpl.jena.sparql.syntax.ElementNamedGraph;
+import com.hp.hpl.jena.sparql.syntax.ElementNotExists;
 import com.hp.hpl.jena.sparql.syntax.ElementOptional;
+import com.hp.hpl.jena.sparql.syntax.ElementPathBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementService;
+import com.hp.hpl.jena.sparql.syntax.ElementSubQuery;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementUnion;
 import com.hp.hpl.jena.sparql.syntax.ElementVisitor;
+
+import edu.ucsd.library.dams.triple.convertor.STSTableSchema.DataBaseType;
 //XXX import com.hp.hpl.jena.sparql.syntax.ElementUnsaid;
-import com.hp.hpl.jena.sparql.expr.ExprAggregator;
-import com.hp.hpl.jena.sparql.expr.ExprFunctionOp;
-import com.hp.hpl.jena.sparql.expr.ExprFunction3;
-import com.hp.hpl.jena.sparql.expr.ExprFunction1;
-import com.hp.hpl.jena.sparql.expr.ExprFunction2;
-import com.hp.hpl.jena.sparql.expr.ExprFunction0;
-import com.hp.hpl.jena.sparql.expr.ExprFunctionN;
-import com.hp.hpl.jena.sparql.syntax.ElementSubQuery;
-import com.hp.hpl.jena.sparql.syntax.ElementFetch;
-import com.hp.hpl.jena.sparql.syntax.ElementMinus;
-import com.hp.hpl.jena.sparql.syntax.ElementExists;
-import com.hp.hpl.jena.sparql.syntax.ElementNotExists;
-import com.hp.hpl.jena.sparql.syntax.ElementPathBlock;
-import com.hp.hpl.jena.sparql.syntax.ElementBind;
-import com.hp.hpl.jena.sparql.syntax.ElementAssign;
-import com.hp.hpl.jena.sparql.syntax.ElementData;
 
 /**
- * Class SQLQueryVisitor convert SPARQL to SQL
+ * Class SQLQueryVisitor convert SPARQL to SQL for the simple triplestore. 
  * @author lsitu
  *
  */
@@ -63,9 +67,11 @@ public class SQLQueryVisitor implements QueryVisitor{
 		private Map<String, String> columnsMap = null;
 		private boolean isUnion = false;
 		private boolean isOptional = false;
+		private DataBaseType dbType = null;
 		
 		public SQLQueryVisitor(STSTableSchema tableSchema) {
 			this.tableSchema = tableSchema;
+			dbType = tableSchema.getDataBaseType();
 		}
 		
 		public void finishVisit(Query query) {}
@@ -93,17 +99,26 @@ public class SQLQueryVisitor implements QueryVisitor{
 
 		public void visitLimit(Query query) {
 			if(query.isAskType()){
-				sqlQuery += " AND ROWNUM = 1";
+				if(dbType.equals(DataBaseType.ORACLE))
+					sqlQuery += " AND ROWNUM = 1";
+				else
+					sqlQuery += " limit 1";
 			}else{
 				if(query.hasLimit() && !query.hasOffset() && !query.isAskType()){
-					sqlQuery += " AND ROWNUM <= " + query.getLimit();
+					if(dbType.equals(DataBaseType.ORACLE))
+						sqlQuery += " AND ROWNUM <= " + query.getLimit();
+					else
+						sqlQuery += " limit " + query.getLimit();
 				}
 			}
 		}
 
 		public void visitOffset(Query query) {
 			if(query.hasOffset()){
-				sqlQuery += " AND (ROWNUM > " + query.getOffset() + " AND ROWNUM <= " + (query.getLimit() + query.getOffset()) + ")";
+				if(dbType.equals(DataBaseType.ORACLE))
+					sqlQuery += " AND (ROWNUM > " + query.getOffset() + " AND ROWNUM <= " + (query.getLimit() + query.getOffset()) + ")";
+				else
+					sqlQuery += " LIMIT " + query.getLimit()  + " OFFSET " + query.getOffset();
 			}
 			postVisitGroupBy(query);
 			postVisitOrderBy(query);
@@ -116,7 +131,7 @@ public class SQLQueryVisitor implements QueryVisitor{
 		public void visitQueryPattern(Query query) {
 			Element elem = query.getQueryPattern();
 			if(elem != null){
-				SQLElementVisitor elemVisitor = new SQLElementVisitor(tableSchema, query.getResultVars());
+				SQLElementVisitor elemVisitor = new SQLElementVisitor(tableSchema, query.getResultVars(), dbType);
 				elemVisitor.setDestinct(query.isDistinct());
 				elem.visit(elemVisitor);
 				isUnion = elemVisitor.isUnion();
@@ -210,15 +225,17 @@ public class SQLQueryVisitor implements QueryVisitor{
 		private boolean assembleQuery = false;
 		private boolean isUnion = false;
 		private boolean isOptional = false;
+		private DataBaseType dbType = null;
 		
 		String TABLE_NAME = null;
 		String COLUMN_SUBJECT = null;
 		String COLUMN_PREDICATE = null;
 		String COLUMN_OBJECT = null;
 		
-		public SQLElementVisitor(STSTableSchema tableSchema, List resultVars){
+		public SQLElementVisitor(STSTableSchema tableSchema, List resultVars, DataBaseType dbType){
 			//this.tableSchema = tableSchema;
 			this.resultVars = resultVars;
+			this.dbType = dbType;
 			
 			TABLE_NAME = tableSchema.getTableName();
 			COLUMN_SUBJECT = tableSchema.getColumnName(Column.COLUMN_SUBJECT);
@@ -313,8 +330,13 @@ public class SQLQueryVisitor implements QueryVisitor{
 			log.error("Function NOT implemented - (ElementAssign elem): " + elem);			
 		}
 		public void visit(ElementPathBlock elem) {
-			// XXX
-			log.error("Function NOT implemented - (ElementPathBlock elem): " + elem);			
+			PathBlock pb = elem.getPattern();
+			ListIterator<TriplePath> lit=pb.iterator();
+			TriplePath tp = null;
+			while(lit.hasNext()){
+				tp = lit.next();
+				triples.add(tp.asTriple());
+			}			
 		}
 		public void visit(ElementNotExists elem) {
 			// XXX
@@ -637,11 +659,11 @@ public class SQLQueryVisitor implements QueryVisitor{
 						else if(obj instanceof ExprFunction)
 							visit((ExprFunction)obj);
 						else
-							System.out.println("    - Unhandle: " + obj.getClass().getName());
-						}			
+							System.out.println("    - Unhandle: " + obj.getClass().getName());			
 					}
 					if(funcName.equalsIgnoreCase("or") || funcName.equalsIgnoreCase("and"))
-						finishVisit();			
+						finishVisit();
+				}
 			}
 
 			public void visit(NodeValue node) {	
@@ -658,8 +680,24 @@ public class SQLQueryVisitor implements QueryVisitor{
 			}
 			public void visit(ExprFunctionN expr)
 			{
-				// XXX
-				log.error("Function NOT implemented - visit(ExprFunctionN expr): " + expr);			
+				sqlExpr += convertSymbol(expr.getFunctionSymbol().getSymbol());
+				List<Expr> args = expr.getArgs();
+				startVisit();
+				for(int i=0;i<args.size(); i++){
+					Object obj = args.get(i);
+					if(obj instanceof ExprVar){
+						visit((ExprVar)obj);
+					}else if(obj instanceof NodeValue){
+						visit((NodeValue)obj);
+					}else if(obj instanceof ExprFunction)
+						visit((ExprFunction)obj);
+					else
+						System.out.println("    - Unhandle: " + obj.getClass().getName());
+					
+					if(i<args.size() - 1)
+						sqlExpr += ", ";
+				}
+				finishVisit();	
 			}
 			public void visit(ExprFunction0 expr)
 			{
@@ -673,8 +711,32 @@ public class SQLQueryVisitor implements QueryVisitor{
 			}
 			public void visit(ExprFunction2 expr)
 			{
-				// XXX
-				log.error("Function NOT implemented - visit(ExprFunction2 expr): " + expr);			
+				String funcName = expr.getFunctionSymbol().getSymbol();
+				List<Expr> args = expr.getArgs();
+				if(funcName.equalsIgnoreCase("not"))
+					sqlExpr += " " + convertSymbol(funcName) + " ";
+				
+				if(funcName.equalsIgnoreCase("or") || funcName.equalsIgnoreCase("and") )
+					startVisit();	
+			
+				for(int i=0;i<args.size(); i++){
+					Object obj = args.get(i);
+					
+					if(i==1){					
+						sqlExpr += " " + convertSymbol(funcName) + " ";
+					}
+					
+					if(obj instanceof ExprVar)
+						visit((ExprVar)obj);
+					else if(obj instanceof NodeValue)
+						visit((NodeValue)obj);
+					else if(obj instanceof ExprFunction)
+						visit((ExprFunction)obj);
+					else
+						System.out.println("    - Unhandle: " + obj.getClass().getName());
+				}
+				if(funcName.equalsIgnoreCase("or") || funcName.equalsIgnoreCase("and"))
+					finishVisit();
 			}
 			public void visit(ExprFunction1 expr)
 			{
@@ -744,7 +806,12 @@ public class SQLQueryVisitor implements QueryVisitor{
 				else if("NE".equalsIgnoreCase(symbol))
 					sqlOp = "<>";
 				else if("regex".equalsIgnoreCase(symbol))
-					sqlOp = "REGEXP_LIKE";
+					if(dbType.equals(DataBaseType.ORACLE))
+						sqlOp = "REGEXP_LIKE";
+					else if(dbType.equals(DataBaseType.POSTGRESQL))
+						sqlOp = "~";
+					else
+						sqlOp = "REGEXP";
 				else
 					sqlOp = symbol;
 				return sqlOp;
