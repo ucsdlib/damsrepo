@@ -38,9 +38,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import edu.ucsd.library.xdre.file.FileStore;
-import edu.ucsd.library.xdre.file.FileStoreException;
-import edu.ucsd.library.xdre.file.FileStoreUtil;
+import edu.ucsd.library.dams.file.FileStore;
+import edu.ucsd.library.dams.file.FileStoreException;
+import edu.ucsd.library.dams.file.FileStoreUtil;
 
 /**
  * A file servlet supporting client-side caching and GZIP of text content.
@@ -132,16 +132,44 @@ public class FileStoreServlet extends HttpServlet
 
 		// Get requested file by path info.
 		/* start ucsd changes */
-		// get parameters
-		String fsName = request.getParameter("fs");
-		String subject = request.getParameter("subject"); // XXX get from path
-		String fileId = request.getParameter("file"); // XXX get from path
 
-		// start derived values and sanity checks
-		String fullFilename = subject + "-" + fileId; // XXX why are we doing this???
-		String restricted = null;
+		// get object and file ids from path
+		String objid = null;
+		String fileid = null;
+		try
+		{
+			// /bb1234567x/1-1.tif
+			String[] path = request.getPathInfo().split("/");
+			objid = path[1];
+			fileid = path[2];
+		}
+		catch (Exception e)
+		{
+			log.info(
+				"Error parsing request pathInfo: " + request.getPathInfo()
+			);
+		}
+
+		// make sure required parameters are populated
+		if ( objid == null || objid.trim().length() == 0
+			|| fileid == null || fileid.trim().length() == 0 )
+		{
+			try
+			{
+				response.setContentType("text/plain");
+				response.sendError( response.SC_BAD_REQUEST,
+					"Subject and file must be specified in the request URI" );
+				return;
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		String fullFilename = objid + "-" + fileid;
 
 		// first load the FileStore (no point if this doesn't work)
+		String fsName = request.getParameter("fs");
 		if ( fsName == null || fsName.trim().length() == 0 )
 		{
 			fsName = fsDefault;
@@ -165,28 +193,12 @@ public class FileStoreServlet extends HttpServlet
 			return;
 		}
 
-		// make sure required parameters are populated
-		if ( subject == null || subject.trim().length() == 0
-			|| fileId == null || fileId.trim().length() == 0 )
-		{
-			try
-			{
-				response.setContentType("text/plain");
-				response.sendError( response.SC_BAD_REQUEST,
-					"Missing Parameter - subject or file");
-				return;
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
-
 		// check authorization attribute
+		String restricted = null;
 		String authorized = (String) request.getAttribute(
 			"edu.ucsd.library.dams.api.DAMSAPIServlet.authorized"
 		);
-		if(authorized == null || !authorized.equals("1"))
+		if(authorized == null || !authorized.equals("true"))
 		{
 			log.info("Illegal Access from IP " + request.getRemoteAddr()
 				+ " for file " + fullFilename);
@@ -226,7 +238,7 @@ public class FileStoreServlet extends HttpServlet
 		try
 		{
 			long start = System.currentTimeMillis();
-			meta = fs.meta( subject, fileId );
+			meta = fs.meta( objid, fileid );
 			metaTime = System.currentTimeMillis() - start;
 		}
 		catch ( Exception ex )
@@ -365,7 +377,7 @@ public class FileStoreServlet extends HttpServlet
 			{
 				long start = System.currentTimeMillis();
 				// Open streams.
-				input = fs.getInputStream(subject,fileId);
+				input = fs.getInputStream(objid,fileid);
 				output = response.getOutputStream();
 				response.setContentType(contentType);
 				if (acceptsGzip)

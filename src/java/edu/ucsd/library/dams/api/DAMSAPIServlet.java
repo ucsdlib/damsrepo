@@ -79,8 +79,8 @@ public class DAMSAPIServlet extends HttpServlet
 	private Map<String,String> idMinters; // ID series name=>url map
 	private String idNS;	// Namespace prefix for unqualified identifiers
 	private String prNS;	// Namespace prefix for unqualified predicates
-	// XXX: idNS=http://library.ucsd.edu/ark:/20775/
-	// XXX: prNS=http://library.ucsd.edu/ontology/dams/#
+	// NSTRANS: idNS=http://library.ucsd.edu/ark:/20775/
+	// NSTRANS: prNS=http://library.ucsd.edu/ontology/dams#
 
 	// uploads
 	private int uploadCount = 0; // current number of uploads being processed
@@ -215,21 +215,11 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				collectionEmbargo( path[3], req, res );
 			}
-			// GET /api/collections/bb1234567x/fixity	
-			else if ( path[4].equals("fixity") )
-			{
-				collectionFixity( path[3], req, res );
-			}
-			// GET /api/collections/bb1234567x/validate
-			else if ( path[4].equals("validate") )
-			{
-				objectValidate( path[3], req, res );
-			}
 		}
 		// objects
 		else if ( path.length > 2 && path[2].equals("objects") )
 		{
-			// GET /api/objects/$ark
+			// GET /api/objects/bb1234567x
 			if ( path.length == 4 )
 			{
 				objectShow( path[3], false, req, res );
@@ -311,31 +301,16 @@ public class DAMSAPIServlet extends HttpServlet
 		// collections
 		else if ( path.length > 3 && path[2].equals("collections") )
 		{
-			// POST /api/collections/bb1234567x/characterize
-			if ( path[4].equals("characterize") )
-			{
-				collectionCharacterize( path[3], req, res );
-			}
-			// POST /api/collections/bb1234567x/derivatives
-			if ( path[4].equals("derivatives") )
-			{
-				collectionDerivatives( path[3], req, res );
-			}
 			// POST /api/collections/bb1234567x/index
 			if ( path[4].equals("index") )
 			{
 				collectionIndexUpdate( path[3], req, res );
 			}
-			// POST /api/collections/bb1234567x/transform
-			if ( path[4].equals("transform") )
-			{
-				collectionTransform( path[3], req, res );
-			}
 		}
 		// objects
 		else if ( path.length > 3 && path[2].equals("objects") )
 		{
-			// POST /api/objects/$ark
+			// POST /api/objects/bb1234567x
 			if ( path.length == 4 )
 			{
 				objectCreate( path[3], req, res );
@@ -354,7 +329,7 @@ public class DAMSAPIServlet extends HttpServlet
 		// files
 		else if ( path.length > 3 && path[2].equals("files") )
 		{
-			// POST /api/files/$ark/$file
+			// POST /api/files/bb1234567x/1-1.tif
 			if ( path.length == 5 )
 			{
 				fileUpload( path[3], path[4], false, req, res );
@@ -384,12 +359,12 @@ public class DAMSAPIServlet extends HttpServlet
 		// parse request URI
 		String[] path = path( req );
 
-		// PUT /api/objects/$ark
+		// PUT /api/objects/bb1234567x
 		if ( path.length == 4 )
 		{
 			objectUpdate( path[3], req, res );
 		}
-		// PUT /api/objects/$ark/$file
+		// PUT /api/objects/bb1234567x/1-1.tif
 		else if ( path.length == 5 )
 		{
 			fileUpload( path[3], path[4], true, req, res );
@@ -409,24 +384,24 @@ public class DAMSAPIServlet extends HttpServlet
 		// parse request URI
 		String[] path = path( req );
 
-		// DELETE /api/collections/$ark/index
+		// DELETE /api/collections/bb1234567x/index
 		if ( path.length == 5 && path[2].equals("collections")
 			&& path[4].equals("index") )
 		{
 			collectionIndexDelete( path[3], req, res );
 		}
-		// DELETE /api/objects/$ark
+		// DELETE /api/objects/bb1234567x
 		else if ( path.length == 4 && path[2].equals("objects") )
 		{
 			objectDelete( path[3], req, res );
 		}
-		// DELETE /api/objects/$ark/index
+		// DELETE /api/objects/bb1234567x/index
 		else if ( path.length == 5 && path[2].equals("objects")
 			&& path[4].equals("index") )
 		{
 			objectIndexDelete( path[3], req, res );
 		}
-		// DELETE /api/files/$ark/$file
+		// DELETE /api/files/bb1234567x/1-1.tif
 		else if ( path.length == 5 && path[2].equals("files") )
 		{
 			fileDelete( path[3], path[4], req, res );
@@ -459,50 +434,27 @@ public class DAMSAPIServlet extends HttpServlet
 		info.put( "user", user );
 		output( res.SC_OK, info, req, res );
 	}
-	public void collectionCharacterize( String colid,
-		HttpServletRequest req, HttpServletResponse res )
-	{
-		// DAMS_MGR
-		// output = status token
-		// EVENT_META: update event metadata
-	}
 	public void collectionCount( String colid, HttpServletRequest req, HttpServletResponse res )
 	{
 		// DAMS_MGR
 		// output = status message
-		// EVENT_META: update event metadata
 	}
 	public void collectionEmbargo( String colid, HttpServletRequest req, HttpServletResponse res )
 	{
 		// DAMS_MGR
 		// output = metadata: list of objects (??)
 	}
-	public void collectionDerivatives( String colid,
-		HttpServletRequest req, HttpServletResponse res )
-	{
-		// DAMS_MGR
-		// output = status token
-		// EVENT_META: update event metadata
-	}
-	public void collectionFixity( String colid, HttpServletRequest req, HttpServletResponse res )
-	{
-		// DAMS_MGR
-		// output = status token
-		// EVENT_META: update event metadata
-	}
 	public void collectionIndexDelete( String colid,
 		HttpServletRequest req, HttpServletResponse res )
 	{
 		// DAMS_MGR
 		// output = status message
-		// EVENT_META: update event metadata
 	}
 	public void collectionIndexUpdate( String colid,
 		HttpServletRequest req, HttpServletResponse res )
 	{
 		// DAMS_MGR
 		// output = status token
-		// EVENT_META: update event metadata
 	}
 	public void collectionListAll( HttpServletRequest req, HttpServletResponse res )
 	{
@@ -515,32 +467,16 @@ public class DAMSAPIServlet extends HttpServlet
 		// DAMS_MGR
 		// output = metadata: list of objects
 	}
-	public void collectionTransform( String colid,
-		HttpServletRequest req, HttpServletResponse res )
-	{
-		// DAMS_MGR
-		// output = status token
-		// EVENT_META: update event metadata
-	}
-	public void collectionValidate( String colid,
-		HttpServletRequest req, HttpServletResponse res )
-	{
-		// DAMS_MGR
-		// output = status token
-		// EVENT_META: update event metadata
-	}
 	public void fileCharacterize( String objid, String fileid,
 		HttpServletRequest req, HttpServletResponse res )
 	{
 		// DAMS_MGR
 		// output = status message
-		// EVENT_META: update event metadata
+		// if res is null, update triplestore but don't output anything
 	}
 	public void fileUpload( String objid, String fileid, boolean overwrite,
 		 HttpServletRequest req, HttpServletResponse res )
 	{
-		// EVENT_METAX: update event metadata
-		// FILE_META: update file metadata
 		FileStore fs = null;
 		try
 		{
@@ -630,6 +566,9 @@ public class DAMSAPIServlet extends HttpServlet
 					req, null, objid, fileid, type, false, "EVENT_DETAIL_SPEC", "Failed to upload file XXX"
 				);
 				error( "Failed to upload file: " + objid + "/" + fileid, req, res );
+				// FILE_META: update file metadata
+				fileDeleteMetadata( req, objid, fileid );
+				fileCharacterize( objid, fileid, req, null );
 			}
 		}
 		catch ( Exception ex )
@@ -654,8 +593,6 @@ public class DAMSAPIServlet extends HttpServlet
 	public void fileDelete( String objid, String fileid,
 		HttpServletRequest req, HttpServletResponse res )
 	{
-		// EVENT_METAX: update event metadata
-		// FILE_META: update file metadata
 		FileStore fs = null;
 		try
 		{
@@ -690,7 +627,14 @@ public class DAMSAPIServlet extends HttpServlet
 	
 			if ( successful )
 			{
-				createEvent( req, null, objid, fileid, "file deletion", true, "Deleting file EVENT_DETAIL_SPEC", null );
+				createEvent(
+					req, null, objid, fileid, "file deletion", true,
+					"Deleting file EVENT_DETAIL_SPEC", null
+				);
+
+				// FILE_META: update file metadata
+				fileDeleteMetadata( req, objid, fileid );
+
 				status( "File deleted successfully", req, res );
 			}
 			else
@@ -723,20 +667,30 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		// DAMS_MGR
 		// output = status message
-		// EVENT_META: update event metadata
-		// FILE_META: update file metadata
 	}
 	public void fileFixity( String objid, String fileid,
 		HttpServletRequest req, HttpServletResponse res )
 	{
 		// DAMS_MGR
 		// output = status message
-		// EVENT_META: update event metadata
 	}
 	public void fileShow( HttpServletRequest req,
 		HttpServletResponse res, String objid, String fileid )
 	{
-		// AAA: delegate to file servlet
+		// XXX: access control
+		req.setAttribute(
+			"edu.ucsd.library.dams.api.DAMSAPIServlet.authorized","true"
+		);
+		String url = "/file/" + objid + "/" + fileid + "?"
+			+ req.getQueryString();
+		try
+		{
+			res.sendRedirect( url );
+		}
+		catch ( Exception ex )
+		{
+			log.error("Error sending redirect: " + ex.toString());
+		}
 	}
 	public void identifierCreate( String name, int count,
 		HttpServletRequest req, HttpServletResponse res )
@@ -1012,9 +966,6 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	private void objectEdit( String objid, boolean create, HttpServletRequest req, HttpServletResponse res )
 	{
-		// output = status message
-		// EVENT_METAX: create/update event metadata
-
 		TripleStore ts = null;
 		try
 		{
@@ -1124,9 +1075,6 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public void objectDelete( String objid, HttpServletRequest req, HttpServletResponse res )
 	{
-		// output = status message
-		// EVENT_METAX: update event metadata
-
 		TripleStore ts = null;
 		try
 		{
@@ -1160,12 +1108,12 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( ! ts.exists(id) )
 			{
 				createEvent( req, ts, objid, null, "object deletion", true, "Deleting object EVENT_DETAIL_SPEC", null );
-				// XXXX status
+				status( "Object deleted successfully", req, res );
 			}
 			else
 			{
 				createEvent( req, ts, objid, null, "object deletion", false, "Deleting object EVENT_DETAIL_SPEC", "XXX error" );
-				// XXXX error
+				error( "Object deletion failed", req, res );
 			}
 			//ts.addLiteralStatement(id,updatedFlag,"delete",id);
 			//String userID = request.getParameter("userID");
@@ -1197,13 +1145,11 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		// DAMS_MGR
 		// output = status message
-		// EVENT_META: update event metadata
 	}
 	public void objectIndexUpdate( String objid, HttpServletRequest req, HttpServletResponse res )
 	{
 		// DAMS_MGR
 		// output = status message
-		// EVENT_META: update event metadata
 	}
 	public void objectShow( String objid, boolean export,
 		HttpServletRequest req, HttpServletResponse res )
@@ -1215,13 +1161,11 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		// DAMS_MGR
 		// output = metadata: object
-		// EVENT_META: update event metadata
 	}
 	public void objectValidate( String objid, HttpServletRequest req, HttpServletResponse res )
 	{
 		// DAMS_MGR
 		// output = status message
-		// EVENT_META: update event metadata
 	}
 	public void predicateList( HttpServletRequest req, HttpServletResponse res )
 	{
@@ -1233,6 +1177,40 @@ public class DAMSAPIServlet extends HttpServlet
 		// DAMS_MGR: get status from session and send message
 	}
 
+	private void fileDeleteMetadata( HttpServletRequest req, String objid,
+		String fileid ) throws TripleStoreException
+	{
+		TripleStore ts = null;
+		try
+		{
+			// identifier object for the file
+			Identifier fileIdentifier = Identifier.publicURI(
+				idNS + objid + "/" + fileid
+			);
+
+			// connect to triplestore
+			String tsName = getParamString(req,"ts",tsDefault);
+			ts = TripleStoreUtil.getTripleStore(tsName);
+
+			// delete file metadata
+			ts.removeStatements( fileIdentifier, null, null ); // XXX: bnodes?
+
+			// delete links from object/components
+			ts.removeStatements( null, null, fileIdentifier );
+		}
+		catch ( Exception ex )
+		{
+			log.error( "Error deleting file metadata", ex );
+		}
+		finally
+		{
+			try { ts.close(); }
+			catch ( Exception ex2 )
+			{
+				log.error("Error closing triplestore: " + ex2.toString());
+			}
+		}
+	}
 	private void createEvent( HttpServletRequest req, TripleStore ts,
 		String objid, String fileid, String type, boolean success,
 		String detail, String outcomeNote ) throws TripleStoreException
