@@ -4,6 +4,7 @@ package edu.ucsd.library.dams.api;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -44,6 +45,7 @@ import org.json.simple.JSONValue;
 import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.file.FileStoreUtil;
 import edu.ucsd.library.dams.model.Event;
+import edu.ucsd.library.dams.solr.SolrFormat;
 import edu.ucsd.library.dams.triple.Identifier;
 import edu.ucsd.library.dams.triple.TripleStore;
 import edu.ucsd.library.dams.triple.TripleStoreException;
@@ -58,9 +60,9 @@ import edu.ucsd.library.dams.util.HttpUtil;
 **/
 public class DAMSAPIServlet extends HttpServlet
 {
-	/*************************************************************************/
-	/* Servlet init and shared state                                         */
-	/*************************************************************************/
+	//========================================================================
+	// Servlet init and shared state
+	//========================================================================
 
 	// logging
 	private static Logger log = Logger.getLogger(DAMSAPIServlet.class);
@@ -69,14 +71,14 @@ public class DAMSAPIServlet extends HttpServlet
 	private String formatDefault; // output format to use when not specified
 
 	// default data stores
-	private String fsDefault;    // FileStore to be used when not specified
-	private String tsDefault;    // TripleStore to be used when not specified
+	private String fsDefault;	// FileStore to be used when not specified
+	private String tsDefault;	// TripleStore to be used when not specified
 
 	// identifiers and namespaces
-	private String idDefault;    // ID series to be used when not specified
+	private String idDefault;	// ID series to be used when not specified
 	private Map<String,String> idMinters; // ID series name=>url map
-	private String idNS;    // Namespace prefix for unqualified identifiers
-	private String prNS;    // Namespace prefix for unqualified predicates
+	private String idNS;	// Namespace prefix for unqualified identifiers
+	private String prNS;	// Namespace prefix for unqualified predicates
 	// XXX: idNS=http://library.ucsd.edu/ark:/20775/
 	// XXX: prNS=http://library.ucsd.edu/ontology/dams/#
 
@@ -85,30 +87,36 @@ public class DAMSAPIServlet extends HttpServlet
 	private int maxUploadCount;  // number of concurrent uploads allowed
 	private long maxUploadSize;  // largest allowed upload size
 
+	// solr
+	private String solrBase;		// base URL for solr webapp
+	private String xslBase;		    // base dir for server-side XSL stylesheets
+	private String encodingDefault; // default character encoding
+	private String mimeDefault;     // default output mime type
+
 	// ip address mapping
-	private String roleDefault;           // default role if not matching
+	private String roleDefault;		   // default role if not matching
 	private Map<String,String[]> roleMap; // map of roles to IP addresses
 
 	// initialize servlet parameters
-    public void init( ServletConfig config ) throws ServletException
-    {
-        try
-        {
-            InitialContext ctx = new InitialContext();
+	public void init( ServletConfig config ) throws ServletException
+	{
+		try
+		{
+			InitialContext ctx = new InitialContext();
 
 			// default output format
-            formatDefault = (String)ctx.lookup(
+			formatDefault = (String)ctx.lookup(
 				"java:comp/env/dams/formatDefault"
 			);
 
 			// default data stores
-            fsDefault = (String)ctx.lookup("java:comp/env/dams/fsDefault");
-            tsDefault = (String)ctx.lookup("java:comp/env/dams/tsDefault");
+			fsDefault = (String)ctx.lookup("java:comp/env/dams/fsDefault");
+			tsDefault = (String)ctx.lookup("java:comp/env/dams/tsDefault");
 
 			// identifiers
 			idNS = (String)ctx.lookup("java:comp/env/dams/identifierNS");
 			prNS = (String)ctx.lookup("java:comp/env/dams/predicateNS");
-            idDefault = (String)ctx.lookup("java:comp/env/dams/idDefault");
+			idDefault = (String)ctx.lookup("java:comp/env/dams/idDefault");
 			idMinters = new HashMap<String,String>();
 			String minterConfig = (String)ctx.lookup(
 				"java:comp/env/dams/idMinters"
@@ -125,12 +133,18 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 
 			// upload limits
-            Integer maxCount = (Integer)ctx.lookup(
-                "java:comp/env/dams/maxUploadCount"
-            );
-            maxUploadCount = maxCount.intValue();
-            Long maxSize = (Long)ctx.lookup("java:comp/env/dams/maxUploadSize");
-            maxUploadSize = maxSize.longValue();
+			Integer maxCount = (Integer)ctx.lookup(
+				"java:comp/env/dams/maxUploadCount"
+			);
+			maxUploadCount = maxCount.intValue();
+			Long maxSize = (Long)ctx.lookup("java:comp/env/dams/maxUploadSize");
+			maxUploadSize = maxSize.longValue();
+
+			// solr
+			solrBase = (String)ctx.lookup("java:comp/env/dams/solrBase");
+			xslBase = (String)ctx.lookup("java:comp/env/dams/xslBase");
+			encodingDefault = (String)ctx.lookup("java:comp/env/dams/encodingDefault");
+			mimeDefault = (String)ctx.lookup("java:comp/env/dams/mimeDefault");
 
 			// ip address mapping
 			roleDefault = (String)ctx.lookup("java:comp/env/dams/roleDefault");
@@ -145,23 +159,23 @@ public class DAMSAPIServlet extends HttpServlet
 				String[] ipArray = ipList.split(",");
 				roleMap.put( roleArray[i], ipArray );
 			}
-        }
-        catch ( Exception ex )
-        {
-            log.error( "Error initializing", ex );
-        }
+		}
+		catch ( Exception ex )
+		{
+			log.error( "Error initializing", ex );
+		}
 
-        super.init(config);
-    }
+		super.init(config);
+	}
 
 
-	/*************************************************************************/
-	/* REST API methods                                                      */
-	/*************************************************************************/
+	//========================================================================
+	// REST API methods
+	//========================================================================
 
 	/**
 	 * HTTP GET methods to retrieve objects and datastream metadata and files.
-     * Calls to GET should not change state in any way.
+	 * Calls to GET should not change state in any way.
 	**/
 	public void doGet( HttpServletRequest req, HttpServletResponse res )
 	{
@@ -424,9 +438,9 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 
 
-	/*************************************************************************/
-	/* Core Java API                                                         */
-	/*************************************************************************/
+	//========================================================================
+	// Core Java API
+	//========================================================================
 	public void clientAuthorize( HttpServletRequest req,
 		HttpServletResponse res )
 	{
@@ -578,32 +592,32 @@ public class DAMSAPIServlet extends HttpServlet
 			String fsName = getParamString( req, "fs", "fsDefault" );
 			fs = FileStoreUtil.getFileStore( fsName );
 	
-        	// make sure appropriate method is being used to create/update
-        	if ( !overwrite && fs.exists( objid, fileid ) )
-        	{
-            	error(
-                	HttpServletResponse.SC_FORBIDDEN,
-                	"File already exists, use PUT to overwrite", req, res
-            	);
+			// make sure appropriate method is being used to create/update
+			if ( !overwrite && fs.exists( objid, fileid ) )
+			{
+				error(
+					HttpServletResponse.SC_FORBIDDEN,
+					"File already exists, use PUT to overwrite", req, res
+				);
 				return;
-        	}
-        	else if ( overwrite && !fs.exists( objid, fileid ) )
-        	{
-            	error(
-                	HttpServletResponse.SC_FORBIDDEN,
-                	"File does not exist, use POST to create", req, res
-            	);
+			}
+			else if ( overwrite && !fs.exists( objid, fileid ) )
+			{
+				error(
+					HttpServletResponse.SC_FORBIDDEN,
+					"File does not exist, use POST to create", req, res
+				);
 				return;
-        	}
+			}
 	
-        	// upload file
-        	fs.write( objid, fileid, in );
-        	boolean successful = fs.exists(objid,fileid)
-            	&& fs.length(objid,fileid) > 0;
-        	in.close();
+			// upload file
+			fs.write( objid, fileid, in );
+			boolean successful = fs.exists(objid,fileid)
+				&& fs.length(objid,fileid) > 0;
+			in.close();
 	
 			String type = overwrite ? "file modification" : "file creation";
-        	if ( successful )
+			if ( successful )
 			{
 				createEvent(
 					req, null, objid, fileid, type, true, "EVENT_DETAIL_SPEC", null
@@ -611,12 +625,12 @@ public class DAMSAPIServlet extends HttpServlet
 				status( "File uploaded successfully", req, res );
 			}
 			else
-        	{
+			{
 				createEvent(
 					req, null, objid, fileid, type, false, "EVENT_DETAIL_SPEC", "Failed to upload file XXX"
 				);
-            	error( "Failed to upload file: " + objid + "/" + fileid, req, res );
-        	}
+				error( "Failed to upload file: " + objid + "/" + fileid, req, res );
+			}
 		}
 		catch ( Exception ex )
 		{
@@ -660,30 +674,30 @@ public class DAMSAPIServlet extends HttpServlet
 			String fsName = getParamString( req, "fs", "fsDefault" );
 			fs = FileStoreUtil.getFileStore( fsName );
 	
-        	// make sure the file exists
-        	if ( !fs.exists( objid, fileid ) )
-        	{
-            	error(
-                	HttpServletResponse.SC_FORBIDDEN,
-                	"File does not exist", req, res
-            	);
+			// make sure the file exists
+			if ( !fs.exists( objid, fileid ) )
+			{
+				error(
+					HttpServletResponse.SC_FORBIDDEN,
+					"File does not exist", req, res
+				);
 				return;
-        	}
+			}
 	
-        	// delete the file
-        	fs.trash( objid, fileid );
-        	boolean successful = !fs.exists(objid,fileid);
+			// delete the file
+			fs.trash( objid, fileid );
+			boolean successful = !fs.exists(objid,fileid);
 	
-        	if ( successful )
+			if ( successful )
 			{
 				createEvent( req, null, objid, fileid, "file deletion", true, "Deleting file EVENT_DETAIL_SPEC", null );
 				status( "File deleted successfully", req, res );
 			}
 			else
-        	{
+			{
 				createEvent( req, null, objid, fileid, "file deletion", false, "Deleting file EVENT_DETAIL_SPEC", "XXX" );
-            	error( "Failed to delete file: " + objid + "/" + fileid, req, res );
-        	}
+				error( "Failed to delete file: " + objid + "/" + fileid, req, res );
+			}
 		}
 		catch ( Exception ex )
 		{
@@ -759,10 +773,234 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public void indexSearch( HttpServletRequest req, HttpServletResponse res )
 	{
-		String role = getRole( req.getRemoteAddr() );
-		req.setAttribute("X-DAMS-Role",role);
-		// output = metadata: search results
-		// AAA: delegate to SolrProxy servlet
+		long start = System.currentTimeMillis();
+
+		// make sure char encoding is specified
+		if ( req.getCharacterEncoding() == null )
+		{
+			try
+			{
+				req.setCharacterEncoding( encodingDefault );
+				log.debug("Setting character encoding: " + encodingDefault );
+			}
+			catch ( UnsupportedEncodingException ex )
+			{
+				log.warn("Unable to set chararacter encoding");
+			}
+		}
+		else
+		{
+			log.debug("Browser specified character encoding: " + req.getCharacterEncoding() );
+		}
+
+		// load profile
+		String profileFilter = null;
+		String profile = req.getParameter("profile");
+		if ( profile != null )
+		{
+			try
+			{
+				profileFilter = (String)new InitialContext().lookup(
+					"java:comp/env/dams/profile-" + profile
+				);
+			}
+			catch ( Exception ex )
+			{
+				log.warn("Error lookup up profile filter (" + profile + "): " + ex.toString());
+			}
+		}
+
+		// check ip and username
+		String username = req.getRemoteUser();
+		String roleFilter = null;
+		if ( username == null || username.equals("") )
+		{
+			// not logged in, check ip addr role
+			String role = getRole( req.getRemoteAddr() );
+			try
+			{
+				roleFilter = (String)new InitialContext().lookup(
+					"java:comp/env/dams/filter" + role
+				);
+			}
+			catch ( Exception ex )
+			{
+				log.warn("Error lookup up role filter (" + role + "): " + ex.toString());
+			}
+		}
+
+		// reformatting
+		String xsl = req.getParameter("xsl");       // XSL takes precedence
+		String format = req.getParameter("format"); // JSON reformatting
+
+		// velocity
+		String name = "select";
+		String contentType = mimeDefault;
+		String v_template = req.getParameter("v.template");
+		if ( (v_template != null && !v_template.equals("")) || (profileFilter != null && profileFilter.indexOf("v.template") != -1) )
+		{
+			name = "velo";
+			contentType = "text/html";
+		}
+
+		// datasource param
+		String ds = getParamString(req,"ds",tsDefault);
+		ds = ds.replaceAll(".*\\/","");
+
+		// build URL
+		String url = solrBase + "/" + ds + "/" + name
+			+ "?" + req.getQueryString();
+		if ( xsl != null && !xsl.equals("") )
+		{
+			url += "&wt=xml";
+		}
+		if ( roleFilter != null && !roleFilter.equals("") )
+		{
+			url += "&fq=" + roleFilter;
+		}
+		if ( profileFilter != null && !profileFilter.equals("") )
+		{
+			url += "&fq=" + profileFilter;
+		}
+		log.info("url: " + url);
+
+		// perform search
+		try
+		{
+			String output = null;
+			HttpUtil http = new HttpUtil(url);
+			try
+			{
+				http.exec();
+				if ( http.status() == 200 )
+				{
+					output = http.contentBodyAsString();
+				}
+			}
+			catch ( IOException ex )
+			{
+				log.info(
+					"Parsing error performing Solr search, url: " + url, ex
+				);
+				if ( ex.getMessage().endsWith("400 Bad Request") )
+				{
+					error(
+						"Parsing error: " + ex.toString(), req, res
+					);
+					return;
+				}
+			}
+			finally
+			{
+				if ( http != null )
+				{
+					http.releaseConnection();
+				}
+			}
+
+			// output reformatting
+			Exception formatEx = null;
+			if ( output != null && xsl != null && !xsl.equals("") )
+			{
+				String casGroupTest = null; // XXX: remove???
+				if(xsl.indexOf("piclens_rss.xsl") >=0){
+					if(req.getParameter("casTest") != null)
+						casGroupTest = "casTest";
+					else
+						casGroupTest = "";
+				}
+				xsl = xslBase + xsl;
+				xsl = xsl.replaceAll("\\.\\.",""); // prevent snooping
+				try
+				{
+					output = SolrFormat.xslt(
+						output, xsl, req.getParameterMap(),
+						req.getQueryString(), casGroupTest
+					);
+					contentType = "text/xml";
+				}
+				catch ( Exception ex )
+				{
+					formatEx = ex;
+				}
+			}
+			else if ( output != null && format != null
+				&& format.equals("curator") )
+			{
+				// reformat json
+				try
+				{
+					output = SolrFormat.jsonFormatText(
+						output, ds, null, req.getParameter("q")
+					);
+				}
+				catch ( Exception ex )
+				{
+					formatEx = ex;
+				}
+			}
+			else if ( output != null && format != null
+				&& format.equals("grid") )
+			{
+				// reformat json
+				int PAGE_SIZE = 20;
+				int rows = (req.getParameter("rows") != null) ?
+					Integer.parseInt(req.getParameter("rows")) : PAGE_SIZE;
+				int page = -1;
+				try
+				{
+					page = Integer.parseInt(req.getParameter("page"));
+				}
+				catch ( Exception ex ) { page = -1; }
+				if(page == -1) { page = 1; }
+				try
+				{
+					output = SolrFormat.jsonGridFormat( output, page, rows );
+				}
+				catch ( Exception ex )
+				{
+					formatEx = ex;
+				}
+			}
+
+			// check for null xml
+			if ( output == null )
+			{
+				log.info(
+					"Processing error performing Solr search, url: " + url,
+					formatEx
+				);
+				String msg = (formatEx != null) ?
+					formatEx.toString() : "unknown";
+				error( "Processing error: " + msg, req, res );
+				return;
+			}
+
+			if ( contentType.indexOf("; charset=") == -1 )
+			{
+				contentType += "; charset=" + encodingDefault;
+			}
+
+			// override content type
+			if ( req.getParameter("contentType") != null )
+			{
+				contentType= req.getParameter("contentType");
+			}
+
+			// send output to client
+			res.setContentType( contentType );
+			PrintWriter out = res.getWriter();
+			out.println( output );
+			out.flush();
+			out.close();
+		}
+		catch ( Exception ex )
+		{
+			log.error( ex );
+			error( "Error performing Solr search: " + ex.toString(), req, res );
+		}
+		long dur = System.currentTimeMillis() - start;
+		log.info("indexSearch: " + dur + "ms, params: " + req.getQueryString());
 	}
 	public void objectCreate( String objid, HttpServletRequest req, HttpServletResponse res )
 	{
@@ -796,7 +1034,7 @@ public class DAMSAPIServlet extends HttpServlet
 			String tsName = getParamString(req,"ts",tsDefault);
 			ts = TripleStoreUtil.getTripleStore(tsName);
 
-       		// make sure appropriate method is being used to create/update
+	   		// make sure appropriate method is being used to create/update
 			if ( !objid.startsWith("http") )
 			{
 				objid = idNS + objid;
@@ -804,18 +1042,18 @@ public class DAMSAPIServlet extends HttpServlet
 			Identifier id = Identifier.publicURI(objid);
 			if ( create && ts.exists(id) )
 			{
-           		error(
-               		HttpServletResponse.SC_FORBIDDEN,
-               		"Object already exists, use PUT to update", req, res
-           		);
+		   		error(
+			   		HttpServletResponse.SC_FORBIDDEN,
+			   		"Object already exists, use PUT to update", req, res
+		   		);
 				return;
 			}
 			else if ( !create && !ts.exists(id) )
 			{
-           		error(
-               		HttpServletResponse.SC_FORBIDDEN,
-               		"Object does not exist, use POST to create", req, res
-          		);
+		   		error(
+			   		HttpServletResponse.SC_FORBIDDEN,
+			   		"Object does not exist, use POST to create", req, res
+		  		);
 				return;
 			}
 
@@ -903,7 +1141,7 @@ public class DAMSAPIServlet extends HttpServlet
 			String tsName = getParamString(req,"ts",tsDefault);
 			ts = TripleStoreUtil.getTripleStore(tsName);
 
-       		// make sure appropriate method is being used to create/update
+	   		// make sure appropriate method is being used to create/update
 			if ( !objid.startsWith("http") )
 			{
 				objid = idNS + objid;
@@ -911,13 +1149,13 @@ public class DAMSAPIServlet extends HttpServlet
 			Identifier id = Identifier.publicURI(objid);
 			if ( !ts.exists(id) )
 			{
-           		error(
-               		HttpServletResponse.SC_BAD_REQUEST,
-               		"Object does not exist", req, res
-           		);
+		   		error(
+			   		HttpServletResponse.SC_BAD_REQUEST,
+			   		"Object does not exist", req, res
+		   		);
 				return;
 			}
-            ts.removeObject(id);
+			ts.removeObject(id);
 
 			if ( ! ts.exists(id) )
 			{
@@ -929,13 +1167,13 @@ public class DAMSAPIServlet extends HttpServlet
 				createEvent( req, ts, objid, null, "object deletion", false, "Deleting object EVENT_DETAIL_SPEC", "XXX error" );
 				// XXXX error
 			}
-            //ts.addLiteralStatement(id,updatedFlag,"delete",id);
+			//ts.addLiteralStatement(id,updatedFlag,"delete",id);
 			//String userID = request.getParameter("userID");
-            //if ( userID != null && !userID.trim().equals("") )
-            //{
-            //    ts.addLiteralStatement(id,updatedFlag,userID,id);
-            //}
-        }
+			//if ( userID != null && !userID.trim().equals("") )
+			//{
+			//	ts.addLiteralStatement(id,updatedFlag,userID,id);
+			//}
+		}
 		catch ( Exception ex )
 		{
 			error( "Error deleting object: " + ex.toString(), req, res );
@@ -1052,9 +1290,9 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 	}
 
-	/*************************************************************************/
-	/* Output formatting                                                     */
-	/*************************************************************************/
+	//========================================================================
+	// Output formatting
+	//========================================================================
 
 	protected void error( String msg, HttpServletRequest req,
 		HttpServletResponse res )
@@ -1194,9 +1432,9 @@ public class DAMSAPIServlet extends HttpServlet
 		return doc.asXML();
 	}
 
-	/*************************************************************************/
-	/* Request parsing, input, etc.                                          */
-	/*************************************************************************/
+	//========================================================================
+	// Request parsing, input, etc.
+	//========================================================================
 	public String getRole( String ip )
 	{
 		// return default role if the ip address is not provided
