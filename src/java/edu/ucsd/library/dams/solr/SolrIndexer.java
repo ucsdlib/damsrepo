@@ -44,6 +44,7 @@ import org.apache.log4j.Logger;
 // solr import
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.UpdateResponse;
 
 // local imports
 import edu.ucsd.library.dams.util.DateParser;
@@ -71,7 +72,6 @@ public class SolrIndexer
 
 	// connection info
 	protected TripleStore ts;
-	protected TripleStore tsTag;
 	protected String datasource;
 	private SolrHelper solr; // XXX: cf. SolrMulti from KB...
 	private String solrBase;
@@ -125,18 +125,30 @@ public class SolrIndexer
 	private boolean rightsFound = false;
 
 	/**
+	 * Constructor which used TripleStore.getName() for both the datasource
+	 * and Solr core name.
+	 * @param ts TripleStore object to retrieve data from.
+	 * @param solrBase Base URL for Solr web service.
+	**/
+	public SolrIndexer( TripleStore ts, String solrBase )
+		throws MalformedURLException
+	{
+		this( solrBase, ts.name() );
+		setDatasource( ts, ts.name(), ts.name() );
+	}
+	/**
 	 * Constructor with datasource info.
-	 * @param agraph AllegroGraph object to retrieve data from.
+	 * @param ts TripleStore object to retrieve data from.
 	 * @param solrBase Base URL for Solr web service.
 	 * @param solrCore Solr core name.
 	 * @param datasource Datasource name (e.g., "jdbc/dams")
 	**/
-	public SolrIndexer( TripleStore ts, TripleStore tsTag,
+	public SolrIndexer( TripleStore ts,
 		String solrBase, String solrCore, String datasource )
 		throws MalformedURLException
 	{
 		this( solrBase, solrCore );
-		setDatasource( ts, tsTag, datasource, solrCore );
+		setDatasource( ts, datasource, solrCore );
 	}
 
 	/**
@@ -197,18 +209,16 @@ public class SolrIndexer
 	 * @param agraph AllegroGraph object to retrieve data from.
 	 * @param datasource Solr datasource name.
 	**/
-	public void setDatasource( TripleStore ts, TripleStore tsTag,
+	public void setDatasource( TripleStore ts, 
 		String datasource, String solrCore ) throws MalformedURLException
 	{
 		// change if ds params have changed
 		if ( this.ts == null      || this.ts.equals( ts )
-			|| tsTag == null      || this.tsTag.equals( tsTag )
 			|| datasource == null || datasource.equals( datasource )
 			|| solrCore == null   || solrCore.equals( solrCore )   )
 		{
 			// update variables
 			this.ts = ts;
-			this.tsTag = tsTag;
 			this.datasource = datasource;
 			this.solrCore = solrCore;
 
@@ -377,10 +387,10 @@ public class SolrIndexer
 	 * @param datasource Solr datasource name.
 	 * @param ark Subject ARK for the object.
 	**/
-	public void indexSubject( TripleStore ts, TripleStore tsTag,
+	public void indexSubject( TripleStore ts, 
 		String datasource, String solrCore, String ark ) throws Exception
 	{
-		setDatasource( ts, tsTag, datasource, solrCore );
+		setDatasource( ts, datasource, solrCore );
 		indexSubject( ark );
 	}
 
@@ -399,7 +409,6 @@ public class SolrIndexer
 		//System.out.println("indexSubject(): DAMSObject");
 		status( "indexSubject: " + ark );
 		DAMSObject obj = new DAMSObject( ts, ark, idNS, prNS );
-		obj.setTsTagTriplestore(tsTag, "ts/tag");
 		if ( predicates.size() == 0 && collectionData.size() == 0 
 			&& colNames.size() == 0 )
 		{
@@ -582,13 +591,15 @@ public class SolrIndexer
 		if ( debug ) { return true; }
 		else if ( streamingServer != null )
 		{
-			streamingServer.commit();
+			UpdateResponse resp = streamingServer.commit();
+			return (resp.getStatus() == 200); // XXX: assume this is HTTP status code...
 		}
 		else if ( postBuffer.length() == 5 )
 		{
 			// don't post an empty buffer
 			return true;
 		}
+
 		// index save
 		boolean success = false;
 		try
@@ -635,10 +646,16 @@ public class SolrIndexer
 		// timer
 		float dur = ((float)(System.currentTimeMillis() - start))/1000;
 		float avg = ((float)recordsIndexed)/(dur);
-		status("\nSolrIndexer: " + recordsIndexed + " records indexed in "
-			+ numFmt.format(dur) + " secs (" + numFmt.format(avg) + "/sec)");
+		status("\n" + summary() );
 
 		return success;
+	}
+	public String summary()
+	{
+		float dur = ((float)(System.currentTimeMillis() - start))/1000;
+		float avg = ((float)recordsIndexed)/(dur);
+		return("SolrIndexer: " + recordsIndexed + " records indexed in "
+			+ numFmt.format(dur) + " secs (" + numFmt.format(avg) + "/sec)");
 	}
 
 	/**
@@ -1229,7 +1246,6 @@ public class SolrIndexer
 	{
 		// variables
 		String tsConf = null;
-		String tagConf = null;
 		String arks = null;
 		String solrBase = null;
 		String solrCore = null;
@@ -1254,7 +1270,6 @@ public class SolrIndexer
 		{
 			if ( args[i] == null || args[i].equals("") ) { /* skip */ }
 			else if ( args[i].equals("tsConf") )	 { tsConf = args[i+1]; }
-			else if ( args[i].equals("tagConf") )    { tagConf = args[i+1]; }
 			else if ( args[i].equals("arks") )       { arks = args[i+1]; }
 			else if ( args[i].equals("solrBase") )   { solrBase = args[i+1]; }
 			else if ( args[i].equals("solrCore") )   { solrCore = args[i+1]; }
@@ -1282,9 +1297,6 @@ public class SolrIndexer
 		Properties props = new Properties();
 		props.load( new FileInputStream(tsConf) );
 		TripleStore ts = TripleStoreUtil.getTripleStore( props );
-		Properties props2 = new Properties();
-		props2.load( new FileInputStream(tagConf) );
-		TripleStore tsTag = TripleStoreUtil.getTripleStore( props2 );
 		
 		SolrIndexer indexer = null;
 		ArrayList<String> bad = new ArrayList<String>();
@@ -1292,7 +1304,7 @@ public class SolrIndexer
 		{
 			// setup solr indexer
 			//System.out.println("constructor");
-			indexer = new SolrIndexer( ts, tsTag, solrBase, solrCore, solrDS );
+			indexer = new SolrIndexer( ts, solrBase, solrCore, solrDS );
 
 			// disable exceptions for individual indexing errors
 			indexer.setThrowExceptions(false);

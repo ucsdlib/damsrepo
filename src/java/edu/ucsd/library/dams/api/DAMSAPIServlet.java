@@ -46,6 +46,8 @@ import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.file.FileStoreUtil;
 import edu.ucsd.library.dams.model.Event;
 import edu.ucsd.library.dams.solr.SolrFormat;
+import edu.ucsd.library.dams.solr.SolrHelper;
+import edu.ucsd.library.dams.solr.SolrIndexer;
 import edu.ucsd.library.dams.triple.Identifier;
 import edu.ucsd.library.dams.triple.TripleStore;
 import edu.ucsd.library.dams.triple.TripleStoreException;
@@ -182,8 +184,8 @@ public class DAMSAPIServlet extends HttpServlet
 		// parse request URI
 		String[] path = path( req );
 
-		// GET /api/search
-		if ( path.length == 3 && path[2].equals("search") )
+		// GET /api/index
+		if ( path.length == 3 && path[2].equals("index") )
 		{
 			indexSearch( req, res );
 		}
@@ -291,21 +293,18 @@ public class DAMSAPIServlet extends HttpServlet
 		// parse request URI
 		String[] path = path( req );
 
+		// POST /api/index
+		if ( path.length == 3 && path[2].equals("index") )
+		{
+			String[] ids = req.getParameterValues("id");
+			indexUpdate( ids, req, res );
+		}
 		// POST /api/next_id
-		if ( path.length == 3 && path[2].equals("next_id") )
+		else if ( path.length == 3 && path[2].equals("next_id") )
 		{
 			String idMinter = getParamString( req, "name", idDefault );
 			int count = getParamInt( req, "count", 1 );
 			identifierCreate( idMinter, count, req, res );
-		}
-		// collections
-		else if ( path.length > 3 && path[2].equals("collections") )
-		{
-			// POST /api/collections/bb1234567x/index
-			if ( path[4].equals("index") )
-			{
-				collectionIndexUpdate( path[3], req, res );
-			}
 		}
 		// objects
 		else if ( path.length > 3 && path[2].equals("objects") )
@@ -323,7 +322,8 @@ public class DAMSAPIServlet extends HttpServlet
 			// POST /api/objects/bb1234567x/index	
 			else if ( path.length == 5 && path[4].equals("index") )
 			{
-				objectIndexUpdate( path[3], req, res );
+				String[] ids = new String[]{ path[3] };
+				indexUpdate( ids, req, res );
 			}
 		}
 		// files
@@ -384,14 +384,14 @@ public class DAMSAPIServlet extends HttpServlet
 		// parse request URI
 		String[] path = path( req );
 
-		// DELETE /api/collections/bb1234567x/index
-		if ( path.length == 5 && path[2].equals("collections")
-			&& path[4].equals("index") )
+		// DELETE /api/index
+		if ( path.length == 3 && path[2].equals("index") )
 		{
-			collectionIndexDelete( path[3], req, res );
+			String[] ids = req.getParameterValues("id");
+			indexDelete( ids, req, res );
 		}
 		// DELETE /api/objects/bb1234567x
-		else if ( path.length == 4 && path[2].equals("objects") )
+		if ( path.length == 4 && path[2].equals("objects") )
 		{
 			objectDelete( path[3], req, res );
 		}
@@ -399,7 +399,8 @@ public class DAMSAPIServlet extends HttpServlet
 		else if ( path.length == 5 && path[2].equals("objects")
 			&& path[4].equals("index") )
 		{
-			objectIndexDelete( path[3], req, res );
+			String[] ids = new String[]{ path[3] };
+			indexDelete( ids, req, res );
 		}
 		// DELETE /api/files/bb1234567x/1-1.tif
 		else if ( path.length == 5 && path[2].equals("files") )
@@ -450,12 +451,6 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		// DAMS_MGR
 		// output = status message
-	}
-	public void collectionIndexUpdate( String colid,
-		HttpServletRequest req, HttpServletResponse res )
-	{
-		// DAMS_MGR
-		// output = status token
 	}
 	public void collectionListAll( HttpServletRequest req, HttpServletResponse res )
 	{
@@ -1143,15 +1138,77 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 		}
 	}
-	public void objectIndexDelete( String objid, HttpServletRequest req, HttpServletResponse res )
+	public void indexDelete( String[] ids, HttpServletRequest req,
+		HttpServletResponse res )
 	{
-		// DAMS_MGR
-		// output = status message
+		// make sure we have some ids to index
+		if ( ids == null || ids.length == 0 )
+		{
+			error( res.SC_BAD_REQUEST, "No identifier specified", req, res );
+		}
+
+		// get ds parameter
+		String ds = getParamString(req,"ts", tsDefault);
+
+		// connect to solr
+		SolrHelper solr = new SolrHelper( solrBase );
+
+		int recordsDeleted = 0;
+		try
+		{
+			// delete individual records
+			for ( int i = 0; i < ids.length; i++ )
+			{
+				if ( solr.delete( ds, ds, ids[i] ) )
+				{
+					recordsDeleted++;
+				}
+			}
+
+			// commit changes
+			solr.commit( ds );
+
+			// report status
+			status( "Solr: deleted " + recordsDeleted + " records", req, res );
+		}
+		catch ( Exception ex )
+		{
+			error( "Error deleting records: " + ex.toString(), req, res );
+		}
 	}
-	public void objectIndexUpdate( String objid, HttpServletRequest req, HttpServletResponse res )
+	public void indexUpdate( String[] ids, HttpServletRequest req,
+		HttpServletResponse res )
 	{
-		// DAMS_MGR
-		// output = status message
+		// make sure we have some ids to index
+		if ( ids == null || ids.length == 0 )
+		{
+			error( res.SC_BAD_REQUEST, "No identifier specified", req, res );
+		}
+
+		try
+		{
+			// connect to solr
+			String tsName = getParamString(req,"ts",tsDefault);
+			TripleStore ts = TripleStoreUtil.getTripleStore(tsName);
+			SolrIndexer indexer = new SolrIndexer( ts, solrBase );
+
+			// index each record
+			for ( int i = 0; i < ids.length; i++ )
+			{
+				indexer.indexSubject( ids[i] );
+			}
+
+			// commit changes
+			indexer.flush();
+			indexer.commit();
+
+			// output status message
+			status( indexer.summary(), req, res );
+		}
+		catch ( Exception ex )
+		{
+			error( "Error updating Solr: " + ex.toString(), req, res );
+		}
 	}
 	public void objectShow( String objid, boolean export,
 		HttpServletRequest req, HttpServletResponse res )

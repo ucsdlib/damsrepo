@@ -168,9 +168,4 @@ public class DAMSObject
 		// XXX
 		return null;
 	}
-
-	public void setTsTagTriplestore( TripleStore ts, String tsName )
-	{
-		// XXX: are we using this at all?
-	}
 }
