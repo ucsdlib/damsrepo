@@ -1,5 +1,7 @@
 package edu.ucsd.library.dams.triple;
 
+import java.util.Set;
+
 /**
  * Primary interface for TripleStores.  All general-purposes classes that work
  * with TripleStores should use this interface, not the abstract classes or
@@ -216,6 +218,20 @@ public interface TripleStore
 	 * @param query SPARQL DESCRIBE query to execute.
 	**/
 	public StatementIterator sparqlDescribe( String query )
+		throws TripleStoreException;
+
+	/**
+	 * Perform a SPARQL DESCRIBE query.
+	 * @param id Identifier for the object to describe.
+	**/
+	public StatementIterator sparqlDescribe( Identifier id )
+		throws TripleStoreException;
+
+	/**
+	 * Perform SPARQL DESCRIBE queries for each identifier listed.
+	 * @param ids Set of Identifiers for the objects to describe.
+	**/
+	public StatementIterator sparqlDescribe( Set<Identifier> ids )
 		throws TripleStoreException;
 
 	/**

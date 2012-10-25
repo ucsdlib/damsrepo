@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.Properties;
 import java.util.UUID;
@@ -164,7 +165,22 @@ public class RelationalTripleStore implements TripleStore
 		{
 		   	subj = subj.substring(10,last);
 		}
-		return sqlDescribe( subj );
+		return sqlDescribe( "<" + subj + ">" );
+	}
+	public StatementIterator sparqlDescribe( Identifier id )
+		throws TripleStoreException
+	{
+		return sqlDescribe( id.toString() );
+	}
+	public StatementIterator sparqlDescribe( Set<Identifier> ids )
+		throws TripleStoreException
+	{
+		List<String> idlist = new ArrayList<String>();
+		for ( Iterator<Identifier> it = ids.iterator(); it.hasNext(); )
+		{
+			idlist.add( it.next().toString() );
+		}
+		return sqlDescribe( idlist );
 	}
 	public BindingIterator sparqlSelect( String query )
 		throws TripleStoreException
@@ -603,14 +619,33 @@ public class RelationalTripleStore implements TripleStore
 	 * recursively.
 	 * @param query SQL SELECT query to execute.
 	**/
-	protected StatementIterator sqlDescribe( String query )
+	protected StatementIterator sqlDescribe( String id )
 		throws TripleStoreException
 	{
 		// keep stripBrackets() call to remove any SPARQL lead-in
 		String sql = "SELECT * from " + tableName()
-			+ " WHERE parent = '<" + stripBrackets(query) + ">'";
+			+ " WHERE parent = '" + id + "'";
 		ResultSet rs = select(sql);
-		return new RelationalStatementIterator2(rs);
+		return new RelationalStatementIterator(rs);
+	}
+	/**
+	 * Select all triples for a group of objects, including blank-node children
+	 * recursively.
+	 * @param query SQL SELECT query to execute.
+	**/
+	protected StatementIterator sqlDescribe( List<String> ids )
+		throws TripleStoreException
+	{
+		// keep stripBrackets() call to remove any SPARQL lead-in
+		String sql = "SELECT * from " + tableName() + " WHERE parent in (";
+		for ( int i = 0; i < ids.size(); i++ )
+		{
+			if ( i > 0 ) { sql += ","; }
+			sql += "'" + ids.get(i) + "'";
+		}
+		sql += ")";
+		ResultSet rs = select(sql);
+		return new RelationalStatementIterator(rs);
 	}
 	/**
 	 * Perform a SQL SELECT query.
@@ -620,7 +655,7 @@ public class RelationalTripleStore implements TripleStore
 		throws TripleStoreException
 	{
 		ResultSet rs = select(query);
-		return new RelationalBindingIterator2( rs, fields );
+		return new RelationalBindingIterator( rs, fields );
 	}
 	/**
 	 * Perform a SQL SELECT query and count the results.
@@ -747,7 +782,7 @@ public class RelationalTripleStore implements TripleStore
 		String sql = "SELECT distinct subject from " + tableName()
 			+ " where subject like '<%'";
 		ResultSet rs = select(sql);
-		return new RelationalSubjectIterator2(rs);
+		return new RelationalSubjectIterator(rs);
 	}
 	public StatementIterator listStatements( Identifier subject,
 		Identifier predicate, Identifier object ) throws TripleStoreException
@@ -779,7 +814,7 @@ public class RelationalTripleStore implements TripleStore
 		}
 
 		ResultSet rs = select(sql);
-		return new RelationalStatementIterator2(rs);
+		return new RelationalStatementIterator(rs);
 	}
 	public StatementIterator listLiteralStatements( Identifier subject,
 		Identifier predicate, String object ) throws TripleStoreException
@@ -794,7 +829,7 @@ public class RelationalTripleStore implements TripleStore
 		}
 
 		ResultSet rs = select(sql);
-		return new RelationalStatementIterator2(rs);
+		return new RelationalStatementIterator(rs);
 	}
 
 	public void removeStatements( Identifier subject, Identifier predicate,
@@ -956,12 +991,12 @@ public class RelationalTripleStore implements TripleStore
 		// no-op
 	}
 }
-class RelationalSubjectIterator2 extends SubjectIterator
+class RelationalSubjectIterator extends SubjectIterator
 {
 	private ResultSet rs = null;
 	private boolean checkedState = false;
 	private boolean checkedValue = false;
-	public RelationalSubjectIterator2( ResultSet rs )
+	public RelationalSubjectIterator( ResultSet rs )
 	{
 		this.rs = rs;
 	}
@@ -1024,12 +1059,12 @@ class RelationalSubjectIterator2 extends SubjectIterator
 		}
 	}
 }
-class RelationalStatementIterator2 extends StatementIterator
+class RelationalStatementIterator extends StatementIterator
 {
 	private ResultSet rs = null;
 	private boolean checkedState = false;
 	private boolean checkedValue = false;
-	public RelationalStatementIterator2( ResultSet rs )
+	public RelationalStatementIterator( ResultSet rs )
 	{
 		this.rs = rs;
 	}
@@ -1114,7 +1149,7 @@ class RelationalStatementIterator2 extends StatementIterator
 		}
 	}
 }
-class RelationalBindingIterator2 extends BindingIterator
+class RelationalBindingIterator extends BindingIterator
 {
 	private ResultSet rs = null;
 	private ResultSetMetaData md = null;
@@ -1122,7 +1157,7 @@ class RelationalBindingIterator2 extends BindingIterator
 	private String[] names = null;
 	private boolean checkedState = false;
 	private boolean checkedValue = false;
-	public RelationalBindingIterator2( ResultSet rs, List<String> fields )
+	public RelationalBindingIterator( ResultSet rs, List<String> fields )
 	{
 		this.rs = rs;
 

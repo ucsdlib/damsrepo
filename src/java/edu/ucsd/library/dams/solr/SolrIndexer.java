@@ -81,6 +81,8 @@ public class SolrIndexer
 	private boolean streaming = false;
 
 	// namespace/collection caches
+	private String idNS;
+	private String prNS;
 	private Map<String,HashMap<String,String>> collectionData;
 	private Map<String,String> predicates;
 	private Map<String,String> colNames;
@@ -158,6 +160,8 @@ public class SolrIndexer
 		if ( !debug ) { solr = new SolrHelper( solrBase ); }
 
 		// namespace/collection caches
+		idNS = null; // XXX
+		prNS = null; // XXX
 		predicates = new HashMap<String,String>();
 		collectionData = new HashMap<String,HashMap<String,String>>();
 		colNames = new HashMap<String,String>();
@@ -394,7 +398,7 @@ public class SolrIndexer
 
 		//System.out.println("indexSubject(): DAMSObject");
 		status( "indexSubject: " + ark );
-		DAMSObject obj = new DAMSObject( ts, datasource, ark );
+		DAMSObject obj = new DAMSObject( ts, ark, idNS, prNS );
 		obj.setTsTagTriplestore(tsTag, "ts/tag");
 		if ( predicates.size() == 0 && collectionData.size() == 0 
 			&& colNames.size() == 0 )
@@ -477,7 +481,7 @@ public class SolrIndexer
 				{
 					String cSub = ark + "-1-" + i;
 					System.err.println("component: " + cSub);
-					DAMSObject cObj = new DAMSObject( ts, datasource, cSub );
+					DAMSObject cObj = new DAMSObject( ts, cSub, idNS, prNS );
 					Document cDoc = toIndexXML( cSub, cObj );
 					// add "rdf:item_of = ark" to link to parent record
 					addField( cDoc.getRootElement(), "bb2765355h", ark );
@@ -518,7 +522,7 @@ public class SolrIndexer
 				{
 					String cSub = ark + "-1-" + i;
 					System.err.println("component: " + cSub);
-					DAMSObject cObj = new DAMSObject( ts, datasource, cSub );
+					DAMSObject cObj = new DAMSObject( ts, cSub, idNS, prNS );
 					Document cDoc = toIndexXML( cSub, cObj );
 					// add "rdf:item_of = ark" to link to parent record
 					addField( cDoc.getRootElement(), "bb2765355h", ark );
@@ -919,13 +923,12 @@ public class SolrIndexer
 		if ( fs != null )
 		{
 			String fulltext = null;
-			List<String> pdfFiles = obj.getPDFIndexFiles();
-			for ( int i = 0; i < pdfFiles.size(); i++ )
+			List<String> files = obj.listFiles();
+			for ( int i = 0; i < files.size(); i++ )
 			{
-				String pdfFile = pdfFiles.get(i);
-				String[] parts = pdfFile.split("-",3);
-				String fn = parts[2];
-				if ( fs.exists( subject, fn ) )
+				String fn = files.get(i);
+				if ( fn != null && fn.endsWith(".pdf")
+					&& fs.exists(subject,fn) )
 				{
 					// read to string 
 					InputStream is = null;
@@ -1001,7 +1004,7 @@ public class SolrIndexer
 			{
 				xslIndexer = XSLIndexer.fromFiles( xslFiles );
 			}
-			String rdf = obj.getRDF(true, true);
+			String rdf = obj.getRDFXML(true);
 			//System.out.println("rdf:\n" + rdf);
 			if ( rdf != null )
 			{

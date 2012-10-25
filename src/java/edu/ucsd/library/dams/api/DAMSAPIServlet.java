@@ -424,6 +424,7 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public void clientInfo( HttpServletRequest req, HttpServletResponse res )
 	{
+		// XXX: AUTH: who is making the request? hydra/isla. or end-user?
 		String ip = req.getRemoteAddr();
 		String role = getRole( ip ); 
 		String user = req.getRemoteUser();
@@ -765,6 +766,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 
 		// check ip and username
+		// XXX: AUTH: who is making the request? hydra/isla. or end-user?
 		String username = req.getRemoteUser();
 		String roleFilter = null;
 		if ( username == null || username.equals("") )
@@ -1154,7 +1156,7 @@ public class DAMSAPIServlet extends HttpServlet
 	public void objectShow( String objid, boolean export,
 		HttpServletRequest req, HttpServletResponse res )
 	{
-		// DAMS_MGR
+		// DAMS_MGR or VIEW_SERVLET?
 		// output = metadata: object
 	}
 	public void objectTransform( String objid, HttpServletRequest req, HttpServletResponse res )
@@ -1239,6 +1241,7 @@ public class DAMSAPIServlet extends HttpServlet
 			Identifier eventID = Identifier.publicURI( idNS, eventARK );
 	
 			// lookup user identifier
+			// XXX: AUTH: who is making the request? hydra/isla. or end-user?
 			Identifier userID = null; // XXX SolrProxy.lookup( req.getRemoteUser() );
 	
 			// create event object and save to the triplestore
