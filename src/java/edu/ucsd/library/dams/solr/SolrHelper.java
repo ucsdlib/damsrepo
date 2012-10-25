@@ -8,8 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.InitialContext;
-
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
@@ -46,22 +44,6 @@ public class SolrHelper
     **/
     public static int LIST_BATCH = 10000;
 
-	/**
-	 * Default constructor (looks up Solr base URL from JNDI).
-	**/
-	public SolrHelper()
-	{
-		try
-		{
-			InitialContext ctx = new InitialContext();
-			multiURL = (String)ctx.lookup("java:comp/env/solr-multi-url");
-			log.info( "multiURL: " + multiURL );
-		}
-		catch ( Exception ex )
-		{
-			log.error( "Unable to lookup Solr base URL", ex );
-		}
-	}
 	/**
 	 * Constructor with Solr base specified.
 	 * @param multiBase Solr base URL.

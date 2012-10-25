@@ -53,7 +53,6 @@ import edu.ucsd.library.dams.triple.TripleStore;
 import edu.ucsd.library.dams.triple.TripleStoreException;
 import edu.ucsd.library.dams.triple.TripleStoreUtil;
 import edu.ucsd.library.dams.triple.edit.Edit;
-import edu.ucsd.library.dams.triple.edit.EditBackup;
 import edu.ucsd.library.dams.util.HttpUtil;
 
 /**
@@ -79,8 +78,9 @@ public class DAMSAPIServlet extends HttpServlet
 	// identifiers and namespaces
 	private String idDefault;	// ID series to be used when not specified
 	private Map<String,String> idMinters; // ID series name=>url map
-	private String idNS;	// Namespace prefix for unqualified identifiers
-	private String prNS;	// Namespace prefix for unqualified predicates
+	private String idNS;       // Namespace prefix for unqualified identifiers
+	private String prNS;       // Namespace prefix for unqualified predicates
+	private String owlSameAs;  // Untranslated URI for owlSameAs
 	// NSTRANS: idNS=http://library.ucsd.edu/ark:/20775/
 	// NSTRANS: prNS=http://library.ucsd.edu/ontology/dams#
 
@@ -88,6 +88,7 @@ public class DAMSAPIServlet extends HttpServlet
 	private int uploadCount = 0; // current number of uploads being processed
 	private int maxUploadCount;  // number of concurrent uploads allowed
 	private long maxUploadSize;  // largest allowed upload size
+	private String backupDir;    // directory to store temporary edit backups
 
 	// solr
 	private String solrBase;		// base URL for solr webapp
@@ -118,6 +119,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// identifiers
 			idNS = (String)ctx.lookup("java:comp/env/dams/identifierNS");
 			prNS = (String)ctx.lookup("java:comp/env/dams/predicateNS");
+			owlSameAs = (String)ctx.lookup("java:comp/env/dams/owlSameAs");
 			idDefault = (String)ctx.lookup("java:comp/env/dams/idDefault");
 			idMinters = new HashMap<String,String>();
 			String minterConfig = (String)ctx.lookup(
@@ -141,6 +143,7 @@ public class DAMSAPIServlet extends HttpServlet
 			maxUploadCount = maxCount.intValue();
 			Long maxSize = (Long)ctx.lookup("java:comp/env/dams/maxUploadSize");
 			maxUploadSize = maxSize.longValue();
+			String backupDir = (String)ctx.lookup("java:comp/env/dams/backupDir");
 
 			// solr
 			solrBase = (String)ctx.lookup("java:comp/env/dams/solrBase");
@@ -1025,7 +1028,8 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					// save data to the triplestore
 					Edit edit = new Edit(
-						adds, updates, deletes, objid, ts, idNS, prNS
+						backupDir, adds, updates, deletes, objid, ts,
+						idNS, prNS, owlSameAs
 					);
 					edit.saveBackup();
 					String type = create ?
@@ -1190,7 +1194,9 @@ public class DAMSAPIServlet extends HttpServlet
 			// connect to solr
 			String tsName = getParamString(req,"ts",tsDefault);
 			TripleStore ts = TripleStoreUtil.getTripleStore(tsName);
-			SolrIndexer indexer = new SolrIndexer( ts, solrBase );
+			SolrIndexer indexer = new SolrIndexer(
+				ts, solrBase, idNS, prNS, owlSameAs
+			);
 
 			// index each record
 			for ( int i = 0; i < ids.length; i++ )

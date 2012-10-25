@@ -1,10 +1,13 @@
 package edu.ucsd.library.dams.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import edu.ucsd.library.dams.triple.BindingIterator;
 import edu.ucsd.library.dams.triple.Identifier;
 import edu.ucsd.library.dams.triple.Statement;
 import edu.ucsd.library.dams.triple.StatementIterator;
@@ -24,6 +27,10 @@ public class DAMSObject
 	private Identifier id;
 	private String idNS;
 	private String prNS;
+	private String owlSameAs;
+
+	private Map<String,String> preMap = null;
+	private Map<String,String> arkMap = null;
 
 	/**
 	 * Main constructor.
@@ -32,15 +39,42 @@ public class DAMSObject
 	 * @param idNS Namespace for qualifying bare identifiers
 	 * @param prNS Namespace for qualifying bare predicates
 	**/
-	public DAMSObject( TripleStore ts, String id, String idNS, String prNS )
+	public DAMSObject( TripleStore ts, String id, String idNS, String prNS,
+		String owlSameAs )
 	{
 		this.ts = ts;
 		this.idNS = idNS;
 		this.prNS = prNS;
+		this.owlSameAs = owlSameAs;
 		String iduri = (id.startsWith("http")) ? id : idNS + id;
 		this.id = Identifier.publicURI(iduri);
 	}
 
+	private void loadMap() throws TripleStoreException
+	{
+		if ( preMap == null && arkMap == null )
+		{
+			preMap = new HashMap<String,String>();
+			String sparql = "select ?ark ?pre "
+				+ "where { ?ark <" + owlSameAs + "> ?pre }";
+			BindingIterator bindings = ts.sparqlSelect(sparql);
+			while ( bindings.hasNext() )
+			{
+				Map<String,String> binding = bindings.nextBinding();
+				preMap.put( binding.get("ark"), binding.get("pre") );
+				arkMap.put( binding.get("pre"), binding.get("ark") );
+			}
+			bindings.close();
+		}
+	}
+	public String arkToPre( String ark )
+	{
+		return arkMap.get(ark);
+	}
+	public String preToArk( String pre )
+	{
+		return preMap.get(pre);
+	}
 
 	/**
 	 * Get an iterator of all statements about this object.
@@ -101,11 +135,12 @@ public class DAMSObject
 		*/
 		while ( it.hasNext() )
 		{
-			Statement s = it.nextStatement();
-			slist.add(s);
-			if ( !s.hasLiteralObject() )
+			Statement stmt = it.nextStatement();
+			translatePredicate(stmt);
+			slist.add(stmt);
+			if ( !stmt.hasLiteralObject() )
 			{
-				Identifier o = s.getObject();
+				Identifier o = stmt.getObject();
 				if ( !o.isBlankNode() && !done.contains(o) )
 				{
 					todo.add(o);
@@ -113,6 +148,19 @@ public class DAMSObject
 			}
 		}
 		it.close();
+	}
+	private void translatePredicate( Statement stmt )
+		throws TripleStoreException
+	{
+		Identifier ark = stmt.getPredicate();
+		String pre = arkToPre( ark.getId() );
+		if ( pre == null )
+		{
+			throw new TripleStoreException(
+				"Can't find name for " + ark.getId()
+			);
+		}
+		stmt.setPredicate( Identifier.publicURI(pre) );
 	}
 
 	/**

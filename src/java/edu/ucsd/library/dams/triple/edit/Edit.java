@@ -23,6 +23,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import edu.ucsd.library.dams.model.DAMSObject;
 import edu.ucsd.library.dams.triple.Identifier;
 import edu.ucsd.library.dams.triple.TripleStore;
 import edu.ucsd.library.dams.triple.TripleStoreUtil;
@@ -41,55 +42,39 @@ public class Edit
 	private JSONArray deletes = null;
 	private JSONArray updates = null;
 	private String ark = null;
+	private String tsName = null;
+
 	private TripleStore ts = null;
+	private String backupDir = null;
+	private String backupFile = null;
 	private String idNS = null;
 	private String prNS = null;
-	private EditBackup backup = null;
-	//the following data structures could change
+	private String owlSameAs = null;
+	private EditData backup = null;
 	private List triplesData = null;
-	private String updatedFlag = "bb89430486"; // XXX
+
+	// for pre/ark mapping
+	private DAMSObject trans = null;
 
 	// status tracking
 	private Exception exception = null;
 	private String status = "";
 
+	// used by EditBackup
 	public Edit( JSONArray adds, JSONArray updates, JSONArray deletes,
-		String ark, TripleStore ts, String idNS, String prNS )
+		String ark, String tsName ) throws TripleStoreException
 	{
 		this.adds = adds;
 		this.updates = updates;
 		this.deletes = deletes;
 		this.ark = ark;
-		this.ts = ts;
-		this.idNS = idNS;
-		this.prNS = prNS;
-		status = "init";
-	}
-	public Edit( JSONArray adds, JSONArray updates, JSONArray deletes,
-		String ark, String tsName, String idNS, String prNS )
-		throws TripleStoreException
-	{
-		this.adds = adds;
-		this.updates = updates;
-		this.deletes = deletes;
-		this.ark = ark;
-		this.idNS = idNS;
-		this.prNS = prNS;
-		try
-		{
-			this.ts = TripleStoreUtil.getTripleStore(tsName);
-		}
-		catch ( Exception ex )
-		{
-			throw new TripleStoreException(
-				"Error getting triplestore instance", ex
-			);
-		}
+		this.tsName = tsName;
 		status = "init";
 	}
 	
-	public Edit( String adds, String updates, String deletes, String ark,
-		TripleStore ts, String idNS, String prNS )
+	// used by DAMSAPIServlet
+	public Edit( String backupDir, String adds, String updates, String deletes,
+		String ark, TripleStore ts, String idNS, String prNS, String owlSameAs )
 	{
 		status = "init";
 		if(!adds.equals(""))
@@ -109,8 +94,11 @@ public class Edit
 		}
 		this.ark = ark.substring(ark.indexOf("/")+1);
 		this.ts = ts;
+		this.trans = new DAMSObject( ts, "", idNS, prNS, owlSameAs );
 		this.idNS = idNS;
 		this.prNS = prNS;
+		this.owlSameAs = owlSameAs;
+		this.backupDir = backupDir;
 	}
 
 	private static String urldec( String s )
@@ -127,23 +115,39 @@ public class Edit
 			 s2 = s;
 		 }
 		 
-		 //s2 = s2.replace("+"," ");
 		 return s2;
 	}
 	
-	public void removeBackup()
-	{
-		backup.cleanup();
-	}
 	/**
 	 * Save data to a backup file to disk for later recovery.
 	**/
-	public void saveBackup()
+	public void saveBackup() throws IOException
 	{
-		backup = new EditBackup(adds,updates,deletes,ark,ts.name(),idNS,prNS);
+		backup = new EditData( adds, updates, deletes, ark, ts.name() );
 		status = "saving1";
-		backup.saveDataToFile();
+		backupFile = backupDir + "/" + ark + "_"
+			+ String.valueOf(System.currentTimeMillis());
+		ObjectOutputStream cout = new ObjectOutputStream(
+			new FileOutputStream( backupFile )
+		);
+		cout.writeObject(backup);
+		cout.close();
 		status = "saving2";
+	}
+	/**
+	 * Remove backup file after edit transaction is complete.
+	**/
+	public void removeBackup() throws IOException
+	{
+		File f = new File(backupFile);
+		if(!f.exists())
+		{
+			throw new FileNotFoundException();
+		}
+		else
+		{
+			f.delete();
+		}
 	}
 
 	/**
@@ -165,67 +169,42 @@ public class Edit
 				while(iter.hasNext())
 				{
 					JSONObject obj = iter.next();
-					String subject = (String)obj.get("subject"); //blank node
-					String predicate = (String)obj.get("predicate"); //ark for type(mods:type, etc)
-					JSONArray object = (JSONArray)obj.get("object"); //{oldValue,new value}
+					String subject = (String)obj.get("subject");    //bnode
+					String predicate = (String)obj.get("predicate");//dams:type
+					JSONArray object = (JSONArray)obj.get("object");//{old,new}
 					//perform triplestore update
-					/*success = updateTriple(
+					success = updateTriple(
 						ts, subject, predicate,
 						urldec((String)object.get(0)),
 						urldec((String)object.get(1))
-					);*/
-
-					if(((String)object.get(1)).contains(".mp3")) {
-						success = updateTriple(
-								ts, ark, "bb50179366",
-								urldec((String)object.get(0)+".mp3"),
-								urldec((String)object.get(1))
-							);
-						success = updateTriple(
-								ts, subject, predicate,
-								urldec((String)object.get(0)),
-								urldec(((String)object.get(1)).replace(".mp3",""))
-							);
-					} else {
-						success = updateTriple(
-								ts, subject, predicate,
-								urldec((String)object.get(0)),
-								urldec((String)object.get(1))
-							);	
-					}					
-					/*if (!updateTagged)
-					{
-						addTriple(ts,subject,updatedFlag,"1");
-						updateTagged = true;
-					}*/
+					);	
 				}
 				status = "updatesCompleted";
 			}
 			//adds
 			if(adds != null)
 			{
-				//System.out.println("adds: " + adds);
 				Iterator<JSONObject> iter=adds.iterator();
-				HashMap<String,Identifier> blankNodes = new HashMap<String,Identifier>(); //lookup list of blank nodes for adds
+				Map<String,Identifier> blankNodes
+					= new HashMap<String,Identifier>(); //bnode map for adds
 				while(iter.hasNext())
 				{
 					JSONObject obj = iter.next();
-					String subject = (String)obj.get("subject"); //blank node
-					String predicate = (String)obj.get("predicate"); //ark for type(mods:type, etc)
-					String object = (String)obj.get("object"); //new value
+					String subject = (String)obj.get("subject");    //bnode
+					String predicate = (String)obj.get("predicate");//dams:type
+					String object = (String)obj.get("object");      //new value
 					object = urldec(object);
 					if(object.equals(""))
 					{
 						continue; //ignore empty object triples
 					}
-					//if the object is a new blank node, create one and set as currNode
+					//if the object is a new bnode, create it & set as currNode
 					Identifier s = null;
 					Identifier o = null;
 					if(object.startsWith("node"))
 					{
 						o = ts.blankNode();
 						blankNodes.put(object, o);
-						//System.out.println("generating new blank node: " + o);
 					}
 					//if the subject is a new node, there should already be a
 					//reference in the hashmap
@@ -233,41 +212,18 @@ public class Edit
 					{
 						s = blankNodes.get(subject);
 					}
-					//debug statements
-					//if(s == null)
-					//{
-					//System.out.println("Subject blank node is null");
-					//}
-					//if(o == null)
-					//{
-					//System.out.println("Object blank node is null");
-					//}
-					if(predicate.equals("bb5564025j") && object.contains(".mp3")) {
-						object = object.replace(".mp3","");
-					}
 					if(s != null || o != null)
 					{
 						//structured add
-						//System.out.println("Structured add...");
 						success = addTriple(
 							ts, (s != null) ? s : subject, predicate,
 							(o != null) ? o : object
 						);
-						/*if (!updateTagged)
-						{
-							addTriple(ts,subject,updatedFlag,"1");
-							updateTagged = true;
-						}*/
 					}
 					else
 					{
 						//low level add
 						success = addTriple(ts,subject, predicate, object);
-						/*if (!updateTagged)
-						{
-							addTriple(ts,subject,updatedFlag,"1");
-							updateTagged = true;
-						}*/
 					}
 					//add triple to triplestore
 				}
@@ -280,9 +236,9 @@ public class Edit
 				while(iter.hasNext())
 				{
 					JSONObject obj = iter.next();
-					String subject = (String)obj.get("subject"); //blank node
-					String predicate = (String)obj.get("predicate"); //ark for type(mods:type, etc)
-					String object = (String)obj.get("object"); //new value
+					String subject = (String)obj.get("subject");    //bnode
+					String predicate = (String)obj.get("predicate");//dams:type
+					String object = (String)obj.get("object");      //new value
 					object = urldec(object);
 					success = removeTriples(ts,subject, predicate, object);
 				}
@@ -333,7 +289,6 @@ public class Edit
 		return buffer.toString();
 	}
 	
-
 	/**************************************************************************
 	 ** methods from edu.ucsd.itd.edit.AG
 	 **************************************************************************/
@@ -341,21 +296,20 @@ public class Edit
 	public boolean addTriple( TripleStore ts, Object subject,
 		String predicate, Object object)
 	{
-		Identifier parent = Identifier.publicURI(idNS+ark);
-		Identifier pred = Identifier.publicURI(prNS+predicate);
 		try
 		{
+			Identifier parent = identifier(ark);
+			Identifier pred = predicate(predicate);
 			if( subject instanceof String )
 			{
 				String s = subject.toString();
-				//System.out.println("addTriple(): s = " + s);
 				if(s.startsWith("_:"))
 				{
-					subject = ts.blankNode(Identifier.publicURI(idNS+ark), s);
+					subject = ts.blankNode(identifier(ark), s);
 				}
 				else
 				{
-					subject = Identifier.publicURI(idNS+s);
+					subject = identifier(s);
 				}
 			}
 			if( object instanceof String )
@@ -391,21 +345,18 @@ public class Edit
 	{
 		try
 		{
-			//System.out.println("removeTriples(): " + subject + ", " + predicate + ", " + object);
-			Identifier pred = Identifier.publicURI(prNS+predicate);
-			Identifier subj = (subject.startsWith("_:")) ? ts.blankNode(Identifier.publicURI(idNS+ark), subject) : Identifier.publicURI(idNS+subject);
+			Identifier pred = predicate(predicate);
+			Identifier subj = (subject.startsWith("_:")) ?
+				ts.blankNode(identifier(ark), subject) : identifier(subject);
 			if( object.startsWith("_:") )
 			{
-				//System.out.println("   bnode");
-				Identifier obj = ts.blankNode(Identifier.publicURI(idNS+ark), object);
-				//System.out.println("Going into removeTriples() with object: "+obj.toString());
+				Identifier obj = ts.blankNode( identifier(ark), object );
 				removeTriples( ts, obj ); //remove all children
 				ts.removeStatements(subj, pred, obj);
 			}
 			else
 			{
 				// XXX: what about URI objects???
-				//System.out.println("   literal");
 				ts.removeLiteralStatements(subj, pred, object);
 			}
 		}
@@ -423,7 +374,6 @@ public class Edit
 	 */
 	public boolean removeTriples( TripleStore ts, Identifier blankNode )
 	{
-		//System.out.println("Inside removeTriples() with object: "+blankNode.toString());
 		ArrayList<Identifier> blankNodes = new ArrayList<Identifier>();
 		ArrayList<Statement> bnTriples = new ArrayList<Statement>();
 		try
@@ -435,13 +385,14 @@ public class Edit
 				if(stmt.hasLiteralObject())
 				{
 					//leaf, remove
-					//System.out.println("Leaf to remove: s: "+stmt.getSubject().getId()+" p: "+stmt.getPredicate()+" o: "+stmt.getLiteral());
-					ts.removeLiteralStatements(stmt.getSubject(), stmt.getPredicate(), stmt.getLiteral());
+					ts.removeLiteralStatements(
+						stmt.getSubject(), stmt.getPredicate(),
+						stmt.getLiteral()
+					);
 				}
 				else
 				{
 					//blank node, store for later removal
-					//System.out.println("Found blank node in object, add to list");
 					blankNodes.add(stmt.getObject());
 					bnTriples.add(stmt);
 				}
@@ -458,7 +409,6 @@ public class Edit
 			//remove the children of the blank nodes
 			for(Identifier bn : blankNodes)
 			{
-				//System.out.println("Calling removeTriples with: "+bn.toString());
 				removeTriples(ts,bn);
 			}
 			//remove the blank node statements themselves
@@ -466,8 +416,9 @@ public class Edit
 			{
 				for(Statement s : bnTriples)
 				{
-					//System.out.println("Removing blank node statement: "+s.toString());
-					ts.removeStatements(s.getSubject(), s.getPredicate(), s.getObject());
+					ts.removeStatements(
+						s.getSubject(), s.getPredicate(), s.getObject()
+					);
 				}
 			}
 			catch (TripleStoreException e)
@@ -493,33 +444,26 @@ public class Edit
 	public boolean updateTriple( TripleStore ts, String subject,
 		String predicate, String currentObj, String newObj )
 	{
-		//System.out.println("updateTriple: " + subject + ", " + predicate + ", " + currentObj + " => " + newObj);
 		//find triple with subject/predicate/old value
 		try
 		{   
-			if(newObj==null){
-				newObj="";
-			}
-			Identifier parent = Identifier.publicURI(idNS+ark);
+			if(newObj==null) { newObj=""; }
+			Identifier parent = identifier(ark);
 			StatementIterator iter = null;
-			//get Subject
 			Identifier s = null;
-			//get Predicate
 			Identifier p = null;
 			Identifier subjNode = null;
 			if(subject.startsWith("_:"))
 			{
 				subjNode = ts.blankNode(parent, subject);
 				ts.removeLiteralStatements(
-					subjNode, Identifier.publicURI(prNS+predicate), currentObj
+					subjNode, predicate(predicate), currentObj
 				);
 			}
 			else
 			{
 				iter = ts.listLiteralStatements(
-					Identifier.publicURI(idNS+subject),
-					Identifier.publicURI(prNS+predicate),
-					currentObj
+					identifier(subject), predicate(predicate), currentObj
 				);
 				if(iter.hasNext())
 				{
@@ -532,7 +476,7 @@ public class Edit
 			}
 			if (iter != null) { iter.close(); }
 			ts.addLiteralStatement(
-				subjNode, Identifier.publicURI(prNS+predicate), newObj, parent
+				subjNode, predicate(predicate), newObj, parent
 			);
 		}
 		catch (TripleStoreException e)
@@ -541,5 +485,30 @@ public class Edit
 			return false;
 		}
 		return true;
+	}
+	/**
+	 * predicate translation from human-readable URIs to ARK URIs
+	**/
+	private Identifier predicate( String name ) throws TripleStoreException
+	{
+		// make sure name is full URI
+		String localName = name;
+		if ( localName.startsWith("dams:") )
+		{
+			localName = prNS + localName.substring(5);
+		}
+		String arkName = trans.preToArk(localName);
+		if ( arkName == null )
+		{
+			throw new TripleStoreException("Can't find ARK for " + name);
+		}
+		return Identifier.publicURI(arkName);
+	}
+	/**
+	 * predicate translation from human-readable URIs to ARK URIs
+	**/
+	private Identifier identifier( String ark )
+	{
+		return Identifier.publicURI(idNS + ark);
 	}
 }

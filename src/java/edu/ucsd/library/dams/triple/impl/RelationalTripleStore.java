@@ -89,7 +89,7 @@ public class RelationalTripleStore implements TripleStore
 		tsName = props.getProperty("tripleStoreName");
 		tableName = tsName + "_triples";
 
-		// connect to Mysql
+		// connect to db
 		String dsName = props.getProperty("dataSource"); // jndi
 		String dsURL  = props.getProperty("dataSourceURL"); // direct
 		String dsUser = props.getProperty("dataSourceUser");
