@@ -72,11 +72,12 @@
     <copy todir="${webapp}/WEB-INF/lib">
       <fileset refid="lib"/>
     </copy>
-<!--
-    <copy todir="${webapp}/WEB-INF/classes">
-      <fileset dir="${props}" includes="**/*.properties"/>
+    <copy todir="${webapp}/WEB-INF/">
+      <fileset dir="${webinf}" excludes="context.xml"/>
     </copy>
--->
+    <copy todir="${webapp}/META-INF/">
+      <fileset dir="${webinf}" includes="context.xml"/>
+    </copy>
   </target>
   <!-- webapp -->
   <target name="webapp" description="Build WAR file" depends="compile">
