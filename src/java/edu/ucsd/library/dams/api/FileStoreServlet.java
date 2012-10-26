@@ -20,10 +20,13 @@
 package edu.ucsd.library.dams.api;
 
 import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
@@ -68,6 +71,7 @@ public class FileStoreServlet extends HttpServlet
 
 	// Properties --------------------------------------------------------
 	private String fsDefault;
+	private Properties props;
 	private SimpleDateFormat df;
 
 	// Actions -----------------------------------------------------------
@@ -81,8 +85,12 @@ public class FileStoreServlet extends HttpServlet
 		/* begin ucsd changes */
 		try
 		{
-			InitialContext ctx = new InitialContext();
-			fsDefault = (String)ctx.lookup("java:comp/env/dams/fsDefault");
+            InitialContext ctx = new InitialContext();
+            String damsHome = (String)ctx.lookup("java:comp/env/dams/home");
+            File f = new File( damsHome, "dams.properties" );
+            props = new Properties();
+            props.load( new FileInputStream(f) );
+			fsDefault = props.getProperty("fs.default");
 			df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
 			// RFC 822, Wed, 23 May 2012 11:54:18 GMT
 		}
@@ -179,7 +187,7 @@ public class FileStoreServlet extends HttpServlet
 		try
 		{
 			long start = System.currentTimeMillis();
-			fs = FileStoreUtil.getFileStore( fsName );
+			fs = getFileStore( fsName );
 			fsTime = System.currentTimeMillis() - start;
 		}
 		catch ( Exception ex )
@@ -459,5 +467,25 @@ public class FileStoreServlet extends HttpServlet
 				// thrown when the client aborted the request.
 			}
 		}
+	}
+	private FileStore getFileStore( String name ) throws Exception
+	{
+		// copy properties for the named filestore to a new properties file
+		Properties fprops = new Properties();
+		Enumeration e = props.propertyNames();
+		String prefix = "fs." + name + ".";
+		while ( e.hasMoreElements() )
+		{
+			String key = (String)e.nextElement();
+			if ( key.startsWith(prefix) )
+			{
+				fprops.put(
+					key.substring(prefix.length()), props.getProperty(key)
+				);
+			}
+		}
+
+		// load the filestore
+		return FileStoreUtil.getFileStore( fprops );
 	}
 }

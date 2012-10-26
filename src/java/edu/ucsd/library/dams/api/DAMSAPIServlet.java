@@ -1,6 +1,8 @@
 package edu.ucsd.library.dams.api;
 
 // java core api
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -13,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Properties;
 import javax.naming.InitialContext;
 
 // servlet api
@@ -68,6 +71,9 @@ public class DAMSAPIServlet extends HttpServlet
 	// logging
 	private static Logger log = Logger.getLogger(DAMSAPIServlet.class);
 
+	private Properties props; // config
+	private String damsHome;  // config file location
+
 	// default output format
 	private String formatDefault; // output format to use when not specified
 
@@ -76,7 +82,7 @@ public class DAMSAPIServlet extends HttpServlet
 	private String tsDefault;	// TripleStore to be used when not specified
 
 	// identifiers and namespaces
-	private String idDefault;	// ID series to be used when not specified
+	private String minterDefault;	// ID series to be used when not specified
 	private Map<String,String> idMinters; // ID series name=>url map
 	private String idNS;       // Namespace prefix for unqualified identifiers
 	private String prNS;       // Namespace prefix for unqualified predicates
@@ -106,64 +112,65 @@ public class DAMSAPIServlet extends HttpServlet
 		try
 		{
 			InitialContext ctx = new InitialContext();
+			damsHome = (String)ctx.lookup("java:comp/env/dams/home");
+			File f = new File( damsHome, "dams.properties" );
+			Properties props = new Properties();
+			props.load( new FileInputStream(f) );
 
 			// default output format
-			formatDefault = (String)ctx.lookup(
-				"java:comp/env/dams/formatDefault"
-			);
+			formatDefault = props.getProperty( "format.default");
 
-			// default data stores
-			fsDefault = (String)ctx.lookup("java:comp/env/dams/fsDefault");
-			tsDefault = (String)ctx.lookup("java:comp/env/dams/tsDefault");
+			// editor backup save dir
+			String backupDir = props.getProperty("edit.backupDir");
 
-			// identifiers
-			idNS = (String)ctx.lookup("java:comp/env/dams/identifierNS");
-			prNS = (String)ctx.lookup("java:comp/env/dams/predicateNS");
-			owlSameAs = (String)ctx.lookup("java:comp/env/dams/owlSameAs");
-			idDefault = (String)ctx.lookup("java:comp/env/dams/idDefault");
+			// identifiers/namespaces
+			minterDefault = props.getProperty("minters.default");
 			idMinters = new HashMap<String,String>();
-			String minterConfig = (String)ctx.lookup(
-				"java:comp/env/dams/idMinters"
-			);
-			String[] minterPairs = minterConfig.split(";");
-			for ( int i = 0; i < minterPairs.length; i++ )
+			String minterList = props.getProperty("minters.list");
+			String[] minterNames = minterList.split(",");
+			for ( int i = 0; i < minterNames.length; i++ )
 			{
-				String[] minterParts = minterPairs[i].split(",");
-				if ( minterParts.length == 2 && minterParts[0] != null
-					&& minterParts[1] != null )
-				{
-					idMinters.put( minterParts[0], minterParts[1] );
-				}
+				idMinters.put(
+					minterNames[0], props.getProperty("minters."+minterNames[0])
+				);
 			}
-
-			// upload limits
-			Integer maxCount = (Integer)ctx.lookup(
-				"java:comp/env/dams/maxUploadCount"
-			);
-			maxUploadCount = maxCount.intValue();
-			Long maxSize = (Long)ctx.lookup("java:comp/env/dams/maxUploadSize");
-			maxUploadSize = maxSize.longValue();
-			String backupDir = (String)ctx.lookup("java:comp/env/dams/backupDir");
+			idNS = props.getProperty("ns.identifiers");
+			prNS = props.getProperty("ns.predicates");
+			owlSameAs = props.getProperty("ns.owlSameAs");
 
 			// solr
-			solrBase = (String)ctx.lookup("java:comp/env/dams/solrBase");
-			xslBase = (String)ctx.lookup("java:comp/env/dams/xslBase");
-			encodingDefault = (String)ctx.lookup("java:comp/env/dams/encodingDefault");
-			mimeDefault = (String)ctx.lookup("java:comp/env/dams/mimeDefault");
+			solrBase = props.getProperty("solr.base");
+			mimeDefault = props.getProperty("solr.mimeDefault");
+			encodingDefault = props.getProperty("solr.encoding");
+			xslBase = props.getProperty("solr.xslDir");
 
-			// ip address mapping
-			roleDefault = (String)ctx.lookup("java:comp/env/dams/roleDefault");
-			String roleList = (String)ctx.lookup("java:comp/env/dams/roleList");
-			String[] roleArray = roleList.split(",");
+			// access control/filters
+			roleDefault = props.getProperty("role.default");
+			String roleList = props.getProperty("role.list");
+			String[] roles = roleList.split(",");
 			roleMap = new HashMap<String,String[]>();
-			for ( int i = 0; i < roleArray.length; i++ )
+			for ( int i = 0; i < roles.length; i++ )
 			{
-				String ipList = (String)ctx.lookup(
-					"java:comp/env/dams/role" + roleArray[i]
+				String ipList = props.getProperty(
+					"role." + roles[i] + ".iplist"
 				);
 				String[] ipArray = ipList.split(",");
-				roleMap.put( roleArray[i], ipArray );
+				roleMap.put( roles[i], ipArray );
 			}
+
+			// triplestores
+			tsDefault = props.getProperty("ts.default");
+
+			// files
+			fsDefault = props.getProperty("fs.default");
+			String maxCount = props.getProperty(
+				"java:comp/env/dams/maxUploadCount"
+			);
+			maxUploadCount = Integer.parseInt(maxCount);
+			String maxSize = props.getProperty(
+				"java:comp/env/dams/maxUploadSize"
+			);
+			maxUploadSize = Long.parseLong(maxSize);
 		}
 		catch ( Exception ex )
 		{
@@ -305,7 +312,7 @@ public class DAMSAPIServlet extends HttpServlet
 		// POST /api/next_id
 		else if ( path.length == 3 && path[2].equals("next_id") )
 		{
-			String idMinter = getParamString( req, "name", idDefault );
+			String idMinter = getParamString( req, "name", minterDefault );
 			int count = getParamInt( req, "count", 1 );
 			identifierCreate( idMinter, count, req, res );
 		}
@@ -753,13 +760,11 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			try
 			{
-				profileFilter = (String)new InitialContext().lookup(
-					"java:comp/env/dams/profile-" + profile
-				);
+				profileFilter = props.getProperty( "solr.profile." + profile );
 			}
 			catch ( Exception ex )
 			{
-				log.warn("Error lookup up profile filter (" + profile + "): " + ex.toString());
+				log.warn("Error looking up profile filter (" + profile + "): " + ex.toString());
 			}
 		}
 
@@ -773,13 +778,11 @@ public class DAMSAPIServlet extends HttpServlet
 			String role = getRole( req.getRemoteAddr() );
 			try
 			{
-				roleFilter = (String)new InitialContext().lookup(
-					"java:comp/env/dams/filter" + role
-				);
+				roleFilter = props.getProperty( "role." + role + ".filter" );
 			}
 			catch ( Exception ex )
 			{
-				log.warn("Error lookup up role filter (" + role + "): " + ex.toString());
+				log.warn("Error looking up role filter (" + role + "): " + ex.toString());
 			}
 		}
 
@@ -887,6 +890,7 @@ public class DAMSAPIServlet extends HttpServlet
 					output = SolrFormat.jsonFormatText(
 						output, ds, null, req.getParameter("q")
 					);
+					contentType = "application/json";
 				}
 				catch ( Exception ex )
 				{
@@ -910,6 +914,7 @@ public class DAMSAPIServlet extends HttpServlet
 				try
 				{
 					output = SolrFormat.jsonGridFormat( output, page, rows );
+					contentType = "application/json";
 				}
 				catch ( Exception ex )
 				{
@@ -1299,7 +1304,7 @@ public class DAMSAPIServlet extends HttpServlet
 		try
 		{
 			// mint ARK for event
-			String minterURL = idMinters.get(idDefault) + "1";
+			String minterURL = idMinters.get(minterDefault) + "1";
 			String eventARK = HttpUtil.get(minterURL);
 			Identifier eventID = Identifier.publicURI( idNS, eventARK );
 	
