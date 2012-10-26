@@ -5,6 +5,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Enumeration;
 import java.util.Properties;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -41,17 +42,35 @@ public class FileStoreUtil
 		Constructor constructor = c.getConstructor(new Properties().getClass());
 		return (FileStore)constructor.newInstance( props );
 	}
-	public static FileStore getFileStore( String jndiName )
-		throws ClassNotFoundException, IllegalAccessException,
-			InstantiationException, InvocationTargetException,
-			NoSuchMethodException, NamingException
-	{
-		InitialContext ctx = new InitialContext();
-		String name = jndiName;
-		if ( name.indexOf("/") == -1 ) { name = "fs/" + name; }
-		Properties props = (Properties)ctx.lookup("java:comp/env/" + name);
-		return getFileStore( props );
-	}
+
+	/**
+	 * Get an instance of a filestore class.
+	 * @param props Properties object holding parameters to initialize the
+	 *  triplestore, prefixed with the triplestore name.
+	 * @param name Prefix of the properties in the form "ts.[name].".
+	**/
+    public static FileStore getFileStore( Properties props, String name )
+		throws Exception
+    {
+        // copy properties for the named filestore to a new properties file
+        Properties fprops = new Properties();
+        Enumeration e = props.propertyNames();
+        String prefix = "fs." + name + ".";
+        while ( e.hasMoreElements() )
+        {
+            String key = (String)e.nextElement();
+            if ( key.startsWith(prefix) )
+            {
+                fprops.put(
+                    key.substring(prefix.length()), props.getProperty(key)
+                );
+            }
+        }
+
+        // load the filestore
+        return getFileStore( fprops );
+    }
+
 
 	/**
 	 * Convert a string into a pairpath directory tree.

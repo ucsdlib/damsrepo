@@ -187,7 +187,7 @@ public class FileStoreServlet extends HttpServlet
 		try
 		{
 			long start = System.currentTimeMillis();
-			fs = getFileStore( fsName );
+			fs = FileStoreUtil.getFileStore( props, fsName );
 			fsTime = System.currentTimeMillis() - start;
 		}
 		catch ( Exception ex )
@@ -467,25 +467,5 @@ public class FileStoreServlet extends HttpServlet
 				// thrown when the client aborted the request.
 			}
 		}
-	}
-	private FileStore getFileStore( String name ) throws Exception
-	{
-		// copy properties for the named filestore to a new properties file
-		Properties fprops = new Properties();
-		Enumeration e = props.propertyNames();
-		String prefix = "fs." + name + ".";
-		while ( e.hasMoreElements() )
-		{
-			String key = (String)e.nextElement();
-			if ( key.startsWith(prefix) )
-			{
-				fprops.put(
-					key.substring(prefix.length()), props.getProperty(key)
-				);
-			}
-		}
-
-		// load the filestore
-		return FileStoreUtil.getFileStore( fprops );
 	}
 }

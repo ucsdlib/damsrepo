@@ -8,6 +8,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,18 +48,6 @@ public class TripleStoreUtil
 	private static Logger log = Logger.getLogger( TripleStoreUtil.class );
 	private static String ns = "http://libraries.ucsd.edu/ark:/20775/";
 
-    public static TripleStore getTripleStore( String jndiName )
-        throws ClassNotFoundException, IllegalAccessException,
-            InstantiationException, InvocationTargetException,
-            NoSuchMethodException, NamingException
-    {
-        InitialContext ctx = new InitialContext();
-        String name = jndiName;
-        if ( name.indexOf("/") == -1 ) { name = "ts/" + name; }
-        Properties props = (Properties)ctx.lookup("java:comp/env/" + name);
-        return getTripleStore( props );
-    }
-
 	/**
 	 * Get an instance of a triplestore class.
 	 * @param props Properties object holding parameters to initialize the 
@@ -75,6 +64,34 @@ public class TripleStoreUtil
 		Class c = Class.forName( className );
 		Constructor constructor = c.getConstructor(new Properties().getClass());
 		return (TripleStore)constructor.newInstance( props );
+	}
+
+	/**
+	 * Get an instance of a triplestore calss.
+	 * @param props Properties object holding parameters to initialize the 
+	 *  triplestore.
+	 * @param name Prefix for the properties in the form "ts.[name]."
+	**/
+	public static TripleStore getTripleStore( Properties props, String name )
+		throws Exception
+	{
+		// copy properties for the named filestore to a new properties file
+		Properties fprops = new Properties();
+		Enumeration e = props.propertyNames();
+		String prefix = "ts." + name + ".";
+		while ( e.hasMoreElements() )
+		{
+			String key = (String)e.nextElement();
+			if ( key.startsWith(prefix) )
+			{
+				fprops.put(
+					key.substring(prefix.length()), props.getProperty(key)
+				);
+			}
+		}
+
+		// load the filestore
+		return TripleStoreUtil.getTripleStore( fprops );
 	}
 
 	/**

@@ -200,7 +200,7 @@ public class DAMSAPIServlet extends HttpServlet
 			indexSearch( req, res );
 		}
 		// GET /api/status/d3b07384d113edec49eaa6238ad5ff00
-		if ( path.length == 4 && path[2].equals("status") )
+		else if ( path.length == 4 && path[2].equals("status") )
 		{
 			statusToken( path[3] );
 		}
@@ -236,6 +236,11 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				objectShow( path[3], false, req, res );
 			}
+			// GET /api/objects/bb1234567x/exists
+			else if ( path.length == 5 && path[4].equals("exists") )
+			{
+				objectExists( path[3], req, res );
+			}
 			// GET /api/objects/bb1234567x/validate
 			else if ( path.length == 5 && path[4].equals("validate") )
 			{
@@ -248,7 +253,12 @@ public class DAMSAPIServlet extends HttpServlet
 			// GET /api/files/bb1234567x/1-1.tif
 			if ( path.length == 5 )
 			{
-				fileShow( req, res, path[3], path[4] );
+				fileShow( path[3], path[4], req, res );
+			}
+			// GET /api/files/bb1234567x/1-1.tif/exists
+			if ( path.length == 6 && path[5].equals("exists") )
+			{
+				fileExists( path[3], path[4], req, res );
 			}
 			// GET /api/files/bb1234567x/1-1.tif/fixity
 			else if ( path.length == 6 && path[5].equals("fixity") )
@@ -532,7 +542,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 	
 			String fsName = getParamString( req, "fs", "fsDefault" );
-			fs = FileStoreUtil.getFileStore( fsName );
+			fs = FileStoreUtil.getFileStore( props, fsName );
 	
 			// make sure appropriate method is being used to create/update
 			if ( !overwrite && fs.exists( objid, fileid ) )
@@ -615,7 +625,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 	
 			String fsName = getParamString( req, "fs", "fsDefault" );
-			fs = FileStoreUtil.getFileStore( fsName );
+			fs = FileStoreUtil.getFileStore( props, fsName );
 	
 			// make sure the file exists
 			if ( !fs.exists( objid, fileid ) )
@@ -674,14 +684,44 @@ public class DAMSAPIServlet extends HttpServlet
 		// DAMS_MGR
 		// output = status message
 	}
+	public void fileExists( String objid, String fileid,
+		HttpServletRequest req, HttpServletResponse res )
+	{
+		FileStore fs = null;
+		try
+		{
+			String fsName = getParamString(req,"fs",fsDefault);
+			fs = FileStoreUtil.getFileStore(props,fsName);
+			if ( fs.exists( objid, fileid ) )
+			{
+				status( "File exists", req, res );
+			}
+			else
+			{
+				error( res.SC_NOT_FOUND, "File does not exist", req, res );
+			}
+		}
+		catch ( Exception ex )
+		{
+			error( "Error processing request: " + ex.toString(), req, res );
+		}
+		finally
+		{
+			if ( fs != null )
+			{
+				try { fs.close(); }
+				catch ( Exception ex ){log.info("Error closing filestore", ex);}
+			}
+		}
+	}
 	public void fileFixity( String objid, String fileid,
 		HttpServletRequest req, HttpServletResponse res )
 	{
 		// DAMS_MGR
 		// output = status message
 	}
-	public void fileShow( HttpServletRequest req,
-		HttpServletResponse res, String objid, String fileid )
+	public void fileShow( String objid, String fileid, HttpServletRequest req,
+		HttpServletResponse res )
 	{
 		// XXX: access control
 		req.setAttribute(
@@ -988,7 +1028,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// connect to triplestore
 			String tsName = getParamString(req,"ts",tsDefault);
-			ts = TripleStoreUtil.getTripleStore(tsName);
+			ts = TripleStoreUtil.getTripleStore(props,tsName);
 
 	   		// make sure appropriate method is being used to create/update
 			if ( !objid.startsWith("http") )
@@ -1093,7 +1133,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// connect to triplestore
 			String tsName = getParamString(req,"ts",tsDefault);
-			ts = TripleStoreUtil.getTripleStore(tsName);
+			ts = TripleStoreUtil.getTripleStore(props,tsName);
 
 	   		// make sure appropriate method is being used to create/update
 			if ( !objid.startsWith("http") )
@@ -1198,7 +1238,7 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			// connect to solr
 			String tsName = getParamString(req,"ts",tsDefault);
-			TripleStore ts = TripleStoreUtil.getTripleStore(tsName);
+			TripleStore ts = TripleStoreUtil.getTripleStore(props,tsName);
 			SolrIndexer indexer = new SolrIndexer(
 				ts, solrBase, idNS, prNS, owlSameAs
 			);
@@ -1232,10 +1272,43 @@ public class DAMSAPIServlet extends HttpServlet
 		// DAMS_MGR
 		// output = metadata: object
 	}
-	public void objectValidate( String objid, HttpServletRequest req, HttpServletResponse res )
+	public void objectExists( String objid, HttpServletRequest req,
+		HttpServletResponse res )
+	{
+		TripleStore ts = null;
+		try
+		{
+			String tsName = getParamString(req,"ts",tsDefault);
+			ts = TripleStoreUtil.getTripleStore(props,tsName);
+			if ( !objid.startsWith("http") ) { objid = idNS + objid; }
+			Identifier id = Identifier.publicURI(objid);
+			if ( ts.exists( id ) )
+			{
+				status( "Object exists", req, res );
+			}
+			else
+			{
+				error( res.SC_NOT_FOUND, "Object does not exist", req, res );
+			}
+		}
+		catch ( Exception ex )
+		{
+			error( "Error processing request: " + ex.toString(), req, res );
+		}
+		finally
+		{
+			if ( ts != null )
+			{
+				try { ts.close(); }
+				catch (Exception ex){log.info("Error closing triplestore", ex);}
+			}
+		}
+	}
+	public void objectValidate( String objid, HttpServletRequest req,
+		HttpServletResponse res )
 	{
 		// DAMS_MGR
-		// output = status message
+		// output = metadata: object
 	}
 	public void predicateList( HttpServletRequest req, HttpServletResponse res )
 	{
@@ -1260,7 +1333,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// connect to triplestore
 			String tsName = getParamString(req,"ts",tsDefault);
-			ts = TripleStoreUtil.getTripleStore(tsName);
+			ts = TripleStoreUtil.getTripleStore(props,tsName);
 
 			// delete file metadata
 			ts.removeStatements( fileIdentifier, null, null ); // XXX: bnodes?
@@ -1293,7 +1366,7 @@ public class DAMSAPIServlet extends HttpServlet
 			try
 			{
 				String tsName = getParamString(req,"ts",tsDefault);
-				ts = TripleStoreUtil.getTripleStore(tsName);
+				ts = TripleStoreUtil.getTripleStore(props,tsName);
 			}
 			catch ( Exception ex )
 			{
