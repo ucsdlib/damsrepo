@@ -233,52 +233,52 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				objectShow( path[2], false, req, res );
 			}
-			// GET /api/objects/bb1234567x/exists // XXX /api/ cleanup...
-			else if ( path.length == 5 && path[4].equals("exists") )
+			// GET /objects/bb1234567x/exists
+			else if ( path.length == 4 && path[3].equals("exists") )
 			{
-				objectExists( path[3], req, res );
+				objectExists( path[2], req, res );
 			}
-			// GET /api/objects/bb1234567x/validate
-			else if ( path.length == 5 && path[4].equals("validate") )
+			// GET /objects/bb1234567x/validate
+			else if ( path.length == 4 && path[3].equals("validate") )
 			{
-				objectValidate( path[3], req, res );
+				objectValidate( path[2], req, res );
 			}
 		}
 		// files
-		else if ( path.length > 2 && path[2].equals("files") )
+		else if ( path.length > 1 && path[1].equals("files") )
 		{
-			// GET /api/files/bb1234567x/1-1.tif
-			if ( path.length == 5 )
+			// GET /files/bb1234567x/1-1.tif
+			if ( path.length == 4 )
 			{
-				fileShow( path[3], path[4], req, res );
+				fileShow( path[2], path[3], req, res );
 			}
-			// GET /api/files/bb1234567x/1-1.tif/exists
-			if ( path.length == 6 && path[5].equals("exists") )
+			// GET /files/bb1234567x/1-1.tif/exists
+			if ( path.length == 5 && path[4].equals("exists") )
 			{
-				fileExists( path[3], path[4], req, res );
+				fileExists( path[2], path[3], req, res );
 			}
-			// GET /api/files/bb1234567x/1-1.tif/fixity
-			else if ( path.length == 6 && path[5].equals("fixity") )
+			// GET /files/bb1234567x/1-1.tif/fixity
+			else if ( path.length == 5 && path[4].equals("fixity") )
 			{
-				fileFixity( path[3], path[4], req, res );
+				fileFixity( path[2], path[3], req, res );
 			}
 		}
 		// client
-		else if ( path.length == 4 && path[2].equals("client") )
+		else if ( path.length == 3 && path[1].equals("client") )
 		{
-			// GET /api/client/authorize
-			if ( path[3].equals("authorize") )
+			// GET /client/authorize
+			if ( path[2].equals("authorize") )
 			{
 				clientAuthorize( req, res );
 			}
-			// GET /api/client/info
-			else if ( path[3].equals("info") )
+			// GET /client/info
+			else if ( path[2].equals("info") )
 			{
 				clientInfo( req, res );
 			}
 		}
 		// predicates
-		else if ( path.length == 3 && path[2].equals("predicates") )
+		else if ( path.length == 2 && path[1].equals("predicates") )
 		{
 			predicateList( req, res );
 		}
@@ -310,56 +310,56 @@ public class DAMSAPIServlet extends HttpServlet
 		// parse request URI
 		String[] path = path( req );
 
-		// POST /api/index
-		if ( path.length == 3 && path[2].equals("index") )
+		// POST /index
+		if ( path.length == 2 && path[1].equals("index") )
 		{
 			String[] ids = req.getParameterValues("id");
 			indexUpdate( ids, req, res );
 		}
-		// POST /api/next_id
-		else if ( path.length == 3 && path[2].equals("next_id") )
+		// POST /next_id
+		else if ( path.length == 2 && path[1].equals("next_id") )
 		{
 			String idMinter = getParamString( req, "name", minterDefault );
 			int count = getParamInt( req, "count", 1 );
 			identifierCreate( idMinter, count, req, res );
 		}
 		// objects
-		else if ( path.length > 3 && path[2].equals("objects") )
+		else if ( path.length > 2 && path[1].equals("objects") )
 		{
-			// POST /api/objects/bb1234567x
-			if ( path.length == 4 )
+			// POST /objects/bb1234567x
+			if ( path.length == 3 )
 			{
-				objectCreate( path[3], req, res );
+				objectCreate( path[2], req, res );
 			}
-			// POST /api/objects/bb1234567x/transform
-			else if ( path.length == 5 && path[4].equals("transform") )
+			// POST /objects/bb1234567x/transform
+			else if ( path.length == 4 && path[3].equals("transform") )
 			{
-				objectTransform( path[3], req, res );
+				objectTransform( path[2], req, res );
 			}
-			// POST /api/objects/bb1234567x/index	
-			else if ( path.length == 5 && path[4].equals("index") )
+			// POST /objects/bb1234567x/index	
+			else if ( path.length == 4 && path[3].equals("index") )
 			{
-				String[] ids = new String[]{ path[3] };
+				String[] ids = new String[]{ path[2] };
 				indexUpdate( ids, req, res );
 			}
 		}
 		// files
-		else if ( path.length > 3 && path[2].equals("files") )
+		else if ( path.length > 2 && path[1].equals("files") )
 		{
-			// POST /api/files/bb1234567x/1-1.tif
-			if ( path.length == 5 )
+			// POST /files/bb1234567x/1-1.tif
+			if ( path.length == 4 )
 			{
-				fileUpload( path[3], path[4], false, req, res );
+				fileUpload( path[2], path[3], false, req, res );
 			}
-			// POST /api/files/bb1234567x/1-1.tif/characterize
-			else if ( path.length == 6 && path[5].equals("characterize") )
+			// POST /files/bb1234567x/1-1.tif/characterize
+			else if ( path.length == 5 && path[4].equals("characterize") )
 			{
-				fileCharacterize( path[3], path[4], req, res );
+				fileCharacterize( path[2], path[3], req, res );
 			}
-			// POST /api/files/bb1234567x/1-1.tif/derivatives
-			else if ( path.length == 6 && path[5].equals("derivatives") )
+			// POST /files/bb1234567x/1-1.tif/derivatives
+			else if ( path.length == 5 && path[4].equals("derivatives") )
 			{
-				fileDerivatives( path[3], path[4], req, res );
+				fileDerivatives( path[2], path[3], req, res );
 			}
 		}
 		else
@@ -376,15 +376,15 @@ public class DAMSAPIServlet extends HttpServlet
 		// parse request URI
 		String[] path = path( req );
 
-		// PUT /api/objects/bb1234567x
-		if ( path.length == 4 )
+		// PUT /objects/bb1234567x
+		if ( path.length == 3 )
 		{
-			objectUpdate( path[3], req, res );
+			objectUpdate( path[2], req, res );
 		}
-		// PUT /api/objects/bb1234567x/1-1.tif
-		else if ( path.length == 5 )
+		// PUT /objects/bb1234567x/1-1.tif
+		else if ( path.length == 4 )
 		{
-			fileUpload( path[3], path[4], true, req, res );
+			fileUpload( path[2], path[3], true, req, res );
 		}
 		else
 		{
@@ -401,28 +401,28 @@ public class DAMSAPIServlet extends HttpServlet
 		// parse request URI
 		String[] path = path( req );
 
-		// DELETE /api/index
-		if ( path.length == 3 && path[2].equals("index") )
+		// DELETE /index
+		if ( path.length == 2 && path[1].equals("index") )
 		{
 			String[] ids = req.getParameterValues("id");
 			indexDelete( ids, req, res );
 		}
-		// DELETE /api/objects/bb1234567x
-		if ( path.length == 4 && path[2].equals("objects") )
+		// DELETE /objects/bb1234567x
+		if ( path.length == 3 && path[1].equals("objects") )
 		{
-			objectDelete( path[3], req, res );
+			objectDelete( path[2], req, res );
 		}
-		// DELETE /api/objects/bb1234567x/index
-		else if ( path.length == 5 && path[2].equals("objects")
-			&& path[4].equals("index") )
+		// DELETE /objects/bb1234567x/index
+		else if ( path.length == 4 && path[1].equals("objects")
+			&& path[3].equals("index") )
 		{
-			String[] ids = new String[]{ path[3] };
+			String[] ids = new String[]{ path[2] };
 			indexDelete( ids, req, res );
 		}
-		// DELETE /api/files/bb1234567x/1-1.tif
-		else if ( path.length == 5 && path[2].equals("files") )
+		// DELETE /files/bb1234567x/1-1.tif
+		else if ( path.length == 4 && path[1].equals("files") )
 		{
-			fileDelete( path[3], path[4], req, res );
+			fileDelete( path[2], path[3], req, res );
 		}
 		else
 		{
@@ -494,9 +494,9 @@ public class DAMSAPIServlet extends HttpServlet
 		try
 		{
 			// parse request entity
-			Map<String,String> params = new HashMap<String,String>();
-			InputStream in = null;
-			input( req, params, in );
+			InputBundle bundle = input( req );
+			Map<String,String> params = bundle.getParams();
+			InputStream in = bundle.getInputStream();
 
 			// both objid and fileid are required
 			if ( objid == null || objid.trim().equals("") )
@@ -538,7 +538,7 @@ public class DAMSAPIServlet extends HttpServlet
 				log.info("Upload: start: " + uploadCount);
 			}
 	
-			String fsName = getParamString( req, "fs", "fsDefault" );
+			String fsName = getParamString( req, "fs", fsDefault );
 			fs = FileStoreUtil.getFileStore( props, fsName );
 	
 			// make sure appropriate method is being used to create/update
@@ -727,11 +727,15 @@ public class DAMSAPIServlet extends HttpServlet
 		req.setAttribute(
 			"edu.ucsd.library.dams.api.DAMSAPIServlet.authorized","true"
 		);
-		String url = "/file/" + objid + "/" + fileid + "?"
-			+ req.getQueryString();
+		String url = "/file/" + objid + "/" + fileid;
+		if ( req.getQueryString() != null && !req.getQueryString().equals("") )
+		{
+			url += "?" + req.getQueryString();
+		}
 		try
 		{
-			res.sendRedirect( url );
+			//res.sendRedirect( url );
+			req.getRequestDispatcher(url).forward( req, res );
 		}
 		catch ( Exception ex )
 		{
@@ -1024,9 +1028,9 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 
 			// parse request entity
-			Map<String,String> params = new HashMap<String,String>();
-			InputStream in = null;
-			input( req, params, in );
+			InputBundle bundle = input( req );
+			Map<String,String> params = bundle.getParams();
+			InputStream in = bundle.getInputStream();
 
 			// connect to triplestore
 			String tsName = getParamString(req,"ts",tsDefault);
@@ -1277,8 +1281,28 @@ public class DAMSAPIServlet extends HttpServlet
 			String tsName = getParamString(req,"ts",tsDefault);
 			ts = TripleStoreUtil.getTripleStore(props,tsName);
 			DAMSObject obj = new DAMSObject( ts, objid, idNS, prNS, owlSameAs );
-			String content = obj.getNTriples(false);
-			output( res.SC_OK, content, res );
+			String format = getParamString(req,"format",formatDefault);
+			String content = null;
+			String contentType = null;
+			if ( format.equals("nt") )
+			{
+				content = obj.getNTriples(false);
+				contentType = "text/plain";
+			}
+			else if ( format.equals("xml") )
+			{
+				content = obj.getRDFXML(false);
+				contentType = "text/xml";
+			}
+			else
+			{
+				error(
+					res.SC_BAD_REQUEST, "Unsupported format: " + format,
+					req, res
+				);
+			}
+
+			output( res.SC_OK, content, contentType, res );
 		}
 		catch ( Exception ex )
 		{
@@ -1485,27 +1509,28 @@ public class DAMSAPIServlet extends HttpServlet
 
 		String content = null;
 		String format = getParamString(req,"format",formatDefault);
+		String contentType = null;
 		if ( format.equals("json") )
 		{
 			content = JSONValue.toJSONString(info);
-			res.setContentType( "application/json" );
+			contentType = "application/json";
 		}
 		else if ( format.equals("xml") )
 		{
 			content = toXML(info);
-			res.setContentType( "text/xml" );
+			contentType = "text/xml";
 		}
 		else if ( format.equals("html") )
 		{
 			content = toHTML(info);
-			res.setContentType( "text/html" );
+			contentType = "text/html";
 		}
-		output( statusCode, content, res );
+		output( statusCode, content, contentType, res );
 	}
 
-	private void output( int status, String content, HttpServletResponse res )
+	private void output( int status, String content, String contentType,
+		HttpServletResponse res )
 	{
-
 		// output content
 		try
 		{
@@ -1513,6 +1538,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				res.setStatus( status );
 			}
+			if ( contentType != null ) { res.setContentType( contentType ); }
 			PrintWriter out = res.getWriter();
 			out.print( content );
 			out.close();
@@ -1685,20 +1711,18 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		return params;
 	}
-	protected void input( HttpServletRequest req,
-		Map<String,String> params, InputStream in )
+	protected InputBundle input( HttpServletRequest req )
 		throws IOException, FileUploadException
 	{
 		// get parameters using vanilla api when there is not file upload
 		if ( ! ServletFileUpload.isMultipartContent(req) )
 		{
-			params = parameters( req );
-			in = null;
-			return;
+			return new InputBundle( parameters(req), null );
 		}
 
 		// process parts
-		if ( params == null ) { params = new HashMap<String,String>(); }
+		Map<String,String> params = new HashMap<String,String>();
+		InputStream in = null;
 		FileItemFactory factory = new DiskFileItemFactory();
 		ServletFileUpload upload = new ServletFileUpload( factory );
 		upload.setSizeMax( maxUploadSize );
@@ -1712,10 +1736,23 @@ public class DAMSAPIServlet extends HttpServlet
 				params.put( item.getFieldName(), item.getString() );
 			}
 			// file gets opened as an input stream
-			else
+			else if ( item.getFieldName().equals("file") )
 			{
 				in = item.getInputStream();
 			}
 		}
+		return new InputBundle( params, in );
 	}
+}
+class InputBundle
+{
+	Map<String,String> params;
+	InputStream in;
+	InputBundle( Map<String,String> params, InputStream in )
+	{
+		this.params = params;
+		this.in = in;
+	}
+	Map<String,String> getParams() { return params; }
+	InputStream getInputStream() { return in; }
 }

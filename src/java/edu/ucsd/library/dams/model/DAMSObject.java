@@ -1,5 +1,6 @@
 package edu.ucsd.library.dams.model;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +14,7 @@ import edu.ucsd.library.dams.triple.Statement;
 import edu.ucsd.library.dams.triple.StatementIterator;
 import edu.ucsd.library.dams.triple.StatementListIterator;
 import edu.ucsd.library.dams.triple.TripleStore;
+import edu.ucsd.library.dams.triple.TripleStoreUtil;
 import edu.ucsd.library.dams.triple.TripleStoreException;
 
 /**
@@ -29,8 +31,8 @@ public class DAMSObject
 	private String prNS;
 	private String owlSameAs;
 
-	private Map<String,String> preMap = null;
-	private Map<String,String> arkMap = null;
+	private Map<String,String> preToArkMap = null;
+	private Map<String,String> arkToPreMap = null;
 
 	/**
 	 * Main constructor.
@@ -56,17 +58,22 @@ public class DAMSObject
 
 	private void loadMap() throws TripleStoreException
 	{
-		if ( preMap == null && arkMap == null )
+		if ( preToArkMap == null && arkToPreMap == null )
 		{
-			preMap = new HashMap<String,String>();
+			preToArkMap = new HashMap<String,String>();
+			arkToPreMap = new HashMap<String,String>();
 			String sparql = "select ?ark ?pre "
 				+ "where { ?ark <" + owlSameAs + "> ?pre }";
-			BindingIterator bindings = ts.sparqlSelect(sparql);
+			//BindingIterator bindings = ts.sparqlSelect(sparql);
+			// XXX: SQLQueryVisitor.visitValues(Query query) not impl.
+			BindingIterator bindings = ts.predicateMap("ark", "pre");
 			while ( bindings.hasNext() )
 			{
 				Map<String,String> binding = bindings.nextBinding();
-				preMap.put( binding.get("ark"), binding.get("pre") );
-				arkMap.put( binding.get("pre"), binding.get("ark") );
+				String ark = binding.get("ark");
+				String pre = binding.get("pre");
+				arkToPreMap.put( ark, pre );
+				preToArkMap.put( pre, ark );
 			}
 			bindings.close();
 		}
@@ -74,12 +81,12 @@ public class DAMSObject
 	public String arkToPre( String ark ) throws TripleStoreException
 	{
 		loadMap();
-		return arkMap.get(ark);
+		return arkToPreMap.get(ark);
 	}
 	public String preToArk( String pre ) throws TripleStoreException
 	{
 		loadMap();
-		return preMap.get(pre);
+		return preToArkMap.get(pre);
 	}
 
 	/**
@@ -175,20 +182,22 @@ public class DAMSObject
 	public String getNTriples( boolean recurse ) throws TripleStoreException
 	{
 		StringBuffer buf = new StringBuffer();
-		for ( StatementIterator it = getStatements( recurse ); it.hasNext(); )
-		{
-			buf.append( it.nextStatement().toString() + "\n");
-		}
-		return buf.toString();
+		StatementIterator it = getStatements( recurse );
+		StringWriter writer = new StringWriter();
+		TripleStoreUtil.outputNTriples( it, writer, this );
+		return writer.toString();
 	}
 
 	/**
 	 * Get object metadata in RDF/XML
 	**/
-	public String getRDFXML(boolean recurse)
+	public String getRDFXML(boolean recurse) throws TripleStoreException
 	{
-		// XXX
-		return null;
+		StringBuffer buf = new StringBuffer();
+		StatementIterator it = getStatements( recurse );
+		StringWriter writer = new StringWriter();
+		TripleStoreUtil.outputRDFXML( it, writer, this );
+		return writer.toString();
 	}
 
 	/**

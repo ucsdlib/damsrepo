@@ -36,6 +36,7 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.datatypes.BaseDatatype;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 
 import org.apache.log4j.Logger;
@@ -106,21 +107,21 @@ public class TripleStoreUtil
 	/**
 	 * Output a set of Statements as RDF/XML.
 	**/
-	public static void outputRDFXML( StatementIterator iter, Writer writer )
-		throws TripleStoreException
+	public static void outputRDFXML( StatementIterator iter, Writer writer,
+		DAMSObject trans ) throws TripleStoreException
 	{
-		outputRDF( iter, writer, "RDF/XML" );
+		outputRDF( iter, writer, "RDF/XML-ABBREV", trans );
 	}
 	/**
 	 * Output a set of Statements as NTriples.
 	**/
-	public static void outputNTriples( StatementIterator iter, Writer writer )
-		throws TripleStoreException
+	public static void outputNTriples( StatementIterator iter, Writer writer,
+		DAMSObject trans ) throws TripleStoreException
 	{
-		outputRDF( iter, writer, "N-TRIPLE" );
+		outputRDF( iter, writer, "N-TRIPLE", trans );
 	}
 	private static void outputRDF( StatementIterator it, Writer writer,
-		String format ) throws TripleStoreException
+		String format, DAMSObject trans ) throws TripleStoreException
 	{
 		Model model = ModelFactory.createDefaultModel();
 		try
@@ -128,8 +129,12 @@ public class TripleStoreUtil
 			// load statements into a jena model
 			for ( int i = 0; it.hasNext(); i++ )
 			{
-				model.add( jenaStatement(model,it.nextStatement()) );
+				model.add( jenaStatement(model,it.nextStatement(),trans) );
 			}
+
+			// register prediate ns as "dams"
+			model.setNsPrefix( "dams", trans.getPredicateNamespace() );
+
 			model.write( writer, format );
 		}
 		catch ( Exception ex )
@@ -138,10 +143,11 @@ public class TripleStoreUtil
 		}
 	}
 	private static com.hp.hpl.jena.rdf.model.Statement jenaStatement(
-		Model m, edu.ucsd.library.dams.triple.Statement stmt )
+		Model m, edu.ucsd.library.dams.triple.Statement stmt, DAMSObject trans )
+		throws TripleStoreException
 	{
 		Resource s = toResource( m, stmt.getSubject() );
-		Property p = toProperty( m, stmt.getPredicate() );
+		Property p = toProperty( m, stmt.getPredicate(), trans );
 		RDFNode  o = stmt.hasLiteralObject() ?
 			toLiteral(m,stmt.getLiteral()) : toResource(m,stmt.getObject());
 		return m.createStatement(s, p, o);
@@ -159,12 +165,23 @@ public class TripleStoreUtil
 		}
 		return res;
 	}
-	private static Property toProperty( Model m, Identifier id )
+	private static Property toProperty( Model m, Identifier id,
+		DAMSObject trans ) throws TripleStoreException
 	{
 		Property prop = null;
 		if ( id != null && !id.isBlankNode() )
 		{
-			prop = m.createProperty( id.getId() );
+			// translate arks to predicate URIs
+			String ark = id.getId();
+			if ( trans != null )
+			{
+				String pre = trans.arkToPre( ark );
+				if ( pre != null )
+				{
+					ark = pre;
+				}
+			}
+			prop = m.createProperty( ark );
 		}
 		return prop;
 	}
@@ -175,7 +192,7 @@ public class TripleStoreUtil
 		{
 			int idx = s.lastIndexOf("\"@");
 			String val = s.substring(1,idx);
-			String lng = s.substring(idx+1);
+			String lng = s.substring(idx+2);
 			return m.createLiteral( val, lng );
 		}
 		// literal with datatype
@@ -183,8 +200,19 @@ public class TripleStoreUtil
 		{
 			int idx = s.lastIndexOf("\"^^");
 			String val = s.substring(1,idx);
-			String typ = s.substring(idx+3);
-			return m.createTypedLiteral( val, new XSDDatatype(typ) );
+			String typ = s.substring(idx+4,s.length()-1);
+			try
+			{
+				return m.createTypedLiteral( val, new BaseDatatype(typ) );
+			}
+			catch ( NullPointerException ex )
+			{
+				System.out.println("s: " + s);
+				System.out.println("idx: " + idx);
+				System.out.println("val: " + val);
+				System.out.println("typ: " + typ);
+				throw ex;
+			}
 		}
 		// plain literal
 		else if ( s != null )
@@ -242,7 +270,7 @@ public class TripleStoreUtil
 				String obj = null;
 				if ( s.getObject().isLiteral() )
 				{
-					obj = s.getLiteral().toString(); // check type & lang handling
+					obj = literalString(s.getLiteral());
 					stmt = new Statement( sub, pre, obj );
 				}
 				else
@@ -255,11 +283,11 @@ public class TripleStoreUtil
 				String parent = null;
 				if ( !sub.isBlankNode() )
 				{
-					parent = sub.toString();
+					parent = sub.getId();
 				}
 				else
 				{
-					parent = findParent( parents, sub.toString() );
+					parent = findParent( parents, sub.getId() );
 				}
 
 				// add statement if parent is known
@@ -377,15 +405,15 @@ public class TripleStoreUtil
 		throws TripleStoreException
 	{
 		String pre = res.getURI();
-		String ark = trans.preToArk( pre );
-		if ( ark != null )
+		if ( trans != null )
 		{
-			return Identifier.publicURI( ark );
+			String ark = trans.preToArk( pre );
+			if ( ark != null )
+			{
+				pre = ark;
+			}
 		}
-		else
-		{
-			return Identifier.publicURI( pre );
-		}
+		return Identifier.publicURI( pre );
 	}
 
 	/**
@@ -470,7 +498,9 @@ public class TripleStoreUtil
 			if ( stmt.hasLiteralObject() )
 			{
 				// add statement
-				dst.addLiteralStatement( sub, pre, stmt.getLiteral(), id );
+				dst.addLiteralStatement(
+					sub, pre, stmt.getLiteral(), id
+				);
 			}
 			else
 			{
@@ -495,6 +525,22 @@ public class TripleStoreUtil
 		}
 		it.close();
 		return triples;
+	}
+	private static String literalString( Literal literal )
+	{
+		String lang = literal.getLanguage();
+		String type = literal.getDatatypeURI();
+		String text = literal.getLexicalForm();
+		text = "\"" + text.replaceAll("\\\"","\\\\\\\"") + "\"";
+		if ( lang != null && !lang.equals("") )
+		{
+			text += "@" + lang;
+		}
+		else if ( type != null && !type.equals("") )
+		{
+			text += "^^<" + type + ">";
+		}
+		return text;
 	}
 
 	/**
