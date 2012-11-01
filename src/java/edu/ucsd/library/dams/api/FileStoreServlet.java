@@ -206,7 +206,6 @@ public class FileStoreServlet extends HttpServlet
 		String authorized = (String) request.getAttribute(
 			"edu.ucsd.library.dams.api.DAMSAPIServlet.authorized"
 		);
-System.out.println("authorized: " + authorized);
 		if(authorized == null || !authorized.equals("true"))
 		{
 			log.info("Illegal Access from IP " + request.getRemoteAddr()

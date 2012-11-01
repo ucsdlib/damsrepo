@@ -195,17 +195,6 @@ public class RelationalTripleStore implements TripleStore
 		SQLConvertor conv = convertSparql( query );
 		return sqlSelect( conv.getSqlQuery(), conv.getResultVars() );
 	}
-	public BindingIterator predicateMap( String ark, String pre )
-		throws TripleStoreException
-	{
-		List<String> fields = new ArrayList<String>();
-		fields.add( ark );
-		fields.add( pre );
-		String query = "select subject as " + ark + ", object as " + pre
-			+ " from " + tableName()
-			+ " where predicate = '<" + owlSameAs + ">'";
-		return sqlSelect( query, fields );
-	}
 	protected SQLConvertor convertSparql( String sparql ) throws
 		TripleStoreException
 	{

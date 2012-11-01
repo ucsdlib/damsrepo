@@ -240,12 +240,4 @@ public interface TripleStore
 	**/
 	public BindingIterator sparqlSelect( String query )
 		throws TripleStoreException;
-
-	/**
-	 * Lookup ARK/predicate URI mappings.
-	 * @param ark Name of ARK field in binding.
-	 * @param ark Name of predicate field in binding.
-	**/
-	public BindingIterator predicateMap( String ark, String pre )
-		throws TripleStoreException;
 }

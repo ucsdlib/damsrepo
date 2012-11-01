@@ -64,9 +64,7 @@ public class DAMSObject
 			arkToPreMap = new HashMap<String,String>();
 			String sparql = "select ?ark ?pre "
 				+ "where { ?ark <" + owlSameAs + "> ?pre }";
-			//BindingIterator bindings = ts.sparqlSelect(sparql);
-			// XXX: SQLQueryVisitor.visitValues(Query query) not impl.
-			BindingIterator bindings = ts.predicateMap("ark", "pre");
+			BindingIterator bindings = ts.sparqlSelect(sparql);
 			while ( bindings.hasNext() )
 			{
 				Map<String,String> binding = bindings.nextBinding();
