@@ -1,11 +1,13 @@
 package edu.ucsd.library.dams.triple;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
@@ -24,18 +26,21 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Node;
 
-import org.openrdf.model.Resource;
-import org.openrdf.model.Value;
-import org.openrdf.model.URI;
-import org.openrdf.model.impl.LiteralImpl;
-import org.openrdf.model.impl.BNodeImpl;
-import org.openrdf.model.impl.URIImpl;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.rio.ntriples.NTriplesWriter;
-import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+//import com.hp.hpl.jena.rdf.model.Statement;// statement ns conflict
+import com.hp.hpl.jena.rdf.model.AnonId;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 
 import org.apache.log4j.Logger;
 
+import edu.ucsd.library.dams.model.DAMSObject;
 import edu.ucsd.library.dams.solr.SolrHelper;
 
 
@@ -88,6 +93,10 @@ public class TripleStoreUtil
 					key.substring(prefix.length()), props.getProperty(key)
 				);
 			}
+			else if ( key.startsWith("ns.") )
+			{
+				fprops.put( key, props.getProperty(key));
+			}
 		}
 
 		// load the filestore
@@ -95,39 +104,12 @@ public class TripleStoreUtil
 	}
 
 	/**
-	 * Set RDF output verbose reporting.
-	**/
-	public static void setDebug( boolean b ) { debug = b; }
-	private static boolean debug = false;
-	private static void outputRDF( StatementIterator iter, RDFWriter writer )
-		throws TripleStoreException
-	{
-		try
-		{
-			writer.startRDF();
-			for ( int i = 0; iter.hasNext(); i++ )
-			{
-				Statement stmt = iter.nextStatement();
-				writer.handleStatement( sesameStatement( stmt ) );
-				if ( (i+1) % 1000 == 0 && debug )
-				{
-					System.err.println( "outputRDF: " + (i+1) );
-				}
-			}
-			writer.endRDF();
-		}
-		catch ( Exception ex )
-		{
-			throw new TripleStoreException( ex );
-		}
-	}
-	/**
 	 * Output a set of Statements as RDF/XML.
 	**/
 	public static void outputRDFXML( StatementIterator iter, Writer writer )
 		throws TripleStoreException
 	{
-		outputRDF( iter, new RDFXMLPrettyWriter( writer ) );
+		outputRDF( iter, writer, "RDF/XML" );
 	}
 	/**
 	 * Output a set of Statements as NTriples.
@@ -135,36 +117,321 @@ public class TripleStoreUtil
 	public static void outputNTriples( StatementIterator iter, Writer writer )
 		throws TripleStoreException
 	{
-		outputRDF( iter, new NTriplesWriter( writer ) );
+		outputRDF( iter, writer, "N-TRIPLE" );
+	}
+	private static void outputRDF( StatementIterator it, Writer writer,
+		String format ) throws TripleStoreException
+	{
+		Model model = ModelFactory.createDefaultModel();
+		try
+		{
+			// load statements into a jena model
+			for ( int i = 0; it.hasNext(); i++ )
+			{
+				model.add( jenaStatement(model,it.nextStatement()) );
+			}
+			model.write( writer, format );
+		}
+		catch ( Exception ex )
+		{
+			throw new TripleStoreException( ex );
+		}
+	}
+	private static com.hp.hpl.jena.rdf.model.Statement jenaStatement(
+		Model m, edu.ucsd.library.dams.triple.Statement stmt )
+	{
+		Resource s = toResource( m, stmt.getSubject() );
+		Property p = toProperty( m, stmt.getPredicate() );
+		RDFNode  o = stmt.hasLiteralObject() ?
+			toLiteral(m,stmt.getLiteral()) : toResource(m,stmt.getObject());
+		return m.createStatement(s, p, o);
+	}
+	private static Resource toResource( Model m, Identifier id )
+	{
+		Resource res = null;
+		if ( id != null && id.isBlankNode() )
+		{
+			res = m.createResource( new AnonId(id.getId()) );
+		}
+		else if ( id != null )
+		{
+			res = m.createResource( id.getId() );
+		}
+		return res;
+	}
+	private static Property toProperty( Model m, Identifier id )
+	{
+		Property prop = null;
+		if ( id != null && !id.isBlankNode() )
+		{
+			prop = m.createProperty( id.getId() );
+		}
+		return prop;
+	}
+	private static Literal toLiteral( Model m, String s )
+	{
+		// literal with language tag
+		if ( s != null && !s.endsWith("\"") && s.indexOf("\"@") > 0 )
+		{
+			int idx = s.lastIndexOf("\"@");
+			String val = s.substring(1,idx);
+			String lng = s.substring(idx+1);
+			return m.createLiteral( val, lng );
+		}
+		// literal with datatype
+		else if ( s != null && !s.endsWith("\"") && s.indexOf("\"^^") > 0 )
+		{
+			int idx = s.lastIndexOf("\"^^");
+			String val = s.substring(1,idx);
+			String typ = s.substring(idx+3);
+			return m.createTypedLiteral( val, new XSDDatatype(typ) );
+		}
+		// plain literal
+		else if ( s != null )
+		{
+			String val = s.substring(1,s.length()-1);
+			return m.createLiteral( val );
+		}
+		else
+		{
+			return null;
+		}
 	}
 
-	private static org.openrdf.model.Statement sesameStatement( Statement stmt )
+	public static void loadNTriples( InputStream in, TripleStore ts,
+		DAMSObject trans ) throws TripleStoreException
 	{
-		Identifier subject = stmt.getSubject();
-		Resource res = null;
-		if ( subject.isBlankNode() )
+		loadRDF( in, ts, trans, "N-TRIPLE" );
+	}
+	public static void loadRDFXML( InputStream in, TripleStore ts,
+		DAMSObject trans ) throws TripleStoreException
+	{
+		loadRDF( in, ts, trans, "RDF/XML" );
+	}
+	private static void loadRDF( InputStream in, TripleStore ts,
+		DAMSObject trans, String format ) throws TripleStoreException
+	{
+		// bnode parent tracking
+		Map<String,Identifier> bnodes = new HashMap<String,Identifier>();
+		Map<String,String> parents = new HashMap<String,String>();
+		ArrayList<Statement> orphans = new ArrayList<Statement>();
+
+		Model model = ModelFactory.createDefaultModel();
+		try
 		{
-			res = new BNodeImpl( subject.getId() );
+			// read file into jena model
+			model.read( in, null, format );
+		}
+		catch ( Exception ex )
+		{
+			throw new TripleStoreException("Error reading RDF data", ex);
+		}
+
+		// iterate over all statements and load into triplestore
+		try
+		{
+			String idNS = trans.getIdentifierNamespace();
+			StmtIterator it = model.listStatements();
+			while ( it.hasNext() )
+			{
+				com.hp.hpl.jena.rdf.model.Statement s = it.nextStatement();
+				Statement stmt = null;
+				Identifier sub = toIdentifier( s.getSubject(), bnodes, ts );
+				Identifier pre = toIdentifier( s.getPredicate(), trans );
+				Identifier objId = null;
+				String obj = null;
+				if ( s.getObject().isLiteral() )
+				{
+					obj = s.getLiteral().toString(); // check type & lang handling
+					stmt = new Statement( sub, pre, obj );
+				}
+				else
+				{
+					objId = toIdentifier( s.getResource(), bnodes, ts );
+					stmt = new Statement( sub, pre, objId );
+				}
+
+				// find blank node parent
+				String parent = null;
+				if ( !sub.isBlankNode() )
+				{
+					parent = sub.toString();
+				}
+				else
+				{
+					parent = findParent( parents, sub.toString() );
+				}
+
+				// add statement if parent is known
+				if ( parent != null )
+				{
+					// parent in cache
+
+					// strip file and component parts of parents to keep
+					// them in the same graph as main object
+					String objectSubj = parent;
+					if ( idNS != null && objectSubj.startsWith(idNS) )
+					{
+						String id = objectSubj.substring(idNS.length());
+						if ( id.indexOf("/") > 0 )
+						{
+							id = id.substring(0,id.indexOf("/"));
+						}
+						else if ( id.indexOf("-") > 0 )
+						{
+							id = id.substring(0,id.indexOf("-"));
+						}
+						objectSubj = idNS + id;
+					}
+
+					// add triple
+					ts.addStatement( stmt, toIdentifier(objectSubj) );
+				}
+				else
+				{
+					// haven't seen parent yet, try later
+					orphans.add( stmt );
+					System.out.println("orphans: " + orphans.size());
+				}
+
+				// add parent/child link to parent map
+				if ( objId != null && objId.isBlankNode() )
+				{
+					if ( parent != null && !parent.equals( sub ) )
+					{
+						// make finding deeply-nested parents more efficient
+						// by putting ultimate parent
+						parents.put( objId.toString(), parent );
+					}
+					else
+					{
+						parents.put( objId.toString(), sub.toString() );
+					}
+				}
+
+			}
+
+			// process orphans
+			processOrphans( parents, orphans, ts );
+
+			// warn about unclaimed orphans?
+			for ( int i = 0; i < orphans.size(); i++ )
+			{
+				System.err.println("orphan: " + orphans.get(i).toString());
+			}
+			if ( bnodes.size() > 0 )
+			{
+				bnodes.clear();
+			}
+		}
+		catch ( TripleStoreException ex ) { throw ex; }
+		catch ( Exception ex )
+		{
+			throw new TripleStoreException( "Error processing triples", ex );
+		}
+	}
+
+	/**
+	 * Recursively find parents of an object until a public URI parent is found.
+	 * @param parents Map of child->parent relationships
+	 * @param subject Blank node to find parents of.
+	**/
+	private static String findParent(Map<String,String> parents, String subject)
+	{
+		String parent = parents.get( subject );
+
+		// if parent is blank node, recursively find until public URI is found
+		while ( parent != null && parent.startsWith("_:") )
+		{
+			parent = (String)parents.get( parent );
+		}
+
+		return parent;
+	}
+	/**
+	 * Find parents for any orphans and add them to the triplestore.
+	 * @param parents Map of child->parent relationships
+	 * @param orphans List of statements with unknown parents
+	**/
+	private static void processOrphans( Map<String,String> parents,
+		List<Statement> orphans, TripleStore ts ) throws TripleStoreException
+	{
+		for ( int i = 0; i < orphans.size(); i++ )
+		{
+			Statement orphan = orphans.get(i);
+			Identifier subject = orphan.getSubject();
+			String parent = findParent(parents, orphan.getSubject().toString());
+			if ( parent != null && !parent.startsWith("_:") )
+			{
+				ts.addStatement( orphan, toIdentifier(parent) );
+				orphans.remove( orphan );
+				i--;
+			}
+		}
+	}
+
+	/**
+	 * Create identifier for a resource, with pre->ark translation.
+	**/
+	private static Identifier toIdentifier( Resource res, DAMSObject trans )
+		throws TripleStoreException
+	{
+		String pre = res.getURI();
+		String ark = trans.preToArk( pre );
+		if ( ark != null )
+		{
+			return Identifier.publicURI( ark );
 		}
 		else
 		{
-			res = new URIImpl( subject.getId() );
+			return Identifier.publicURI( pre );
 		}
-		URI pre = new URIImpl( stmt.getPredicate().getId() );
-		Value obj = null;
-		if ( stmt.hasLiteralObject() )
+	}
+
+	/**
+	 * Create identifier for a resources, with blank node translation.
+	**/
+	private static Identifier toIdentifier( Resource res,
+		Map<String,Identifier> nodemap, TripleStore ts )
+		throws TripleStoreException
+	{
+		// URI or bnode
+		if ( res.isAnon() )
 		{
-			obj = new LiteralImpl( stmt.getLiteral() );
-		}
-		else if ( stmt.getObject().isBlankNode() )
-		{
-			obj = new BNodeImpl( stmt.getObject().getId() );
+			Identifier id = null;
+			if ( nodemap != null && ts != null )
+			{
+				String oldId = res.getId().getLabelString();
+				id = nodemap.get( oldId );
+				if ( id == null )
+				{
+					id = ts.blankNode();
+					nodemap.put( oldId, id );
+				}
+			}
+			return id;
 		}
 		else
 		{
-			obj = new URIImpl( stmt.getObject().getId() );
+			return Identifier.publicURI( res.getURI() );
 		}
-		return new org.openrdf.model.impl.StatementImpl( res, pre, obj );
+	}
+
+	/**
+	 * Create identifier given a string id, with blank node detection.
+	**/
+	protected static Identifier toIdentifier( String id )
+	{
+		Identifier idObj = null;
+		if ( id.startsWith("_:") )
+		{
+			idObj = Identifier.blankNode(id.substring(2));
+		}
+		else
+		{
+			idObj = Identifier.publicURI(id);
+		}
+		return idObj;
 	}
 
 	/**

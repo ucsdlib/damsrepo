@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -30,23 +31,23 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import edu.ucsd.library.dams.model.DAMSObject;
 import edu.ucsd.library.dams.triple.BindingIterator;
 import edu.ucsd.library.dams.triple.Identifier;
 import edu.ucsd.library.dams.triple.SubjectIterator;
 import edu.ucsd.library.dams.triple.Statement;
 import edu.ucsd.library.dams.triple.StatementIterator;
 import edu.ucsd.library.dams.triple.TripleStore;
+import edu.ucsd.library.dams.triple.TripleStoreUtil;
 import edu.ucsd.library.dams.triple.TripleStoreException;
 import edu.ucsd.library.dams.triple.convertor.SQLConvertor;
 import edu.ucsd.library.dams.triple.convertor.STSTableSchema;
 
 /**
- * Abstract class providing the base for relational database triplestores.
- * A typical implementation will need only a constructor and init() methods,
- * but all relevant methods are public or protected and can be overridden if
- * needed.  Provides SPARQL-to-SQL translation, a standard SQL implementation,
- * NTriples import, and basic triple operations.
- * @author escowles
+ * Basic triplestore using a relational database for storage and transactions.
+ * Provides SPARQL-to-SQL translation, a standard SQL implementation, NTriples
+ * import, and basic triple operations.
+ * @author escowles@ucsd.edu
 **/
 public class RelationalTripleStore implements TripleStore
 {
@@ -57,6 +58,9 @@ public class RelationalTripleStore implements TripleStore
 	protected PreparedStatement insertStatement = null;
 	protected String tableName = null;
 	protected String tsName = null;
+	protected String idNS = null;
+	protected String prNS = null;
+	protected String owlSameAs = null;
 	protected int added = 0;
 	protected int insertCount = 0;
 	protected int selectCount = 0;
@@ -64,7 +68,7 @@ public class RelationalTripleStore implements TripleStore
 	protected boolean logIngest = false;
 	protected boolean logUpdates = true;
 	private String columnDef = null;
-	private static Pattern spacePattern = Pattern.compile(" ");
+	private static Pattern spacePattern = Pattern.compile("\\s+");
 
 	/***********************************************************************/
 	/*** Constructor Core **************************************************/
@@ -88,6 +92,9 @@ public class RelationalTripleStore implements TripleStore
 		// tablename
 		tsName = props.getProperty("tripleStoreName");
 		tableName = tsName + "_triples";
+		idNS = props.getProperty("ns.identifiers");
+		prNS = props.getProperty("ns.predicates");
+		owlSameAs = props.getProperty("ns.owlSameAs");
 
 		// connect to db
 		String dsName = props.getProperty("dataSource"); // jndi
@@ -211,195 +218,45 @@ public class RelationalTripleStore implements TripleStore
 
 	public void logIngest( boolean b ) { this.logIngest = b; }
 
-	/* RDF/XML loading not implemented yet. */
 	public void loadRDFXML( String filename ) throws TripleStoreException
 	{
-		throw new TripleStoreException("RDF/XML not supported, use NTriples");
+		try
+		{
+			DAMSObject trans = new DAMSObject(
+				this, "", idNS, prNS, owlSameAs
+			);
+			FileInputStream in = new FileInputStream(filename);
+			TripleStoreUtil.loadRDFXML( in, this, trans );
+		}
+		catch ( TripleStoreException ex )
+		{
+			throw ex;
+		}
+		catch ( IOException ex )
+		{
+			throw new TripleStoreException(ex);
+		}
 	}
 	public void loadNTriples( String filename ) throws TripleStoreException
 	{
-		start = System.currentTimeMillis();
-		Map<String,Identifier> bnodes = new HashMap<String,Identifier>();
-		boolean translateBNIDs = true;
-		Map<String,String> parents = new HashMap<String,String>();
-		ArrayList<Statement> orphans = new ArrayList<Statement>();
 		try
 		{
-			int count = 0;
-			BufferedReader buf = new BufferedReader(
-				new InputStreamReader(new FileInputStream(filename), "UTF-8")
+			DAMSObject trans = new DAMSObject(
+				this, "", idNS, prNS, owlSameAs
 			);
-			for ( String line = null; (line=buf.readLine()) != null; )
-			{
-				try
-				{
-					// parse line and create a statement
-					// XXX: Pattern.compile(regex).split(str, n) 
-					String[] tokens = spacePattern.split(line,3);
-					Identifier sub = toIdentifier( stripBrackets(tokens[0]) );
-					Identifier pre = toIdentifier( stripBrackets(tokens[1]) );
-					String obj = tokens[2];
-					obj = obj.replaceFirst(" \\.$","");
-					Identifier objId = null;
-	
-					// translate subject blank nodes
-					if ( translateBNIDs && sub.isBlankNode() )
-					{
-						Identifier newObj = bnodes.get(sub.getId());
-						if ( newObj == null )
-						{
-							newObj = blankNode();
-							bnodes.put( sub.getId(), newObj );
-						}
-						sub = newObj;
-					}
-					Statement stmt = null;
-					if ( isLiteral(obj) )
-					{
-						obj = stripQuotes(obj);
-						obj = StringEscapeUtils.unescapeJava(obj);
-						stmt = new Statement( sub, pre, obj );
-					}
-					else
-					{
-						objId = toIdentifier(stripBrackets(obj));
-						if ( translateBNIDs )
-						{
-							if ( objId.isBlankNode() )
-							{
-								Identifier newObj = bnodes.get(objId.getId());
-								if ( newObj == null )
-								{
-									newObj = blankNode();
-									bnodes.put( objId.getId(), newObj );
-								}
-								objId = newObj;
-							}
-						}
-						stmt = new Statement( sub, pre, objId );
-					}
-	
-					// find parent
-					String parent = null;
-					if ( !sub.isBlankNode() )
-					{
-						parent = sub.toString();
-					}
-					else
-					{
-						parent = findParent( parents, sub.toString() );
-					}
-	
-					// add statement if parent is known
-					if ( parent != null )
-					{
-						// parent in cache
-						addStatement( stmt, toIdentifier(parent) );
-					}
-					else
-					{
-						// haven't seen parent yet, try later
-						orphans.add( stmt );
-					}
-	
-					// add parent/child link to parent map
-					if ( objId != null && objId.isBlankNode() )
-					{
-						if ( parent != null && !parent.equals( sub ) )
-						{
-							// make finding deeply-nested parents more efficient
-							// by putting ultimate parent
-							parents.put( objId.toString(), parent );
-						}
-						else
-						{
-							parents.put( objId.toString(), sub.toString() );
-						}
-					}
-	
-	
-					// stats
-					long dur = System.currentTimeMillis() - start;
-					count++;
-					if ( count % 1000 == 0 )
-					{
-						//periodically process orphans to keep overhead down???
-						processOrphans( parents, orphans );
-
-						// output timing
-						float rate = (float)count/(dur/1000);
-						System.out.println(
-							"loaded " + count + " in " + dur + " ms (" + rate
-								+ "/s), " + orphans.size() + " orphans"
-						);
-					}
-				}
-				catch ( Exception ex )
-				{
-					System.err.println("Error: " + line); ex.printStackTrace();
-				}
-			}
-			buf.close();
-
-			// process orphans
-			processOrphans( parents, orphans );
-
-			// warn about unclaimed orphans?
-/*
-			for ( int i = 0; i < orphans.size(); i++ )
-			{
-				System.err.println("orphan: " + orphans.get(i).toString());
-			}
-*/
-			if ( bnodes.size() > 0 )
-			{
-				bnodes.clear();
-			}
+			FileInputStream in = new FileInputStream(filename);
+			TripleStoreUtil.loadNTriples( in, this, trans );
 		}
-		catch ( Exception ex )
+		catch ( TripleStoreException ex )
+		{
+			throw ex;
+		}
+		catch ( IOException ex )
 		{
 			throw new TripleStoreException(ex);
 		}
 	}
 
-	/**
-	 * Recursively find parents of an object until a public URI parent is found.
-	 * @param parents Map of child->parent relationships
-	 * @param subject Blank node to find parents of.
-	**/
-	private static String findParent(Map<String,String> parents, String subject)
-	{
-		String parent = parents.get( subject );
-
-		// if parent is blank node, recursively find until public URI is found
-		while ( parent != null && parent.startsWith("_:") )
-		{
-			parent = (String)parents.get( parent );
-		}
-
-		return parent;
-	}
-	/**
-	 * Find parents for any orphans and add them to the triplestore.
-	 * @param parents Map of child->parent relationships
-	 * @param orphans List of statements with unknown parents
-	**/
-	private void processOrphans( Map<String,String> parents,
-		List<Statement> orphans ) throws TripleStoreException
-	{
-		for ( int i = 0; i < orphans.size(); i++ )
-		{
-			Statement orphan = orphans.get(i);
-			Identifier subject = orphan.getSubject();
-			String parent = findParent(parents, orphan.getSubject().toString());
-			if ( parent != null && !parent.startsWith("_:") )
-			{
-				addStatement( orphan, toIdentifier(parent) );
-				orphans.remove( orphan );
-				i--;
-			}
-		}
-	}
 	public void export( java.io.File f, boolean subjectsOnly )
 		throws TripleStoreException
 	{
@@ -528,14 +385,22 @@ public class RelationalTripleStore implements TripleStore
 	protected static String stripBrackets( String s )
 	{
 		// new non-regex stripBracket impl:
-		int last = s.length() - 1;
-	   	if ( s != null && s.charAt(0) == '<' && s.charAt(last) == '>' )
-	   	{
-		   	return s.substring(1,last);
-	   	}
-	  	else
-	   	{
-		   	return s;
+		try
+		{
+			int last = s.length() - 1;
+	   		if ( s != null && s.charAt(0) == '<' && s.charAt(last) == '>' )
+	   		{
+		   		return s.substring(1,last);
+	   		}
+	  		else
+	   		{
+		   		return s;
+			}
+		}
+		catch ( RuntimeException ex )
+		{
+			System.err.println("s: " + s);
+			throw ex;
 		}
 	}
 

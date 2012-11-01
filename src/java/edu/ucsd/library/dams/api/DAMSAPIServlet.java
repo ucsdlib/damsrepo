@@ -47,6 +47,7 @@ import org.json.simple.JSONValue;
 // dams
 import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.file.FileStoreUtil;
+import edu.ucsd.library.dams.model.DAMSObject;
 import edu.ucsd.library.dams.model.Event;
 import edu.ucsd.library.dams.solr.SolrFormat;
 import edu.ucsd.library.dams.solr.SolrHelper;
@@ -114,7 +115,7 @@ public class DAMSAPIServlet extends HttpServlet
 			InitialContext ctx = new InitialContext();
 			damsHome = (String)ctx.lookup("java:comp/env/dams/home");
 			File f = new File( damsHome, "dams.properties" );
-			Properties props = new Properties();
+			props = new Properties();
 			props.load( new FileInputStream(f) );
 
 			// default output format
@@ -163,13 +164,9 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// files
 			fsDefault = props.getProperty("fs.default");
-			String maxCount = props.getProperty(
-				"java:comp/env/dams/maxUploadCount"
-			);
+			String maxCount = props.getProperty( "fs.maxUploadCount" );
 			maxUploadCount = Integer.parseInt(maxCount);
-			String maxSize = props.getProperty(
-				"java:comp/env/dams/maxUploadSize"
-			);
+			String maxSize = props.getProperty( "fs.maxUploadSize" );
 			maxUploadSize = Long.parseLong(maxSize);
 		}
 		catch ( Exception ex )
@@ -194,49 +191,49 @@ public class DAMSAPIServlet extends HttpServlet
 		// parse request URI
 		String[] path = path( req );
 
-		// GET /api/index
-		if ( path.length == 3 && path[2].equals("index") )
+		// GET /index
+		if ( path.length == 2 && path[1].equals("index") )
 		{
 			indexSearch( req, res );
 		}
-		// GET /api/status/d3b07384d113edec49eaa6238ad5ff00
-		else if ( path.length == 4 && path[2].equals("status") )
+		// GET /status/d3b07384d113edec49eaa6238ad5ff00
+		else if ( path.length == 3 && path[1].equals("status") )
 		{
-			statusToken( path[3] );
+			statusToken( path[2] );
 		}
 		// collection
-		else if ( path.length > 2 && path[2].equals("collections") )
+		else if ( path.length > 1 && path[1].equals("collections") )
 		{
-			// GET /api/collections
-			if ( path.length == 3 )
+			// GET /collections
+			if ( path.length == 2 )
 			{
 				collectionListAll( req, res );
 			}
-			// GET /api/collections/bb1234567x
-			else if ( path.length == 4 )
+			// GET /collections/bb1234567x
+			else if ( path.length == 3 )
 			{
-				collectionListObjects( path[3], req, res );
+				collectionListObjects( path[2], req, res );
 			}
-			// GET /api/collections/bb1234567x/count
-			else if ( path[4].equals("count") )
+			// GET /collections/bb1234567x/count
+			else if ( path[3].equals("count") )
 			{
-				collectionCount( path[3], req, res );
+				collectionCount( path[2], req, res );
 			}
-			// GET /api/collections/bb1234567x/embargo
-			else if ( path[4].equals("embargo") )
+			// GET /collections/bb1234567x/embargo
+			else if ( path[3].equals("embargo") )
 			{
-				collectionEmbargo( path[3], req, res );
+				collectionEmbargo( path[2], req, res );
 			}
 		}
 		// objects
-		else if ( path.length > 2 && path[2].equals("objects") )
+		else if ( path.length > 1 && path[1].equals("objects") )
 		{
-			// GET /api/objects/bb1234567x
-			if ( path.length == 4 )
+			// GET /objects/bb1234567x
+			if ( path.length == 3 )
 			{
-				objectShow( path[3], false, req, res );
+				objectShow( path[2], false, req, res );
 			}
-			// GET /api/objects/bb1234567x/exists
+			// GET /api/objects/bb1234567x/exists // XXX /api/ cleanup...
 			else if ( path.length == 5 && path[4].equals("exists") )
 			{
 				objectExists( path[3], req, res );
@@ -590,6 +587,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			error( "Error uploading file: " + ex.toString(), req, res );
+			log.warn( "Error uploading file", ex );
 		}
 		finally
 		{
@@ -662,6 +660,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			error( "Error deleting file: " + ex.toString(), req, res );
+			log.warn( "Error deleting file", ex );
 		}
 		finally
 		{
@@ -704,6 +703,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			error( "Error processing request: " + ex.toString(), req, res );
+			log.warn( "Error checking file existence", ex );
 		}
 		finally
 		{
@@ -736,6 +736,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			log.error("Error sending redirect: " + ex.toString());
+			log.warn( "Error sending redirect", ex );
 		}
 	}
 	public void identifierCreate( String name, int count,
@@ -785,7 +786,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			catch ( UnsupportedEncodingException ex )
 			{
-				log.warn("Unable to set chararacter encoding");
+				log.warn("Unable to set chararacter encoding", ex);
 			}
 		}
 		else
@@ -804,7 +805,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			catch ( Exception ex )
 			{
-				log.warn("Error looking up profile filter (" + profile + "): " + ex.toString());
+				log.warn("Error looking up profile filter (" + profile + ")", ex );
 			}
 		}
 
@@ -822,7 +823,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			catch ( Exception ex )
 			{
-				log.warn("Error looking up role filter (" + role + "): " + ex.toString());
+				log.warn("Error looking up role filter (" + role + ")", ex );
 			}
 		}
 
@@ -884,6 +885,7 @@ public class DAMSAPIServlet extends HttpServlet
 					error(
 						"Parsing error: " + ex.toString(), req, res
 					);
+					log.warn( "Parsing error", ex );
 					return;
 				}
 			}
@@ -995,8 +997,8 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.error( ex );
 			error( "Error performing Solr search: " + ex.toString(), req, res );
+			log.warn( "Error performing Solr search", ex );
 		}
 		long dur = System.currentTimeMillis() - start;
 		log.info("indexSearch: " + dur + "ms, params: " + req.getQueryString());
@@ -1103,6 +1105,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			error( "Error editing object: " + ex.toString(), req, res );
+			log.warn( "Error editing object", ex );
 		}
 		finally
 		{
@@ -1171,6 +1174,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			error( "Error deleting object: " + ex.toString(), req, res );
+			log.warn( "Error deleting object", ex );
 		}
 		finally
 		{
@@ -1223,6 +1227,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			error( "Error deleting records: " + ex.toString(), req, res );
+			log.warn( "Error deleting records", ex );
 		}
 	}
 	public void indexUpdate( String[] ids, HttpServletRequest req,
@@ -1259,13 +1264,35 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			error( "Error updating Solr: " + ex.toString(), req, res );
+			log.warn( "Error updating Solr", ex );
 		}
 	}
 	public void objectShow( String objid, boolean export,
 		HttpServletRequest req, HttpServletResponse res )
 	{
-		// DAMS_MGR or VIEW_SERVLET?
 		// output = metadata: object
+		TripleStore ts = null;
+		try
+		{
+			String tsName = getParamString(req,"ts",tsDefault);
+			ts = TripleStoreUtil.getTripleStore(props,tsName);
+			DAMSObject obj = new DAMSObject( ts, objid, idNS, prNS, owlSameAs );
+			String content = obj.getNTriples(false);
+			output( res.SC_OK, content, res );
+		}
+		catch ( Exception ex )
+		{
+			error( "Error processing request: " + ex.toString(), req, res );
+			log.warn( "Error showing object", ex );
+		}
+		finally
+		{
+			if ( ts != null )
+			{
+				try { ts.close(); }
+				catch (Exception ex){log.info("Error closing triplestore", ex);}
+			}
+		}
 	}
 	public void objectTransform( String objid, HttpServletRequest req, HttpServletResponse res )
 	{
@@ -1293,7 +1320,8 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			error( "Error processing request: " + ex.toString(), req, res );
+			error( "Error checking object existence: " + ex.toString(), req, res );
+			log.warn( "Error checking object existence", ex );
 		}
 		finally
 		{
@@ -1398,6 +1426,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( IOException ex )
 		{
 			log.error("Error minting event ARK: " + ex.toString());
+			log.warn( "Error minting event ARK", ex );
 		}
 		finally
 		{
@@ -1442,8 +1471,8 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		// auto-populate basic request info
 		info.put("request",req.getPathInfo());
-		if ( statusCode < 400 ) { info.put("status","ERROR"); }
-		else { info.put("status","OK"); }
+		if ( statusCode < 400 ) { info.put("status","OK"); }
+		else { info.put("status","ERROR"); }
 
 		// convert errors to 200/OK + error message for Flash, etc.
 		String flash = getParamString(req,"flash","");
@@ -1471,24 +1500,27 @@ public class DAMSAPIServlet extends HttpServlet
 			content = toHTML(info);
 			res.setContentType( "text/html" );
 		}
+		output( statusCode, content, res );
+	}
+
+	private void output( int status, String content, HttpServletResponse res )
+	{
 
 		// output content
 		try
 		{
-			if ( statusCode < 400 )
+			if ( status != 200 )
 			{
-				PrintWriter out = res.getWriter();
-				out.print( content );
-				out.close();
+				res.setStatus( status );
 			}
-			else
-			{
-				res.sendError( statusCode, content );
-			}
+			PrintWriter out = res.getWriter();
+			out.print( content );
+			out.close();
 		}
 		catch ( Exception ex )
 		{
 			log.error("Error sending output: " + ex.toString());
+			log.warn( "Error sending output", ex );
 		}
 	}
 	public static String toXML( Map m )

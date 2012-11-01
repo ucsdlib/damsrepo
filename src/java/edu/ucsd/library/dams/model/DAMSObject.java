@@ -46,9 +46,13 @@ public class DAMSObject
 		this.idNS = idNS;
 		this.prNS = prNS;
 		this.owlSameAs = owlSameAs;
-		String iduri = (id.startsWith("http")) ? id : idNS + id;
+		String iduri = (id != null && id.startsWith("http")) ? id : idNS + id;
 		this.id = Identifier.publicURI(iduri);
 	}
+
+	public String getIdentifierNamespace() { return idNS; }
+	public String getPredicateNamespace() { return prNS; }
+	public String getOwlSameAs() { return owlSameAs; }
 
 	private void loadMap() throws TripleStoreException
 	{
@@ -67,12 +71,14 @@ public class DAMSObject
 			bindings.close();
 		}
 	}
-	public String arkToPre( String ark )
+	public String arkToPre( String ark ) throws TripleStoreException
 	{
+		loadMap();
 		return arkMap.get(ark);
 	}
-	public String preToArk( String pre )
+	public String preToArk( String pre ) throws TripleStoreException
 	{
+		loadMap();
 		return preMap.get(pre);
 	}
 
@@ -166,10 +172,14 @@ public class DAMSObject
 	/**
 	 * Get object metadata in NTriples
 	**/
-	public String getNTriples( boolean recurse )
+	public String getNTriples( boolean recurse ) throws TripleStoreException
 	{
-		// XXX
-		return null;
+		StringBuffer buf = new StringBuffer();
+		for ( StatementIterator it = getStatements( recurse ); it.hasNext(); )
+		{
+			buf.append( it.nextStatement().toString() + "\n");
+		}
+		return buf.toString();
 	}
 
 	/**

@@ -4,12 +4,15 @@
     <property file="${user.home}/build.properties"/>
   <property name="src"       value="${basedir}/src"/>
   <property name="java"      value="${src}/java"/>
+  <property name="sh"        value="${src}/sh"/>
   <property name="lib"       value="${src}/lib"/>
+  <property name="lib2"      value="${src}/lib2"/>
   <property name="metainf"   value="${src}/metainf"/>
+  <property name="props"     value="${src}/properties"/>
   <property name="webinf"    value="${src}/webinf"/>
-  <property name="dist"      value="${basedir}/dist"/>
   <property name="tmp"       value="${basedir}/tmp"/>
   <property name="webapp"    value="${tmp}/webapp"/>
+  <property name="dist"      value="${basedir}/dist"/>
 
   <tstamp>
     <format property="build_date" pattern="yyyy-MM-dd"/>
@@ -32,6 +35,9 @@
 
   <path id="classpath">
     <fileset dir="${lib}" id="lib">
+      <include name="*.jar"/>
+    </fileset>
+    <fileset dir="${lib2}" id="lib2">
       <include name="*.jar"/>
     </fileset>
   </path>
@@ -72,6 +78,9 @@
     <copy todir="${webapp}/WEB-INF/lib">
       <fileset refid="lib"/>
     </copy>
+    <copy todir="${webapp}/WEB-INF/classes">
+      <fileset dir="${props}" includes="**/*.properties"/>
+    </copy>
     <copy todir="${webapp}/WEB-INF/">
       <fileset dir="${webinf}" excludes="context.xml"/>
     </copy>
@@ -94,6 +103,13 @@
       <webinf dir="${webapp}/WEB-INF" excludes="web.xml"/>
       <metainf dir="${webapp}/META-INF"/>
     </war>
+  </target>
+
+  <target name="commands" description="Copy shell scripts">
+    <copy todir="${tmp}/commands">
+      <fileset dir="${sh}"/>
+    </copy>
+    <chmod dir="${tmp}/commands" perm="ugo+rx" includes="**/*.sh"/>
   </target>
 
   <!-- LOCAL DEPLOY -->

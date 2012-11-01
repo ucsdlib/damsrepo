@@ -102,7 +102,6 @@ public class Statement
 		lit = lit.replaceAll("\n", "\\n");        // ^R -> \n
 		lit = lit.replaceAll("\r", "\\r");        // ^M -> \r
 		lit = lit.replaceAll("\"", "\\\\\"");     // " -> \"
-		//lit = lit.replaceAll("\\\"", "\\");     // " -> \"
 		return lit;
 	}
 }
