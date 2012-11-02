@@ -84,6 +84,7 @@ public class SolrIndexer
 	private String idNS;
 	private String prNS;
 	private String owlSameAs;
+	private String rdfLabel;
 	private Map<String,HashMap<String,String>> collectionData;
 	private Map<String,String> predicates;
 	private Map<String,String> colNames;
@@ -132,9 +133,10 @@ public class SolrIndexer
 	 * @param solrBase Base URL for Solr web service.
 	**/
 	public SolrIndexer( TripleStore ts, String solrBase, String idNS,
-		String prNS, String owlSameAs ) throws MalformedURLException
+		String prNS, String owlSameAs, String rdfLabel )
+		throws MalformedURLException
 	{
-		this( solrBase, ts.name(), idNS, prNS, owlSameAs );
+		this( solrBase, ts.name(), idNS, prNS, owlSameAs, rdfLabel );
 		setDatasource( ts, ts.name(), ts.name() );
 	}
 	/**
@@ -146,9 +148,10 @@ public class SolrIndexer
 	**/
 	public SolrIndexer( TripleStore ts,
 		String solrBase, String solrCore, String datasource, String idNS,
-		String prNS, String owlSameAs ) throws MalformedURLException
+		String prNS, String owlSameAs, String rdfLabel )
+		throws MalformedURLException
 	{
-		this( solrBase, solrCore, idNS, prNS, owlSameAs );
+		this( solrBase, solrCore, idNS, prNS, owlSameAs, rdfLabel );
 		setDatasource( ts, datasource, solrCore );
 	}
 
@@ -158,7 +161,8 @@ public class SolrIndexer
 	 * @param solrCore Solr core name.
 	**/
 	public SolrIndexer( String solrBase, String solrCore, String idNS,
-		String prNS, String owlSameAs ) throws MalformedURLException
+		String prNS, String owlSameAs, String rdfLabel )
+		throws MalformedURLException
 	{
 		// start timer
 		start = System.currentTimeMillis();
@@ -176,6 +180,7 @@ public class SolrIndexer
 		this.idNS = idNS;
 		this.prNS = prNS;
 		this.owlSameAs = owlSameAs;
+		this.rdfLabel = rdfLabel;
 		predicates = new HashMap<String,String>();
 		collectionData = new HashMap<String,HashMap<String,String>>();
 		colNames = new HashMap<String,String>();
@@ -408,13 +413,11 @@ public class SolrIndexer
 			return;
 		}
 
-		//System.out.println("indexSubject(): DAMSObject");
 		status( "indexSubject: " + ark );
-		DAMSObject obj = new DAMSObject( ts, ark, idNS, prNS, owlSameAs );
+		DAMSObject obj = new DAMSObject( ts, ark, idNS, prNS, owlSameAs, rdfLabel );
 		if ( predicates.size() == 0 && collectionData.size() == 0 
 			&& colNames.size() == 0 )
 		{
-			//System.out.println("indexSubject(): populateCaches");
 			populateCaches( obj );
 			try
 			{
@@ -441,7 +444,7 @@ public class SolrIndexer
 			}
 			catch ( Exception ex )
 			{
-				System.err.println("Error indexing: " + ark);
+				log.warn("Error indexing: " + ark);
 				if ( throwExceptions ) { throw ex; }
 			}
 		}
@@ -457,7 +460,7 @@ public class SolrIndexer
 			}
 			catch ( Exception ex )
 			{
-				System.err.println("Error indexing: " + ark);
+				log.warn("Error indexing: " + ark);
 				if ( throwExceptions ) { throw ex; }
 			}
 	
@@ -466,7 +469,6 @@ public class SolrIndexer
 					|| recordsIndexed % batchLimit == 0 )
 			{
 				debug("SolrIndexer postBuffer: " + postBuffer.length());
-				//System.out.println("indexSubject(): flush");
 				flush();
 			}
 		}
@@ -491,9 +493,8 @@ public class SolrIndexer
 				for ( int i = 1; i <= numComponents; i++ )
 				{
 					String cSub = ark + "-1-" + i;
-					System.err.println("component: " + cSub);
 					DAMSObject cObj = new DAMSObject(
-						ts, cSub, idNS, prNS, owlSameAs
+						ts, cSub, idNS, prNS, owlSameAs, rdfLabel
 					);
 					Document cDoc = toIndexXML( cSub, cObj );
 					// add "rdf:item_of = ark" to link to parent record
@@ -507,7 +508,7 @@ public class SolrIndexer
 			}
 			catch ( Exception ex )
 			{
-				System.err.println(ex.toString() );
+				log.warn(ex.toString() );
 			}
 		}
 
@@ -534,9 +535,8 @@ public class SolrIndexer
 				for ( int i = 1; i <= numComponents; i++ )
 				{
 					String cSub = ark + "-1-" + i;
-					System.err.println("component: " + cSub);
 					DAMSObject cObj = new DAMSObject(
-						ts, cSub, idNS, prNS, owlSameAs
+						ts, cSub, idNS, prNS, owlSameAs, rdfLabel
 					);
 					Document cDoc = toIndexXML( cSub, cObj );
 					// add "rdf:item_of = ark" to link to parent record
@@ -550,7 +550,7 @@ public class SolrIndexer
 			}
 			catch ( Exception ex )
 			{
-				System.err.println(ex.toString() );
+				log.warn(ex.toString() );
 			}
 		}
 
@@ -617,7 +617,6 @@ public class SolrIndexer
 			}
 			else
 			{
-				//System.err.println( postBuffer.toString() );
 				success = solr.add(solrCore,postBuffer.toString());
 			}
 			batchesIndexed++;
@@ -695,12 +694,10 @@ public class SolrIndexer
 							|| name.startsWith("xdre:") )
 						{
 							predicates.put( tokens[0], name );
-							//status("pre: " + tokens[0] + " = " + name );
 						}
 						else
 						{
 							//colNames.put( tokens[0], name );
-							//status("col: " + tokens[0] + " = " + name );
 						}
 					}
 				}
@@ -796,7 +793,6 @@ public class SolrIndexer
 			String child = bindings.get("child");
 			String parent = bindings.get("parent");
 			parent =  parent.replaceAll(".*/","");
-			System.out.println("colHier: " + child + ": " + parent);
 			m.put( child, parent );
 		}
 		it.close();
@@ -816,7 +812,6 @@ public class SolrIndexer
 			String subj = bindings.get("subject");
 			subj = subj.replaceAll(".*/","");
 			String name = bindings.get("name");
-			System.out.println("colNames: " + subj + ": " + name);
 			m.put( subj, name );
 		}
 		it.close();
@@ -902,7 +897,7 @@ public class SolrIndexer
 					}
 					else
 					{
-						System.out.println(
+						log.info(
 							"parent not found: " + parent
 						);
 					}
@@ -910,7 +905,6 @@ public class SolrIndexer
 			}
 			else
 			{
-				//System.err.println("NULL CAT: " + subject + ": " + cat);
 				addChild( root, "field", cat, "name", "category" );
 				addChild( root, "field", cat, "name", "Facet_Collection" );
 			}
@@ -928,7 +922,6 @@ public class SolrIndexer
 					// item metadata
 					if ( !pred.equals("bb00693046") || !rightsFound )
 					{
-						//System.err.println("adding: " + pred + " = " + valx);
 						addField( root, pred, valx );
 					}
 				}
@@ -1028,7 +1021,6 @@ public class SolrIndexer
 				xslIndexer = XSLIndexer.fromFiles( xslFiles );
 			}
 			String rdf = obj.getRDFXML(true);
-			//System.out.println("rdf:\n" + rdf);
 			if ( rdf != null )
 			{
 				try
@@ -1169,10 +1161,8 @@ public class SolrIndexer
 				val.append( predicate );
 
 				// mark xdre:pasDisplay as found in item metadata
-				//System.err.println("predicate: " + predicate);
 				if ( predicate.equals("bb00693046") )
 				{
-					//System.err.println("rightsFound: true");
 					rightsFound = true;
 				}
 			}
@@ -1191,7 +1181,6 @@ public class SolrIndexer
 			Element field = parent.addElement("field");
 			field.addAttribute("name","attrib");
 			field.setText( val.toString() );
-			//System.out.println("val: " + val.toString() );
 		}
 	}
 	private void addChild( Element parent, String name,
@@ -1275,6 +1264,7 @@ public class SolrIndexer
 		String idNS = null;
 		String prNS = null;
 		String owlSameAs = null;
+		String rdfLabel = null;
 
 		// command-line arguments
 		for ( int i = 0; i < args.length; i += 2 )
@@ -1301,6 +1291,7 @@ public class SolrIndexer
 			else if ( args[i].equals("idNS") )       { idNS = args[i+1]; }
 			else if ( args[i].equals("prNS") )       { prNS = args[i+1]; }
 			else if ( args[i].equals("owlSameAs") )  { owlSameAs = args[i+1]; }
+			else if ( args[i].equals("rdfLabel") )   { rdfLabel = args[i+1]; }
 			else
 			{
 				log.warn("Unknown param: " + args[i]);
@@ -1317,9 +1308,8 @@ public class SolrIndexer
 		try
 		{
 			// setup solr indexer
-			//System.out.println("constructor");
 			indexer = new SolrIndexer(
-				ts, solrBase, solrCore, solrDS, idNS, prNS, owlSameAs
+				ts, solrBase, solrCore, solrDS, idNS, prNS, owlSameAs, rdfLabel
 			);
 
 			// disable exceptions for individual indexing errors
@@ -1412,7 +1402,6 @@ public class SolrIndexer
 			System.out.println("---------------------------------------------");
 	
 			// read arks from a file and index them
-			//System.out.println("reading arks");
 			File f = new File(arks);
 			BufferedReader buf = new BufferedReader( new FileReader(f) );
 			for ( String ark = null; (ark=buf.readLine()) != null; )

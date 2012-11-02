@@ -415,7 +415,7 @@ public class FileStoreServlet extends HttpServlet
 			finally
 			{
 				/* begin ucsd changes */
-				System.out.println("Time in miliseconds to retrival file " + fullFilename + "(" + length + " bytes)" + ": Total " + (fsTime + metaTime + fileTime) + "[FileStore initiation: " + fsTime +  "; Metadata query: " + metaTime + "; File download: " + fileTime + "]");
+				log.info("Time in miliseconds to retrival file " + fullFilename + "(" + length + " bytes)" + ": Total " + (fsTime + metaTime + fileTime) + "[FileStore initiation: " + fsTime +  "; Metadata query: " + metaTime + "; File download: " + fileTime + "]");
 				/* begin ucsd changes */
 				// Gently close streams.
 				close(output);

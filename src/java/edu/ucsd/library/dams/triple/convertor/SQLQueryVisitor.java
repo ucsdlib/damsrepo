@@ -198,7 +198,7 @@ public class SQLQueryVisitor implements QueryVisitor{
 		public void visitValues(Query query)
 		{
 			// XXX: impl
-			log.error("Function NOT implemented - visitValues(Query query): " + query);			
+			log.debug("Function NOT implemented - visitValues(Query query): " + query);			
 		}
 	}
 	
@@ -277,7 +277,7 @@ public class SQLQueryVisitor implements QueryVisitor{
 
 		public void visit(ElementOptional elem) {
 			isOptional = true;
-			log.error("Function NOT implemented - visit(ElementOptional elem): " + elem);			
+			log.debug("Function NOT implemented - visit(ElementOptional elem): " + elem);			
 		}
 
 		public void visit(ElementGroup elem) {
@@ -295,39 +295,39 @@ public class SQLQueryVisitor implements QueryVisitor{
 		}
 
 		public void visit(ElementDataset elem) {
-			log.error("Function NOT implemented - visit(ElementDataset elem): " + elem);
+			log.debug("Function NOT implemented - visit(ElementDataset elem): " + elem);
 		}
 
 		public void visit(ElementNamedGraph elem) {
-			log.error("Function NOT implemented - visit(ElementNamedGraph elem): " + elem);
+			log.debug("Function NOT implemented - visit(ElementNamedGraph elem): " + elem);
 		}
 
 // XXX		public void visit(ElementUnsaid elem) {
-// XXX			log.error("Function NOT implemented - (ElementUnsaid elem): " + elem);			
+// XXX			log.debug("Function NOT implemented - (ElementUnsaid elem): " + elem);			
 // XXX		}
 		public void visit(ElementSubQuery elem) {
 			// XXX
-			log.error("Function NOT implemented - (ElementSubQuery elem): " + elem);			
+			log.debug("Function NOT implemented - (ElementSubQuery elem): " + elem);			
 		}
 		public void visit(ElementFetch elem) {
 			// XXX
-			log.error("Function NOT implemented - (ElementFetch elem): " + elem);			
+			log.debug("Function NOT implemented - (ElementFetch elem): " + elem);			
 		}
 		public void visit(ElementMinus elem) {
 			// XXX
-			log.error("Function NOT implemented - (ElementMinus elem): " + elem);			
+			log.debug("Function NOT implemented - (ElementMinus elem): " + elem);			
 		}
 		public void visit(ElementData elem) {
 			// XXX
-			log.error("Function NOT implemented - (ElementData elem): " + elem);			
+			log.debug("Function NOT implemented - (ElementData elem): " + elem);			
 		}
 		public void visit(ElementBind elem) {
 			// XXX
-			log.error("Function NOT implemented - (ElementBind elem): " + elem);			
+			log.debug("Function NOT implemented - (ElementBind elem): " + elem);			
 		}
 		public void visit(ElementAssign elem) {
 			// XXX
-			log.error("Function NOT implemented - (ElementAssign elem): " + elem);			
+			log.debug("Function NOT implemented - (ElementAssign elem): " + elem);			
 		}
 		public void visit(ElementPathBlock elem) {
 			PathBlock pb = elem.getPattern();
@@ -340,15 +340,15 @@ public class SQLQueryVisitor implements QueryVisitor{
 		}
 		public void visit(ElementNotExists elem) {
 			// XXX
-			log.error("Function NOT implemented - (ElementNotExists elem): " + elem);			
+			log.debug("Function NOT implemented - (ElementNotExists elem): " + elem);			
 		}
 		public void visit(ElementExists elem) {
 			// XXX
-			log.error("Function NOT implemented - (ElementExists elem): " + elem);			
+			log.debug("Function NOT implemented - (ElementExists elem): " + elem);			
 		}
 
 		public void visit(ElementService elem) {
-			log.error("Function NOT implemented - visit(ElementService elem): " + elem);
+			log.debug("Function NOT implemented - visit(ElementService elem): " + elem);
 		}
 		
 		public void setDestinct(boolean distinct){
@@ -676,7 +676,7 @@ public class SQLQueryVisitor implements QueryVisitor{
 			public void visit(ExprAggregator expr)
 			{
 				// XXX
-				log.error("Function NOT implemented - visit(ExprAggregator expr): " + expr);			
+				log.debug("Function NOT implemented - visit(ExprAggregator expr): " + expr);			
 			}
 			public void visit(ExprFunctionN expr)
 			{
@@ -702,12 +702,12 @@ public class SQLQueryVisitor implements QueryVisitor{
 			public void visit(ExprFunction0 expr)
 			{
 				// XXX
-				log.error("Function NOT implemented - visit(ExprFunction0 expr): " + expr);			
+				log.debug("Function NOT implemented - visit(ExprFunction0 expr): " + expr);			
 			}
 			public void visit(ExprFunction3 expr)
 			{
 				// XXX
-				log.error("Function NOT implemented - visit(ExprFunction3 expr): " + expr);			
+				log.debug("Function NOT implemented - visit(ExprFunction3 expr): " + expr);			
 			}
 			public void visit(ExprFunction2 expr)
 			{
@@ -741,12 +741,12 @@ public class SQLQueryVisitor implements QueryVisitor{
 			public void visit(ExprFunction1 expr)
 			{
 				// XXX
-				log.error("Function NOT implemented - visit(ExprFunction1 expr): " + expr);			
+				log.debug("Function NOT implemented - visit(ExprFunction1 expr): " + expr);			
 			}
 			public void visit(ExprFunctionOp expr)
 			{
 				// XXX
-				log.error("Function NOT implemented - visit(ExprFunctionOp expr): " + expr);			
+				log.debug("Function NOT implemented - visit(ExprFunctionOp expr): " + expr);			
 			}
 			
 			public String getSQLExpr(){

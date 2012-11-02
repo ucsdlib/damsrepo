@@ -22,14 +22,14 @@ public class Event
 	private String outcomeNote;
 	private Date eventDate;
 
-	private String predicateNS;
+	private DAMSObject trans;
 	private SimpleDateFormat fmt = new SimpleDateFormat(
 		"yyyy-MM-dd'T'hh:mm:ssZ"
 	);
 
 	public Event( Identifier eventID, Identifier subject, Identifier userID,
 		boolean success, String type, String detail, String outcomeNote,
-		String predicateNS )
+		DAMSObject trans )
 	{
 		this.eventID     = eventID;
 		this.subject     = subject;
@@ -38,35 +38,50 @@ public class Event
 		this.type        = type;
 		this.detail      = detail;
 		this.outcomeNote = outcomeNote;
+		this.trans = trans;
 		eventDate = new Date();
 	}
 	public void save( TripleStore ts ) throws TripleStoreException
 	{
 		// link subject to event
-		ts.addStatement( subject, id("event"), eventID, subject );
+		ts.addStatement( subject, id("dams:event"), eventID, subject );
 
 		// insert event metadata
-		ts.addLiteralStatement( eventID, id("type"), type, eventID );
-		ts.addLiteralStatement( eventID, id("detail"), detail, eventID );
+		ts.addLiteralStatement( eventID, id("dams:type"), q(type), eventID );
+		ts.addLiteralStatement( eventID, id("dams:detail"), q(detail), eventID );
 		ts.addLiteralStatement(
-			eventID, id("eventDate"), fmt.format(eventDate), eventID
+			eventID, id("dams:eventDate"), q(fmt.format(eventDate)), eventID
 		);
 		if ( outcomeNote != null && !outcomeNote.equals("") )
 		{
 			ts.addLiteralStatement(
-				eventID, id("outcomeNote"), outcomeNote, eventID
+				eventID, id("dams:outcomeNote"), q(outcomeNote), eventID
 			);
 		}
-		String outcome = success ? "success" : "failure";
-		ts.addLiteralStatement( eventID, id("outcome"), outcome, eventID );
+		String outcome = success ? q("success") : q("failure");
+		ts.addLiteralStatement( eventID, id("dams:outcome"), q(outcome), eventID );
 
 		Identifier bn = ts.blankNode();
-		ts.addStatement( eventID, id("relationship"), bn, eventID );
-		ts.addStatement( bn, id("name"), userID, eventID );
-		ts.addStatement( bn, id("role"), id("initiator"), eventID );
+		ts.addStatement( eventID, id("dams:relationship"), bn, eventID );
+		if ( this.userID == null ) { this.userID = id("dams:unknownUser"); }
+		ts.addStatement( bn, id("dams:name"), userID, eventID );
+		ts.addStatement( bn, id("dams:role"), id("dams:initiator"), eventID );
 	}
-	private Identifier id( String predicateName )
+	private String q( String s )
 	{
-		return Identifier.publicURI( predicateNS + predicateName );
+		if ( s.startsWith("\"") && (s.endsWith("\"") || s.indexOf("\"@") > 0
+							|| s.indexOf("\"^^") > 0 ) )
+		{
+			return s;
+		}
+		else
+		{
+			return "\"" + s.replaceAll("\"","\\\\\\\"") + "\"";
+		}
+	}
+	private Identifier id( String pred ) throws TripleStoreException
+	{
+		String id = pred.startsWith("http") ? pred : trans.lblToArk(pred);
+		return Identifier.publicURI( id );
 	}
 }

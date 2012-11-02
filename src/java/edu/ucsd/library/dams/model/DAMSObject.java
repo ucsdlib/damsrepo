@@ -30,8 +30,10 @@ public class DAMSObject
 	private String idNS;
 	private String prNS;
 	private String owlSameAs;
+	private String rdfLabel;
 
 	private Map<String,String> preToArkMap = null;
+	private Map<String,String> lblToArkMap = null;
 	private Map<String,String> arkToPreMap = null;
 
 	/**
@@ -42,12 +44,13 @@ public class DAMSObject
 	 * @param prNS Namespace for qualifying bare predicates
 	**/
 	public DAMSObject( TripleStore ts, String id, String idNS, String prNS,
-		String owlSameAs )
+		String owlSameAs, String rdfLabel )
 	{
 		this.ts = ts;
 		this.idNS = idNS;
 		this.prNS = prNS;
 		this.owlSameAs = owlSameAs;
+		this.rdfLabel = rdfLabel;
 		String iduri = (id != null && id.startsWith("http")) ? id : idNS + id;
 		this.id = Identifier.publicURI(iduri);
 	}
@@ -55,12 +58,14 @@ public class DAMSObject
 	public String getIdentifierNamespace() { return idNS; }
 	public String getPredicateNamespace() { return prNS; }
 	public String getOwlSameAs() { return owlSameAs; }
+	public String getRdfLabel() { return rdfLabel; }
 
 	private void loadMap() throws TripleStoreException
 	{
-		if ( preToArkMap == null && arkToPreMap == null )
+		if ( preToArkMap == null && arkToPreMap == null && lblToArkMap == null )
 		{
 			preToArkMap = new HashMap<String,String>();
+			lblToArkMap = new HashMap<String,String>();
 			arkToPreMap = new HashMap<String,String>();
 			String sparql = "select ?ark ?pre "
 				+ "where { ?ark <" + owlSameAs + "> ?pre }";
@@ -74,6 +79,20 @@ public class DAMSObject
 				preToArkMap.put( pre, ark );
 			}
 			bindings.close();
+
+			String lblquery = "select ?ark ?lbl "
+				+ "where { ?ark <" + rdfLabel + "> ?lbl }";
+			BindingIterator lblBindings = ts.sparqlSelect(lblquery);
+			while ( lblBindings.hasNext() )
+			{
+				Map<String,String> binding = lblBindings.nextBinding();
+				String ark = binding.get("ark");
+				String lbl = binding.get("lbl");
+				try { lbl = lbl.substring(1,lbl.length()-1); }
+				catch ( Exception ex ) {}
+				lblToArkMap.put( lbl, ark );
+			}
+			lblBindings.close();
 		}
 	}
 	public String arkToPre( String ark ) throws TripleStoreException
@@ -85,6 +104,11 @@ public class DAMSObject
 	{
 		loadMap();
 		return preToArkMap.get(pre);
+	}
+	public String lblToArk( String lbl ) throws TripleStoreException
+	{
+		loadMap();
+		return lblToArkMap.get(lbl);
 	}
 
 	/**

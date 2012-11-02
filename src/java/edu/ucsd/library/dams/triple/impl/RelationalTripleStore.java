@@ -61,6 +61,7 @@ public class RelationalTripleStore implements TripleStore
 	protected String idNS = null;
 	protected String prNS = null;
 	protected String owlSameAs = null;
+	protected String rdfLabel = null;
 	protected int added = 0;
 	protected int insertCount = 0;
 	protected int selectCount = 0;
@@ -95,6 +96,7 @@ public class RelationalTripleStore implements TripleStore
 		idNS = props.getProperty("ns.identifiers");
 		prNS = props.getProperty("ns.predicates");
 		owlSameAs = props.getProperty("ns.owlSameAs");
+		rdfLabel = props.getProperty("ns.rdfLabel");
 
 		// connect to db
 		String dsName = props.getProperty("dataSource"); // jndi
@@ -223,7 +225,7 @@ public class RelationalTripleStore implements TripleStore
 		try
 		{
 			DAMSObject trans = new DAMSObject(
-				this, "", idNS, prNS, owlSameAs
+				this, "", idNS, prNS, owlSameAs, rdfLabel
 			);
 			FileInputStream in = new FileInputStream(filename);
 			TripleStoreUtil.loadRDFXML( in, this, trans );
@@ -242,7 +244,7 @@ public class RelationalTripleStore implements TripleStore
 		try
 		{
 			DAMSObject trans = new DAMSObject(
-				this, "", idNS, prNS, owlSameAs
+				this, "", idNS, prNS, owlSameAs, rdfLabel
 			);
 			FileInputStream in = new FileInputStream(filename);
 			TripleStoreUtil.loadNTriples( in, this, trans );
@@ -321,7 +323,7 @@ public class RelationalTripleStore implements TripleStore
 			int result = stmt.executeUpdate( sql );
 			if(logUpdates && result == 0)
 			{
-				//System.out.println("Failed to delete: sql=" + sql);
+				log.warn("Failed to delete: sql=" + sql);
 			}
 		}
 		catch ( Exception ex )
@@ -355,7 +357,6 @@ public class RelationalTripleStore implements TripleStore
 		}
 		catch ( Exception ex )
 		{
-			System.err.println("sql: " + sql);
 			throw new TripleStoreException(
 				"Error performing select, sql: " + sql, ex
 			);
@@ -529,7 +530,7 @@ public class RelationalTripleStore implements TripleStore
 	protected long sqlCount( String query ) throws TripleStoreException
 	{
 		long count = -1L;
-		String sql = "select count(*) from (" + query + ")";
+		String sql = "select count(*) from (" + query + ") as x";
 		ResultSet rs = select(sql);
 		try
 		{

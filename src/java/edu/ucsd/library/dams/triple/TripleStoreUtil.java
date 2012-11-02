@@ -207,10 +207,6 @@ public class TripleStoreUtil
 			}
 			catch ( NullPointerException ex )
 			{
-				System.out.println("s: " + s);
-				System.out.println("idx: " + idx);
-				System.out.println("val: " + val);
-				System.out.println("typ: " + typ);
 				throw ex;
 			}
 		}
@@ -319,7 +315,6 @@ public class TripleStoreUtil
 				{
 					// haven't seen parent yet, try later
 					orphans.add( stmt );
-					System.out.println("orphans: " + orphans.size());
 				}
 
 				// add parent/child link to parent map

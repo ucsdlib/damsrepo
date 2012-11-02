@@ -87,7 +87,8 @@ public class DAMSAPIServlet extends HttpServlet
 	private Map<String,String> idMinters; // ID series name=>url map
 	private String idNS;       // Namespace prefix for unqualified identifiers
 	private String prNS;       // Namespace prefix for unqualified predicates
-	private String owlSameAs;  // Untranslated URI for owlSameAs
+	private String owlSameAs;  // Untranslated URI for owl:sameAs
+	private String rdfLabel;   // Untranslated URI for rdf:label
 	// NSTRANS: idNS=http://library.ucsd.edu/ark:/20775/
 	// NSTRANS: prNS=http://library.ucsd.edu/ontology/dams#
 
@@ -122,7 +123,7 @@ public class DAMSAPIServlet extends HttpServlet
 			formatDefault = props.getProperty( "format.default");
 
 			// editor backup save dir
-			String backupDir = props.getProperty("edit.backupDir");
+			backupDir = props.getProperty("edit.backupDir");
 
 			// identifiers/namespaces
 			minterDefault = props.getProperty("minters.default");
@@ -138,6 +139,7 @@ public class DAMSAPIServlet extends HttpServlet
 			idNS = props.getProperty("ns.identifiers");
 			prNS = props.getProperty("ns.predicates");
 			owlSameAs = props.getProperty("ns.owlSameAs");
+			rdfLabel  = props.getProperty("ns.rdfLabel");
 
 			// solr
 			solrBase = props.getProperty("solr.base");
@@ -195,11 +197,6 @@ public class DAMSAPIServlet extends HttpServlet
 		if ( path.length == 2 && path[1].equals("index") )
 		{
 			indexSearch( req, res );
-		}
-		// GET /status/d3b07384d113edec49eaa6238ad5ff00
-		else if ( path.length == 3 && path[1].equals("status") )
-		{
-			statusToken( path[2] );
 		}
 		// collection
 		else if ( path.length > 1 && path[1].equals("collections") )
@@ -280,6 +277,7 @@ public class DAMSAPIServlet extends HttpServlet
 		// predicates
 		else if ( path.length == 2 && path[1].equals("predicates") )
 		{
+			// GET /predicates
 			predicateList( req, res );
 		}
 		else
@@ -295,6 +293,7 @@ public class DAMSAPIServlet extends HttpServlet
 	public void doPost( HttpServletRequest req, HttpServletResponse res )
 	{
 		// redirect overloaded PUT/DELETE requests
+/*
 		String method = req.getParameter("method");
 		if ( method != null && method.equalsIgnoreCase("DELETE") )
 		{
@@ -306,6 +305,7 @@ public class DAMSAPIServlet extends HttpServlet
 			doPut( req, res );
 			return;
 		}
+*/
 
 		// parse request URI
 		String[] path = path( req );
@@ -622,7 +622,7 @@ public class DAMSAPIServlet extends HttpServlet
 				return;
 			}
 	
-			String fsName = getParamString( req, "fs", "fsDefault" );
+			String fsName = getParamString( req, "fs", fsDefault );
 			fs = FileStoreUtil.getFileStore( props, fsName );
 	
 			// make sure the file exists
@@ -765,6 +765,10 @@ public class DAMSAPIServlet extends HttpServlet
 			else
 			{
 				String[] ids = result.split("\\n");
+				for ( int i = 0; i < ids.length; i++ )
+				{
+					ids[i] = ids[i].replaceAll(".*/","");
+				}
 				List idList = Arrays.asList(ids);
 				Map info = new LinkedHashMap();
 				info.put("ids",idList);
@@ -816,6 +820,7 @@ public class DAMSAPIServlet extends HttpServlet
 		// check ip and username
 		// XXX: AUTH: who is making the request? hydra/isla. or end-user?
 		String username = req.getRemoteUser();
+		if ( username == null ) { username = "anonymous"; }
 		String roleFilter = null;
 		if ( username == null || username.equals("") )
 		{
@@ -846,7 +851,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 
 		// datasource param
-		String ds = getParamString(req,"ds",tsDefault);
+		String ds = getParamString(req,"ts",tsDefault);
 		ds = ds.replaceAll(".*\\/","");
 
 		// build URL
@@ -1032,6 +1037,13 @@ public class DAMSAPIServlet extends HttpServlet
 			Map<String,String> params = bundle.getParams();
 			InputStream in = bundle.getInputStream();
 
+			// detect overloaded POST
+			String method = params.get("method");
+			if ( method != null && method.equalsIgnoreCase("PUT") )
+			{
+				create = false;
+			}
+
 			// connect to triplestore
 			String tsName = getParamString(req,"ts",tsDefault);
 			ts = TripleStoreUtil.getTripleStore(props,tsName);
@@ -1067,20 +1079,20 @@ public class DAMSAPIServlet extends HttpServlet
 			// otherwise, look for JSON adds
 			else
 			{
-				String adds = getParamString(req,"adds","");
+				String adds = params.get("adds");
 				String updates = null;
 				String deletes = null;
 				if ( !create )
 				{
-					updates = getParamString(req,"updates","");
-					deletes = getParamString(req,"deletes","");
+					updates = params.get("updates");
+					deletes = params.get("deletes");
 				}
 				if ( adds != null && !adds.equals("") )
 				{
 					// save data to the triplestore
 					Edit edit = new Edit(
 						backupDir, adds, updates, deletes, objid, ts,
-						idNS, prNS, owlSameAs
+						idNS, prNS, owlSameAs, rdfLabel
 					);
 					edit.saveBackup();
 					String type = create ?
@@ -1249,7 +1261,7 @@ public class DAMSAPIServlet extends HttpServlet
 			String tsName = getParamString(req,"ts",tsDefault);
 			TripleStore ts = TripleStoreUtil.getTripleStore(props,tsName);
 			SolrIndexer indexer = new SolrIndexer(
-				ts, solrBase, idNS, prNS, owlSameAs
+				ts, solrBase, idNS, prNS, owlSameAs, rdfLabel
 			);
 
 			// index each record
@@ -1280,7 +1292,7 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			String tsName = getParamString(req,"ts",tsDefault);
 			ts = TripleStoreUtil.getTripleStore(props,tsName);
-			DAMSObject obj = new DAMSObject( ts, objid, idNS, prNS, owlSameAs );
+			DAMSObject obj = new DAMSObject( ts, objid, idNS, prNS, owlSameAs, rdfLabel );
 			String format = getParamString(req,"format",formatDefault);
 			String content = null;
 			String contentType = null;
@@ -1367,10 +1379,6 @@ public class DAMSAPIServlet extends HttpServlet
 		// DAMS_MGR
 		// output = metadata: list of predicate URIs
 	}
-	public void statusToken( String jobid )
-	{
-		// DAMS_MGR: get status from session and send message
-	}
 
 	private void fileDeleteMetadata( HttpServletRequest req, String objid,
 		String fileid ) throws TripleStoreException
@@ -1431,19 +1439,23 @@ public class DAMSAPIServlet extends HttpServlet
 			// mint ARK for event
 			String minterURL = idMinters.get(minterDefault) + "1";
 			String eventARK = HttpUtil.get(minterURL);
-			Identifier eventID = Identifier.publicURI( idNS, eventARK );
+			eventARK = eventARK.replaceAll(".*/","");
+			Identifier eventID = Identifier.publicURI( idNS + eventARK );
 	
 			// lookup user identifier
 			// XXX: AUTH: who is making the request? hydra/isla. or end-user?
 			Identifier userID = null; // XXX SolrProxy.lookup( req.getRemoteUser() );
+
+			// predicate translator
+			DAMSObject trans = new DAMSObject( ts, objid, idNS, prNS, owlSameAs, rdfLabel );
 	
 			// create event object and save to the triplestore
 			String obj = objid.startsWith("http") ? objid : idNS + objid;
 			if ( fileid != null ) { obj += "/" + fileid; }
-			Identifier subID = Identifier.publicURI( idNS + obj );
+			Identifier subID = Identifier.publicURI( obj );
 			Event e = new Event(
 				eventID, subID, userID, success, type,
-				detail, outcomeNote, prNS
+				detail, outcomeNote, trans
 			);
 			e.save(ts);
 		}
@@ -1680,7 +1692,7 @@ public class DAMSAPIServlet extends HttpServlet
 		int defaultValue )
 	{
 		String value = req.getParameter( key );
-		if ( value != null || !value.trim().equals("") )
+		if ( value != null && !value.trim().equals("") )
 		{
 			try
 			{

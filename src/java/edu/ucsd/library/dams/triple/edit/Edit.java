@@ -32,6 +32,13 @@ import edu.ucsd.library.dams.triple.Statement;
 import edu.ucsd.library.dams.triple.StatementIterator;
 
 /**
+ XXX
+
+  predicate translation
+  literal quoting -> if unquoted, add surrounding quotes
+**/
+
+/**
  * Core edit logic.
  * @author mcritchlow
  * @author escowles
@@ -74,27 +81,28 @@ public class Edit
 	
 	// used by DAMSAPIServlet
 	public Edit( String backupDir, String adds, String updates, String deletes,
-		String ark, TripleStore ts, String idNS, String prNS, String owlSameAs )
+		String ark, TripleStore ts, String idNS, String prNS, String owlSameAs,
+		String rdfLabel )
 	{
 		status = "init";
-		if(!adds.equals(""))
+		if ( adds != null && !adds.equals("") )
 		{
 			this.adds = (JSONArray)JSONValue.parse(adds);
 			status = "addsParse";
 		}
-		if(!updates.equals(""))
+		if ( updates != null && !updates.equals("") )
 		{
 			this.updates = (JSONArray)JSONValue.parse(updates);
 			status = "updatesParse";
 		}
-		if(!deletes.equals(""))
+		if ( deletes != null && !deletes.equals("") )
 		{
 			this.deletes = (JSONArray)JSONValue.parse(deletes);
 			status = "deletesParse";
 		}
-		this.ark = ark.substring(ark.indexOf("/")+1);
+		this.ark = ark.replaceAll(".*/","");
 		this.ts = ts;
-		this.trans = new DAMSObject( ts, "", idNS, prNS, owlSameAs );
+		this.trans = new DAMSObject( ts, "", idNS, prNS, owlSameAs, rdfLabel );
 		this.idNS = idNS;
 		this.prNS = prNS;
 		this.owlSameAs = owlSameAs;
@@ -125,7 +133,8 @@ public class Edit
 	{
 		backup = new EditData( adds, updates, deletes, ark, ts.name() );
 		status = "saving1";
-		backupFile = backupDir + "/" + ark + "_"
+		String id = ark.replaceAll(".*/","");
+		backupFile = backupDir + "/" + id + "_"
 			+ String.valueOf(System.currentTimeMillis());
 		ObjectOutputStream cout = new ObjectOutputStream(
 			new FileOutputStream( backupFile )
@@ -155,7 +164,6 @@ public class Edit
 	**/
 	public boolean update()
 	{
-		TripleStore ts = null;
 		boolean success = true;
 		boolean updateTagged = false;
 
@@ -250,14 +258,6 @@ public class Edit
 			success = false;
 			exception = ex;
 			ex.printStackTrace();
-		}
-		finally
-		{
-			if ( ts != null )
-			{
-				try { ts.close(); }
-				catch ( Exception ex ) { ex.printStackTrace(); }
-			}
 		}
 		return success;
 	}
@@ -493,11 +493,16 @@ public class Edit
 	{
 		// make sure name is full URI
 		String localName = name;
+		String arkName = null;
 		if ( localName.startsWith("dams:") )
 		{
 			localName = prNS + localName.substring(5);
+			arkName = trans.preToArk(localName);
 		}
-		String arkName = trans.preToArk(localName);
+		else
+		{
+			arkName = trans.lblToArk(localName);
+		}
 		if ( arkName == null )
 		{
 			throw new TripleStoreException("Can't find ARK for " + name);
@@ -509,6 +514,7 @@ public class Edit
 	**/
 	private Identifier identifier( String ark )
 	{
-		return Identifier.publicURI(idNS + ark);
+		String id = ark.startsWith("http") ? ark : idNS + ark;
+		return Identifier.publicURI( id );
 	}
 }

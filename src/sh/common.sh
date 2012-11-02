@@ -7,4 +7,4 @@ CP=$DIR/classes
 for i in $DIR/lib/*.jar $DIR2/lib2/*.jar; do
 	CP=$CP:$i
 done
-echo CP: $CP
+#echo CP: $CP

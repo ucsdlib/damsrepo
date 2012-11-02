@@ -341,7 +341,7 @@ public class SolrHelper
         boolean resultOK = checkMessage(statusMessage);
         if ( !resultOK )
         {
-            System.err.println("ERROR: " + statusMessage);
+            log.warn("ERROR: " + statusMessage);
         }
         return resultOK;
     }
@@ -378,7 +378,7 @@ public class SolrHelper
         for ( int i = 1; (i-1)*LIST_BATCH < max; i++ )
         {
             int start = i * LIST_BATCH;
-            System.out.println("List Solr: " + start);
+            log.info("List Solr: " + start);
             try
             {
                 xml = HttpUtil.get( url + "&start=" + start );
@@ -393,7 +393,7 @@ public class SolrHelper
             }
             catch ( Exception ex )
             {
-                System.err.println( "Error list records: " + ex.toString() );
+                log.warn( "Error list records: " + ex.toString() );
             }
         }
 
