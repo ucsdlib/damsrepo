@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <project name="dams" default="compile" basedir=".">
   <property name="appName" value="dams"/>
-    <property file="${user.home}/build.properties"/>
+  <property file="${user.home}/build.properties"/>
+  <property file="${basedir}/build.properties"/>
   <property name="src"       value="${basedir}/src"/>
   <property name="java"      value="${src}/java"/>
   <property name="sh"        value="${src}/sh"/>
@@ -115,6 +116,6 @@
   <!-- LOCAL DEPLOY -->
   <target name="local-deploy" description="Deploy webapp to local dir (farm)">
     <echo level="info" message="war = 'file://${dist}/${appName}.war'"/>
-    <copy file="${dist}/${appName}.war" todir="${local.farm.dir}"/>
+    <copy file="${dist}/${appName}.war" todir="${deploy.home}"/>
   </target>
 </project>
