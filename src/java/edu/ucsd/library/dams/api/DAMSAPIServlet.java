@@ -230,6 +230,11 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				objectShow( path[2], false, req, res );
 			}
+			// GET /objects/bb1234567x/export
+			else if ( path.length == 4 && path[3].equals("export") )
+			{
+				objectShow( path[2], true, req, res );
+			}
 			// GET /objects/bb1234567x/exists
 			else if ( path.length == 4 && path[3].equals("exists") )
 			{
@@ -1298,12 +1303,12 @@ public class DAMSAPIServlet extends HttpServlet
 			String contentType = null;
 			if ( format.equals("nt") )
 			{
-				content = obj.getNTriples(false);
+				content = obj.getNTriples(export);
 				contentType = "text/plain";
 			}
 			else if ( format.equals("xml") )
 			{
-				content = obj.getRDFXML(false);
+				content = obj.getRDFXML(export);
 				contentType = "text/xml";
 			}
 			else
