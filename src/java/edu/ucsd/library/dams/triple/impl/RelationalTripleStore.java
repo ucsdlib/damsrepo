@@ -58,10 +58,7 @@ public class RelationalTripleStore implements TripleStore
 	protected PreparedStatement insertStatement = null;
 	protected String tableName = null;
 	protected String tsName = null;
-	protected String idNS = null;
-	protected String prNS = null;
-	protected String owlSameAs = null;
-	protected String rdfLabel = null;
+	protected Map<String,String> nsmap = null;
 	protected int added = 0;
 	protected int insertCount = 0;
 	protected int selectCount = 0;
@@ -89,14 +86,16 @@ public class RelationalTripleStore implements TripleStore
 		}
 	}
 	protected void connect( Properties props, Driver driver )
+		throws TripleStoreException
 	{
 		// tablename
 		tsName = props.getProperty("tripleStoreName");
 		tableName = tsName + "_triples";
-		idNS = props.getProperty("ns.identifiers");
-		prNS = props.getProperty("ns.predicates");
-		owlSameAs = props.getProperty("ns.owlSameAs");
-		rdfLabel = props.getProperty("ns.rdfLabel");
+		try
+		{
+			nsmap = TripleStoreUtil.namespaceMap( props );
+		}
+		catch ( Exception ex ) { throw new TripleStoreException(ex); }
 
 		// connect to db
 		String dsName = props.getProperty("dataSource"); // jndi
@@ -224,9 +223,7 @@ public class RelationalTripleStore implements TripleStore
 	{
 		try
 		{
-			DAMSObject trans = new DAMSObject(
-				this, "", idNS, prNS, owlSameAs, rdfLabel
-			);
+			DAMSObject trans = new DAMSObject( this, "", nsmap );
 			FileInputStream in = new FileInputStream(filename);
 			TripleStoreUtil.loadRDFXML( in, this, trans );
 		}
@@ -243,9 +240,7 @@ public class RelationalTripleStore implements TripleStore
 	{
 		try
 		{
-			DAMSObject trans = new DAMSObject(
-				this, "", idNS, prNS, owlSameAs, rdfLabel
-			);
+			DAMSObject trans = new DAMSObject( this, "", nsmap );
 			FileInputStream in = new FileInputStream(filename);
 			TripleStoreUtil.loadNTriples( in, this, trans );
 		}

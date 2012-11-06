@@ -81,8 +81,7 @@ public class Edit
 	
 	// used by DAMSAPIServlet
 	public Edit( String backupDir, String adds, String updates, String deletes,
-		String ark, TripleStore ts, String idNS, String prNS, String owlSameAs,
-		String rdfLabel )
+		String ark, TripleStore ts, Map<String,String> nsmap )
 	{
 		status = "init";
 		if ( adds != null && !adds.equals("") )
@@ -102,10 +101,9 @@ public class Edit
 		}
 		this.ark = ark.replaceAll(".*/","");
 		this.ts = ts;
-		this.trans = new DAMSObject( ts, "", idNS, prNS, owlSameAs, rdfLabel );
-		this.idNS = idNS;
-		this.prNS = prNS;
-		this.owlSameAs = owlSameAs;
+		this.trans = new DAMSObject( ts, "", nsmap );
+		this.idNS = nsmap.get("damsid");
+		this.prNS = nsmap.get("dams");
 		this.backupDir = backupDir;
 	}
 

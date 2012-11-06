@@ -81,10 +81,7 @@ public class SolrIndexer
 	private boolean streaming = false;
 
 	// namespace/collection caches
-	private String idNS;
-	private String prNS;
-	private String owlSameAs;
-	private String rdfLabel;
+	private Map<String,String> nsmap;
 	private Map<String,HashMap<String,String>> collectionData;
 	private Map<String,String> predicates;
 	private Map<String,String> colNames;
@@ -132,11 +129,10 @@ public class SolrIndexer
 	 * @param ts TripleStore object to retrieve data from.
 	 * @param solrBase Base URL for Solr web service.
 	**/
-	public SolrIndexer( TripleStore ts, String solrBase, String idNS,
-		String prNS, String owlSameAs, String rdfLabel )
-		throws MalformedURLException
+	public SolrIndexer( TripleStore ts, String solrBase,
+		Map<String,String> nsmap) throws MalformedURLException
 	{
-		this( solrBase, ts.name(), idNS, prNS, owlSameAs, rdfLabel );
+		this( solrBase, ts.name(), nsmap );
 		setDatasource( ts, ts.name(), ts.name() );
 	}
 	/**
@@ -146,12 +142,11 @@ public class SolrIndexer
 	 * @param solrCore Solr core name.
 	 * @param datasource Datasource name (e.g., "jdbc/dams")
 	**/
-	public SolrIndexer( TripleStore ts,
-		String solrBase, String solrCore, String datasource, String idNS,
-		String prNS, String owlSameAs, String rdfLabel )
+	public SolrIndexer( TripleStore ts, String solrBase, String solrCore,
+		String datasource, Map<String,String> nsmap )
 		throws MalformedURLException
 	{
-		this( solrBase, solrCore, idNS, prNS, owlSameAs, rdfLabel );
+		this( solrBase, solrCore, nsmap );
 		setDatasource( ts, datasource, solrCore );
 	}
 
@@ -160,9 +155,8 @@ public class SolrIndexer
 	 * @param solrBase Base URL for Solr web service.
 	 * @param solrCore Solr core name.
 	**/
-	public SolrIndexer( String solrBase, String solrCore, String idNS,
-		String prNS, String owlSameAs, String rdfLabel )
-		throws MalformedURLException
+	public SolrIndexer( String solrBase, String solrCore,
+		Map<String,String> nsmap ) throws MalformedURLException
 	{
 		// start timer
 		start = System.currentTimeMillis();
@@ -177,10 +171,6 @@ public class SolrIndexer
 		if ( !debug ) { solr = new SolrHelper( solrBase ); }
 
 		// namespace/collection caches
-		this.idNS = idNS;
-		this.prNS = prNS;
-		this.owlSameAs = owlSameAs;
-		this.rdfLabel = rdfLabel;
 		predicates = new HashMap<String,String>();
 		collectionData = new HashMap<String,HashMap<String,String>>();
 		colNames = new HashMap<String,String>();
@@ -414,7 +404,7 @@ public class SolrIndexer
 		}
 
 		status( "indexSubject: " + ark );
-		DAMSObject obj = new DAMSObject( ts, ark, idNS, prNS, owlSameAs, rdfLabel );
+		DAMSObject obj = new DAMSObject( ts, ark, nsmap );
 		if ( predicates.size() == 0 && collectionData.size() == 0 
 			&& colNames.size() == 0 )
 		{
@@ -493,9 +483,7 @@ public class SolrIndexer
 				for ( int i = 1; i <= numComponents; i++ )
 				{
 					String cSub = ark + "-1-" + i;
-					DAMSObject cObj = new DAMSObject(
-						ts, cSub, idNS, prNS, owlSameAs, rdfLabel
-					);
+					DAMSObject cObj = new DAMSObject( ts, cSub, nsmap );
 					Document cDoc = toIndexXML( cSub, cObj );
 					// add "rdf:item_of = ark" to link to parent record
 					addField( cDoc.getRootElement(), "bb2765355h", ark );
@@ -535,9 +523,7 @@ public class SolrIndexer
 				for ( int i = 1; i <= numComponents; i++ )
 				{
 					String cSub = ark + "-1-" + i;
-					DAMSObject cObj = new DAMSObject(
-						ts, cSub, idNS, prNS, owlSameAs, rdfLabel
-					);
+					DAMSObject cObj = new DAMSObject( ts, cSub, nsmap );
 					Document cDoc = toIndexXML( cSub, cObj );
 					// add "rdf:item_of = ark" to link to parent record
 					addField( cDoc.getRootElement(), "bb2765355h", ark );
@@ -1261,10 +1247,7 @@ public class SolrIndexer
 		FileStore fs = null;
 
 		// namespaces
-		String idNS = null;
-		String prNS = null;
-		String owlSameAs = null;
-		String rdfLabel = null;
+		Map<String,String> nsmap = new HashMap<String,String>();
 
 		// command-line arguments
 		for ( int i = 0; i < args.length; i += 2 )
@@ -1288,10 +1271,10 @@ public class SolrIndexer
 			else if ( args[i].equals("xslDir") )     { xslDirs.add(args[i+1]); }
 			else if ( args[i].equals("xslFile") )    { xslFiles.add(args[i+1]);}
 			else if ( args[i].equals("fs") )         { fsconfig = args[i+1]; }
-			else if ( args[i].equals("idNS") )       { idNS = args[i+1]; }
-			else if ( args[i].equals("prNS") )       { prNS = args[i+1]; }
-			else if ( args[i].equals("owlSameAs") )  { owlSameAs = args[i+1]; }
-			else if ( args[i].equals("rdfLabel") )   { rdfLabel = args[i+1]; }
+			else if ( args[i].startsWith("ns.") )
+			{
+				nsmap.put( args[i].substring(3), args[i+1] );
+			}
 			else
 			{
 				log.warn("Unknown param: " + args[i]);
@@ -1308,9 +1291,7 @@ public class SolrIndexer
 		try
 		{
 			// setup solr indexer
-			indexer = new SolrIndexer(
-				ts, solrBase, solrCore, solrDS, idNS, prNS, owlSameAs, rdfLabel
-			);
+			indexer = new SolrIndexer( ts, solrBase, solrCore, solrDS, nsmap );
 
 			// disable exceptions for individual indexing errors
 			indexer.setThrowExceptions(false);

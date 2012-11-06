@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -105,6 +106,31 @@ public class TripleStoreUtil
 	}
 
 	/**
+	 * Parse a properties file and create a Map of namespace prefixes/names to
+	 * URIs.
+	**/
+	public static Map<String,String> namespaceMap( Properties props )
+		throws Exception
+	{
+		Map<String,String> nsmap = new HashMap<String,String>();
+		Enumeration e = props.propertyNames();
+		while ( e.hasMoreElements() )
+		{
+			String key = (String)e.nextElement();
+			if ( key.startsWith("ns.") )
+			{
+				String prefix = key.substring(3);
+				prefix = prefix.replaceAll( "\\.", ":" );
+				String uri = props.getProperty(key);
+				nsmap.put( prefix, uri );
+			}
+		}
+
+		// load the filestore
+		return nsmap;
+	}
+
+	/**
 	 * Output a set of Statements as RDF/XML.
 	**/
 	public static void outputRDFXML( StatementIterator iter, Writer writer,
@@ -132,8 +158,16 @@ public class TripleStoreUtil
 				model.add( jenaStatement(model,it.nextStatement(),trans) );
 			}
 
-			// register prediate ns as "dams"
-			model.setNsPrefix( "dams", trans.getPredicateNamespace() );
+			// register namespace prefixes
+			Map<String,String> nsmap = trans.namespaceMap();
+			for ( Iterator<String> i2 = nsmap.keySet().iterator(); i2.hasNext();)
+			{
+				String prefix = i2.next();
+				if ( prefix.indexOf(":") == -1 )
+				{
+					model.setNsPrefix( prefix, nsmap.get(prefix) );
+				}
+			}
 
 			model.write( writer, format );
 		}

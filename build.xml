@@ -8,6 +8,7 @@
   <property name="sh"        value="${src}/sh"/>
   <property name="lib"       value="${src}/lib"/>
   <property name="lib2"      value="${src}/lib2"/>
+  <property name="root"      value="${src}/root"/>
   <property name="metainf"   value="${src}/metainf"/>
   <property name="props"     value="${src}/properties"/>
   <property name="webinf"    value="${src}/webinf"/>
@@ -75,7 +76,17 @@
       <!-- <compilerarg line="-Xlint:unchecked"/> -->
     </javac>
 
-    <!-- copy properties and jar files -->
+  </target>
+  <!-- webapp -->
+  <target name="webapp" description="Build WAR file" depends="compile">
+    <!-- move old war file out of the way -->
+    <move file="${dist}/${appName}.war" tofile="${dist}/${appName}.bak"
+      failonerror="false"/>
+
+    <!-- copy files -->
+    <copy todir="${webapp}">
+      <fileset dir="${root}" includes="**/*"/>
+    </copy>
     <copy todir="${webapp}/WEB-INF/lib">
       <fileset refid="lib"/>
     </copy>
@@ -88,12 +99,6 @@
     <copy todir="${webapp}/META-INF/">
       <fileset dir="${webinf}" includes="context.xml"/>
     </copy>
-  </target>
-  <!-- webapp -->
-  <target name="webapp" description="Build WAR file" depends="compile">
-    <!-- move old war file out of the way -->
-    <move file="${dist}/${appName}.war" tofile="${dist}/${appName}.bak"
-      failonerror="false"/>
 
     <!-- generate new war file -->
     <war destfile="${dist}/${appName}.war" webxml="${webapp}/WEB-INF/web.xml">

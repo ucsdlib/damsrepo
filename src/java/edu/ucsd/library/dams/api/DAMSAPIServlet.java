@@ -83,14 +83,11 @@ public class DAMSAPIServlet extends HttpServlet
 	private String tsDefault;	// TripleStore to be used when not specified
 
 	// identifiers and namespaces
-	private String minterDefault;	// ID series to be used when not specified
+	private String minterDefault;	      // ID series to be used when not specified
 	private Map<String,String> idMinters; // ID series name=>url map
-	private String idNS;       // Namespace prefix for unqualified identifiers
-	private String prNS;       // Namespace prefix for unqualified predicates
-	private String owlSameAs;  // Untranslated URI for owl:sameAs
-	private String rdfLabel;   // Untranslated URI for rdf:label
+	private Map<String,String> nsmap;     // URI/name to URI map
+	private String idNS;                  // Namespace prefix for unqualified identifiers
 	// NSTRANS: idNS=http://library.ucsd.edu/ark:/20775/
-	// NSTRANS: prNS=http://library.ucsd.edu/ontology/dams#
 
 	// uploads
 	private int uploadCount = 0; // current number of uploads being processed
@@ -136,10 +133,8 @@ public class DAMSAPIServlet extends HttpServlet
 					minterNames[0], props.getProperty("minters."+minterNames[0])
 				);
 			}
-			idNS = props.getProperty("ns.identifiers");
-			prNS = props.getProperty("ns.predicates");
-			owlSameAs = props.getProperty("ns.owlSameAs");
-			rdfLabel  = props.getProperty("ns.rdfLabel");
+			nsmap = TripleStoreUtil.namespaceMap(props);
+			idNS = nsmap.get("identifiers");
 
 			// solr
 			solrBase = props.getProperty("solr.base");
@@ -1096,8 +1091,7 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					// save data to the triplestore
 					Edit edit = new Edit(
-						backupDir, adds, updates, deletes, objid, ts,
-						idNS, prNS, owlSameAs, rdfLabel
+						backupDir, adds, updates, deletes, objid, ts, nsmap
 					);
 					edit.saveBackup();
 					String type = create ?
@@ -1265,9 +1259,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// connect to solr
 			String tsName = getParamString(req,"ts",tsDefault);
 			TripleStore ts = TripleStoreUtil.getTripleStore(props,tsName);
-			SolrIndexer indexer = new SolrIndexer(
-				ts, solrBase, idNS, prNS, owlSameAs, rdfLabel
-			);
+			SolrIndexer indexer = new SolrIndexer( ts, solrBase, nsmap );
 
 			// index each record
 			for ( int i = 0; i < ids.length; i++ )
@@ -1297,7 +1289,7 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			String tsName = getParamString(req,"ts",tsDefault);
 			ts = TripleStoreUtil.getTripleStore(props,tsName);
-			DAMSObject obj = new DAMSObject( ts, objid, idNS, prNS, owlSameAs, rdfLabel );
+			DAMSObject obj = new DAMSObject( ts, objid, nsmap );
 			String format = getParamString(req,"format",formatDefault);
 			String content = null;
 			String contentType = null;
@@ -1452,7 +1444,7 @@ public class DAMSAPIServlet extends HttpServlet
 			Identifier userID = null; // XXX SolrProxy.lookup( req.getRemoteUser() );
 
 			// predicate translator
-			DAMSObject trans = new DAMSObject( ts, objid, idNS, prNS, owlSameAs, rdfLabel );
+			DAMSObject trans = new DAMSObject( ts, objid, nsmap );
 	
 			// create event object and save to the triplestore
 			String obj = objid.startsWith("http") ? objid : idNS + objid;

@@ -31,6 +31,7 @@ public class DAMSObject
 	private String prNS;
 	private String owlSameAs;
 	private String rdfLabel;
+	private Map<String,String> nsmap = null;
 
 	private Map<String,String> preToArkMap = null;
 	private Map<String,String> lblToArkMap = null;
@@ -40,25 +41,25 @@ public class DAMSObject
 	 * Main constructor.
 	 * @param ts TripleStore to load metadata from.
 	 * @param id Object identifer (can be full or relative to idNS)
-	 * @param idNS Namespace for qualifying bare identifiers
-	 * @param prNS Namespace for qualifying bare predicates
+	 * @param nsmap Map from prefixes/names to URIs.
 	**/
-	public DAMSObject( TripleStore ts, String id, String idNS, String prNS,
-		String owlSameAs, String rdfLabel )
+	public DAMSObject( TripleStore ts, String id, Map<String,String> nsmap )
 	{
 		this.ts = ts;
-		this.idNS = idNS;
-		this.prNS = prNS;
-		this.owlSameAs = owlSameAs;
-		this.rdfLabel = rdfLabel;
+		this.nsmap = nsmap;
+		this.idNS = nsmap.get("damsid");
+		this.prNS = nsmap.get("dams");
+		this.owlSameAs = nsmap.get("owl:sameAs");
+		this.rdfLabel = nsmap.get("rdf:label");
 		String iduri = (id != null && id.startsWith("http")) ? id : idNS + id;
 		this.id = Identifier.publicURI(iduri);
 	}
 
+	public Map<String,String> namespaceMap() { return nsmap; }
 	public String getIdentifierNamespace() { return idNS; }
-	public String getPredicateNamespace() { return prNS; }
-	public String getOwlSameAs() { return owlSameAs; }
-	public String getRdfLabel() { return rdfLabel; }
+	//public String getPredicateNamespace() { return prNS; }
+	//public String getOwlSameAs() { return owlSameAs; }
+	//public String getRdfLabel() { return rdfLabel; }
 
 	private void loadMap() throws TripleStoreException
 	{
