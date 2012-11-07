@@ -134,7 +134,7 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 			}
 			nsmap = TripleStoreUtil.namespaceMap(props);
-			idNS = nsmap.get("identifiers");
+			idNS = nsmap.get("damsid");
 
 			// solr
 			solrBase = props.getProperty("solr.base");
@@ -565,20 +565,36 @@ public class DAMSAPIServlet extends HttpServlet
 				&& fs.length(objid,fileid) > 0;
 			in.close();
 	
-			String type = overwrite ? "file modification" : "file creation";
+			String type = (overwrite) ? "file modification" : "file creation";
+			String detail = "EVENT_DETAIL_SPEC: " + type;
+			String message = null;
 			if ( successful )
 			{
+				int status = -1;
+				if ( overwrite )
+				{
+					status = res.SC_OK;
+					message = "File saved successfully";
+				}
+				else
+				{
+					status = res.SC_CREATED;
+					message = "File created successfully";
+				}
 				createEvent(
-					req, null, objid, fileid, type, true, "EVENT_DETAIL_SPEC", null
+					req, null, objid, fileid, type, true, detail, null
 				);
-				status( "File uploaded successfully", req, res );
+				status( status, message, req, res );
 			}
 			else
 			{
+				if ( overwrite ) { message = "File update failed"; }
+				else { message = "File creation failed"; }
 				createEvent(
-					req, null, objid, fileid, type, false, "EVENT_DETAIL_SPEC", "Failed to upload file XXX"
+					req, null, objid, fileid, type, false, detail,
+					"Failed to upload file XXX"
 				);
-				error( "Failed to upload file: " + objid + "/" + fileid, req, res );
+				error( message, req, res );
 				// FILE_META: update file metadata
 				fileDeleteMetadata( req, objid, fileid );
 				fileCharacterize( objid, fileid, req, null );
@@ -1012,15 +1028,18 @@ public class DAMSAPIServlet extends HttpServlet
 		long dur = System.currentTimeMillis() - start;
 		log.info("indexSearch: " + dur + "ms, params: " + req.getQueryString());
 	}
-	public void objectCreate( String objid, HttpServletRequest req, HttpServletResponse res )
+	public void objectCreate( String objid, HttpServletRequest req,
+		HttpServletResponse res )
 	{
 		objectEdit( objid, true, req, res );
 	}
-	public void objectUpdate( String objid, HttpServletRequest req, HttpServletResponse res )
+	public void objectUpdate( String objid, HttpServletRequest req,
+		HttpServletResponse res )
 	{
 		objectEdit( objid, false, req, res );
 	}
-	private void objectEdit( String objid, boolean create, HttpServletRequest req, HttpServletResponse res )
+	private void objectEdit( String objid, boolean create,
+		HttpServletRequest req, HttpServletResponse res )
 	{
 		TripleStore ts = null;
 		try
@@ -1096,11 +1115,26 @@ public class DAMSAPIServlet extends HttpServlet
 					edit.saveBackup();
 					String type = create ?
 						"object creation" : "object modification";
+					String detail = "EVENT_DETAIL_SPEC: " + type;
 					if ( edit.update() )
 					{
 						// success
-						createEvent( req, ts, objid, null, type, true, "EVENT_DETAIL_SPEC", null );
-						status( "Object saved successfully", req, res );
+						int status = -1;
+						String message = null;
+						if ( create )
+						{
+							status = res.SC_CREATED;
+							message = "Object created successfully";
+						}
+						else
+						{
+							status = res.SC_OK;
+							message = "Object saved successfully";
+						}
+						createEvent(
+							req, ts, objid, null, type, true, detail, null
+						);
+						status( status, message, req, res );
 						edit.removeBackup();
 					}
 					else
@@ -1287,8 +1321,25 @@ public class DAMSAPIServlet extends HttpServlet
 		TripleStore ts = null;
 		try
 		{
+			if ( objid == null || objid.equals("") )
+			{
+				error(
+					res.SC_BAD_REQUEST, "Object id must be specified", req, res
+				);
+				return;
+			}
 			String tsName = getParamString(req,"ts",tsDefault);
 			ts = TripleStoreUtil.getTripleStore(props,tsName);
+            if ( !objid.startsWith("http") ) { objid = idNS + objid; }
+            Identifier id = Identifier.publicURI(objid);
+			if ( !ts.exists(id) )
+			{
+				error(
+					res.SC_NOT_FOUND, "Object does not exist", req, res
+				);
+				return;
+			}
+
 			DAMSObject obj = new DAMSObject( ts, objid, nsmap );
 			String format = getParamString(req,"format",formatDefault);
 			String content = null;
@@ -1309,6 +1360,7 @@ public class DAMSAPIServlet extends HttpServlet
 					res.SC_BAD_REQUEST, "Unsupported format: " + format,
 					req, res
 				);
+				return;
 			}
 
 			output( res.SC_OK, content, contentType, res );
@@ -1491,6 +1543,14 @@ public class DAMSAPIServlet extends HttpServlet
 		info.put( "message", msg );
 		output( errorCode, info, req, res );
 	}
+	protected void status( int statusCode, String msg, HttpServletRequest req,
+		HttpServletResponse res )
+	{
+		// output = error message
+		Map info = new LinkedHashMap();
+		info.put( "message", msg );
+		output( statusCode, info, req, res );
+	}
 	protected void status( String msg, HttpServletRequest req,
 		HttpServletResponse res )
 	{
@@ -1517,22 +1577,41 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 
 		String content = null;
-		String format = getParamString(req,"format",formatDefault);
 		String contentType = null;
+		String format = getParamString(req,"format",formatDefault);
+
+		// if format is not specified/configured, or is invalid, send a warning
+		// but don't clobber existing request status/message
+		if ( format == null )
+		{
+			// handle missing formatDefault
+			info.put(
+				"warning","No format specified and no default format configured"
+			);
+			format = "xml";
+		}
+		else if ( !format.equals("json") && !format.equals("html")
+			&& !format.equals("xml") )
+		{
+			// handle invalid format
+			info.put( "warning", "Invalid format: '" + format + "'" );
+			format = "xml";
+		}
+
 		if ( format.equals("json") )
 		{
 			content = JSONValue.toJSONString(info);
 			contentType = "application/json";
 		}
-		else if ( format.equals("xml") )
-		{
-			content = toXML(info);
-			contentType = "text/xml";
-		}
 		else if ( format.equals("html") )
 		{
 			content = toHTML(info);
 			contentType = "text/html";
+		}
+		else if ( format.equals("xml") )
+		{
+			content = toXML(info);
+			contentType = "text/xml";
 		}
 		output( statusCode, content, contentType, res );
 	}
@@ -1554,7 +1633,6 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.error("Error sending output: " + ex.toString());
 			log.warn( "Error sending output", ex );
 		}
 	}
