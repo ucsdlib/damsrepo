@@ -1425,8 +1425,34 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public void predicateList( HttpServletRequest req, HttpServletResponse res )
 	{
-		// DAMS_MGR
-		// output = metadata: list of predicate URIs
+		TripleStore ts = null;
+		try
+		{
+			// connect to triplestore
+			String tsName = getParamString(req,"ts",tsDefault);
+			ts = TripleStoreUtil.getTripleStore(props,tsName);
+
+			// setup damsobject
+			DAMSObject trans = new DAMSObject( ts, null, nsmap );
+			Map<String,String> predicates = trans.predicateMap();
+
+			// build map and display
+			Map info = new LinkedHashMap();
+			info.put("predicates",predicates);
+			output( res.SC_OK, info, req, res );
+		}
+		catch ( Exception ex )
+		{
+			log.error( "Error looking up predicate map", ex );
+		}
+		finally
+		{
+			try { ts.close(); }
+			catch ( Exception ex2 )
+			{
+				log.error("Error closing triplestore: " + ex2.toString());
+			}
+		}
 	}
 
 	private void fileDeleteMetadata( HttpServletRequest req, String objid,
@@ -1660,6 +1686,18 @@ public class DAMSAPIServlet extends HttpServlet
 					sub.setText( list.get(i).toString() );
 				}
 			}
+			else if ( val instanceof Map )
+			{
+				Map m2 = (Map)val;
+				for ( Iterator it = m2.keySet().iterator(); it.hasNext(); )
+				{
+					String k2 = (String)it.next();
+					String v2 = (String)m2.get(k2);
+					Element sub = e.addElement("value");
+					sub.addAttribute("key",k2);
+					sub.setText( v2 );
+				}
+			}
 		}
 		return doc.asXML();
 	}
@@ -1676,9 +1714,14 @@ public class DAMSAPIServlet extends HttpServlet
 			String key = (String)keys.next();
 			Object val = m.get(key);
 			StringBuffer buf = new StringBuffer();
+			Element row = table.addElement("tr");
+			Element keyCell = row.addElement("td");
+			keyCell.setText(key);
+			Element valCell = row.addElement("td");
 			if ( val instanceof String )
 			{
 				buf.append( val.toString() );
+				valCell.setText(buf.toString());
 			}
 			else if ( val instanceof List )
 			{
@@ -1688,13 +1731,20 @@ public class DAMSAPIServlet extends HttpServlet
 					if ( i > 0 ) { buf.append(", "); }
 					buf.append( list.get(i).toString() );
 				}
+				valCell.setText(buf.toString());
+			}
+			else if ( val instanceof Map )
+			{
+				Map m2 = (Map)val;
+				for ( Iterator it = m2.keySet().iterator(); it.hasNext(); )
+				{
+					String k2 = (String)it.next();
+					String v2 = (String)m2.get(k2);
+					Element div = valCell.addElement("div");
+					div.setText(k2 + ": " + v2);
+				}
 			}
 
-			Element row = table.addElement("tr");
-			Element keyCell = row.addElement("td");
-			keyCell.setText(key);
-			Element valCell = row.addElement("td");
-			valCell.setText(buf.toString());
 		}
 		return doc.asXML();
 	}

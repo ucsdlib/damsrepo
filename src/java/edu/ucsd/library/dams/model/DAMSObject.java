@@ -111,6 +111,11 @@ public class DAMSObject
 		loadMap();
 		return lblToArkMap.get(lbl);
 	}
+	public Map<String,String> predicateMap() throws TripleStoreException
+	{
+		loadMap();
+		return arkToPreMap;
+	}
 
 	/**
 	 * Get an iterator of all statements about this object.
