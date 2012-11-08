@@ -83,11 +83,10 @@ public class DAMSAPIServlet extends HttpServlet
 	private String tsDefault;	// TripleStore to be used when not specified
 
 	// identifiers and namespaces
-	private String minterDefault;	      // ID series to be used when not specified
+	private String minterDefault;	      // ID series when not specified
 	private Map<String,String> idMinters; // ID series name=>url map
 	private Map<String,String> nsmap;     // URI/name to URI map
-	private String idNS;                  // Namespace prefix for unqualified identifiers
-	// NSTRANS: idNS=http://library.ucsd.edu/ark:/20775/
+	private String idNS;                  // Prefix for unqualified identifiers
 
 	// uploads
 	private int uploadCount = 0; // current number of uploads being processed
@@ -185,104 +184,148 @@ public class DAMSAPIServlet extends HttpServlet
 	**/
 	public void doGet( HttpServletRequest req, HttpServletResponse res )
 	{
-		// parse request URI
-		String[] path = path( req );
+		Map info = null;
+		boolean outputRequired = true; // set to false to suppress status output
+		FileStore fs = null;
+		TripleStore ts = null;
 
-		// GET /index
-		if ( path.length == 2 && path[1].equals("index") )
+		try
 		{
-			indexSearch( req, res );
-		}
-		// collection
-		else if ( path.length > 1 && path[1].equals("collections") )
-		{
-			// GET /collections
-			if ( path.length == 2 )
+			// parse request URI
+			String[] path = path( req );
+	
+			// GET /index
+			if ( path.length == 2 && path[1].equals("index") )
 			{
-				collectionListAll( req, res );
+				indexSearch( req, res );
+				outputRequired = false;
 			}
-			// GET /collections/bb1234567x
-			else if ( path.length == 3 )
+			// collection
+			else if ( path.length > 1 && path[1].equals("collections") )
 			{
-				collectionListObjects( path[2], req, res );
+				// GET /collections
+				if ( path.length == 2 )
+				{
+					ts = triplestore(req);
+					info = collectionListAll( ts );
+				}
+				// GET /collections/bb1234567x
+				else if ( path.length == 3 )
+				{
+					ts = triplestore(req);
+					info = collectionListObjects( path[2], ts );
+				}
+				// GET /collections/bb1234567x/count
+				else if ( path[3].equals("count") )
+				{
+					ts = triplestore(req);
+					info = collectionCount( path[2], ts );
+				}
+				// GET /collections/bb1234567x/embargo
+				else if ( path[3].equals("embargo") )
+				{
+					ts = triplestore(req);
+					info = collectionEmbargo( path[2], ts );
+				}
 			}
-			// GET /collections/bb1234567x/count
-			else if ( path[3].equals("count") )
+			// objects
+			else if ( path.length > 1 && path[1].equals("objects") )
 			{
-				collectionCount( path[2], req, res );
+				// GET /objects/bb1234567x
+				if ( path.length == 3 )
+				{
+					ts = triplestore(req);
+					info = objectShow( path[2], false, ts );
+					if ( info.get("obj") != null )
+					{
+						DAMSObject obj = (DAMSObject)info.get("obj");
+						output( obj, false, req, res );
+						outputRequired = false;
+					}
+				}
+				// GET /objects/bb1234567x/export
+				else if ( path.length == 4 && path[3].equals("export") )
+				{
+					ts = triplestore(req);
+					info = objectShow( path[2], true, ts );
+					if ( info.get("obj") != null )
+					{
+						DAMSObject obj = (DAMSObject)info.get("obj");
+						output( obj, true, req, res );
+						outputRequired = false;
+					}
+				}
+				// GET /objects/bb1234567x/exists
+				else if ( path.length == 4 && path[3].equals("exists") )
+				{
+					ts = triplestore(req);
+					info = objectExists( path[2], ts );
+				}
+				// GET /objects/bb1234567x/validate
+				else if ( path.length == 4 && path[3].equals("validate") )
+				{
+					fs = filestore(req);
+					ts = triplestore(req);
+					info = objectValidate( path[2], fs, ts );
+				}
 			}
-			// GET /collections/bb1234567x/embargo
-			else if ( path[3].equals("embargo") )
+			// files
+			else if ( path.length > 1 && path[1].equals("files") )
 			{
-				collectionEmbargo( path[2], req, res );
-			}
-		}
-		// objects
-		else if ( path.length > 1 && path[1].equals("objects") )
-		{
-			// GET /objects/bb1234567x
-			if ( path.length == 3 )
-			{
-				objectShow( path[2], false, req, res );
-			}
-			// GET /objects/bb1234567x/export
-			else if ( path.length == 4 && path[3].equals("export") )
-			{
-				objectShow( path[2], true, req, res );
-			}
-			// GET /objects/bb1234567x/exists
-			else if ( path.length == 4 && path[3].equals("exists") )
-			{
-				objectExists( path[2], req, res );
-			}
-			// GET /objects/bb1234567x/validate
-			else if ( path.length == 4 && path[3].equals("validate") )
-			{
-				objectValidate( path[2], req, res );
-			}
-		}
-		// files
-		else if ( path.length > 1 && path[1].equals("files") )
-		{
-			// GET /files/bb1234567x/1-1.tif
-			if ( path.length == 4 )
-			{
-				fileShow( path[2], path[3], req, res );
-			}
-			// GET /files/bb1234567x/1-1.tif/exists
-			if ( path.length == 5 && path[4].equals("exists") )
-			{
-				fileExists( path[2], path[3], req, res );
-			}
-			// GET /files/bb1234567x/1-1.tif/fixity
-			else if ( path.length == 5 && path[4].equals("fixity") )
-			{
-				fileFixity( path[2], path[3], req, res );
-			}
-		}
-		// client
-		else if ( path.length == 3 && path[1].equals("client") )
-		{
-			// GET /client/authorize
-			if ( path[2].equals("authorize") )
-			{
-				clientAuthorize( req, res );
+				// GET /files/bb1234567x/1-1.tif
+				if ( path.length == 4 )
+				{
+					fileShow( path[2], path[3], req, res );
+					outputRequired = false;
+				}
+				// GET /files/bb1234567x/1-1.tif/exists
+				if ( path.length == 5 && path[4].equals("exists") )
+				{
+					fs = filestore(req);
+					info = fileExists( path[2], path[3], fs );
+				}
+				// GET /files/bb1234567x/1-1.tif/fixity
+				else if ( path.length == 5 && path[4].equals("fixity") )
+				{
+					fs = filestore(req);
+					ts = triplestore(req);
+					info = fileFixity( path[2], path[3], fs, ts );
+				}
 			}
 			// GET /client/info
-			else if ( path[2].equals("info") )
+			else if ( path.length == 3 && path[1].equals("client")
+				&& path[2].equals("info") )
 			{
-				clientInfo( req, res );
+				String ip = req.getRemoteAddr();
+				String user = req.getRemoteUser();
+				info = clientInfo( ip, user );
+			}
+			// predicates
+			else if ( path.length == 2 && path[1].equals("predicates") )
+			{
+				// GET /predicates
+				ts = triplestore(req);
+				info = predicateList( ts );
+			}
+			else
+			{
+				info = error( res.SC_BAD_REQUEST, "Invalid request" );
+			}
+	
+			// output
+			if ( outputRequired )
+			{
+				output( info, req, res );
 			}
 		}
-		// predicates
-		else if ( path.length == 2 && path[1].equals("predicates") )
+		catch ( Exception ex2 )
 		{
-			// GET /predicates
-			predicateList( req, res );
+			log.warn( ex2 );
 		}
-		else
+		finally
 		{
-			error( res.SC_BAD_REQUEST, "Invalid request", req, res );
+			// cleanup
+			cleanup( fs, ts );
 		}
 	}
 
@@ -292,79 +335,117 @@ public class DAMSAPIServlet extends HttpServlet
 	**/
 	public void doPost( HttpServletRequest req, HttpServletResponse res )
 	{
-		// redirect overloaded PUT/DELETE requests
-/*
-		String method = req.getParameter("method");
-		if ( method != null && method.equalsIgnoreCase("DELETE") )
-		{
-			doDelete( req, res );
-			return;
-		}
-		else if ( method != null && method.equalsIgnoreCase("PUT") )
-		{
-			doPut( req, res );
-			return;
-		}
-*/
+		Map info = null;
+		FileStore fs = null;
+		TripleStore ts = null;
 
-		// parse request URI
-		String[] path = path( req );
+		try
+		{
+			// parse request URI
+			String[] path = path( req );
+	
+			// POST /index
+			if ( path.length == 2 && path[1].equals("index") )
+			{
+				String[] ids = req.getParameterValues("id");
+				ts = triplestore(req);
+				info = indexUpdate( ids, ts );
+			}
+			// POST /next_id
+			else if ( path.length == 2 && path[1].equals("next_id") )
+			{
+				String idMinter = getParamString( req, "name", minterDefault );
+				int count = getParamInt( req, "count", 1 );
+				info = identifierCreate( idMinter, count );
+			}
+			// objects
+			else if ( path.length > 2 && path[1].equals("objects") )
+			{
+				// POST /objects/bb1234567x
+				if ( path.length == 3 )
+				{
+					try
+					{
+						InputBundle bundle = input( req );
+						InputStream in = bundle.getInputStream();
+						String adds = getParamString(
+							bundle.getParams(), "ts", tsDefault
+						);
+						ts = triplestore(req);
+						info = objectCreate( path[2], in, adds, ts );
+					}
+					catch ( Exception ex )
+					{
+						log.warn("Error uploading file", ex );
+						info = error("Error uploading file");
+					}
+				}
+				// POST /objects/bb1234567x/transform
+				else if ( path.length == 4 && path[3].equals("transform") )
+				{
+					fs = filestore(req);
+					ts = triplestore(req);
+					info = objectTransform( path[2], fs, ts );
+				}
+				// POST /objects/bb1234567x/index	
+				else if ( path.length == 4 && path[3].equals("index") )
+				{
+					String[] ids = new String[]{ path[2] };
+					ts = triplestore(req);
+					info = indexUpdate( ids, ts );
+				}
+			}
+			// files
+			else if ( path.length > 2 && path[1].equals("files") )
+			{
+				// POST /files/bb1234567x/1-1.tif
+				if ( path.length == 4 )
+				{
+					try
+					{
+						InputBundle bundle = input( req );
+						InputStream in = bundle.getInputStream();
+						fs = filestore(req);
+						ts = triplestore(req);
+						info = fileUpload( path[2], path[3], false, in, fs, ts );
+					}
+					catch ( Exception ex )
+					{
+						log.warn("Error uploading file", ex );
+						info = error("Error uploading file");
+					}
+				}
+				// POST /files/bb1234567x/1-1.tif/characterize
+				else if ( path.length == 5 && path[4].equals("characterize") )
+				{
+					fs = filestore(req);
+					ts = triplestore(req);
+					info = fileCharacterize( path[2], path[3], fs, ts );
+				}
+				// POST /files/bb1234567x/1-1.tif/derivatives
+				else if ( path.length == 5 && path[4].equals("derivatives") )
+				{
+					fs = filestore(req);
+					ts = triplestore(req);
+					info = fileDerivatives( path[2], path[3], fs, ts );
+				}
+			}
+			else
+			{
+				info = error( res.SC_BAD_REQUEST, "Invalid request" );
+			}
 
-		// POST /index
-		if ( path.length == 2 && path[1].equals("index") )
-		{
-			String[] ids = req.getParameterValues("id");
-			indexUpdate( ids, req, res );
+			// output
+			output( info, req, res );
 		}
-		// POST /next_id
-		else if ( path.length == 2 && path[1].equals("next_id") )
+		catch ( Exception ex2 )
 		{
-			String idMinter = getParamString( req, "name", minterDefault );
-			int count = getParamInt( req, "count", 1 );
-			identifierCreate( idMinter, count, req, res );
+			log.warn( ex2 );
 		}
-		// objects
-		else if ( path.length > 2 && path[1].equals("objects") )
+		finally
 		{
-			// POST /objects/bb1234567x
-			if ( path.length == 3 )
-			{
-				objectCreate( path[2], req, res );
-			}
-			// POST /objects/bb1234567x/transform
-			else if ( path.length == 4 && path[3].equals("transform") )
-			{
-				objectTransform( path[2], req, res );
-			}
-			// POST /objects/bb1234567x/index	
-			else if ( path.length == 4 && path[3].equals("index") )
-			{
-				String[] ids = new String[]{ path[2] };
-				indexUpdate( ids, req, res );
-			}
-		}
-		// files
-		else if ( path.length > 2 && path[1].equals("files") )
-		{
-			// POST /files/bb1234567x/1-1.tif
-			if ( path.length == 4 )
-			{
-				fileUpload( path[2], path[3], false, req, res );
-			}
-			// POST /files/bb1234567x/1-1.tif/characterize
-			else if ( path.length == 5 && path[4].equals("characterize") )
-			{
-				fileCharacterize( path[2], path[3], req, res );
-			}
-			// POST /files/bb1234567x/1-1.tif/derivatives
-			else if ( path.length == 5 && path[4].equals("derivatives") )
-			{
-				fileDerivatives( path[2], path[3], req, res );
-			}
-		}
-		else
-		{
-			error( res.SC_BAD_REQUEST, "Invalid request", req, res );
+			// cleanup
+			cleanup( fs, ts );
 		}
 	}
 	/**
@@ -373,22 +454,70 @@ public class DAMSAPIServlet extends HttpServlet
 	**/
 	public void doPut( HttpServletRequest req, HttpServletResponse res )
 	{
-		// parse request URI
-		String[] path = path( req );
+		Map info = null;
+		FileStore fs = null;
+		TripleStore ts = null;
 
-		// PUT /objects/bb1234567x
-		if ( path.length == 3 )
+		try
 		{
-			objectUpdate( path[2], req, res );
+			// parse request URI
+			String[] path = path( req );
+	
+			// PUT /objects/bb1234567x
+			if ( path.length == 3 )
+			{
+				try
+				{
+					InputBundle bundle = input( req );
+					InputStream in = bundle.getInputStream();
+					Map<String,String> params = bundle.getParams();
+					String adds    = getParamString(params,"adds",null);
+					String updates = getParamString(params,"updates",null);
+					String deletes = getParamString(params,"deletes",null);
+					ts = triplestore(req);
+					info = objectUpdate(
+						path[2], in, adds, updates, deletes, ts
+					);
+				}
+				catch ( Exception ex )
+				{
+					log.warn( "Error updating object", ex );
+					info = error( "Error updating object" );
+				}
+			}
+			// PUT /objects/bb1234567x/1-1.tif
+			else if ( path.length == 4 )
+			{
+				try
+				{
+					InputBundle bundle = input( req );
+					InputStream in = bundle.getInputStream();
+					fs = filestore(req);
+					ts = triplestore(req);
+					info = fileUpload( path[2], path[3], true, in, fs, ts );
+				}
+				catch ( Exception ex )
+				{
+					log.warn( "Error updating file", ex );
+					info = error( "Error updating file" );
+				}
+			}
+			else
+			{
+				info = error( res.SC_BAD_REQUEST, "Invalid request" );
+			}
+
+			// output
+			output( info, req, res );
 		}
-		// PUT /objects/bb1234567x/1-1.tif
-		else if ( path.length == 4 )
+		catch ( Exception ex2 )
 		{
-			fileUpload( path[2], path[3], true, req, res );
+			log.warn( ex2 );
 		}
-		else
+		finally
 		{
-			error( res.SC_BAD_REQUEST, "Invalid request", req, res );
+			// cleanup
+			cleanup( fs, ts );
 		}
 	}
 
@@ -398,35 +527,83 @@ public class DAMSAPIServlet extends HttpServlet
 	**/
 	public void doDelete( HttpServletRequest req, HttpServletResponse res )
 	{
-		// parse request URI
-		String[] path = path( req );
+		Map info = null;
+		FileStore fs = null;
+		TripleStore ts = null;
 
-		// DELETE /index
-		if ( path.length == 2 && path[1].equals("index") )
+		try
 		{
-			String[] ids = req.getParameterValues("id");
-			indexDelete( ids, req, res );
+			// parse request URI
+			String[] path = path( req );
+
+			// DELETE /index
+			if ( path.length == 2 && path[1].equals("index") )
+			{
+				String[] ids = req.getParameterValues("id");
+				String tsName = getParamString(req,"ts",tsDefault);
+				info = indexDelete( ids, tsName );
+			}
+			// DELETE /objects/bb1234567x
+			if ( path.length == 3 && path[1].equals("objects") )
+			{
+				ts = triplestore(req);
+				info = objectDelete( path[2], ts );
+			}
+			// DELETE /objects/bb1234567x/index
+			else if ( path.length == 4 && path[1].equals("objects")
+				&& path[3].equals("index") )
+			{
+				String[] ids = new String[]{ path[2] };
+				String tsName = getParamString(req,"ts",tsDefault);
+				info = indexDelete( ids, tsName );
+			}
+			// DELETE /files/bb1234567x/1-1.tif
+			else if ( path.length == 4 && path[1].equals("files") )
+			{
+				fs = filestore(req);
+				ts = triplestore(req);
+				info = fileDelete( path[2], path[3], fs, ts );
+			}
+			else
+			{
+				info = error( res.SC_BAD_REQUEST, "Invalid request" );
+			}
+	
+			// output
+			output( info, req, res );
 		}
-		// DELETE /objects/bb1234567x
-		if ( path.length == 3 && path[1].equals("objects") )
+		catch ( Exception ex )
 		{
-			objectDelete( path[2], req, res );
+			log.warn( ex );
 		}
-		// DELETE /objects/bb1234567x/index
-		else if ( path.length == 4 && path[1].equals("objects")
-			&& path[3].equals("index") )
+		finally
 		{
-			String[] ids = new String[]{ path[2] };
-			indexDelete( ids, req, res );
+			// cleanup
+			cleanup( fs, ts );
 		}
-		// DELETE /files/bb1234567x/1-1.tif
-		else if ( path.length == 4 && path[1].equals("files") )
+	}
+
+	private FileStore filestore( HttpServletRequest req ) throws Exception
+	{
+		String fsName = getParamString(req,"fs",fsDefault);
+		return FileStoreUtil.getFileStore(props,fsName);
+	}
+	private TripleStore triplestore( HttpServletRequest req ) throws Exception
+	{
+		String tsName = getParamString(req,"ts",tsDefault);
+		return TripleStoreUtil.getTripleStore(props,tsName);
+	}
+	private static void cleanup( FileStore fs, TripleStore ts )
+	{
+		if ( fs != null )
 		{
-			fileDelete( path[2], path[3], req, res );
+			try { fs.close(); }
+			catch ( Exception ex ) { log.warn("Error closing FileStore",ex); }
 		}
-		else
+		if ( ts != null )
 		{
-			error( res.SC_BAD_REQUEST, "Invalid request", req, res );
+			try { ts.close(); }
+			catch ( Exception ex ) { log.warn("Error closing TripleStore",ex); }
 		}
 	}
 
@@ -434,103 +611,83 @@ public class DAMSAPIServlet extends HttpServlet
 	//========================================================================
 	// Core Java API
 	//========================================================================
-	public void clientAuthorize( HttpServletRequest req,
-		HttpServletResponse res )
-	{
-		// output = redirect
-		// XXX: should probably not even get here...
-	}
-	public void clientInfo( HttpServletRequest req, HttpServletResponse res )
+	public Map clientInfo( String ip, String user )
 	{
 		// XXX: AUTH: who is making the request? hydra/isla. or end-user?
-		String ip = req.getRemoteAddr();
 		String role = getRole( ip ); 
-		String user = req.getRemoteUser();
 		if ( user == null ) { user = ""; }
 		Map info = new LinkedHashMap();
+		info.put( "statusCode", HttpServletResponse.SC_OK );
 		info.put( "ip", ip );
 		info.put( "role", role );
 		info.put( "user", user );
-		output( res.SC_OK, info, req, res );
+		return info;
 	}
-	public void collectionCount( String colid, HttpServletRequest req, HttpServletResponse res )
+	public Map collectionCount( String colid, TripleStore ts )
 	{
-		// DAMS_MGR
+		return null; // DAMS_MGR
 		// output = status message
 	}
-	public void collectionEmbargo( String colid, HttpServletRequest req, HttpServletResponse res )
+	public Map collectionEmbargo( String colid, TripleStore ts )
 	{
-		// DAMS_MGR
+		return null; // DAMS_MGR
 		// output = metadata: list of objects (??)
 	}
-	public void collectionIndexDelete( String colid,
-		HttpServletRequest req, HttpServletResponse res )
+	public Map collectionIndexDelete( String colid, String tsName )
 	{
-		// DAMS_MGR
+		return null; // DAMS_MGR
 		// output = status message
 	}
-	public void collectionListAll( HttpServletRequest req, HttpServletResponse res )
+	public Map collectionListAll( TripleStore ts )
 	{
-		// DAMS_MGR
+		return null; // DAMS_MGR
 		// output = metadata: list of collection objects
 	}
-	public void collectionListObjects( String colid,
-		HttpServletRequest req, HttpServletResponse res )
+	public Map collectionListObjects( String colid, TripleStore ts  )
 	{
-		// DAMS_MGR
+		return null; // DAMS_MGR
 		// output = metadata: list of objects
 	}
-	public void fileCharacterize( String objid, String fileid,
-		HttpServletRequest req, HttpServletResponse res )
+	public Map fileCharacterize( String objid, String fileid, FileStore fs, TripleStore ts )
 	{
-		// DAMS_MGR
+		return null; // DAMS_MGR
 		// output = status message
 		// if res is null, update triplestore but don't output anything
 	}
-	public void fileUpload( String objid, String fileid, boolean overwrite,
-		 HttpServletRequest req, HttpServletResponse res )
+	public Map fileUpload( String objid, String fileid, boolean overwrite,
+		 InputStream in, FileStore fs, TripleStore ts )
 	{
-		FileStore fs = null;
 		try
 		{
-			// parse request entity
-			InputBundle bundle = input( req );
-			Map<String,String> params = bundle.getParams();
-			InputStream in = bundle.getInputStream();
-
 			// both objid and fileid are required
 			if ( objid == null || objid.trim().equals("") )
 			{
-				error( res.SC_BAD_REQUEST, "Object identifier required", req, res );
-				return;
+				return error(HttpServletResponse.SC_BAD_REQUEST, "Object identifier required");
 			}
 			if ( fileid == null || fileid.trim().equals("") )
 			{
-				error( res.SC_BAD_REQUEST, "File identifier required", req, res );
-				return;
+				return error( HttpServletResponse.SC_BAD_REQUEST, "File identifier required");
 			}
 	
 			// make sure request is multipart with a file upload
+/* XXX move to doPost/doPut
 			if ( !ServletFileUpload.isMultipartContent(req) )
 			{
-				error( res.SC_BAD_REQUEST, "Multipart required", req, res );
-				return;
+				return error( HttpServletResponse.SC_BAD_REQUEST, "Multipart required" );
 			}
+*/
 			if ( in == null )
 			{
-				error( res.SC_BAD_REQUEST, "File upload required", req, res );
-				return;
+				return error( HttpServletResponse.SC_BAD_REQUEST, "File upload required");
 			}
 
 			// check upload count and abort if at limit
 			if ( uploadCount >= maxUploadCount )
 			{
 				log.info("Upload: refused");
-				error(
-					res.SC_SERVICE_UNAVAILABLE, "Too many concurrent uploads",
-					req, res
+				return error(
+					HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Too many concurrent uploads"
 				);
-				return;
 			}
 			else
 			{
@@ -538,25 +695,20 @@ public class DAMSAPIServlet extends HttpServlet
 				log.info("Upload: start: " + uploadCount);
 			}
 	
-			String fsName = getParamString( req, "fs", fsDefault );
-			fs = FileStoreUtil.getFileStore( props, fsName );
-	
 			// make sure appropriate method is being used to create/update
 			if ( !overwrite && fs.exists( objid, fileid ) )
 			{
-				error(
+				return error(
 					HttpServletResponse.SC_FORBIDDEN,
-					"File already exists, use PUT to overwrite", req, res
+					"File already exists, use PUT to overwrite"
 				);
-				return;
 			}
 			else if ( overwrite && !fs.exists( objid, fileid ) )
 			{
-				error(
+				return error(
 					HttpServletResponse.SC_FORBIDDEN,
-					"File does not exist, use POST to create", req, res
+					"File does not exist, use POST to create"
 				);
-				return;
 			}
 	
 			// upload file
@@ -573,82 +725,61 @@ public class DAMSAPIServlet extends HttpServlet
 				int status = -1;
 				if ( overwrite )
 				{
-					status = res.SC_OK;
+					status = HttpServletResponse.SC_OK;
 					message = "File saved successfully";
 				}
 				else
 				{
-					status = res.SC_CREATED;
+					status = HttpServletResponse.SC_CREATED;
 					message = "File created successfully";
 				}
 				createEvent(
-					req, null, objid, fileid, type, true, detail, null
+					ts, objid, fileid, type, true, detail, null
 				);
-				status( status, message, req, res );
+				return status( status, message );
 			}
 			else
 			{
 				if ( overwrite ) { message = "File update failed"; }
 				else { message = "File creation failed"; }
 				createEvent(
-					req, null, objid, fileid, type, false, detail,
+					ts, objid, fileid, type, false, detail,
 					"Failed to upload file XXX"
 				);
-				error( message, req, res );
 				// FILE_META: update file metadata
-				fileDeleteMetadata( req, objid, fileid );
-				fileCharacterize( objid, fileid, req, null );
+				fileDeleteMetadata( objid, fileid, ts );
+				fileCharacterize( objid, fileid, fs, ts );
+
+				return error( message );
 			}
 		}
 		catch ( Exception ex )
 		{
-			error( "Error uploading file: " + ex.toString(), req, res );
 			log.warn( "Error uploading file", ex );
-		}
-		finally
-		{
-			if ( fs != null )
-			{
-				try
-				{
-					fs.close();
-				}
-				catch ( Exception ex2 )
-				{
-					log.error("Error closing filestore: " + ex2.toString());
-				}
-			}
+			return error( "Error uploading file: " + ex.toString() );
 		}
 	}
-	public void fileDelete( String objid, String fileid,
-		HttpServletRequest req, HttpServletResponse res )
+	public Map fileDelete( String objid, String fileid, FileStore fs, TripleStore ts )
 	{
-		FileStore fs = null;
 		try
 		{
 			// both objid and fileid are required
 			if ( objid == null || objid.trim().equals("") )
 			{
-				error( res.SC_BAD_REQUEST, "Object identifier required", req, res );
-				return;
+				return error( HttpServletResponse.SC_BAD_REQUEST, "Object identifier required" );
 			}
 			if ( fileid == null || fileid.trim().equals("") )
 			{
-				error( res.SC_BAD_REQUEST, "File identifier required", req, res );
-				return;
+				return error( HttpServletResponse.SC_BAD_REQUEST, "File identifier required" );
 			}
-	
-			String fsName = getParamString( req, "fs", fsDefault );
-			fs = FileStoreUtil.getFileStore( props, fsName );
 	
 			// make sure the file exists
 			if ( !fs.exists( objid, fileid ) )
 			{
-				error(
+				return error(
 					HttpServletResponse.SC_FORBIDDEN,
-					"File does not exist", req, res
+					"File does not exist"
 				);
-				return;
 			}
 	
 			// delete the file
@@ -658,84 +789,457 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( successful )
 			{
 				createEvent(
-					req, null, objid, fileid, "file deletion", true,
+					null, objid, fileid, "file deletion", true,
 					"Deleting file EVENT_DETAIL_SPEC", null
 				);
 
 				// FILE_META: update file metadata
-				fileDeleteMetadata( req, objid, fileid );
+				fileDeleteMetadata( objid, fileid, ts );
 
-				status( "File deleted successfully", req, res );
+				return status( "File deleted successfully" );
 			}
 			else
 			{
-				createEvent( req, null, objid, fileid, "file deletion", false, "Deleting file EVENT_DETAIL_SPEC", "XXX" );
-				error( "Failed to delete file: " + objid + "/" + fileid, req, res );
+				createEvent(
+					null, objid, fileid, "file deletion", false,
+					"Deleting file EVENT_DETAIL_SPEC", "XXX"
+				);
+				return error(
+					"Failed to delete file: " + objid + "/" + fileid
+				);
 			}
 		}
 		catch ( Exception ex )
 		{
-			error( "Error deleting file: " + ex.toString(), req, res );
 			log.warn( "Error deleting file", ex );
-		}
-		finally
-		{
-			if ( fs != null )
-			{
-				try
-				{
-					fs.close();
-				}
-				catch ( Exception ex2 )
-				{
-					log.error("Error closing filestore: " + ex2.toString());
-				}
-			}
+			return error( "Error deleting file: " + ex.toString() );
 		}
 	}
-	public void fileDerivatives( String objid, String fileid,
-		HttpServletRequest req, HttpServletResponse res )
+	public Map fileDerivatives( String objid, String fileid,
+		FileStore fs, TripleStore ts )
 	{
-		// DAMS_MGR
-		// output = status message
+		return null; // DAMS_MGR
 	}
-	public void fileExists( String objid, String fileid,
-		HttpServletRequest req, HttpServletResponse res )
+	public Map fileExists( String objid, String fileid, FileStore fs )
 	{
-		FileStore fs = null;
 		try
 		{
-			String fsName = getParamString(req,"fs",fsDefault);
-			fs = FileStoreUtil.getFileStore(props,fsName);
 			if ( fs.exists( objid, fileid ) )
 			{
-				status( "File exists", req, res );
+				return status( "File exists" );
 			}
 			else
 			{
-				error( res.SC_NOT_FOUND, "File does not exist", req, res );
+				return error( HttpServletResponse.SC_NOT_FOUND, "File does not exist" );
 			}
 		}
 		catch ( Exception ex )
 		{
-			error( "Error processing request: " + ex.toString(), req, res );
 			log.warn( "Error checking file existence", ex );
+			return error( "Error processing request: " + ex.toString() );
 		}
-		finally
+	}
+	public Map fileFixity( String objid, String fileid, FileStore fs,
+		TripleStore ts )
+	{
+		return null; // DAMS_MGR
+	}
+	public Map identifierCreate( String name, int count )
+	{
+		// lookup minter URL and add count parameter
+		String minterURL = idMinters.get(name);
+		if ( minterURL == null )
 		{
-			if ( fs != null )
+			return error("Unknown id minter: " + name);
+		}
+		minterURL += count;
+
+		try
+		{
+			// generate id and check output
+			String result = HttpUtil.get(minterURL);
+			if ( result == null || result.trim().equals("") )
 			{
-				try { fs.close(); }
-				catch ( Exception ex ){log.info("Error closing filestore", ex);}
+				return error("Failed to generate id");
+			}
+			else
+			{
+				String[] ids = result.split("\\n");
+				for ( int i = 0; i < ids.length; i++ )
+				{
+					ids[i] = ids[i].replaceAll(".*/","");
+				}
+				List idList = Arrays.asList(ids);
+				Map info = new LinkedHashMap();
+				info.put("ids",idList);
+				return info;
 			}
 		}
+		catch ( Exception ex )
+		{
+			return error( "Error generating id" );
+		}
 	}
-	public void fileFixity( String objid, String fileid,
-		HttpServletRequest req, HttpServletResponse res )
+	public Map objectCreate( String objid, InputStream in, String adds, TripleStore ts )
 	{
-		// DAMS_MGR
-		// output = status message
+		return objectEdit( objid, true, in, adds, null, null, ts );
 	}
+	public Map objectUpdate( String objid, InputStream in, String adds, String updates, String deletes, TripleStore ts )
+	{
+		return objectEdit( objid, false, in, adds, updates, deletes, ts );
+	}
+	private Map objectEdit( String objid, boolean create, InputStream in, String adds, String updates, String deletes, TripleStore ts )
+	{
+		try
+		{
+			// make sure an identifier is specified
+			if ( objid == null || objid.trim().equals("") )
+			{
+				return error( HttpServletResponse.SC_BAD_REQUEST, "No subject provided" );
+			}
+
+			// detect overloaded POST
+/* XXX move to doPost()
+			String method = params.get("method");
+			if ( method != null && method.equalsIgnoreCase("PUT") )
+			{
+				create = false;
+			}
+*/
+
+	   		// make sure appropriate method is being used to create/update
+			if ( !objid.startsWith("http") )
+			{
+				objid = idNS + objid;
+			}
+			Identifier id = Identifier.publicURI(objid);
+			if ( create && ts.exists(id) )
+			{
+		   		return error(
+			   		HttpServletResponse.SC_FORBIDDEN,
+			   		"Object already exists, use PUT to update"
+		   		);
+			}
+			else if ( !create && !ts.exists(id) )
+			{
+		   		return error(
+			   		HttpServletResponse.SC_FORBIDDEN,
+			   		"Object does not exist, use POST to create"
+		  		);
+			}
+
+			// process uploaded file if present
+			if ( in != null )
+			{
+				return null; // DAMS_MGR
+			}
+			// otherwise, look for JSON adds
+			else
+			{
+				if ( adds != null && !adds.equals("") )
+				{
+					// save data to the triplestore
+					Edit edit = new Edit(
+						backupDir, adds, updates, deletes, objid, ts, nsmap
+					);
+					edit.saveBackup();
+					String type = create ?
+						"object creation" : "object modification";
+					String detail = "EVENT_DETAIL_SPEC: " + type;
+					if ( edit.update() )
+					{
+						// success
+						int status = -1;
+						String message = null;
+						if ( create )
+						{
+							status = HttpServletResponse.SC_CREATED;
+							message = "Object created successfully";
+						}
+						else
+						{
+							status = HttpServletResponse.SC_OK;
+							message = "Object saved successfully";
+						}
+						createEvent(
+							ts, objid, null, type, true, detail, null
+						);
+						edit.removeBackup();
+						return status( status, message );
+					}
+					else
+					{
+						// failure
+						String msg = edit.getException().toString();
+						createEvent( ts, objid, null, type, false, "EVENT_DETAIL_SPEC", msg );
+						return error( msg );
+					}
+				}
+				else
+				{
+					return error( HttpServletResponse.SC_BAD_REQUEST, "Object metadata must be supplied as a file upload or in the adds parameter" );
+				}
+			}
+		}
+		catch ( Exception ex )
+		{
+			log.warn( "Error editing object", ex );
+			return error( "Error editing object: " + ex.toString() );
+		}
+	}
+	public Map objectDelete( String objid, TripleStore ts )
+	{
+		try
+		{
+			// make sure an identifier is specified
+			if ( objid == null || objid.trim().equals("") )
+			{
+				return error( HttpServletResponse.SC_BAD_REQUEST, "No subject provided" );
+			}
+
+	   		// make sure appropriate method is being used to create/update
+			if ( !objid.startsWith("http") )
+			{
+				objid = idNS + objid;
+			}
+			Identifier id = Identifier.publicURI(objid);
+			if ( !ts.exists(id) )
+			{
+		   		return error(
+			   		HttpServletResponse.SC_BAD_REQUEST,
+			   		"Object does not exist"
+		   		);
+			}
+			ts.removeObject(id);
+
+			if ( ! ts.exists(id) )
+			{
+				createEvent( ts, objid, null, "object deletion", true, "Deleting object EVENT_DETAIL_SPEC", null );
+				return status( "Object deleted successfully" );
+			}
+			else
+			{
+				createEvent( ts, objid, null, "object deletion", false, "Deleting object EVENT_DETAIL_SPEC", "XXX error" );
+				return error( "Object deletion failed" );
+			}
+			//ts.addLiteralStatement(id,updatedFlag,"delete",id);
+			//String userID = request.getParameter("userID");
+			//if ( userID != null && !userID.trim().equals("") )
+			//{
+			//	ts.addLiteralStatement(id,updatedFlag,userID,id);
+			//}
+		}
+		catch ( Exception ex )
+		{
+			log.warn( "Error deleting object", ex );
+			return error( "Error deleting object: " + ex.toString() );
+		}
+	}
+	public Map indexDelete( String[] ids, String tsName )
+	{
+		// make sure we have some ids to index
+		if ( ids == null || ids.length == 0 )
+		{
+			return error( HttpServletResponse.SC_BAD_REQUEST, "No identifier specified" );
+		}
+
+		// connect to solr
+		SolrHelper solr = new SolrHelper( solrBase );
+
+		int recordsDeleted = 0;
+		try
+		{
+			// delete individual records
+			for ( int i = 0; i < ids.length; i++ )
+			{
+				if ( solr.delete( tsName, tsName, ids[i] ) )
+				{
+					recordsDeleted++;
+				}
+			}
+
+			// commit changes
+			solr.commit( tsName );
+
+			// report status
+			return status( "Solr: deleted " + recordsDeleted + " records" );
+		}
+		catch ( Exception ex )
+		{
+			log.warn( "Error deleting records", ex );
+			return error( "Error deleting records: " + ex.toString() );
+		}
+	}
+	public Map indexUpdate( String[] ids, TripleStore ts )
+	{
+		// make sure we have some ids to index
+		if ( ids == null || ids.length == 0 )
+		{
+			return error( HttpServletResponse.SC_BAD_REQUEST, "No identifier specified" );
+		}
+
+		try
+		{
+			// connect to solr
+			SolrIndexer indexer = new SolrIndexer( ts, solrBase, nsmap );
+
+			// index each record
+			for ( int i = 0; i < ids.length; i++ )
+			{
+				indexer.indexSubject( ids[i] );
+			}
+
+			// commit changes
+			indexer.flush();
+			indexer.commit();
+
+			// output status message
+			return status( indexer.summary() );
+		}
+		catch ( Exception ex )
+		{
+			log.warn( "Error updating Solr", ex );
+			return error( "Error updating Solr: " + ex.toString() );
+		}
+	}
+	public Map objectShow( String objid, boolean export, TripleStore ts )
+	{
+		// output = metadata: object
+		try
+		{
+			if ( objid == null || objid.equals("") )
+			{
+				return error(
+					HttpServletResponse.SC_BAD_REQUEST, "Object id must be specified"
+				);
+			}
+            if ( !objid.startsWith("http") ) { objid = idNS + objid; }
+            Identifier id = Identifier.publicURI(objid);
+			if ( !ts.exists(id) )
+			{
+				return error(
+					HttpServletResponse.SC_NOT_FOUND, "Object does not exist"
+				);
+			}
+
+			DAMSObject obj = new DAMSObject( ts, objid, nsmap );
+			Map info = new HashMap();
+			info.put("obj",obj);
+			return info;
+		}
+		catch ( Exception ex )
+		{
+			log.warn( "Error showing object", ex );
+			return error( "Error processing request: " + ex.toString() );
+		}
+	}
+	public Map objectTransform( String objid, FileStore fs, TripleStore ts )
+	{
+		return null; // DAMS_MGR
+	}
+	public Map objectExists( String objid, TripleStore ts )
+	{
+		try
+		{
+			if ( !objid.startsWith("http") ) { objid = idNS + objid; }
+			Identifier id = Identifier.publicURI(objid);
+			if ( ts.exists( id ) )
+			{
+				return status( "Object exists" );
+			}
+			else
+			{
+				return error( HttpServletResponse.SC_NOT_FOUND, "Object does not exist" );
+			}
+		}
+		catch ( Exception ex )
+		{
+			log.warn( "Error checking object existence", ex );
+			return error( "Error checking object existence: " + ex.toString() );
+		}
+	}
+	public Map objectValidate( String objid, FileStore fs, TripleStore ts )
+	{
+		return null; // DAMS_MGR
+	}
+	public Map predicateList( TripleStore ts )
+	{
+		try
+		{
+			// setup damsobject
+			DAMSObject trans = new DAMSObject( ts, null, nsmap );
+			Map<String,String> predicates = trans.predicateMap();
+
+			// build map and display
+			Map info = new LinkedHashMap();
+			info.put("predicates",predicates);
+			return info;
+		}
+		catch ( Exception ex )
+		{
+			log.error( "Error looking up predicate map", ex );
+			return error( "Error looking up predicate map" );
+		}
+	}
+
+	private void fileDeleteMetadata( String objid, String fileid, TripleStore ts ) throws TripleStoreException
+	{
+		try
+		{
+			// identifier object for the file
+			Identifier fileIdentifier = Identifier.publicURI(
+				idNS + objid + "/" + fileid
+			);
+
+			// delete file metadata
+			ts.removeStatements( fileIdentifier, null, null ); // XXX: bnodes?
+
+			// delete links from object/components
+			ts.removeStatements( null, null, fileIdentifier );
+		}
+		catch ( Exception ex )
+		{
+			log.error( "Error deleting file metadata", ex );
+		}
+	}
+	private void createEvent( TripleStore ts, String objid, String fileid,
+		String type, boolean success, String detail, String outcomeNote )
+		throws TripleStoreException
+	{
+		try
+		{
+			// mint ARK for event
+			String minterURL = idMinters.get(minterDefault) + "1";
+			String eventARK = HttpUtil.get(minterURL);
+			eventARK = eventARK.replaceAll(".*/","");
+			Identifier eventID = Identifier.publicURI( idNS + eventARK );
+	
+			// lookup user identifier
+			// XXX: AUTH: who is making the request? hydra/isla. or end-user?
+			Identifier userID = null; // XXX 
+
+			// predicate translator
+			DAMSObject trans = new DAMSObject( ts, objid, nsmap );
+	
+			// create event object and save to the triplestore
+			String obj = objid.startsWith("http") ? objid : idNS + objid;
+			if ( fileid != null ) { obj += "/" + fileid; }
+			Identifier subID = Identifier.publicURI( obj );
+			Event e = new Event(
+				eventID, subID, userID, success, type,
+				detail, outcomeNote, trans
+			);
+			e.save(ts);
+		}
+		catch ( IOException ex )
+		{
+			log.warn( "Error minting event ARK", ex );
+		}
+	}
+
+	//=========================================================================
+	// Methods that handle their own response
+	//=========================================================================
 	public void fileShow( String objid, String fileid, HttpServletRequest req,
 		HttpServletResponse res )
 	{
@@ -750,50 +1254,12 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		try
 		{
-			//res.sendRedirect( url );
 			req.getRequestDispatcher(url).forward( req, res );
 		}
 		catch ( Exception ex )
 		{
 			log.error("Error sending redirect: " + ex.toString());
 			log.warn( "Error sending redirect", ex );
-		}
-	}
-	public void identifierCreate( String name, int count,
-		HttpServletRequest req, HttpServletResponse res )
-	{
-		// lookup minter URL and add count parameter
-		String minterURL = idMinters.get(name);
-		if ( minterURL == null )
-		{
-			error("Unknown id minter: " + name, req, res);
-		}
-		minterURL += count;
-
-		try
-		{
-			// generate id and check output
-			String result = HttpUtil.get(minterURL);
-			if ( result == null || result.trim().equals("") )
-			{
-				error("Failed to generate id", req, res);
-			}
-			else
-			{
-				String[] ids = result.split("\\n");
-				for ( int i = 0; i < ids.length; i++ )
-				{
-					ids[i] = ids[i].replaceAll(".*/","");
-				}
-				List idList = Arrays.asList(ids);
-				Map info = new LinkedHashMap();
-				info.put("ids",idList);
-				output( res.SC_OK, info, req, res );
-			}
-		}
-		catch ( Exception ex )
-		{
-			error( "Error generating id", req, res );
 		}
 	}
 	public void indexSearch( HttpServletRequest req, HttpServletResponse res )
@@ -815,7 +1281,10 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		else
 		{
-			log.debug("Browser specified character encoding: " + req.getCharacterEncoding() );
+			log.debug(
+				"Browser specified character encoding: "
+					+ req.getCharacterEncoding()
+			);
 		}
 
 		// load profile
@@ -829,7 +1298,9 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			catch ( Exception ex )
 			{
-				log.warn("Error looking up profile filter (" + profile + ")", ex );
+				log.warn(
+					"Error looking up profile filter (" + profile + ")", ex
+				);
 			}
 		}
 
@@ -907,11 +1378,10 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 				if ( ex.getMessage().endsWith("400 Bad Request") )
 				{
-					error(
-						"Parsing error: " + ex.toString(), req, res
-					);
 					log.warn( "Parsing error", ex );
-					return;
+					error(
+						"Parsing error: " + ex.toString()
+					);
 				}
 			}
 			finally
@@ -998,7 +1468,7 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 				String msg = (formatEx != null) ?
 					formatEx.toString() : "unknown";
-				error( "Processing error: " + msg, req, res );
+				output(error("Processing error: " + msg), req, res );
 				return;
 			}
 
@@ -1022,325 +1492,45 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			error( "Error performing Solr search: " + ex.toString(), req, res );
+			Map err = error( "Error performing Solr search: " + ex.toString());
+			output(err, req, res);
 			log.warn( "Error performing Solr search", ex );
 		}
 		long dur = System.currentTimeMillis() - start;
 		log.info("indexSearch: " + dur + "ms, params: " + req.getQueryString());
 	}
-	public void objectCreate( String objid, HttpServletRequest req,
-		HttpServletResponse res )
+
+	//========================================================================
+	// Output formatting
+	//========================================================================
+
+	protected Map error( String msg )
 	{
-		objectEdit( objid, true, req, res );
+		return error( HttpServletResponse.SC_INTERNAL_SERVER_ERROR, msg );
 	}
-	public void objectUpdate( String objid, HttpServletRequest req,
-		HttpServletResponse res )
+	protected Map error( int errorCode, String msg )
 	{
-		objectEdit( objid, false, req, res );
+		Map info = new LinkedHashMap();
+		info.put( "statusCode", errorCode );
+		info.put( "message", msg );
+		return info;
 	}
-	private void objectEdit( String objid, boolean create,
-		HttpServletRequest req, HttpServletResponse res )
+	protected Map status( String msg )
 	{
-		TripleStore ts = null;
+		return status( HttpServletResponse.SC_OK, msg );
+	}
+	protected Map status( int statusCode, String msg )
+	{
+		Map info = new LinkedHashMap();
+		info.put( "statusCode", statusCode );
+		info.put( "message", msg );
+		return info;
+	}
+
+	public void output( DAMSObject obj, boolean export, HttpServletRequest req, HttpServletResponse res )
+	{
 		try
 		{
-			// make sure an identifier is specified
-			if ( objid == null || objid.trim().equals("") )
-			{
-				error( res.SC_BAD_REQUEST, "No subject provided", req, res );
-				return;
-			}
-
-			// parse request entity
-			InputBundle bundle = input( req );
-			Map<String,String> params = bundle.getParams();
-			InputStream in = bundle.getInputStream();
-
-			// detect overloaded POST
-			String method = params.get("method");
-			if ( method != null && method.equalsIgnoreCase("PUT") )
-			{
-				create = false;
-			}
-
-			// connect to triplestore
-			String tsName = getParamString(req,"ts",tsDefault);
-			ts = TripleStoreUtil.getTripleStore(props,tsName);
-
-	   		// make sure appropriate method is being used to create/update
-			if ( !objid.startsWith("http") )
-			{
-				objid = idNS + objid;
-			}
-			Identifier id = Identifier.publicURI(objid);
-			if ( create && ts.exists(id) )
-			{
-		   		error(
-			   		HttpServletResponse.SC_FORBIDDEN,
-			   		"Object already exists, use PUT to update", req, res
-		   		);
-				return;
-			}
-			else if ( !create && !ts.exists(id) )
-			{
-		   		error(
-			   		HttpServletResponse.SC_FORBIDDEN,
-			   		"Object does not exist, use POST to create", req, res
-		  		);
-				return;
-			}
-
-			// process uploaded file if present
-			if ( in != null )
-			{
-				// DAMS_MGR
-			}
-			// otherwise, look for JSON adds
-			else
-			{
-				String adds = params.get("adds");
-				String updates = null;
-				String deletes = null;
-				if ( !create )
-				{
-					updates = params.get("updates");
-					deletes = params.get("deletes");
-				}
-				if ( adds != null && !adds.equals("") )
-				{
-					// save data to the triplestore
-					Edit edit = new Edit(
-						backupDir, adds, updates, deletes, objid, ts, nsmap
-					);
-					edit.saveBackup();
-					String type = create ?
-						"object creation" : "object modification";
-					String detail = "EVENT_DETAIL_SPEC: " + type;
-					if ( edit.update() )
-					{
-						// success
-						int status = -1;
-						String message = null;
-						if ( create )
-						{
-							status = res.SC_CREATED;
-							message = "Object created successfully";
-						}
-						else
-						{
-							status = res.SC_OK;
-							message = "Object saved successfully";
-						}
-						createEvent(
-							req, ts, objid, null, type, true, detail, null
-						);
-						status( status, message, req, res );
-						edit.removeBackup();
-					}
-					else
-					{
-						// failure
-						String msg = edit.getException().toString();
-						createEvent( req, ts, objid, null, type, false, "EVENT_DETAIL_SPEC", msg );
-						error( msg, req, res );
-					}
-				}
-				else
-				{
-					error( res.SC_BAD_REQUEST, "Object metadata must be supplied as a file upload or in the adds parameter", req, res );
-				}
-			}
-		}
-		catch ( Exception ex )
-		{
-			error( "Error editing object: " + ex.toString(), req, res );
-			log.warn( "Error editing object", ex );
-		}
-		finally
-		{
-			if ( ts != null )
-			{
-				try
-				{
-					ts.close();
-				}
-				catch ( Exception ex2 )
-				{
-					log.error("Error closing triplestore: " + ex2.toString());
-				}
-			}
-		}
-	}
-	public void objectDelete( String objid, HttpServletRequest req, HttpServletResponse res )
-	{
-		TripleStore ts = null;
-		try
-		{
-			// make sure an identifier is specified
-			if ( objid == null || objid.trim().equals("") )
-			{
-				error( res.SC_BAD_REQUEST, "No subject provided", req, res );
-				return;
-			}
-
-			// connect to triplestore
-			String tsName = getParamString(req,"ts",tsDefault);
-			ts = TripleStoreUtil.getTripleStore(props,tsName);
-
-	   		// make sure appropriate method is being used to create/update
-			if ( !objid.startsWith("http") )
-			{
-				objid = idNS + objid;
-			}
-			Identifier id = Identifier.publicURI(objid);
-			if ( !ts.exists(id) )
-			{
-		   		error(
-			   		HttpServletResponse.SC_BAD_REQUEST,
-			   		"Object does not exist", req, res
-		   		);
-				return;
-			}
-			ts.removeObject(id);
-
-			if ( ! ts.exists(id) )
-			{
-				createEvent( req, ts, objid, null, "object deletion", true, "Deleting object EVENT_DETAIL_SPEC", null );
-				status( "Object deleted successfully", req, res );
-			}
-			else
-			{
-				createEvent( req, ts, objid, null, "object deletion", false, "Deleting object EVENT_DETAIL_SPEC", "XXX error" );
-				error( "Object deletion failed", req, res );
-			}
-			//ts.addLiteralStatement(id,updatedFlag,"delete",id);
-			//String userID = request.getParameter("userID");
-			//if ( userID != null && !userID.trim().equals("") )
-			//{
-			//	ts.addLiteralStatement(id,updatedFlag,userID,id);
-			//}
-		}
-		catch ( Exception ex )
-		{
-			error( "Error deleting object: " + ex.toString(), req, res );
-			log.warn( "Error deleting object", ex );
-		}
-		finally
-		{
-			if ( ts != null )
-			{
-				try
-				{
-					ts.close();
-				}
-				catch ( Exception ex2 )
-				{
-					log.error("Error closing triplestore: " + ex2.toString());
-				}
-			}
-		}
-	}
-	public void indexDelete( String[] ids, HttpServletRequest req,
-		HttpServletResponse res )
-	{
-		// make sure we have some ids to index
-		if ( ids == null || ids.length == 0 )
-		{
-			error( res.SC_BAD_REQUEST, "No identifier specified", req, res );
-		}
-
-		// get ds parameter
-		String ds = getParamString(req,"ts", tsDefault);
-
-		// connect to solr
-		SolrHelper solr = new SolrHelper( solrBase );
-
-		int recordsDeleted = 0;
-		try
-		{
-			// delete individual records
-			for ( int i = 0; i < ids.length; i++ )
-			{
-				if ( solr.delete( ds, ds, ids[i] ) )
-				{
-					recordsDeleted++;
-				}
-			}
-
-			// commit changes
-			solr.commit( ds );
-
-			// report status
-			status( "Solr: deleted " + recordsDeleted + " records", req, res );
-		}
-		catch ( Exception ex )
-		{
-			error( "Error deleting records: " + ex.toString(), req, res );
-			log.warn( "Error deleting records", ex );
-		}
-	}
-	public void indexUpdate( String[] ids, HttpServletRequest req,
-		HttpServletResponse res )
-	{
-		// make sure we have some ids to index
-		if ( ids == null || ids.length == 0 )
-		{
-			error( res.SC_BAD_REQUEST, "No identifier specified", req, res );
-		}
-
-		try
-		{
-			// connect to solr
-			String tsName = getParamString(req,"ts",tsDefault);
-			TripleStore ts = TripleStoreUtil.getTripleStore(props,tsName);
-			SolrIndexer indexer = new SolrIndexer( ts, solrBase, nsmap );
-
-			// index each record
-			for ( int i = 0; i < ids.length; i++ )
-			{
-				indexer.indexSubject( ids[i] );
-			}
-
-			// commit changes
-			indexer.flush();
-			indexer.commit();
-
-			// output status message
-			status( indexer.summary(), req, res );
-		}
-		catch ( Exception ex )
-		{
-			error( "Error updating Solr: " + ex.toString(), req, res );
-			log.warn( "Error updating Solr", ex );
-		}
-	}
-	public void objectShow( String objid, boolean export,
-		HttpServletRequest req, HttpServletResponse res )
-	{
-		// output = metadata: object
-		TripleStore ts = null;
-		try
-		{
-			if ( objid == null || objid.equals("") )
-			{
-				error(
-					res.SC_BAD_REQUEST, "Object id must be specified", req, res
-				);
-				return;
-			}
-			String tsName = getParamString(req,"ts",tsDefault);
-			ts = TripleStoreUtil.getTripleStore(props,tsName);
-            if ( !objid.startsWith("http") ) { objid = idNS + objid; }
-            Identifier id = Identifier.publicURI(objid);
-			if ( !ts.exists(id) )
-			{
-				error(
-					res.SC_NOT_FOUND, "Object does not exist", req, res
-				);
-				return;
-			}
-
-			DAMSObject obj = new DAMSObject( ts, objid, nsmap );
 			String format = getParamString(req,"format",formatDefault);
 			String content = null;
 			String contentType = null;
@@ -1356,238 +1546,28 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			else
 			{
-				error(
-					res.SC_BAD_REQUEST, "Unsupported format: " + format,
-					req, res
+				output(
+					error(
+						HttpServletResponse.SC_BAD_REQUEST,
+						"Unsupported format: " + format
+					), req, res
 				);
 				return;
 			}
-
-			output( res.SC_OK, content, contentType, res );
+			output( HttpServletResponse.SC_OK, content, contentType, res );
 		}
 		catch ( Exception ex )
 		{
-			error( "Error processing request: " + ex.toString(), req, res );
-			log.warn( "Error showing object", ex );
-		}
-		finally
-		{
-			if ( ts != null )
-			{
-				try { ts.close(); }
-				catch (Exception ex){log.info("Error closing triplestore", ex);}
-			}
-		}
-	}
-	public void objectTransform( String objid, HttpServletRequest req, HttpServletResponse res )
-	{
-		// DAMS_MGR
-		// output = metadata: object
-	}
-	public void objectExists( String objid, HttpServletRequest req,
-		HttpServletResponse res )
-	{
-		TripleStore ts = null;
-		try
-		{
-			String tsName = getParamString(req,"ts",tsDefault);
-			ts = TripleStoreUtil.getTripleStore(props,tsName);
-			if ( !objid.startsWith("http") ) { objid = idNS + objid; }
-			Identifier id = Identifier.publicURI(objid);
-			if ( ts.exists( id ) )
-			{
-				status( "Object exists", req, res );
-			}
-			else
-			{
-				error( res.SC_NOT_FOUND, "Object does not exist", req, res );
-			}
-		}
-		catch ( Exception ex )
-		{
-			error( "Error checking object existence: " + ex.toString(), req, res );
-			log.warn( "Error checking object existence", ex );
-		}
-		finally
-		{
-			if ( ts != null )
-			{
-				try { ts.close(); }
-				catch (Exception ex){log.info("Error closing triplestore", ex);}
-			}
-		}
-	}
-	public void objectValidate( String objid, HttpServletRequest req,
-		HttpServletResponse res )
-	{
-		// DAMS_MGR
-		// output = metadata: object
-	}
-	public void predicateList( HttpServletRequest req, HttpServletResponse res )
-	{
-		TripleStore ts = null;
-		try
-		{
-			// connect to triplestore
-			String tsName = getParamString(req,"ts",tsDefault);
-			ts = TripleStoreUtil.getTripleStore(props,tsName);
-
-			// setup damsobject
-			DAMSObject trans = new DAMSObject( ts, null, nsmap );
-			Map<String,String> predicates = trans.predicateMap();
-
-			// build map and display
-			Map info = new LinkedHashMap();
-			info.put("predicates",predicates);
-			output( res.SC_OK, info, req, res );
-		}
-		catch ( Exception ex )
-		{
-			log.error( "Error looking up predicate map", ex );
-		}
-		finally
-		{
-			try { ts.close(); }
-			catch ( Exception ex2 )
-			{
-				log.error("Error closing triplestore: " + ex2.toString());
-			}
+			log.warn("Error outputting object metadata",ex);
+			output( error("Error outputting object metadata"),req,res );
 		}
 	}
 
-	private void fileDeleteMetadata( HttpServletRequest req, String objid,
-		String fileid ) throws TripleStoreException
-	{
-		TripleStore ts = null;
-		try
-		{
-			// identifier object for the file
-			Identifier fileIdentifier = Identifier.publicURI(
-				idNS + objid + "/" + fileid
-			);
-
-			// connect to triplestore
-			String tsName = getParamString(req,"ts",tsDefault);
-			ts = TripleStoreUtil.getTripleStore(props,tsName);
-
-			// delete file metadata
-			ts.removeStatements( fileIdentifier, null, null ); // XXX: bnodes?
-
-			// delete links from object/components
-			ts.removeStatements( null, null, fileIdentifier );
-		}
-		catch ( Exception ex )
-		{
-			log.error( "Error deleting file metadata", ex );
-		}
-		finally
-		{
-			try { ts.close(); }
-			catch ( Exception ex2 )
-			{
-				log.error("Error closing triplestore: " + ex2.toString());
-			}
-		}
-	}
-	private void createEvent( HttpServletRequest req, TripleStore ts,
-		String objid, String fileid, String type, boolean success,
-		String detail, String outcomeNote ) throws TripleStoreException
-	{
-		// instantiate triplestore if not already loaded
-		boolean closeTS = false;
-		if ( ts == null )
-		{
-			closeTS = true;
-			try
-			{
-				String tsName = getParamString(req,"ts",tsDefault);
-				ts = TripleStoreUtil.getTripleStore(props,tsName);
-			}
-			catch ( Exception ex )
-			{
-				throw new TripleStoreException("Error loading triplestore", ex);
-			}
-		}
-
-		try
-		{
-			// mint ARK for event
-			String minterURL = idMinters.get(minterDefault) + "1";
-			String eventARK = HttpUtil.get(minterURL);
-			eventARK = eventARK.replaceAll(".*/","");
-			Identifier eventID = Identifier.publicURI( idNS + eventARK );
-	
-			// lookup user identifier
-			// XXX: AUTH: who is making the request? hydra/isla. or end-user?
-			Identifier userID = null; // XXX SolrProxy.lookup( req.getRemoteUser() );
-
-			// predicate translator
-			DAMSObject trans = new DAMSObject( ts, objid, nsmap );
-	
-			// create event object and save to the triplestore
-			String obj = objid.startsWith("http") ? objid : idNS + objid;
-			if ( fileid != null ) { obj += "/" + fileid; }
-			Identifier subID = Identifier.publicURI( obj );
-			Event e = new Event(
-				eventID, subID, userID, success, type,
-				detail, outcomeNote, trans
-			);
-			e.save(ts);
-		}
-		catch ( IOException ex )
-		{
-			log.error("Error minting event ARK: " + ex.toString());
-			log.warn( "Error minting event ARK", ex );
-		}
-		finally
-		{
-			if ( closeTS && ts != null )
-			{
-				try { ts.close(); }
-				catch ( Exception ex2 )
-				{
-					log.error("Error closing triplestore: " + ex2.toString());
-				}
-			}
-		}
-	}
-
-	//========================================================================
-	// Output formatting
-	//========================================================================
-
-	protected void error( String msg, HttpServletRequest req,
-		HttpServletResponse res )
-	{
-		error( res.SC_INTERNAL_SERVER_ERROR, msg, req, res );
-	}
-	protected void error( int errorCode, String msg, HttpServletRequest req,
-		HttpServletResponse res )
-	{
-		// output = error message
-		Map info = new LinkedHashMap();
-		info.put( "message", msg );
-		output( errorCode, info, req, res );
-	}
-	protected void status( int statusCode, String msg, HttpServletRequest req,
-		HttpServletResponse res )
-	{
-		// output = error message
-		Map info = new LinkedHashMap();
-		info.put( "message", msg );
-		output( statusCode, info, req, res );
-	}
-	protected void status( String msg, HttpServletRequest req,
-		HttpServletResponse res )
-	{
-		// output = error message
-		Map info = new LinkedHashMap();
-		info.put( "message", msg );
-		output( res.SC_OK, info, req, res );
-	}
-	protected void output( int statusCode, Map<String,String> info,
+	protected void output( Map<String,String> info,
 		HttpServletRequest req, HttpServletResponse res )
 	{
+		int statusCode = Integer.parseInt(info.get("statusCode"));
+
 		// auto-populate basic request info
 		info.put("request",req.getPathInfo());
 		if ( statusCode < 400 ) { info.put("status","OK"); }
@@ -1786,6 +1766,19 @@ public class DAMSAPIServlet extends HttpServlet
 
 		// return the default role if nothing matches
 		return roleDefault;
+	}
+	protected String getParamString( Map<String,String> params, String key,
+		String defaultValue )
+	{
+		String value = params.get( key );
+		if ( value == null || value.trim().equals("") )
+		{
+			return defaultValue;
+		}
+		else
+		{
+			return value;
+		}
 	}
 	protected String getParamString( HttpServletRequest req, String key,
 		String defaultValue )
