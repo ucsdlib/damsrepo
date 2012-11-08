@@ -79,8 +79,8 @@ public class DAMSAPIServlet extends HttpServlet
 	private String formatDefault; // output format to use when not specified
 
 	// default data stores
-	private String fsDefault;	// FileStore to be used when not specified
-	private String tsDefault;	// TripleStore to be used when not specified
+	protected String fsDefault;	// FileStore to be used when not specified
+	protected String tsDefault;	// TripleStore to be used when not specified
 
 	// identifiers and namespaces
 	private String minterDefault;	      // ID series when not specified
@@ -197,7 +197,31 @@ public class DAMSAPIServlet extends HttpServlet
 			// GET /index
 			if ( path.length == 2 && path[1].equals("index") )
 			{
-				indexSearch( req, res );
+				// make sure char encoding is specified
+				if ( req.getCharacterEncoding() == null )
+				{
+					try
+					{
+						req.setCharacterEncoding( encodingDefault );
+						log.debug(
+							"Setting character encoding: " + encodingDefault
+						);
+					}
+					catch ( UnsupportedEncodingException ex )
+					{
+						log.warn("Unable to set chararacter encoding", ex);
+					}
+				}
+				else
+				{
+					log.debug(
+						"Browser specified character encoding: "
+							+ req.getCharacterEncoding()
+					);
+				}
+
+				Map<String,String> params = parameters(req);
+				indexSearch( params, res );
 				outputRequired = false;
 			}
 			// collection
@@ -239,7 +263,7 @@ public class DAMSAPIServlet extends HttpServlet
 					if ( info.get("obj") != null )
 					{
 						DAMSObject obj = (DAMSObject)info.get("obj");
-						output( obj, false, req, res );
+						output( obj, false, parameters(req), res );
 						outputRequired = false;
 					}
 				}
@@ -251,7 +275,7 @@ public class DAMSAPIServlet extends HttpServlet
 					if ( info.get("obj") != null )
 					{
 						DAMSObject obj = (DAMSObject)info.get("obj");
-						output( obj, true, req, res );
+						output( obj, true, parameters(req), res );
 						outputRequired = false;
 					}
 				}
@@ -315,7 +339,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// output
 			if ( outputRequired )
 			{
-				output( info, req, res );
+				output( info, parameters(req), res );
 			}
 		}
 		catch ( Exception ex2 )
@@ -383,9 +407,14 @@ public class DAMSAPIServlet extends HttpServlet
 				// POST /objects/bb1234567x/transform
 				else if ( path.length == 4 && path[3].equals("transform") )
 				{
-					fs = filestore(req);
 					ts = triplestore(req);
-					info = objectTransform( path[2], fs, ts );
+					String xsl = getParamString(req,"xsl",null);
+					String dest = getParamString(req,"dest",null);
+					if ( dest != null )
+					{
+						fs = filestore(req);
+					}
+					info = objectTransform( path[2], ts, xsl, fs, dest );
 				}
 				// POST /objects/bb1234567x/index	
 				else if ( path.length == 4 && path[3].equals("index") )
@@ -436,7 +465,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 
 			// output
-			output( info, req, res );
+			output( info, parameters(req), res );
 		}
 		catch ( Exception ex2 )
 		{
@@ -508,7 +537,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 
 			// output
-			output( info, req, res );
+			output( info, parameters(req), res );
 		}
 		catch ( Exception ex2 )
 		{
@@ -570,7 +599,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 	
 			// output
-			output( info, req, res );
+			output( info, parameters(req), res );
 		}
 		catch ( Exception ex )
 		{
@@ -583,17 +612,17 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 	}
 
-	private FileStore filestore( HttpServletRequest req ) throws Exception
+	protected FileStore filestore( HttpServletRequest req ) throws Exception
 	{
 		String fsName = getParamString(req,"fs",fsDefault);
 		return FileStoreUtil.getFileStore(props,fsName);
 	}
-	private TripleStore triplestore( HttpServletRequest req ) throws Exception
+	protected TripleStore triplestore( HttpServletRequest req ) throws Exception
 	{
 		String tsName = getParamString(req,"ts",tsDefault);
 		return TripleStoreUtil.getTripleStore(props,tsName);
 	}
-	private static void cleanup( FileStore fs, TripleStore ts )
+	protected static void cleanup( FileStore fs, TripleStore ts )
 	{
 		if ( fs != null )
 		{
@@ -1133,9 +1162,63 @@ public class DAMSAPIServlet extends HttpServlet
 			return error( "Error processing request: " + ex.toString() );
 		}
 	}
-	public Map objectTransform( String objid, FileStore fs, TripleStore ts )
+
+	/**
+	 * Retrieve the RDF/XML for an object and transform it using XSLT.
+	 * @param objid Object identifier.
+	 * @param ts TripleStore to retrieve the object from.
+	 * @param xslName Filename of XSL stylesheet.
+	**/
+	public Map objectTransform( String objid, TripleStore ts, String xslName )
 	{
-		return null; // DAMS_MGR
+		return objectTransform( objid, null, ts, xslName, null, null );
+	}
+	/**
+	 * Retrieve the RDF/XML for an object, and transform it using XSLT (passing
+	 * the fileid as a parameter to the stylesheet).
+	 * @param objid Object identifier.
+	 * @param ts TripleStore to retrieve the object from.
+	 * @param xslName Filename of XSL stylesheet.
+	**/
+	public Map objectTransform( String objid, String fileid, TripleStore ts,
+		String xslName )
+	{
+		return objectTransform( objid, fileid, ts, xslName, null, null );
+	}
+	/**
+	 * Retrieve the RDF/XML for an object and transform it using XSLT,
+	 * optionally saving the output as a new file.
+	 * @param objid Object identifier.
+	 * @param ts TripleStore to retrieve the object from.
+	 * @param xslName Filename of XSL stylesheet.
+	 * @param fs If not null, save the result to this FileStore.
+	 * @param destid If not null, save the result as this file.
+	**/
+	public Map objectTransform( String objid, TripleStore ts, String xslName,
+		FileStore fs, String destid )
+	{
+		return objectTransform( objid, null, ts, xslName, fs, destid );
+	}
+	/**
+	 * Retrieve the RDF/XML for an object, and transform it using XSLT (passing
+	 * the fileid as a parameter to the stylesheet) optionally saving the
+	 * output as a new file.
+	 * @param objid Object identifier.
+	 * @param fileid File identifier.
+	 * @param ts TripleStore to retrieve the object from.
+	 * @param xslName Filename of XSL stylesheet.
+	 * @param fs If not null, save the result to this FileStore.
+	 * @param destid If not null, save the result as this file.
+	**/
+	public Map objectTransform( String objid, String fileid, TripleStore ts,
+		String xslName, FileStore fs, String destid )
+	{
+		return null; // XXX IMPL
+	}
+	public void transform( Document doc, String xslName, HttpServletRequest req,
+		HttpServletResponse res )
+	{
+		// XXX IMPL
 	}
 	public Map objectExists( String objid, TripleStore ts )
 	{
@@ -1262,34 +1345,11 @@ public class DAMSAPIServlet extends HttpServlet
 			log.warn( "Error sending redirect", ex );
 		}
 	}
-	public void indexSearch( HttpServletRequest req, HttpServletResponse res )
+	public void indexSearch( Map<String,String> params, HttpServletResponse res )
 	{
-		long start = System.currentTimeMillis();
-
-		// make sure char encoding is specified
-		if ( req.getCharacterEncoding() == null )
-		{
-			try
-			{
-				req.setCharacterEncoding( encodingDefault );
-				log.debug("Setting character encoding: " + encodingDefault );
-			}
-			catch ( UnsupportedEncodingException ex )
-			{
-				log.warn("Unable to set chararacter encoding", ex);
-			}
-		}
-		else
-		{
-			log.debug(
-				"Browser specified character encoding: "
-					+ req.getCharacterEncoding()
-			);
-		}
-
 		// load profile
 		String profileFilter = null;
-		String profile = req.getParameter("profile");
+		String profile = params.get("profile");
 		if ( profile != null )
 		{
 			try
@@ -1306,6 +1366,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 		// check ip and username
 		// XXX: AUTH: who is making the request? hydra/isla. or end-user?
+/*
 		String username = req.getRemoteUser();
 		if ( username == null ) { username = "anonymous"; }
 		String roleFilter = null;
@@ -1322,15 +1383,16 @@ public class DAMSAPIServlet extends HttpServlet
 				log.warn("Error looking up role filter (" + role + ")", ex );
 			}
 		}
+*/
 
 		// reformatting
-		String xsl = req.getParameter("xsl");       // XSL takes precedence
-		String format = req.getParameter("format"); // JSON reformatting
+		String xsl = params.get("xsl");       // XSL takes precedence
+		String format = params.get("format"); // JSON reformatting
 
 		// velocity
 		String name = "select";
 		String contentType = mimeDefault;
-		String v_template = req.getParameter("v.template");
+		String v_template = params.get("v.template");
 		if ( (v_template != null && !v_template.equals("")) || (profileFilter != null && profileFilter.indexOf("v.template") != -1) )
 		{
 			name = "velo";
@@ -1338,20 +1400,21 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 
 		// datasource param
-		String ds = getParamString(req,"ts",tsDefault);
+		String ds = getParamString(params,"ts",tsDefault);
 		ds = ds.replaceAll(".*\\/","");
 
 		// build URL
-		String url = solrBase + "/" + ds + "/" + name
-			+ "?" + req.getQueryString();
+		String url = solrBase + "/" + ds + "/" + name + "?" + queryString(params);
 		if ( xsl != null && !xsl.equals("") )
 		{
 			url += "&wt=xml";
 		}
+/* XXX: auth
 		if ( roleFilter != null && !roleFilter.equals("") )
 		{
 			url += "&fq=" + roleFilter;
 		}
+*/
 		if ( profileFilter != null && !profileFilter.equals("") )
 		{
 			url += "&fq=" + profileFilter;
@@ -1396,21 +1459,11 @@ public class DAMSAPIServlet extends HttpServlet
 			Exception formatEx = null;
 			if ( output != null && xsl != null && !xsl.equals("") )
 			{
-				String casGroupTest = null; // XXX: remove???
-				if(xsl.indexOf("piclens_rss.xsl") >=0){
-					if(req.getParameter("casTest") != null)
-						casGroupTest = "casTest";
-					else
-						casGroupTest = "";
-				}
 				xsl = xslBase + xsl;
 				xsl = xsl.replaceAll("\\.\\.",""); // prevent snooping
 				try
 				{
-					output = SolrFormat.xslt(
-						output, xsl, req.getParameterMap(),
-						req.getQueryString(), casGroupTest
-					);
+					output = SolrFormat.xslt( output, xsl, params );
 					contentType = "text/xml";
 				}
 				catch ( Exception ex )
@@ -1425,7 +1478,7 @@ public class DAMSAPIServlet extends HttpServlet
 				try
 				{
 					output = SolrFormat.jsonFormatText(
-						output, ds, null, req.getParameter("q")
+						output, ds, null, params.get("q")
 					);
 					contentType = "application/json";
 				}
@@ -1439,12 +1492,12 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				// reformat json
 				int PAGE_SIZE = 20;
-				int rows = (req.getParameter("rows") != null) ?
-					Integer.parseInt(req.getParameter("rows")) : PAGE_SIZE;
+				int rows = (params.get("rows") != null) ?
+					Integer.parseInt(params.get("rows")) : PAGE_SIZE;
 				int page = -1;
 				try
 				{
-					page = Integer.parseInt(req.getParameter("page"));
+					page = Integer.parseInt(params.get("page"));
 				}
 				catch ( Exception ex ) { page = -1; }
 				if(page == -1) { page = 1; }
@@ -1468,7 +1521,7 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 				String msg = (formatEx != null) ?
 					formatEx.toString() : "unknown";
-				output(error("Processing error: " + msg), req, res );
+				output(error("Processing error: " + msg), params, res );
 				return;
 			}
 
@@ -1478,9 +1531,9 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 
 			// override content type
-			if ( req.getParameter("contentType") != null )
+			if ( params.get("contentType") != null )
 			{
-				contentType= req.getParameter("contentType");
+				contentType= params.get("contentType");
 			}
 
 			// send output to client
@@ -1493,11 +1546,18 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			Map err = error( "Error performing Solr search: " + ex.toString());
-			output(err, req, res);
+			output(err, params, res);
 			log.warn( "Error performing Solr search", ex );
 		}
-		long dur = System.currentTimeMillis() - start;
-		log.info("indexSearch: " + dur + "ms, params: " + req.getQueryString());
+	}
+
+	/**
+	 * Build querystring for Solr.
+	**/
+	private static String queryString( Map<String,String> params )
+	{
+		// XXX IMPL (exlude non-solr params???)
+		return null;
 	}
 
 	//========================================================================
@@ -1527,11 +1587,12 @@ public class DAMSAPIServlet extends HttpServlet
 		return info;
 	}
 
-	public void output( DAMSObject obj, boolean export, HttpServletRequest req, HttpServletResponse res )
+	public void output( DAMSObject obj, boolean export,
+		Map<String,String> params, HttpServletResponse res )
 	{
 		try
 		{
-			String format = getParamString(req,"format",formatDefault);
+			String format = getParamString(params,"format",formatDefault);
 			String content = null;
 			String contentType = null;
 			if ( format.equals("nt") )
@@ -1550,7 +1611,7 @@ public class DAMSAPIServlet extends HttpServlet
 					error(
 						HttpServletResponse.SC_BAD_REQUEST,
 						"Unsupported format: " + format
-					), req, res
+					), params, res
 				);
 				return;
 			}
@@ -1559,22 +1620,22 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			log.warn("Error outputting object metadata",ex);
-			output( error("Error outputting object metadata"),req,res );
+			output( error("Error outputting object metadata"),params,res );
 		}
 	}
 
-	protected void output( Map<String,String> info,
-		HttpServletRequest req, HttpServletResponse res )
+	protected void output( Map<String,String> info, Map<String,String> params,
+		HttpServletResponse res )
 	{
 		int statusCode = Integer.parseInt(info.get("statusCode"));
 
 		// auto-populate basic request info
-		info.put("request",req.getPathInfo());
+		info.put( "request",params.get("request") );
 		if ( statusCode < 400 ) { info.put("status","OK"); }
 		else { info.put("status","ERROR"); }
 
 		// convert errors to 200/OK + error message for Flash, etc.
-		String flash = getParamString(req,"flash","");
+		String flash = getParamString(params,"flash","");
 		if ( flash != null && flash.equals("true") )
 		{
 			info.put("flash","true");
@@ -1584,7 +1645,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 		String content = null;
 		String contentType = null;
-		String format = getParamString(req,"format",formatDefault);
+		String format = getParamString(params,"format",formatDefault);
 
 		// if format is not specified/configured, or is invalid, send a warning
 		// but don't clobber existing request status/message
@@ -1616,7 +1677,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		else if ( format.equals("xml") )
 		{
-			content = toXML(info);
+			content = toXMLString(info);
 			contentType = "text/xml";
 		}
 		output( statusCode, content, contentType, res );
@@ -1642,7 +1703,7 @@ public class DAMSAPIServlet extends HttpServlet
 			log.warn( "Error sending output", ex );
 		}
 	}
-	public static String toXML( Map m )
+	public static Document toXML( Map m )
 	{
 		Document doc = DocumentHelper.createDocument();
 		Element root = doc.addElement("response");
@@ -1679,7 +1740,11 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 			}
 		}
-		return doc.asXML();
+		return doc;
+	}
+	public static String toXMLString( Map m )
+	{
+		return toXML(m).asXML();
 	}
 	public static String toHTML( Map m )
 	{
@@ -1833,6 +1898,7 @@ public class DAMSAPIServlet extends HttpServlet
 	protected static Map<String,String> parameters( HttpServletRequest req )
 	{
 		Map<String,String> params = new HashMap<String,String>();
+		params.put("request", req.getPathInfo());
 		Enumeration<String> e = req.getParameterNames();
 		while ( e.hasMoreElements() )
 		{

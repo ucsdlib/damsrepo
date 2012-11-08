@@ -465,16 +465,13 @@ public class SolrFormat
 		return stmt.toString();
 	}
 
-	public static String xslt( String solrXML, String xslURL, Map params,
-			String queryString ) throws TransformerException
+	public static String xslt( String solrXML, String xslURL,
+		Map<String,String> params ) throws TransformerException
 	{
-		return xslt( solrXML, xslURL, params,
-				queryString, null );
-	}
-	
-	public static String xslt( String solrXML, String xslURL, Map params,
-		String queryString, String casGroupTest ) throws TransformerException
-	{
+		// params
+		String queryString = params.get("querystring");
+		String casGroupTest = params.get("casGroupTest");
+
 		// setup the transformer
 		TransformerFactory tf = TransformerFactory.newInstance();
 		Transformer t = tf.newTransformer(
@@ -484,11 +481,13 @@ public class SolrFormat
 		// add request params to xsl
 		if ( params != null )
 		{
-			for ( Iterator it = params.keySet().iterator(); it.hasNext(); )
+			Iterator<String> it = params.keySet().iterator();
+			while (it.hasNext() )
 			{
-				String key = (String)it.next();
+				String key = it.next();
+				String val = params.get(key);
+/* XXX: was this really used???
 				String[] vals = (String[])params.get(key);
-				String val = null;
 				for ( int i = 0; i < vals.length; i++ )
 				{
 					if ( vals[i] != null && !vals[i].equals("") )
@@ -503,6 +502,7 @@ public class SolrFormat
 						}
 					}
 				}
+*/
 				if ( key != null && val != null )
 				{
 					t.setParameter( key, StringEscapeUtils.escapeJava(val) );
