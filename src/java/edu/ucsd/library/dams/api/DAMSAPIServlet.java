@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Enumeration;
@@ -294,27 +295,26 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 			}
 			// files
-			else if ( path.length > 1 && path[1].equals("files") )
+			// GET /files/bb1234567x/1-1.tif
+			if ( path.length == 4 && path[1].equals("files") )
 			{
-				// GET /files/bb1234567x/1-1.tif
-				if ( path.length == 4 )
-				{
-					fileShow( path[2], path[3], req, res );
-					outputRequired = false;
-				}
-				// GET /files/bb1234567x/1-1.tif/exists
-				if ( path.length == 5 && path[4].equals("exists") )
-				{
-					fs = filestore(req);
-					info = fileExists( path[2], path[3], fs );
-				}
-				// GET /files/bb1234567x/1-1.tif/fixity
-				else if ( path.length == 5 && path[4].equals("fixity") )
-				{
-					fs = filestore(req);
-					ts = triplestore(req);
-					info = fileFixity( path[2], path[3], fs, ts );
-				}
+				fileShow( path[2], path[3], req, res );
+				outputRequired = false;
+			}
+			// GET /files/bb1234567x/1-1.tif/exists
+			if ( path.length == 5 && path[1].equals("files")
+				&& path[4].equals("exists") )
+			{
+				fs = filestore(req);
+				info = fileExists( path[2], path[3], fs );
+			}
+			// GET /files/bb1234567x/1-1.tif/fixity
+			else if ( path.length == 5 && path[1].equals("files")
+				&& path[4].equals("fixity") )
+			{
+				fs = filestore(req);
+				ts = triplestore(req);
+				info = fileFixity( path[2], path[3], fs, ts );
 			}
 			// GET /client/info
 			else if ( path.length == 3 && path[1].equals("client")
@@ -324,12 +324,28 @@ public class DAMSAPIServlet extends HttpServlet
 				String user = req.getRemoteUser();
 				info = clientInfo( ip, user );
 			}
-			// predicates
-			else if ( path.length == 2 && path[1].equals("predicates") )
+			// GET /system/predicates
+			else if ( path.length == 3 && path[1].equals("system" )
+				&& path[2].equals("predicates") )
 			{
-				// GET /predicates
 				ts = triplestore(req);
 				info = predicateList( ts );
+			}
+			// GET /system/filestores
+			else if ( path.length == 3 && path[1].equals("system" )
+				&& path[2].equals("filestores") )
+			{
+				List<String> filestores = list(props,"fs.",".className");
+				info = new LinkedHashMap();
+				info.put( "filestores", filestores );
+			}
+			// GET /system/triplestores
+			else if ( path.length == 3 && path[1].equals("system" )
+				&& path[2].equals("triplestores") )
+			{
+				List<String> triplestores = list(props,"ts.",".className");
+				info = new LinkedHashMap();
+				info.put( "triplestores", triplestores );
 			}
 			else
 			{
@@ -339,12 +355,17 @@ public class DAMSAPIServlet extends HttpServlet
 			// output
 			if ( outputRequired )
 			{
+				// make sure a status code is set
+				if ( info.get("statusCode") == null )
+				{
+					info.put("statusCode",res.SC_OK);
+				}
 				output( info, parameters(req), res );
 			}
 		}
 		catch ( Exception ex2 )
 		{
-			log.warn( ex2 );
+			log.warn( "Error processing GET request", ex2 );
 		}
 		finally
 		{
@@ -469,7 +490,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex2 )
 		{
-			log.warn( ex2 );
+			log.warn( "Error processing POST request", ex2 );
 		}
 		finally
 		{
@@ -541,7 +562,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex2 )
 		{
-			log.warn( ex2 );
+			log.warn( "Error processing PUT request", ex2 );
 		}
 		finally
 		{
@@ -603,7 +624,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn( ex );
+			log.warn( "Error processing DELETE request", ex );
 		}
 		finally
 		{
@@ -1624,10 +1645,11 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 	}
 
-	protected void output( Map<String,String> info, Map<String,String> params,
+	protected void output( Map info, Map<String,String> params,
 		HttpServletResponse res )
 	{
-		int statusCode = Integer.parseInt(info.get("statusCode"));
+		Integer statusInteger = (Integer)info.get("statusCode");
+		int statusCode = statusInteger.intValue();
 
 		// auto-populate basic request info
 		info.put( "request",params.get("request") );
@@ -1739,6 +1761,10 @@ public class DAMSAPIServlet extends HttpServlet
 					sub.setText( v2 );
 				}
 			}
+			else
+			{
+				e.setText( String.valueOf(val) );
+			}
 		}
 		return doc;
 	}
@@ -1797,6 +1823,22 @@ public class DAMSAPIServlet extends HttpServlet
 	//========================================================================
 	// Request parsing, input, etc.
 	//========================================================================
+	public List<String> list( Properties props, String prefix, String suffix )
+	{
+		List<String> values = new ArrayList<String>();
+		for ( Iterator it = props.keySet().iterator(); it.hasNext(); )
+		{
+			String key = (String)it.next();
+			if ( key != null && key.startsWith(prefix) && key.endsWith(suffix) )
+			{
+				String s = key.substring(
+					prefix.length(), key.length()-suffix.length()
+				);
+				if ( !values.contains(s) ) { values.add(s); }
+			}
+		}
+		return values;
+	}
 	public String getRole( String ip )
 	{
 		// return default role if the ip address is not provided
