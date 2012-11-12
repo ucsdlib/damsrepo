@@ -1648,8 +1648,16 @@ public class DAMSAPIServlet extends HttpServlet
 	protected void output( Map info, Map<String,String> params,
 		HttpServletResponse res )
 	{
-		Integer statusInteger = (Integer)info.get("statusCode");
-		int statusCode = statusInteger.intValue();
+		int statusCode = 200;
+		try
+		{
+			Integer statusInteger = (Integer)info.get("statusCode");
+			if ( statusInteger != null )
+			{
+				statusCode = statusInteger.intValue();
+			}
+		}
+		catch ( Exception ex ) { log.debug("Error processing status code",ex); }
 
 		// auto-populate basic request info
 		info.put( "request",params.get("request") );
