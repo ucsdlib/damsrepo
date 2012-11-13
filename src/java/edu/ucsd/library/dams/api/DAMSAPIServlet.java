@@ -2005,6 +2005,8 @@ public class DAMSAPIServlet extends HttpServlet
 	protected static String getParamString( Map<String,String[]> params,
 		String key, String defaultValue )
 	{
+		if ( params == null ) { return defaultValue; }
+
 		String value = null;
 		String[] arr = params.get(key);
 		if ( arr != null && arr.length > 0 && arr[0] != null
@@ -2020,6 +2022,8 @@ public class DAMSAPIServlet extends HttpServlet
 	protected static String getParamString( HttpServletRequest req, String key,
 		String defaultValue )
 	{
+		if ( req == null ) { return defaultValue; }
+
 		String value = req.getParameter( key );
 		if ( value == null || value.trim().equals("") )
 		{
@@ -2033,6 +2037,8 @@ public class DAMSAPIServlet extends HttpServlet
 	protected static boolean getParamBool( HttpServletRequest req, String key,
 		boolean defaultValue )
 	{
+		if ( req == null ) { return defaultValue; }
+
 		String value = req.getParameter( key );
 		if ( value == null || value.trim().equals("") )
 		{
@@ -2046,6 +2052,8 @@ public class DAMSAPIServlet extends HttpServlet
 	protected static int getParamInt( HttpServletRequest req, String key,
 		int defaultValue )
 	{
+		if ( req == null ) { return defaultValue; }
+
 		String value = req.getParameter( key );
 		if ( value != null && !value.trim().equals("") )
 		{
@@ -2064,6 +2072,8 @@ public class DAMSAPIServlet extends HttpServlet
 	protected static int getParamInt( Map<String,String[]> params, String key,
 		int defaultValue )
 	{
+		if ( params == null ) { return defaultValue; }
+
 		int value = defaultValue;
 		String[] arr = params.get(key);
 		if ( arr != null && arr.length > 0 && arr[0] != null )
