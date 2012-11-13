@@ -1,52 +1,23 @@
 package edu.ucsd.library.dams.api;
 
 // java core api
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Properties;
-import javax.naming.InitialContext;
 
 // servlet api
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 // logging
 import org.apache.log4j.Logger;
 
-// dom4j
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-
 // dams
 import edu.ucsd.library.dams.file.FileStore;
-import edu.ucsd.library.dams.file.FileStoreUtil;
 import edu.ucsd.library.dams.model.DAMSObject;
-import edu.ucsd.library.dams.model.Event;
-import edu.ucsd.library.dams.solr.SolrFormat;
-import edu.ucsd.library.dams.solr.SolrHelper;
-import edu.ucsd.library.dams.solr.SolrIndexer;
-import edu.ucsd.library.dams.triple.Identifier;
 import edu.ucsd.library.dams.triple.TripleStore;
 import edu.ucsd.library.dams.triple.TripleStoreException;
-import edu.ucsd.library.dams.triple.TripleStoreUtil;
-import edu.ucsd.library.dams.triple.edit.Edit;
-import edu.ucsd.library.dams.util.HttpUtil;
 
 /**
  * Partial implementation of the Fedora REST API, intended to support Hydra
@@ -66,7 +37,7 @@ RDF = RDF/XML
 Out Method REST URI                                  Impl.
 --- ------ --------                                  -----
 XML GET    /describe                                 static???
-XML GET    /objects                                  solr???
+XML GET    /objects                                  solr??? no-op??
 XML GET    /objects/[oid]                            objectShow + xsl
 FOX GET    /objects/[oid]/export                     objectShow + xsl
 FOX GET    /objects/[oid]/objectXML                  objectShow + xsl
@@ -107,67 +78,91 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			// GET /describe
 			if ( path.length == 2 && path[1].equals("describe") )
 			{
-				Map<String,String> params = new HashMap<String,String>();
-				params.put("q", "XXX");
-				params.put("ts",getParamString(req,"ts",tsDefault));
-				params.put("xsl", "solr-fedoraRepository.xsl" );
-				indexSearch( params, res );
+// XXX: IMPL?? what is this used for? which values do we need?
+				Map<String,String[]> params = new HashMap<String,String[]>();
+				String tsName = getParamString(req,"ts",tsDefault);
+				params.put("q", new String[]{"XXX"} );
+				params.put( "ts", new String[]{tsName} );
+				params.put( "xsl", new String[]{"solr-fedoraSearch.xsl"} );
+				indexSearch( params, req.getPathInfo(), res );
 			}
 			// GET /objects
 			else if ( path.length == 2 && path[1].equals("objects") )
 			{
+// XXX: IMPL?? do we need this? Object.find() doesn't use this...
+//  actual searching done w/solr
 				String terms = getParamString(req,"terms",null);
 				String query = getParamString(req,"query",null);
+				String tsName = getParamString(req,"ts",tsDefault);
 				String q = (terms != null) ? terms : parseQuery(query);
-				Map<String,String> params = new HashMap<String,String>();
-				params.put("q",q);
-				params.put("ts", getParamString(req,"ts",tsDefault));
-				params.put( "xsl", "solr-fedoraSearch.xsl" );
-				indexSearch( params, res );
+				Map<String,String[]> params = new HashMap<String,String[]>();
+				params.put( "q", new String[]{q} );
+				params.put( "ts", new String[]{tsName} );
+				params.put( "xsl", new String[]{"solr-fedoraSearch.xsl"} );
+				indexSearch( params, req.getPathInfo(), res );
 			}
 			// GET /objects/[oid]
 			else if ( path.length == 3 && path[1].equals("objects") )
 			{
-				objectTransform( path[2], ts, "object-profile.xsl" );
+				objectTransform(
+					path[2], null, false, ts, "object-profile.xsl",
+					req.getParameterMap(), req.getPathInfo(), res
+				);
 			}
 			// GET /objects/[oid]/export
 			else if ( path.length == 4 && path[1].equals("objects")
 				&& path[3].equals("export") )
 			{
-				objectTransform( path[2], ts, "object-export.xsl" );
+				objectTransform(
+					path[2], null, false, ts, "object-export.xsl",
+					req.getParameterMap(), req.getPathInfo(), res
+				);
 			}
 			// GET /objects/[oid]/objectXML
 			else if ( path.length == 4 && path[1].equals("objects")
 				&& path[3].equals("objectXML") )
 			{
-				objectTransform( path[2], ts, "object-objectXML.xsl" );
+				objectTransform(
+					path[2], null, false, ts, "object-objectXML.xsl",
+					req.getParameterMap(), req.getPathInfo(), res
+				);
 			}
 			// GET /objects/[oid]/validate (error message)
 			else if ( path.length == 4 && path[1].equals("objects")
 				&& path[3].equals("validate") )
 			{
 				Map info = objectValidate( path[2], fs, ts );
-				Document doc = toXML(info);
-				transform( doc, "object-validate.xsl", req, res );
+				String xml = toXMLString(info);
+				String content = xslt(
+					xml, "object-validate.xsl", null, null // XXX pass params??
+				);
+				output( res.SC_OK, xml, "text/xml", res );
 			}
 			// GET /objects/[oid]/versions
 			else if ( path.length == 4 && path[1].equals("objects")
 				&& path[3].equals("versions") )
 			{
-				objectTransform( path[2], ts, "object-versions.xsl" );
+				objectTransform(
+					path[2], null, false, ts, "object-versions.xsl",
+					req.getParameterMap(), req.getPathInfo(), res
+				);
 			}
 			// GET /objects/[oid]/datastreams
 			else if ( path.length == 4 && path[1].equals("objects")
 				&& path[3].equals("datastreams") )
 			{
-				objectTransform( path[2], ts, "object-datastreams.xsl" );
+				objectTransform(
+					path[2], null, false, ts, "object-datastreams.xsl",
+					req.getParameterMap(), req.getPathInfo(), res
+				);
 			}
 			// GET /objects/[oid]/datastreams/[fid]
 			else if ( path.length == 5 && path[1].equals("objects")
 				&& path[3].equals("datastreams") )
 			{
 				objectTransform(
-					path[2], path[4], ts, "datastream-profile.xsl"
+					path[2], path[4], false, ts, "datastream-profile.xsl",
+					req.getParameterMap(), req.getPathInfo(), res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fid]/history
@@ -175,7 +170,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[3].equals("datastreams") && path[5].equals("history") )
 			{
 				objectTransform(
-					path[2], path[4], ts, "datastream-history.xsl"
+					path[2], path[4], false, ts, "datastream-history.xsl",
+					req.getParameterMap(), req.getPathInfo(), res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fid]/content
@@ -188,7 +184,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			else if ( path.length == 4 && path[1].equals("objects")
 				&& path[3].equals("relationships") )
 			{
-				objectTransform( path[2], ts, "object-relationships.xsl" );
+				objectTransform(
+					path[2], null, false, ts, "object-relationships.xsl",
+					req.getParameterMap(), req.getPathInfo(), res
+				);
 			}
 		}
 		catch ( Exception ex )
@@ -269,7 +268,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	**/
 	private static String parseQuery( String query )
 	{
-		// XXX IMPL
+		// XXX IMPL ???
 		return null;
 	}
 }

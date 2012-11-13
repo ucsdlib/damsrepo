@@ -8,13 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-// xsl
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-
 // dom4j
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -463,60 +456,5 @@ public class SolrFormat
 		}
 		stmt.put("rows", results );
 		return stmt.toString();
-	}
-
-	public static String xslt( String solrXML, String xslURL,
-		Map<String,String> params ) throws TransformerException
-	{
-		// params
-		String queryString = params.get("querystring");
-		String casGroupTest = params.get("casGroupTest");
-
-		// setup the transformer
-		TransformerFactory tf = TransformerFactory.newInstance();
-		Transformer t = tf.newTransformer(
-			new StreamSource(xslURL)
-		);
-
-		// add request params to xsl
-		if ( params != null )
-		{
-			Iterator<String> it = params.keySet().iterator();
-			while (it.hasNext() )
-			{
-				String key = it.next();
-				String val = params.get(key);
-/* XXX: was this really used???
-				String[] vals = (String[])params.get(key);
-				for ( int i = 0; i < vals.length; i++ )
-				{
-					if ( vals[i] != null && !vals[i].equals("") )
-					{
-						if ( val == null )
-						{
-							val = vals[i];
-						}
-						else
-						{
-							val += "; " + vals[i];
-						}
-					}
-				}
-*/
-				if ( key != null && val != null )
-				{
-					t.setParameter( key, StringEscapeUtils.escapeJava(val) );
-				}
-			}
-		}
-		t.setParameter("queryString",StringEscapeUtils.escapeJava(queryString));
-		if(casGroupTest != null)
-			t.setParameter("casTest",casGroupTest);
-		StringWriter sw = new StringWriter();
-		t.transform(
-			new StreamSource( new StringReader(solrXML) ),
-			new StreamResult( sw )
-		);
-		return sw.toString();
 	}
 }
