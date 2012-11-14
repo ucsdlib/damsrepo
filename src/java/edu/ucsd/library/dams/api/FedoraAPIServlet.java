@@ -97,36 +97,39 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			String[] path = path( req );
 
 			// GET /objects/[oid]
+			// STATUS: TEST
 			if ( path.length == 3 && path[1].equals("objects") )
 			{
 				ts = triplestore(req);
-				objectTransform(
-					path[2], null, false, ts, "fedora-object-profile.xsl",
-					req.getParameterMap(), req.getPathInfo(), res
+				outputTransform(
+					path[2], null, "fedora-object-profile.xsl",
+					"text/xml", ts, res
 				);
 			}
 			// GET /objects/[oid]/datastreams
+			// STATUS: TEST
 			else if ( path.length == 4 && path[1].equals("objects")
 				&& path[3].equals("datastreams") )
 			{
 				ts = triplestore(req);
-				objectTransform(
-					path[2], null, false, ts, "fedora-object-datastreams.xsl",
-					req.getParameterMap(), req.getPathInfo(), res
+				outputTransform(
+					path[2], null, "fedora-object-datastreams.xsl",
+					"text/xml", ts, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fid]
+			// STATUS: TEST
 			else if ( path.length == 5 && path[1].equals("objects")
 				&& path[3].equals("datastreams") )
 			{
 				ts = triplestore(req);
-				objectTransform(
-					path[2], path[4], false, ts,
-					"fedora-datastream-profile.xsl", req.getParameterMap(),
-					req.getPathInfo(), res
+				outputTransform(
+					path[2], path[4], "fedora-datastream-profile.xsl",
+					"text/xml", ts, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fid]/content
+			// STATUS: TEST
 			else if ( path.length == 6 && path[1].equals("objects")
 				&& path[3].equals("datastreams") && path[5].equals("content") )
 			{
@@ -156,6 +159,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			String[] path = path( req );
 
 			// POST /objects/nextPID
+			// STATUS: TEST
 			if ( path.length == 3 && path[1].equals("objects")
 				&& path[2].equals("nextPID") )
 			{
@@ -169,6 +173,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				output( res.SC_OK, content, "text/xml", res );
 			}
 			// POST /objects/[oid]
+			// STATUS: TEST
 			else if ( path.length == 3 && path[1].equals("objects") )
 			{
 				InputBundle bundle = input( req );
@@ -181,6 +186,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				output( res.SC_OK, path[2], "text/plain", res );
 			}
 			// POST /objects/[oid]/datastreams/[fid]
+			// STATUS: TEST
 			else if ( path.length == 5 && path[2].equals("objects")
 				&& path[4].equals("datastreams") )
 			{
@@ -191,7 +197,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				Map info = fileUpload(path[2], path[4], false, in, fs, ts);
 
 				outputTransform(
-					path[2], path[4], "fedora-datastream-update.xsl",
+					path[2], path[4], "fedora-datastream-profile.xsl",
 					"text/xml", ts, res
 				);
 			}
@@ -219,6 +225,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			String[] path = path( req );
 
 			// PUT /objects/[oid]/datastreams/[fid]
+			// STATUS: TEST
 			if ( path.length == 5 && path[2].equals("objects")
 				&& path[3].equals("datastreams")
 				&& path[4].equals(fedoraObjectDS) )
@@ -232,11 +239,12 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				);
 
 				outputTransform(
-					path[2], null, "fedora-datastream-update.xsl",
+					path[2], null, "fedora-datastream-profile.xsl",
 					"text/xml", ts, res
 				);
 			}
 			// PUT /objects/[oid]/datastreams/[fid]
+			// STATUS: TEST
 			else if ( path.length == 5 && path[2].equals("objects")
 				&& path[3].equals("datastreams") )
 			{
@@ -248,7 +256,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				fileUpload( path[2], path[4], true, in, fs, ts );
 
 				outputTransform(
-					path[2], path[4], "fedora-datastream-update.xsl",
+					path[2], path[4], "fedora-datastream-profile.xsl",
 					"text/xml", ts, res
 				);
 			}
@@ -281,6 +289,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			String[] path = path( req );
 			// DELETE /objects/[oid]
+			// STATUS: TEST
 			if ( path.length == 3 && path[1].equals("objects") )
 			{
 				// delete object
@@ -292,6 +301,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				);
 			}
 			// DELETE /objects/[oid]/datastreams/[fid]
+			// STATUS: TEST
 			else if ( path.length == 5 && path[2].equals("objects")
 				&& path[4].equals("datastreams") )
 			{
@@ -346,6 +356,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		else
 		{
 			params.put("objectDS", new String[]{ fedoraObjectDS } );
+			params.put("objectSize", String.valueOf( rdfxml.length() ) );
 		}
 		String content = xslt( rdfxml, xsl, params, null );
 		output( res.SC_OK, content, contentType, res );

@@ -2,25 +2,36 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
   xmlns:dams="http://library.ucsd.edu/ontology/dams#">
+  <xsl:output method="xml" indent="yes"/>
+  <xsl:param name="objid"/>
   <xsl:template match="/">
-    <xsl:variable name="idns"
-        select="//namespace::node()[local-name()='damsid']"/>
-    <xsl:variable name="objuri" select="/rdf:RDF/dams:Object/@rdf:about"/>
-    <xsl:variable name="objid">
+
+    <xsl:variable name="type">
+      <xsl:value-of select="local-name(/rdf:RDF/*)"/>
+    </xsl:variable>
+
+    <!-- XXX find latest date if there are multiple modification events -->
+    <xsl:variable name="timestamp">
       <xsl:choose>
-        <xsl:when test="starts-with($objuri,$idns)">
-          <xsl:value-of select="substring-after($objuri,$idns)"/>
+        <xsl:when test="//dams:Event[contains(dams:type,'modification')]">
+          <xsl:value-of select="//dams:Event[contains(dams:type,'modification')]/dams:endDate"/>
+        </xsl:when>
+        <xsl:when test="//dams:Event[contains(dams:type,'creation')]">
+          <xsl:value-of select="//dams:Event[contains(dams:type,'creation')]/dams:endDate"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:value-of select="$objuri"/>
+          <xsl:text>ERROR</xsl:text>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
 
-    <!-- XXX -->
-    <xsl:variable name="owner">Foo</xsl:variable>
-    <xsl:variable name="timestamp">2012-12-31T12:34:56.000Z</xsl:variable>
-    <xsl:variable name="label"><xsl:text> </xsl:text></xsl:variable>
+    <!-- XXX add to data model? -->
+    <xsl:variable name="owner">foo</xsl:variable>
+
+    <!-- XXX use title? is this used for anything? -->
+    <xsl:variable name="label"></xsl:variable>
+
+    <!-- XXX pass from parameter? is this used for anything? -->
     <xsl:variable name="baseURL">http://localhost:8080</xsl:variable>
 
     <objectProfile xmlns="http://www.fedora.info/definitions/1/0/access/"
@@ -31,7 +42,7 @@
       <objLabel><xsl:value-of select="$label"/></objLabel>
       <objOwnerId><xsl:value-of select="$owner"/></objOwnerId>
       <objModels>
-        <model>info:fedora/afmodel:Work</model>
+        <model>info:fedora/afmodel:<xsl:value-of select="$type"/></model>
         <model>info:fedora/fedora-system:FedoraObject-3.0</model>
       </objModels>
       <objCreateDate><xsl:value-of select="$timestamp"/></objCreateDate>

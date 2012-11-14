@@ -1040,7 +1040,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// process uploaded file if present
 			if ( in != null )
 			{
-				return null; // DAMS_MGR HYDRA_CRITICAL_PATH
+				return null; // XXX: DAMS_MGR HYDRA_CRITICAL_PATH
 			}
 			// otherwise, look for JSON adds
 			else
