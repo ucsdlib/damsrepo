@@ -2,6 +2,7 @@ package edu.ucsd.library.dams.api;
 
 // java core api
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +10,9 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+// xslt
+import javax.xml.transform.TransformerException;
 
 // logging
 import org.apache.log4j.Logger;
@@ -34,6 +38,8 @@ BIN = arbitrary data
 TXT = plain text
 RDF = RDF/XML
 
+Hydra/ActiveFedora/RubyDora API
+
 Out Method REST URI                                  Impl.
 --- ------ --------                                  -----
 XML GET    /describe                                 static???
@@ -58,6 +64,21 @@ TXT DELETE /objects/[oid] (timestamp/array)          objectDelete
 TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 ??? DELETE /objects/[oid]/relationships              ???
 
+
+Hydra critical path: create/read/update/delete
+
+Out Method REST URI                                  Impl.
+--- ------ --------                                  -----
+XML GET    /objects/[oid]                            objectShow + xsl
+XML GET    /objects/[oid]/datastreams                objectShow + xsl
+XML GET    /objects/[oid]/datastreams/[fid]          objectShow + select + xsl
+BIN GET    /objects/[oid]/datastreams/[fid]/content  fileShow
+XML POST   /objects/nextPID                          identifierCreate + xsl
+TXT POST   /objects/[oid] (pid)                      objectEdit
+XML POST   /objects/[oid]/datastreams/[fid]          fileUpload
+XML PUT    /objects/[oid]/datastreams/[fid]          fileUpload
+TXT DELETE /objects/[oid] (timestamp/array)          objectDelete
+TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 */
 
 	// logging
@@ -75,75 +96,12 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			String[] path = path( req );
 
-			// GET /describe
-			if ( path.length == 2 && path[1].equals("describe") )
-			{
-// XXX: IMPL?? what is this used for? which values do we need?
-				Map<String,String[]> params = new HashMap<String,String[]>();
-				String tsName = getParamString(req,"ts",tsDefault);
-				params.put("q", new String[]{"XXX"} );
-				params.put( "ts", new String[]{tsName} );
-				params.put( "xsl", new String[]{"solr-fedoraSearch.xsl"} );
-				indexSearch( params, req.getPathInfo(), res );
-			}
-			// GET /objects
-			else if ( path.length == 2 && path[1].equals("objects") )
-			{
-// XXX: IMPL?? do we need this? Object.find() doesn't use this...
-//  actual searching done w/solr
-				String terms = getParamString(req,"terms",null);
-				String query = getParamString(req,"query",null);
-				String tsName = getParamString(req,"ts",tsDefault);
-				String q = (terms != null) ? terms : parseQuery(query);
-				Map<String,String[]> params = new HashMap<String,String[]>();
-				params.put( "q", new String[]{q} );
-				params.put( "ts", new String[]{tsName} );
-				params.put( "xsl", new String[]{"solr-fedoraSearch.xsl"} );
-				indexSearch( params, req.getPathInfo(), res );
-			}
 			// GET /objects/[oid]
-			else if ( path.length == 3 && path[1].equals("objects") )
+			if ( path.length == 3 && path[1].equals("objects") )
 			{
+				ts = triplestore(req);
 				objectTransform(
-					path[2], null, false, ts, "object-profile.xsl",
-					req.getParameterMap(), req.getPathInfo(), res
-				);
-			}
-			// GET /objects/[oid]/export
-			else if ( path.length == 4 && path[1].equals("objects")
-				&& path[3].equals("export") )
-			{
-				objectTransform(
-					path[2], null, false, ts, "object-export.xsl",
-					req.getParameterMap(), req.getPathInfo(), res
-				);
-			}
-			// GET /objects/[oid]/objectXML
-			else if ( path.length == 4 && path[1].equals("objects")
-				&& path[3].equals("objectXML") )
-			{
-				objectTransform(
-					path[2], null, false, ts, "object-objectXML.xsl",
-					req.getParameterMap(), req.getPathInfo(), res
-				);
-			}
-			// GET /objects/[oid]/validate (error message)
-			else if ( path.length == 4 && path[1].equals("objects")
-				&& path[3].equals("validate") )
-			{
-				Map info = objectValidate( path[2], fs, ts );
-				String xml = toXMLString(info);
-				String content = xslt(
-					xml, "object-validate.xsl", null, null // XXX pass params??
-				);
-				output( res.SC_OK, xml, "text/xml", res );
-			}
-			// GET /objects/[oid]/versions
-			else if ( path.length == 4 && path[1].equals("objects")
-				&& path[3].equals("versions") )
-			{
-				objectTransform(
-					path[2], null, false, ts, "object-versions.xsl",
+					path[2], null, false, ts, "fedora-object-profile.xsl",
 					req.getParameterMap(), req.getPathInfo(), res
 				);
 			}
@@ -151,8 +109,9 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			else if ( path.length == 4 && path[1].equals("objects")
 				&& path[3].equals("datastreams") )
 			{
+				ts = triplestore(req);
 				objectTransform(
-					path[2], null, false, ts, "object-datastreams.xsl",
+					path[2], null, false, ts, "fedora-object-datastreams.xsl",
 					req.getParameterMap(), req.getPathInfo(), res
 				);
 			}
@@ -160,18 +119,11 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			else if ( path.length == 5 && path[1].equals("objects")
 				&& path[3].equals("datastreams") )
 			{
+				ts = triplestore(req);
 				objectTransform(
-					path[2], path[4], false, ts, "datastream-profile.xsl",
-					req.getParameterMap(), req.getPathInfo(), res
-				);
-			}
-			// GET /objects/[oid]/datastreams/[fid]/history
-			else if ( path.length == 6 && path[1].equals("objects")
-				&& path[3].equals("datastreams") && path[5].equals("history") )
-			{
-				objectTransform(
-					path[2], path[4], false, ts, "datastream-history.xsl",
-					req.getParameterMap(), req.getPathInfo(), res
+					path[2], path[4], false, ts,
+					"fedora-datastream-profile.xsl", req.getParameterMap(),
+					req.getPathInfo(), res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fid]/content
@@ -179,15 +131,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[3].equals("datastreams") && path[5].equals("content") )
 			{
 				fileShow( path[2], path[4], req, res );
-			}
-			// GET /objects/[oid]/relationships
-			else if ( path.length == 4 && path[1].equals("objects")
-				&& path[3].equals("relationships") )
-			{
-				objectTransform(
-					path[2], null, false, ts, "object-relationships.xsl",
-					req.getParameterMap(), req.getPathInfo(), res
-				);
 			}
 		}
 		catch ( Exception ex )
@@ -199,6 +142,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			cleanup( fs, ts );
 		}
 	}
+
 	/**
 	 * HTTP POST methods to create new resources.
 	**/
@@ -210,6 +154,47 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		try
 		{
 			String[] path = path( req );
+
+			// POST /objects/nextPID
+			if ( path.length == 3 && path[1].equals("objects")
+				&& path[2].equals("nextPID") )
+			{
+				String name = getParamString( req, "namespace", minterDefault );
+				int count = getParamInt( req, "numPIDs", 1 );
+				Map info = identifierCreate( name, count );
+
+				// transform output to fedora format
+				String xml = toXMLString( info );
+				String content = xslt( xml, "fedora-nextPID.xsl", null, null );
+				output( res.SC_OK, content, "text/xml", res );
+			}
+			// POST /objects/[oid]
+			else if ( path.length == 3 && path[1].equals("objects") )
+			{
+				InputBundle bundle = input( req );
+				InputStream in = bundle.getInputStream();
+				String adds = "[{'subject':'" + path[2]
+					+ "','predicate':'rdf:type','object':'dams:Object'}]";
+				Map info = objectCreate( path[2], in, adds, ts );
+
+				// output id plaintext
+				output( res.SC_OK, path[2], "text/plain", res );
+			}
+			// POST /objects/[oid]/datastreams/[fid]
+			else if ( path.length == 5 && path[2].equals("objects")
+				&& path[4].equals("datastreams") )
+			{
+				InputBundle bundle = input( req );
+				InputStream in = bundle.getInputStream();
+				fs = filestore(req);
+				ts = triplestore(req);
+				Map info = fileUpload(path[2], path[4], false, in, fs, ts);
+
+				outputTransform(
+					path[2], path[4], "fedora-datastream-update.xsl",
+					"text/xml", ts, res
+				);
+			}
 		}
 		catch ( Exception ex )
 		{
@@ -220,6 +205,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			cleanup( fs, ts );
 		}
 	}
+
 	/**
 	 * HTTP PUT methods to update existing resources.
 	**/
@@ -231,6 +217,46 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		try
 		{
 			String[] path = path( req );
+
+			// PUT /objects/[oid]/datastreams/[fid]
+			if ( path.length == 5 && path[2].equals("objects")
+				&& path[3].equals("datastreams")
+				&& path[4].equals(fedoraObjectDS) )
+			{
+				// update metadata with record
+				InputBundle bundle = input(req);
+				InputStream in = bundle.getInputStream();
+				ts = triplestore(req);
+				objectUpdate(
+					path[2], in, null, null, null, ts
+				);
+
+				outputTransform(
+					path[2], null, "fedora-datastream-update.xsl",
+					"text/xml", ts, res
+				);
+			}
+			// PUT /objects/[oid]/datastreams/[fid]
+			else if ( path.length == 5 && path[2].equals("objects")
+				&& path[3].equals("datastreams") )
+			{
+				// upload other data files
+				InputBundle bundle = input(req);
+				InputStream in = bundle.getInputStream();
+				fs = filestore(req);
+				ts = triplestore(req);
+				fileUpload( path[2], path[4], true, in, fs, ts );
+
+				outputTransform(
+					path[2], path[4], "fedora-datastream-update.xsl",
+					"text/xml", ts, res
+				);
+			}
+			else
+			{
+				Map err = error( res.SC_BAD_REQUEST, "Invalid request" );
+				output( err, req.getParameterMap(), req.getPathInfo(), res );
+			}
 		}
 		catch ( Exception ex )
 		{
@@ -241,6 +267,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			cleanup( fs, ts );
 		}
 	}
+
 	/**
 	 * HTTP DELETE methods to delete resources.
 	**/
@@ -248,10 +275,43 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	{
 		FileStore fs = null;
 		TripleStore ts = null;
+		Map info = null;
 
 		try
 		{
 			String[] path = path( req );
+			// DELETE /objects/[oid]
+			if ( path.length == 3 && path[1].equals("objects") )
+			{
+				// delete object
+				info = objectDelete( path[2], ts );
+
+				outputTransform(
+					path[2], null, "fedora-datastream-delete.xsl",
+					"text/plain", ts, res
+				);
+			}
+			// DELETE /objects/[oid]/datastreams/[fid]
+			else if ( path.length == 5 && path[2].equals("objects")
+				&& path[4].equals("datastreams") )
+			{
+				// delete file
+				ts = triplestore(req);
+				fs = filestore(req);
+				info = fileDelete( path[2], path[4], fs, ts );
+
+				outputTransform(
+					path[2], path[4], "fedora-datastream-delete.xsl",
+					"text/plain", ts, res
+				);
+			}
+			else
+			{
+				info = error( res.SC_BAD_REQUEST, "Invalid request" );
+			}
+
+			// output
+			output( info, req.getParameterMap(), req.getPathInfo(), res );
 		}
 		catch ( Exception ex )
 		{
@@ -263,12 +323,31 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 	}
 
-	/**
-	 * Parse a Fedora query and translate into a solr query.
-	**/
-	private static String parseQuery( String query )
+	private void outputTransform( String objid, String fileid, String xsl,
+		String contentType, TripleStore ts, HttpServletResponse res )
+		throws TripleStoreException, TransformerException
 	{
-		// XXX IMPL ???
-		return null;
+		// get object metadata
+		String rdfxml = null;
+		Map info = objectShow( objid, ts );
+		if ( info.get("obj") != null )
+		{
+			DAMSObject obj = (DAMSObject)info.get("obj");
+			rdfxml = obj.getRDFXML(true);
+		}
+
+		// output expected XML
+		Map<String,String[]> params =  new HashMap<String,String[]>();
+		params.put("objid", new String[]{ objid } );
+		if ( fileid != null )
+		{
+			params.put("fileid", new String[]{ fileid } );
+		}
+		else
+		{
+			params.put("objectDS", new String[]{ fedoraObjectDS } );
+		}
+		String content = xslt( rdfxml, xsl, params, null );
+		output( res.SC_OK, content, contentType, res );
 	}
 }

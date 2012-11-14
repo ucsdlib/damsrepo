@@ -14,12 +14,20 @@
     <servlet-class>edu.ucsd.library.dams.api.DAMSAPIServlet</servlet-class>
   </servlet>
   <servlet>
+    <servlet-name>FedoraAPIServlet</servlet-name>
+    <servlet-class>edu.ucsd.library.dams.api.FedoraAPIServlet</servlet-class>
+  </servlet>
+  <servlet>
     <servlet-name>FileStoreServlet</servlet-name>
     <servlet-class>edu.ucsd.library.dams.api.FileStoreServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>DAMSAPIServlet</servlet-name>
     <url-pattern>/api/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>FedoraAPIServlet</servlet-name>
+    <url-pattern>/fedora/*</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>FileStoreServlet</servlet-name>

@@ -98,7 +98,7 @@ public class DAMSAPIServlet extends HttpServlet
 	protected String tsDefault;	// TripleStore to be used when not specified
 
 	// identifiers and namespaces
-	private String minterDefault;	      // ID series when not specified
+	protected String minterDefault;	      // ID series when not specified
 	private Map<String,String> idMinters; // ID series name=>url map
 	private Map<String,String> nsmap;     // URI/name to URI map
 	private String idNS;                  // Prefix for unqualified identifiers
@@ -118,6 +118,9 @@ public class DAMSAPIServlet extends HttpServlet
 	// ip address mapping
 	private String roleDefault;		   // default role if not matching
 	private Map<String,String[]> roleMap; // map of roles to IP addresses
+
+	// fedora compat
+	protected String fedoraObjectDS;  // datastream id that maps to object RDF
 
 	// initialize servlet parameters
 	public void init( ServletConfig config ) throws ServletException
@@ -179,6 +182,9 @@ public class DAMSAPIServlet extends HttpServlet
 			maxUploadCount = Integer.parseInt(maxCount);
 			String maxSize = props.getProperty( "fs.maxUploadSize" );
 			maxUploadSize = Long.parseLong(maxSize);
+
+			// fedora compat
+			fedoraObjectDS = props.getProperty("fedora.objectDS");
 		}
 		catch ( Exception ex )
 		{
@@ -268,7 +274,7 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 3 && path[1].equals("objects") )
 			{
 				ts = triplestore(req);
-				info = objectShow( path[2], false, ts );
+				info = objectShow( path[2], ts );
 				if ( info.get("obj") != null )
 				{
 					DAMSObject obj = (DAMSObject)info.get("obj");
@@ -281,7 +287,7 @@ public class DAMSAPIServlet extends HttpServlet
 				&& path[3].equals("export") )
 			{
 				ts = triplestore(req);
-				info = objectShow( path[2], true, ts );
+				info = objectShow( path[2], ts );
 				if ( info.get("obj") != null )
 				{
 					DAMSObject obj = (DAMSObject)info.get("obj");
@@ -402,6 +408,7 @@ public class DAMSAPIServlet extends HttpServlet
 		boolean outputRequired = true; // set to false to suppress status output
 		FileStore fs = null;
 		TripleStore ts = null;
+		Map<String,String[]> params = null;
 
 		try
 		{
@@ -429,6 +436,7 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					InputBundle bundle = input( req );
 					InputStream in = bundle.getInputStream();
+					params = bundle.getParams();
 					String adds = getParamString(
 						bundle.getParams(), "ts", tsDefault
 					);
@@ -484,6 +492,7 @@ public class DAMSAPIServlet extends HttpServlet
 					{
 						InputBundle bundle = input( req );
 						InputStream in = bundle.getInputStream();
+						params = bundle.getParams();
 						fs = filestore(req);
 						ts = triplestore(req);
 						info = fileUpload(path[2], path[3], false, in, fs, ts);
@@ -524,7 +533,12 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					info.put("statusCode",res.SC_OK);
 				}
-				output( info, req.getParameterMap(), req.getPathInfo(), res );
+				// make sure we have parameters
+				if ( params == null )
+				{
+					params = req.getParameterMap();
+				}
+				output( info, params, req.getPathInfo(), res );
 			}
 		}
 		catch ( Exception ex2 )
@@ -546,6 +560,7 @@ public class DAMSAPIServlet extends HttpServlet
 		Map info = null;
 		FileStore fs = null;
 		TripleStore ts = null;
+		Map<String,String[]> params = null;
 
 		try
 		{
@@ -559,7 +574,7 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					InputBundle bundle = input( req );
 					InputStream in = bundle.getInputStream();
-					Map<String,String[]> params = bundle.getParams();
+					params = bundle.getParams();
 					String adds    = getParamString(params,"adds",null);
 					String updates = getParamString(params,"updates",null);
 					String deletes = getParamString(params,"deletes",null);
@@ -591,6 +606,7 @@ public class DAMSAPIServlet extends HttpServlet
 					{
 						InputBundle bundle = input( req );
 						InputStream in = bundle.getInputStream();
+						params = bundle.getParams();
 						fs = filestore(req);
 						ts = triplestore(req);
 						info = fileUpload( path[2], path[3], true, in, fs, ts );
@@ -608,7 +624,11 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 
 			// output
-			output( info, req.getParameterMap(), req.getPathInfo(), res );
+			if ( params == null )
+			{
+				params = req.getParameterMap();
+			}
+			output( info, params, req.getPathInfo(), res );
 		}
 		catch ( Exception ex2 )
 		{
@@ -1020,7 +1040,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// process uploaded file if present
 			if ( in != null )
 			{
-				return null; // DAMS_MGR
+				return null; // DAMS_MGR HYDRA_CRITICAL_PATH
 			}
 			// otherwise, look for JSON adds
 			else
@@ -1191,7 +1211,7 @@ public class DAMSAPIServlet extends HttpServlet
 			return error( "Error updating Solr: " + ex.toString() );
 		}
 	}
-	public Map objectShow( String objid, boolean export, TripleStore ts )
+	public Map objectShow( String objid, TripleStore ts )
 	{
 		// output = metadata: object
 		try
@@ -1258,7 +1278,7 @@ public class DAMSAPIServlet extends HttpServlet
 		try
 		{
 			// get object from triplestore as Document
-			Map m = objectShow( objid, export, ts );
+			Map m = objectShow( objid, ts );
 			String rdfxml = null;
 			if ( m.get("obj") != null )
 			{
@@ -1528,8 +1548,6 @@ public class DAMSAPIServlet extends HttpServlet
 			Exception formatEx = null;
 			if ( output != null && xsl != null && !xsl.equals("") )
 			{
-				xsl = xslBase + xsl;
-				xsl = xsl.replaceAll("\\.\\.",""); // prevent snooping
 				try
 				{
 					output = xslt( output, xsl, null, queryString(params) );
@@ -1887,7 +1905,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		return doc.asXML();
 	}
-    public static String xslt( String xml, String xslURL,
+    public String xslt( String xml, String xslName,
         Map<String,String[]> params, String queryString )
 		throws TransformerException
     {
@@ -1895,10 +1913,9 @@ public class DAMSAPIServlet extends HttpServlet
         String casGroupTest = getParamString(params,"casGroupTest",null);
 
         // setup the transformer
+		String xsl = xslName.startsWith("http") ? xslName : xslBase + xslName;
         TransformerFactory tf = TransformerFactory.newInstance();
-        Transformer t = tf.newTransformer(
-            new StreamSource(xslURL)
-        );
+        Transformer t = tf.newTransformer( new StreamSource(xsl) );
 
         // add request params to xsl
         if ( params != null )
