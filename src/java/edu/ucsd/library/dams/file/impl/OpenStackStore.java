@@ -25,7 +25,7 @@ import edu.ucsd.library.dams.file.FileStoreUtil;
 /**
  * FileStore implementation for OpenStack Storage API.
  * @see util/SwiftClient
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class OpenStackStore implements FileStore
 {

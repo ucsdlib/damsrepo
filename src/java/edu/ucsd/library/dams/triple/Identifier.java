@@ -2,7 +2,7 @@ package edu.ucsd.library.dams.triple;
 
 /**
  * Public URI or blank node.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class Identifier
 {

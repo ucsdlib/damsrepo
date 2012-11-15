@@ -29,8 +29,8 @@ import org.apache.log4j.Logger;
 /**
  * Convert Solr results to JSON.
  *
- * @author escowles
- * @author mcritchlow
+ * @author escowles@ucsd.edu
+ * @author mcritchlow@ucsd.edu
 **/
 public class SolrFormat
 {

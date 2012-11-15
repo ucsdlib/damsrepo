@@ -6,7 +6,7 @@ import java.util.Iterator;
 /**
  * StatementIterator implementation that can be instantiated with an Iterator
  * or Collection of Statement objects.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class SimpleStatementIterator extends StatementIterator
 {

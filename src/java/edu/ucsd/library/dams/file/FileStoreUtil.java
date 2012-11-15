@@ -19,7 +19,7 @@ import edu.ucsd.library.dams.file.impl.LocalStore;
 
 /**
  * Utility for dealing with FileStore implementations.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class FileStoreUtil
 {

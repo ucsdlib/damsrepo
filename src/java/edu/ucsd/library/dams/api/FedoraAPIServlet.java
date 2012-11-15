@@ -235,7 +235,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				ts = triplestore(req);
 				objectUpdate(
-					path[2], in, null, null, null, ts
+					path[2], in, "all", null, null, null, ts
 				);
 
 				outputTransform(
@@ -356,7 +356,9 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		else
 		{
 			params.put("objectDS", new String[]{ fedoraObjectDS } );
-			params.put("objectSize", String.valueOf( rdfxml.length() ) );
+			params.put(
+				"objectSize", new String[]{ String.valueOf(rdfxml.length()) }
+			);
 		}
 		String content = xslt( rdfxml, xsl, params, null );
 		output( res.SC_OK, content, contentType, res );

@@ -21,7 +21,7 @@ import edu.ucsd.library.dams.util.HttpUtil;
 
 /**
  * Utility class for interfacing with multi-core Lucene/Solr search engines.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class SolrHelper
 {

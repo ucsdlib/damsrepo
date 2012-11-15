@@ -26,7 +26,7 @@ import edu.ucsd.library.dams.file.FileStoreUtil;
 
 /**
  * FileStore implementation for local files (or samba, etc. mounted).
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class LocalStore implements FileStore
 {

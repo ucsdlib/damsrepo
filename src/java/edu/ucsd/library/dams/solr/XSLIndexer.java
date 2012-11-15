@@ -19,7 +19,7 @@ import org.dom4j.io.DocumentResult;
 
 /**
  * Class to extract values from RDF using XSL.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class XSLIndexer
 {

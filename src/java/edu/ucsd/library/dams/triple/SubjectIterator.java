@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 /**
  * Iterator that returns RDF-style subjects.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public abstract class SubjectIterator implements Iterator
 {

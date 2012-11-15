@@ -578,9 +578,10 @@ public class DAMSAPIServlet extends HttpServlet
 					String adds    = getParamString(params,"adds",null);
 					String updates = getParamString(params,"updates",null);
 					String deletes = getParamString(params,"deletes",null);
+					String mode    = getParamString(params,"mode",null);
 					ts = triplestore(req);
 					info = objectUpdate(
-						path[2], in, adds, updates, deletes, ts
+						path[2], in, mode, adds, updates, deletes, ts
 					);
 				}
 				catch ( Exception ex )
@@ -998,22 +999,28 @@ public class DAMSAPIServlet extends HttpServlet
 			return error( "Error generating id" );
 		}
 	}
-	public Map objectCreate( String objid, InputStream in, String adds, TripleStore ts )
+	public Map objectCreate( String objid, InputStream in, String adds,
+		TripleStore ts )
 	{
-		return objectEdit( objid, true, in, adds, null, null, ts );
+		return objectEdit( objid, true, in, null, adds, null, null, ts );
 	}
-	public Map objectUpdate( String objid, InputStream in, String adds, String updates, String deletes, TripleStore ts )
+	public Map objectUpdate( String objid, InputStream in, String mode,
+		String adds, String updates, String deletes, TripleStore ts )
 	{
-		return objectEdit( objid, false, in, adds, updates, deletes, ts );
+		return objectEdit( objid, false, in, mode, adds, updates, deletes, ts );
 	}
-	private Map objectEdit( String objid, boolean create, InputStream in, String adds, String updates, String deletes, TripleStore ts )
+	private Map objectEdit( String objid, boolean create, InputStream in,
+		String mode, String adds, String updates, String deletes,
+		TripleStore ts )
 	{
 		try
 		{
 			// make sure an identifier is specified
 			if ( objid == null || objid.trim().equals("") )
 			{
-				return error( HttpServletResponse.SC_BAD_REQUEST, "No subject provided" );
+				return error(
+					HttpServletResponse.SC_BAD_REQUEST, "No subject provided"
+				);
 			}
 
 	   		// make sure appropriate method is being used to create/update
@@ -1040,7 +1047,56 @@ public class DAMSAPIServlet extends HttpServlet
 			// process uploaded file if present
 			if ( in != null )
 			{
-				return null; // XXX: DAMS_MGR HYDRA_CRITICAL_PATH
+				// XXX: impl other modes
+				// XXX: error handling
+				if ( mode == null || mode.equals("") || mode.equals("all") )
+				{
+					DAMSObject trans = new DAMSObject(ts,null,nsmap);
+					if ( !create )
+					{
+						try
+						{
+							// delete object
+							ts.removeObject(id);
+						}
+						catch ( Exception ex )
+						{
+							return error( "Error deleting existing metadata" );
+						}
+					}
+
+					try
+					{
+						// ingest RDF/XML from inputstream
+						TripleStoreUtil.loadRDFXML( in, ts, trans );
+						
+						// success
+						int status = -1;
+						String message = null;
+						String type = create ?
+							"object creation" : "object modification";
+						String detail = "EVENT_DETAIL_SPEC: " + type;
+						if ( create )
+						{
+							status = HttpServletResponse.SC_CREATED;
+							message = "Object created successfully";
+						}
+						else
+						{
+							status = HttpServletResponse.SC_OK;
+							message = "Object saved successfully";
+						}
+						createEvent(
+							ts, objid, null, type, true, detail, null
+						);
+						return status( status, message );
+					}
+					catch ( Exception ex )
+					{
+						return error( "Error loading new metadata" );
+					}
+				}
+				return error( "Unsupported mode: " + mode );
 			}
 			// otherwise, look for JSON adds
 			else

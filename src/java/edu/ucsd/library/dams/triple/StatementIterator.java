@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 /**
  * Iterator that returns RDF-style statements.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public abstract class StatementIterator implements Iterator
 {

@@ -7,7 +7,7 @@ import java.io.FilterInputStream;
 /**
  * InputStream implementation that limits the number of bytes read to a
  * specified number, so a large stream of data can be read in smaller chunks.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class SegmentedInputStream extends FilterInputStream
 {

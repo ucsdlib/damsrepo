@@ -2,7 +2,7 @@ package edu.ucsd.library.dams.file;
 
 /**
  * Exception class to wrap implementation-specific exceptions.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class FileStoreException extends Exception
 {

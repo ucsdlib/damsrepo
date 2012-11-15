@@ -2,7 +2,7 @@ package edu.ucsd.library.dams.triple.convertor;
 
 /**
  * Class SSTTableSchema - Basic table schema for the relational Simple Triplestore
- * @author lsitu
+ * @author lsitu@ucsd.edu
  *
  */
 public class STSTableSchema {

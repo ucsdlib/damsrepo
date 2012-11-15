@@ -9,7 +9,7 @@ import org.apache.commons.lang3.time.DateUtils;
 
 /**
  * Utilities to parse dates form structured and semi-structured text.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class DateParser
 {

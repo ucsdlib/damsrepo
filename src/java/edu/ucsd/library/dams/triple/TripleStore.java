@@ -6,7 +6,7 @@ import java.util.Set;
  * Primary interface for TripleStores.  All general-purposes classes that work
  * with TripleStores should use this interface, not the abstract classes or
  * implementing classes directly.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public interface TripleStore
 {

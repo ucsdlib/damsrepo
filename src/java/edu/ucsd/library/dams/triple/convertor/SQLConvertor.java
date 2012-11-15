@@ -13,7 +13,7 @@ import com.hp.hpl.jena.query.QueryFactory;
 
 /**
  * Class SQLConvertor converts basic SPARQLs used in the DAMS applications to SQL for Oracle execution
- * @author lsitu
+ * @author lsitu@ucsd.edu
  *
  */
 public class SQLConvertor

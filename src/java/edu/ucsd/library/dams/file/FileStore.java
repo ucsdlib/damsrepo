@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Interface for accessing files in a consistent manner regardless of the
  * underlying storage architecture.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public interface FileStore
 {

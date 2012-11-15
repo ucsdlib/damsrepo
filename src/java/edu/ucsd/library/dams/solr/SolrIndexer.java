@@ -63,7 +63,7 @@ import edu.ucsd.library.dams.triple.TripleStoreUtil;
  * Application to index triples in a Lucene/Solr index, retrieving data from
  * a triplestore.  Uses XSL for all indexing beyond basic values
  * (id, datasource, date indexed).
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class SolrIndexer
 {
@@ -1082,7 +1082,7 @@ public class SolrIndexer
 	 * up to 86,400,000 BCE to be accommodated in CE-only dates, with correct
 	 * sorting.  All times on 1 CE will be modified to be one second before
 	 * midnight.  Other CE dates will be returned as-is.
-	 * @author escowles
+	 * @author escowles@ucsd.edu
 	**/
 	private static Date cram( Date oldDate ) throws IllegalArgumentException
 	{

@@ -32,16 +32,9 @@ import edu.ucsd.library.dams.triple.Statement;
 import edu.ucsd.library.dams.triple.StatementIterator;
 
 /**
- XXX
-
-  predicate translation
-  literal quoting -> if unquoted, add surrounding quotes
-**/
-
-/**
  * Core edit logic.
- * @author mcritchlow
- * @author escowles
+ * @author mcritchlow@ucsd.edu
+ * @author escowles@ucsd.edu
 **/
 public class Edit
 {

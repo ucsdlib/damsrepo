@@ -57,7 +57,7 @@ import edu.ucsd.library.dams.triple.convertor.STSTableSchema.DataBaseType;
 
 /**
  * Class SQLQueryVisitor convert SPARQL to SQL for the simple triplestore. 
- * @author lsitu
+ * @author lsitu@ucsd.edu
  *
  */
 public class SQLQueryVisitor implements QueryVisitor{
@@ -204,7 +204,7 @@ public class SQLQueryVisitor implements QueryVisitor{
 	
 	/**
 	 * SQLElementVisitor convert SPARQL elements to SQL
-	 * @author lsitu
+	 * @author lsitu@ucsd.edu
 	 *
 	 */
 	class SQLElementVisitor implements ElementVisitor{
@@ -597,7 +597,7 @@ public class SQLQueryVisitor implements QueryVisitor{
 		
 		/**
 		 * SQLExprVisitor convert SPARQL expression to Oracle SQL expression
-		 * @author lsitu
+		 * @author lsitu@ucsd.edu
 		 *
 		 */
 		class SQLExprVisitor implements ExprVisitor{

@@ -3,7 +3,7 @@ package edu.ucsd.library.dams.file;
 /**
  * Exception class to wrap implementation-specific exceptions related to
  * access control, session timeout, etc.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class FileStoreAuthException extends FileStoreException
 {

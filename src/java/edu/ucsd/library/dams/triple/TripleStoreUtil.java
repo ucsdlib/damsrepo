@@ -48,7 +48,7 @@ import edu.ucsd.library.dams.solr.SolrHelper;
 
 /**
  * Utility methods for working with triplestore objects.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class TripleStoreUtil
 {
@@ -693,6 +693,87 @@ public class TripleStoreUtil
 			log.debug(
 				id + ": " + objects + "/" + nf.format(dur) + " secs ("
 				+ nf.format(pct) + "%, " + nf.format(rate) + "/sec)"
+			);
+		}
+	}
+
+	/**
+	 * Delete all triples that match the specified subject (and optionally
+	 * predicate) and recursively delete blank node children.
+	 * @param ts TripleStore to delete triples from.
+	 * @param sub Subject to delete.
+	 * @param pre If null, delete all triples associated with a subject.  If
+	 *     not null, only delete triples with this predicate.
+	 * @param pre If not null, only delete triples with this object -- useful
+	 *     for deleting file or component records, or one out of several
+	 *     blank node trees with the same predicate.
+	**/
+	public static void recursiveDelete( Identifier sub, Identifier pre,
+		Identifier obj, TripleStore ts ) throws TripleStoreException
+	{
+		// iterate through all statements for the object & classify by subject
+		Map<Identifier,List<Statement>> map
+			= new HashMap<Identifier,List<Statement>>();
+		for ( StatementIterator st = ts.sparqlDescribe( sub ); st.hasNext(); )
+		{
+			Statement s = st.nextStatement();
+			List<Statement> statements = map.get(s.getSubject());
+			if ( statements == null )
+			{
+				statements = new ArrayList<Statement>();
+			}
+			statements.add( s );
+			map.put( s.getSubject(), statements );
+		}
+
+		// recursively remove statements
+		recursiveDelete( sub, pre, obj, map, ts );
+	}
+
+	/**
+	 * Recursively delete statements.
+	**/
+	private static void recursiveDelete( Identifier sub, Identifier pre,
+		Identifier obj, Map<Identifier,List<Statement>> map, TripleStore ts )
+		throws TripleStoreException
+	{
+		List<Statement> list = map.get( sub );
+		for ( int i = 0; i < list.size(); i++ )
+		{
+			Statement s = list.get(i);
+			if ( pre == null || s.getPredicate().equals(pre) )
+			{
+				if ( obj == null || s.getObject().equals(pre) )
+				{
+					// remove the statement
+					removeStatement( ts, s );
+
+					// if the object is a blank node, remove all child nodes
+					if ( !s.hasLiteralObject() )
+					{
+						Identifier o = s.getObject();
+						if ( o.isBlankNode() )
+						{
+							recursiveDelete( o, null, null, map, ts );
+						}
+					}
+				}
+			}
+		}
+	}
+	public static void removeStatement( TripleStore ts, Statement stmt )
+		throws TripleStoreException
+	{
+		if ( stmt.hasLiteralObject() )
+		{
+			ts.removeLiteralStatements(
+				stmt.getSubject(), stmt.getPredicate(), stmt.getLiteral()
+			);
+		}
+		else
+		{
+			ts.removeStatements(
+				stmt.getSubject(), stmt.getPredicate(), stmt.getObject()
 			);
 		}
 	}

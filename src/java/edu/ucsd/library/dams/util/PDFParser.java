@@ -12,7 +12,7 @@ import org.apache.pdfbox.util.PDFTextStripper;
 
 /**
  * Class to extract text from PDF files.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class PDFParser
 {

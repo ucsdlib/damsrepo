@@ -7,7 +7,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 /**
  * Wrapper class for InputStream objects obtained from HttpClient, which 
  * releases the associated HTTP connection when the stream is closed.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class HttpInputStream extends InputStream
 {

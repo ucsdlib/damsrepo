@@ -47,7 +47,7 @@ import edu.ucsd.library.dams.util.HttpUtil;
 /**
  * OpenStack Storage Client
  * @see http://docs.rackspace.com/files/api/v1/cf-devguide/content/index.html
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class SwiftClient
 {

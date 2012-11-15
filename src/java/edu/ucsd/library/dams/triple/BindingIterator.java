@@ -5,7 +5,7 @@ import java.util.Map;
 
 /**
  * Iterator that returns a Map of attribute-value pairs from a SPARQL query.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public abstract class BindingIterator implements Iterator
 {

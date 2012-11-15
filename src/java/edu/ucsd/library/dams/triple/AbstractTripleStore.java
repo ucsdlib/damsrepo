@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 /**
  * Partial implementation of TripleStore to make implementing easier.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public abstract class AbstractTripleStore implements TripleStore
 {

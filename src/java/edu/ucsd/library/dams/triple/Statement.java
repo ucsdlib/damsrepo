@@ -2,7 +2,7 @@ package edu.ucsd.library.dams.triple;
 
 /**
  * Basic statement/triple object.
- * @author escowles
+ * @author escowles@ucsd.edu
 **/
 public class Statement
 {

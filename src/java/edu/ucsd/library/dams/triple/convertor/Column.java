@@ -1,5 +1,8 @@
 package edu.ucsd.library.dams.triple.convertor;
 
+/**
+ * @author lsitu@ucsd.edu
+**/
 public class Column {
 	public static final int COLUMN_UNKNOWN = -1;
 	public static final int COLUMN_PATENT = 0;

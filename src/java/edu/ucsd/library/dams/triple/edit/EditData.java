@@ -6,7 +6,7 @@ import org.json.simple.JSONArray;
 
 /**
  * Bean for storing updates in JSON format.
- * @author mcritchlow
+ * @author mcritchlow@ucsd.edu
 **/
 public class EditData implements Serializable
 {
