@@ -17,6 +17,7 @@ import javax.activation.FileDataSource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 
@@ -76,7 +77,8 @@ public class LocalStore implements FileStore
 /********** FileStore impl ***************************************************/
 /*****************************************************************************/
 
-	public String[] list( String objectID ) throws FileStoreException
+	public String[] listFiles( String objectID, String componentID )
+		throws FileStoreException
 	{
 		String[] fileArr = null;
 		try
@@ -90,11 +92,11 @@ public class LocalStore implements FileStore
 			for ( int i = 0; files != null && i < files.length; i++ )
 			{
 				String fn = files[i];
-System.out.println(i + ": " + fn);
 				if ( fn.indexOf(objectID) > -1 && !fn.endsWith("manifest.txt")
 					&& !fn.startsWith(".") )
 				{
 					int offset = fn.indexOf(objectID) + objectID.length() + 1;
+// XXX: if starts with xxx-comp...
 					fileList.add( fn.substring( offset ) );
 				}
 			}
@@ -108,20 +110,53 @@ System.out.println(i + ": " + fn);
 		}
 		return fileArr;
 	}
-	public boolean exists( String objectID, String fileID )
-		throws FileStoreException
+	public String[] listComponents( String objectID ) throws FileStoreException
 	{
-		return getFile(objectID,fileID).exists();
+		String[] cmpArr = null;
+		try
+		{
+			// list files
+			File dir = dir( objectID );
+			String[] files = dir.list();
+
+			// make a list of file names
+			HashSet<String> cmpSet = new HashSet<String>();
+			for ( int i = 0; files != null && i < files.length; i++ )
+			{
+				String fn = files[i];
+				if ( fn.indexOf(objectID) > -1 && !fn.endsWith("manifest.txt")
+					&& !fn.startsWith(".") )
+				{
+					int idx1 = fn.indexOf(objectID) + objectID.length() + 1;
+					int idx2 = fn.indexOf("-",idx1);
+					fn = fn.substring(idx1, idx2);
+					cmpSet.add( fn );
+				}
+			}
+
+			// make array
+			cmpArr = cmpSet.toArray( new String[cmpSet.size()] );
+		}
+		catch ( Exception ex )
+		{
+			throw new FileStoreException(ex);
+		}
+		return cmpArr;
 	}
-	public long length( String objectID, String fileID )
+	public boolean exists( String objectID, String componentID, String fileID )
 		throws FileStoreException
 	{
-		return getFile(objectID,fileID).length();
+		return getFile(objectID, componentID, fileID).exists();
 	}
-	public Map<String,String> meta( String objectID, String fileID )
+	public long length( String objectID, String componentID, String fileID )
 		throws FileStoreException
 	{
-		File f = getFile(objectID,fileID);
+		return getFile(objectID, componentID, fileID).length();
+	}
+	public Map<String,String> meta( String objectID, String componentID, String fileID )
+		throws FileStoreException
+	{
+		File f = getFile(objectID, componentID, fileID);
 		Map<String,String> md = new HashMap<String,String>();
     	//Content-Length: 18961492
 		md.put( "Content-Length", String.valueOf(f.length()) );
@@ -144,10 +179,10 @@ System.out.println(i + ": " + fn);
 
 		return md;
 	}
-	public byte[] read( String objectID, String fileID )
+	public byte[] read( String objectID, String componentID, String fileID )
 		throws FileStoreException
 	{
-		File f = getFile(objectID,fileID);
+		File f = getFile(objectID, componentID, fileID);
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		read( f, bos );
 		return bos.toByteArray();
@@ -159,10 +194,10 @@ System.out.println(i + ": " + fn);
 		read( f, bos );
 		return bos.toByteArray();
 	}
-	public void read( String objectID, String fileID, OutputStream out )
+	public void read( String objectID, String componentID, String fileID, OutputStream out )
 		throws FileStoreException
 	{
-		File f = getFile(objectID,fileID);
+		File f = getFile(objectID, componentID, fileID);
 		read( f, out );
 	}
 	protected void read( File f, OutputStream out ) throws FileStoreException
@@ -179,13 +214,13 @@ System.out.println(i + ": " + fn);
 			throw new FileStoreException(ex);
 		}
 	}
-	public InputStream getInputStream( String objectID, String fileID )
+	public InputStream getInputStream( String objectID, String componentID, String fileID )
 		throws FileStoreException
 	{
 		FileInputStream is = null;
 		try
 		{
-			is = new FileInputStream( getFile(objectID,fileID) );
+			is = new FileInputStream( getFile(objectID, componentID, fileID) );
 		}
 		catch ( IOException ex )
 		{
@@ -193,17 +228,17 @@ System.out.println(i + ": " + fn);
 		}
 		return is;
 	}
-	public void write( String objectID, String fileID, byte[] data )
+	public void write( String objectID, String componentID, String fileID, byte[] data )
 		throws FileStoreException
 	{
-		File f = getFile(objectID,fileID);
+		File f = getFile(objectID, componentID, fileID);
 		ByteArrayInputStream bin = new ByteArrayInputStream(data);
 		write(f, bin);
 	}
-	public void write( String objectID, String fileID, InputStream in )
+	public void write( String objectID, String componentID, String fileID, InputStream in )
 		throws FileStoreException
 	{
-		File f = getFile(objectID,fileID);
+		File f = getFile(objectID, componentID, fileID);
 		write(f, in);
 	}
 	public void writeManifest( String objectID, byte[] data )
@@ -243,14 +278,14 @@ System.out.println(i + ": " + fn);
 		this.baseDir = null;
 		this.baseLength = 0;
 	}
-	public void trash( String objectID, String fileID )
+	public void trash( String objectID, String componentID, String fileID )
 		throws FileStoreException
 	{
 		boolean success = false;
 		try
 		{
-			File file = getFile( objectID, fileID );
-			File trashFile = trashFile( objectID, fileID );
+			File file = getFile( objectID, componentID, fileID );
+			File trashFile = trashFile( objectID, componentID, fileID );
 			File parent = trashFile.getParentFile();
 			if ( !parent.exists() ) { parent.mkdirs(); }
 			success = file.renameTo( trashFile );
@@ -266,9 +301,9 @@ System.out.println(i + ": " + fn);
 		}
 	}
 	public String orgCode() { return orgCode; }
-    public String getPath( String objectID, String fileID )
+    public String getPath( String objectID, String componentID, String fileID )
     {
-		File f = getFile( objectID, fileID );
+		File f = getFile( objectID, componentID, fileID );
         return f.getAbsolutePath();
     }
 
@@ -287,7 +322,7 @@ System.out.println(i + ": " + fn);
 	/* construct a file object for the object manifest */
 	private File manifest( String objectID )
 	{
-		return getFile( objectID, "manifest.txt" );
+		return getFile( objectID, null, "manifest.txt" );
 	}
 
 	/**
@@ -295,9 +330,10 @@ System.out.println(i + ": " + fn);
 	 * @param objectID The object identifier.
 	 * @param fileID The file identifier.
 	**/
-	public File getFile( String objectID, String fileID )
+	public File getFile( String objectID, String componentID, String fileID )
 	{
-		String file = stem(objectID) + fileID;
+		if ( componentID == null ) { componentID = "0"; }
+		String file = stem(objectID) + componentID + "-" + fileID;
 		return new File( dir(objectID), file );
 	}
 
@@ -313,9 +349,10 @@ System.out.println(i + ": " + fn);
 		return stem;
 	}
 	/* construct a trash file object based on the object and file ids */
-	private File trashFile( String objectID, String fileID )
+	private File trashFile( String objectID, String componentID, String fileID )
 	{
-		String file = stem(objectID) + fileID;
+		if ( componentID == null ) { componentID = "0"; }
+		String file = stem(objectID) + componentID + "-" + fileID;
 		File trashPath = new File( trashDir, FileStoreUtil.pairPath(objectID) );
 		return new File( trashPath, file );
 	}

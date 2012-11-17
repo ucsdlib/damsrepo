@@ -102,7 +102,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			{
 				ts = triplestore(req);
 				outputTransform(
-					path[2], null, "fedora-object-profile.xsl",
+					path[2], null, null, "fedora-object-profile.xsl",
 					"text/xml", ts, res
 				);
 			}
@@ -113,7 +113,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			{
 				ts = triplestore(req);
 				outputTransform(
-					path[2], null, "fedora-object-datastreams.xsl",
+					path[2], null, null, "fedora-object-datastreams.xsl",
 					"text/xml", ts, res
 				);
 			}
@@ -124,8 +124,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			{
 				ts = triplestore(req);
 				outputTransform(
-					path[2], path[4], "fedora-datastream-profile.xsl",
-					"text/xml", ts, res
+					path[2], cmpid(path[4]), fileid(path[4]),
+					"fedora-datastream-profile.xsl", "text/xml", ts, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fid]/content
@@ -133,7 +133,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			else if ( path.length == 6 && path[1].equals("objects")
 				&& path[3].equals("datastreams") && path[5].equals("content") )
 			{
-				fileShow( path[2], path[4], req, res );
+				fileShow( path[2], cmpid(path[4]), fileid(path[4]), req, res );
 			}
 		}
 		catch ( Exception ex )
@@ -194,11 +194,13 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				fs = filestore(req);
 				ts = triplestore(req);
-				Map info = fileUpload(path[2], path[4], false, in, fs, ts);
+				Map info = fileUpload(
+					path[2], cmpid(path[4]), fileid(path[4]), false, in, fs, ts
+				);
 
 				outputTransform(
-					path[2], path[4], "fedora-datastream-profile.xsl",
-					"text/xml", ts, res
+					path[2], cmpid(path[4]), fileid(path[4]),
+					"fedora-datastream-profile.xsl", "text/xml", ts, res
 				);
 			}
 		}
@@ -239,7 +241,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				);
 
 				outputTransform(
-					path[2], null, "fedora-datastream-profile.xsl",
+					path[2], null, null, "fedora-datastream-profile.xsl",
 					"text/xml", ts, res
 				);
 			}
@@ -253,11 +255,13 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				fs = filestore(req);
 				ts = triplestore(req);
-				fileUpload( path[2], path[4], true, in, fs, ts );
+				fileUpload(
+					path[2], cmpid(path[4]), fileid(path[4]), true, in, fs, ts
+				);
 
 				outputTransform(
-					path[2], path[4], "fedora-datastream-profile.xsl",
-					"text/xml", ts, res
+					path[2], cmpid(path[4]), fileid(path[4]),
+					"fedora-datastream-profile.xsl", "text/xml", ts, res
 				);
 			}
 			else
@@ -296,7 +300,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				info = objectDelete( path[2], ts );
 
 				outputTransform(
-					path[2], null, "fedora-datastream-delete.xsl",
+					path[2], null, null, "fedora-datastream-delete.xsl",
 					"text/plain", ts, res
 				);
 			}
@@ -308,11 +312,13 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				// delete file
 				ts = triplestore(req);
 				fs = filestore(req);
-				info = fileDelete( path[2], path[4], fs, ts );
+				info = fileDelete(
+					path[2], cmpid(path[4]), fileid(path[4]), fs, ts
+				);
 
 				outputTransform(
-					path[2], path[4], "fedora-datastream-delete.xsl",
-					"text/plain", ts, res
+					path[2], cmpid(path[4]), fileid(path[4]),
+					"fedora-datastream-delete.xsl", "text/plain", ts, res
 				);
 			}
 			else
@@ -333,8 +339,9 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 	}
 
-	private void outputTransform( String objid, String fileid, String xsl,
-		String contentType, TripleStore ts, HttpServletResponse res )
+	private void outputTransform( String objid, String cmpid, String fileid,
+		String xsl, String contentType, TripleStore ts,
+		HttpServletResponse res )
 		throws TripleStoreException, TransformerException
 	{
 		// get object metadata
@@ -352,6 +359,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		if ( fileid != null )
 		{
 			params.put("fileid", new String[]{ fileid } );
+			if ( cmpid != null )
+			{
+				params.put("cmpid", new String[]{ cmpid } );
+			}
 		}
 		else
 		{
@@ -362,5 +373,17 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		String content = xslt( rdfxml, xsl, params, null );
 		output( res.SC_OK, content, contentType, res );
+	}
+	private static String cmpid( String s )
+	{
+		if ( s == null || !s.startsWith("_") ) { return null; }
+		int idx = s.indexOf("_",1);
+		return (idx > 0) ? s.substring(1,idx) : null;
+	}
+	private static String fileid( String s )
+	{
+		if ( s == null || !s.startsWith("_") ) { return null; }
+		int idx = s.indexOf("_",1);
+		return (idx > 0) ? s.substring(1,idx) : s.substring(1);
 	}
 }

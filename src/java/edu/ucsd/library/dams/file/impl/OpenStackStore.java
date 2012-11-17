@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 
@@ -30,7 +31,7 @@ import edu.ucsd.library.dams.file.FileStoreUtil;
 public class OpenStackStore implements FileStore
 {
 	/* size of segments to break files into */
-	private static long SEGMENT_SIZE    = 1073741824L; // 1 GB
+	private static long SEGMENT_SIZE = 1073741824L; // 1 GB
 
 	private SwiftClient client = null;
 	private String orgCode = null;
@@ -43,7 +44,7 @@ public class OpenStackStore implements FileStore
 	 * Create an OpenStackStore object, getting parameters from a Properties
 	 *   object.
 	 * @param props Properties object containing the following properties:
-     *  authUser, authToken, authURL, orgCode, timeout.
+	 *  authUser, authToken, authURL, orgCode, timeout.
 	**/
 	public OpenStackStore( Properties props ) throws FileStoreException
 	{
@@ -63,7 +64,7 @@ public class OpenStackStore implements FileStore
 /********** FileStore impl ***************************************************/
 /*****************************************************************************/
 
-	public String[] list( String objectID ) throws FileStoreException
+	public String[] listComponents( String objectID ) throws FileStoreException
 	{
 		String[] fileArr = null;
 		try
@@ -82,6 +83,54 @@ public class OpenStackStore implements FileStore
 			// exclude manifest.txt
 			String path = path(objectID);
 			String stem = stem(orgCode,objectID);
+			if ( path != null ) { stem = path + "/" + stem; }
+			HashSet<String> files2 = new HashSet<String>();
+			for ( int i = 0; i < files.size(); i++ )
+			{
+				String fn = files.get(i);
+				if ( fn.startsWith(stem) )
+				{
+					fn = fn.substring(stem.length());
+				}
+				if ( !fn.endsWith("/") )
+				{
+					if ( fn.indexOf("-") > 0 )
+					{
+						fn = fn.substring(0,fn.indexOf("-"));
+					}
+					files2.add( fn );
+				}
+			}
+
+			// make array
+			fileArr = files2.toArray( new String[files2.size()] );
+		}
+		catch ( IOException ex )
+		{
+			throw new FileStoreException(ex);
+		}
+		return fileArr;
+	}
+	public String[] listFiles( String objectID, String componentID )
+		throws FileStoreException
+	{
+		String[] fileArr = null;
+		try
+		{
+			// return empty list if the container doesn't exist
+			if ( !client.exists(cn(orgCode,objectID),null) )
+			{
+				return new String[]{ };
+			}
+
+			// list files
+			List<String> files = client.listObjects(
+				null, cn(orgCode,objectID), path(objectID)
+			);
+
+			// exclude manifest.txt
+			String path = path(objectID);
+			String stem = stem(orgCode,objectID,componentID);
 			if ( path != null ) { stem = path + "/" + stem; }
 			List<String> files2 = new ArrayList<String>();
 			for ( int i = 0; i < files.size(); i++ )
@@ -106,13 +155,13 @@ public class OpenStackStore implements FileStore
 		}
 		return fileArr;
 	}
-	public boolean exists( String objectID, String fileID )
+	public boolean exists( String objectID, String componentID, String fileID )
 		throws FileStoreException
 	{
 		boolean exists = false;
 		try
 		{
-			exists = client.exists( cn(orgCode,objectID), fn(orgCode,objectID,fileID) );
+			exists = client.exists( cn(orgCode,objectID), fn(orgCode,componentID,objectID,fileID) );
 		}
 		catch ( IOException ex )
 		{
@@ -121,7 +170,7 @@ public class OpenStackStore implements FileStore
 		}
 		return exists;
 	}
-	public Map<String,String> meta( String objectID, String fileID )
+	public Map<String,String> meta( String objectID, String componentID, String fileID )
 		throws FileStoreException
 	{
 		Map<String,String> md = null;
@@ -129,7 +178,7 @@ public class OpenStackStore implements FileStore
 		{
 			// retrieve metadata for a file
 			md = client.stat(
-				cn(orgCode,objectID), fn(orgCode,objectID,fileID)
+				cn(orgCode,objectID), fn(orgCode,objectID,componentID,fileID)
 			);
 		}
 		catch ( IOException ex )
@@ -138,21 +187,21 @@ public class OpenStackStore implements FileStore
 		}
 		return md;
 	}
-	public long length( String objectID, String fileID )
+	public long length( String objectID, String componentID, String fileID )
 		throws FileStoreException
 	{
 		// retrieve metadata for a file
-		Map<String,String> md = meta(objectID,fileID);
+		Map<String,String> md = meta(objectID,componentID,fileID);
 
 		// parse size field
 		return Long.parseLong( md.get("Content-Length") );
 	}
-	public byte[] read( String objectID, String fileID )
+	public byte[] read( String objectID, String componentID, String fileID )
 		throws FileStoreException
 	{
 		try
 		{
-			InputStream in = client.read( null, cn(orgCode,objectID), fn(orgCode,objectID,fileID) );
+			InputStream in = client.read( null, cn(orgCode,objectID), fn(orgCode,objectID,componentID,fileID) );
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			FileStoreUtil.copy( in, out );
 			in.close();
@@ -165,15 +214,15 @@ public class OpenStackStore implements FileStore
 	}
 	public byte[] readManifest( String objectID ) throws FileStoreException
 	{
-		return read( objectID, "manifest.txt" );
+		return read( objectID, null, "manifest.txt" );
 	}
-	public void read( String objectID, String fileID, OutputStream out )
+	public void read( String objectID, String componentID, String fileID, OutputStream out )
 		throws FileStoreException
 	{
 		InputStream in = null;
 		try
 		{
-			in = client.read( null, cn(orgCode,objectID), fn(orgCode,objectID,fileID) );
+			in = client.read( null, cn(orgCode,objectID), fn(orgCode,objectID,componentID,fileID) );
 			FileStoreUtil.copy( in, out );
 		}
 		catch ( IOException ex )
@@ -185,13 +234,13 @@ public class OpenStackStore implements FileStore
 			try { in.close(); } catch ( Exception ex2 ) { }
 		}
 	}
-	public InputStream getInputStream( String objectID, String fileID )
+	public InputStream getInputStream( String objectID, String componentID, String fileID )
 		throws FileStoreException
 	{
 		InputStream in = null;
 		try
 		{
-			in = client.read( null, cn(orgCode,objectID), fn(orgCode,objectID,fileID) );
+			in = client.read( null, cn(orgCode,objectID), fn(orgCode,objectID,componentID,fileID) );
 		}
 		catch ( IOException ex )
 		{
@@ -199,17 +248,17 @@ public class OpenStackStore implements FileStore
 		}
 		return in;
 	}
-	public void write( String objectID, String fileID, byte[] data )
+	public void write( String objectID, String componentID, String fileID, byte[] data )
 		throws FileStoreException
 	{
-		write( objectID, fileID, new ByteArrayInputStream(data) );
+		write( objectID, componentID, fileID, new ByteArrayInputStream(data) );
 	}
 	public void writeManifest( String objectID, byte[] data )
 		throws FileStoreException
 	{
-		write( objectID, "manifest.txt", data );
+		write( objectID, null, "manifest.txt", data );
 	}
-	public void write( String objectID, String fileID, InputStream in )
+	public void write( String objectID, String componentID, String fileID, InputStream in )
 		throws FileStoreException
 	{
 		try
@@ -231,19 +280,19 @@ public class OpenStackStore implements FileStore
 				long size = fis.getChannel().size();
 				if ( size > SEGMENT_SIZE )
 				{
-					client.uploadSegmented( cn(orgCode,objectID), fn(orgCode,objectID,fileID), fis, size );
+					client.uploadSegmented( cn(orgCode,objectID), fn(orgCode,objectID,componentID,fileID), fis, size );
 				}
 				else
 				{
 					// under single-segment upload limit, just upload normally
-					client.upload( cn(orgCode,objectID), fn(orgCode,objectID,fileID), in, -1 );
+					client.upload( cn(orgCode,objectID), fn(orgCode,objectID,componentID,fileID), in, -1 );
 				}
 			}
 			else
 			{
 				// don't know how large the source is, just try to upload the
 				// whole object and throw an error if the 5GB limit is reached
-				client.upload( cn(orgCode,objectID), fn(orgCode,objectID,fileID), in, -1 );
+				client.upload( cn(orgCode,objectID), fn(orgCode,objectID,componentID,fileID), in, -1 );
 			}
 		}
 		catch ( IOException ex )
@@ -255,7 +304,7 @@ public class OpenStackStore implements FileStore
 	{
 		client = null;
 	}
-	public void trash( String objectID, String fileID )
+	public void trash( String objectID, String componentID, String fileID )
 		throws FileStoreException
 	{
 		try
@@ -265,8 +314,8 @@ public class OpenStackStore implements FileStore
 			{
 				client.createContainer("trash");
 			}
-			client.copy( cn(orgCode,objectID), fn(orgCode,objectID,fileID), "trash", cn(orgCode,objectID) + "/" + fn(orgCode,objectID,fileID) );
-			client.delete( cn(orgCode,objectID), fn(orgCode,objectID,fileID) );
+			client.copy( cn(orgCode,objectID), fn(orgCode,objectID,componentID,fileID), "trash", cn(orgCode,objectID) + "/" + fn(orgCode,objectID,componentID,fileID) );
+			client.delete( cn(orgCode,objectID), fn(orgCode,objectID,componentID,fileID) );
 		}
 		catch ( IOException ex )
 		{
@@ -274,9 +323,9 @@ public class OpenStackStore implements FileStore
 		}
 	}
 	public String orgCode() { return orgCode; }
-	public String getPath( String objectID, String fileID )
+	public String getPath( String objectID, String componentID, String fileID )
 	{
-		return cn(orgCode,objectID) + "/" + fn(orgCode,objectID,fileID);
+		return cn(orgCode,objectID) + "/" + fn(orgCode,objectID,componentID,fileID);
 	}
 
 /*****************************************************************************/
@@ -284,18 +333,48 @@ public class OpenStackStore implements FileStore
 /*****************************************************************************/
 	protected static String cn( String orgCode, String objectID )
 	{
-		return OpenStackStore.cn( orgCode, objectID );
+		return objectID.substring(0,2);
 	}
 	protected static String stem( String orgCode, String objectID )
 	{
-		return OpenStackStore.stem( orgCode, objectID );
+		String stem = "";
+		if ( orgCode != null && !orgCode.equals("") )
+		{
+			stem = orgCode + "-";
+		}
+		stem += objectID + "-";
+		return stem;
+	}
+	protected static String stem( String orgCode, String objectID,
+		String componentID )
+	{
+		String stem = stem( orgCode, objectID );
+		if ( componentID != null ) { stem += componentID + "-"; }
+		else { stem += "0-"; }
+		return stem;
 	}
 	protected static String path( String objectID )
 	{
-		return OpenStackStore.path( objectID );
+		return objectID;
 	}
-	protected static String fn( String orgCode, String objectID, String fileID )
+	protected static String fn( String orgCode, String objectID,
+		String componentID, String fileID )
 	{
-		return OpenStackStore.fn( orgCode, objectID, fileID );
+		String fn;
+		if ( fileID == null )
+		{
+			return null;
+		}
+
+		String stem = stem(orgCode,objectID,componentID);
+		if ( !fileID.startsWith(stem) )
+		{
+			fn = objectID + "/" + stem + fileID;
+		}
+		else
+		{
+			fn = objectID + "/" + fileID;
+		}
+		return fn;
 	}
 }

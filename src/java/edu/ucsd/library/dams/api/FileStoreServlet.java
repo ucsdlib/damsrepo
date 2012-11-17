@@ -143,13 +143,24 @@ public class FileStoreServlet extends HttpServlet
 
 		// get object and file ids from path
 		String objid = null;
+		String cmpid = null;
 		String fileid = null;
 		try
 		{
-			// /bb1234567x/1-1.tif
+			// /bb1234567x/1.tif
+			// /bb1234567x/1/2.tif
 			String[] path = request.getPathInfo().split("/");
-			objid = path[1];
-			fileid = path[2];
+			if ( path.length == 3 )
+			{
+				objid = path[1];
+				fileid = path[2];
+			}
+			else if ( path.length == 4 )
+			{
+				objid = path[1];
+				cmpid = path[2];
+				fileid = path[3];
+			}
 		}
 		catch (Exception e)
 		{
@@ -246,7 +257,7 @@ public class FileStoreServlet extends HttpServlet
 		try
 		{
 			long start = System.currentTimeMillis();
-			meta = fs.meta( objid, fileid );
+			meta = fs.meta( objid, cmpid, fileid );
 			metaTime = System.currentTimeMillis() - start;
 		}
 		catch ( Exception ex )
@@ -385,7 +396,7 @@ public class FileStoreServlet extends HttpServlet
 			{
 				long start = System.currentTimeMillis();
 				// Open streams.
-				input = fs.getInputStream(objid,fileid);
+				input = fs.getInputStream(objid,cmpid,fileid);
 				output = response.getOutputStream();
 				response.setContentType(contentType);
 				if (acceptsGzip)

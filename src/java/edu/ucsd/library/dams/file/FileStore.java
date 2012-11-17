@@ -12,33 +12,39 @@ import java.util.Map;
 public interface FileStore
 {
 	/**
+	 * List components in an object.
+	**/
+	public String[] listComponents( String objectID )
+		throws FileStoreException;
+
+	/**
 	 * List files in an object.
 	**/
-	public String[] list( String objectID )
+	public String[] listFiles( String objectID, String componentID )
 		throws FileStoreException;
 
 	/**
 	 * Test whether a file exists.
 	**/
-	public boolean exists( String objectID, String fileID )
+	public boolean exists( String objectID, String componentID, String fileID )
 		throws FileStoreException;
 
 	/**
 	 * Returns the length of a file.
 	**/
-	public long length( String objectID, String fileID )
+	public long length( String objectID, String componentID, String fileID )
 		throws FileStoreException;
 
 	/**
 	 * Returns metadata about a file.
 	**/
-	public Map<String,String> meta( String objectID, String fileID )
-		throws FileStoreException;
+	public Map<String,String> meta( String objectID, String componentID,
+		String fileID ) throws FileStoreException;
 
 	/**
 	 * Returns the contents of a file as a byte array.
 	**/
-	public byte[] read( String objectID, String fileID )
+	public byte[] read( String objectID, String componentID, String fileID )
 		throws FileStoreException;
 
 	/**
@@ -50,20 +56,20 @@ public interface FileStore
 	/**
 	 * Read a file and write it to an output stream.
 	**/
-	public void read( String objectID, String fileID, OutputStream out )
-		throws FileStoreException;
+	public void read( String objectID, String componentID, String fileID,
+		OutputStream out ) throws FileStoreException;
 
 	/**
 	 * Get an InputStream containing file data.
 	**/
-	public InputStream getInputStream( String objectID, String fileID )
-		throws FileStoreException;
+	public InputStream getInputStream( String objectID, String componentID,
+		String fileID ) throws FileStoreException;
 
 	/**
 	 * Write the contents of a byte array to a file.
 	**/
-	public void write( String objectID, String fileID, byte[] data )
-		throws FileStoreException;
+	public void write( String objectID, String componentID, String fileID,
+		byte[] data ) throws FileStoreException;
 
 	/**
 	 * Write a manifest for the object.
@@ -74,8 +80,8 @@ public interface FileStore
 	/**
 	 * Write the contents of an input stream to a file.
 	**/
-	public void write( String objectID, String fileID, InputStream in )
-		throws FileStoreException;
+	public void write( String objectID, String componentID, String fileID,
+		InputStream in ) throws FileStoreException;
 
 	/**
 	 * Close any resources associated with this store.
@@ -85,7 +91,7 @@ public interface FileStore
 	/**
 	 * Remove a file from an object and move it to the trash.
 	**/
-	public void trash( String objectID, String fileID )
+	public void trash( String objectID, String componentID, String fileID )
 		throws FileStoreException;
 
 	/**
@@ -96,6 +102,6 @@ public interface FileStore
 	/**
 	 * Get the full path for a file, useful for logging or debugging.
 	**/
-	public String getPath( String objectID, String fileID )
+	public String getPath( String objectID, String componentID, String fileID )
 		throws FileStoreException;
 }

@@ -925,37 +925,42 @@ public class SolrIndexer
 		if ( fs != null )
 		{
 			String fulltext = null;
-			List<String> files = obj.listFiles();
-			for ( int i = 0; i < files.size(); i++ )
+			List<String> components = obj.listComponents();
+			for ( int i = 0; i < components.size(); i++ )
 			{
-				String fn = files.get(i);
-				if ( fn != null && fn.endsWith(".pdf")
-					&& fs.exists(subject,fn) )
+				String compid = components.get(i);
+				List<String> files = obj.listFiles( compid );
+				for ( int j = 0; j < files.size(); j++ )
 				{
-					// read to string 
-					InputStream is = null;
-					try
+					String fn = files.get(j);
+					if ( fn != null && fn.endsWith(".pdf")
+						&& fs.exists(subject,compid,fn) )
 					{
-						is = fs.getInputStream( subject, fn );
-						fulltext = PDFParser.getContent( is, subject );
-						fulltext = StringEscapeUtils.unescapeXml(fulltext);
-						fulltext = escapeText(fulltext);
-						fulltext = StringEscapeUtils.escapeXml(fulltext);
-					}
-					catch ( Exception ex )
-					{
-						log.warn(
-							"Error reading or parsing FileStore content: "
-								+ subject + "/" + fn
-						);
-					}
-					finally
-					{
+						// read to string 
+						InputStream is = null;
 						try
 						{
-							if( is != null ) { is.close(); }
+							is = fs.getInputStream( subject, compid, fn);
+							fulltext = PDFParser.getContent( is, subject );
+							fulltext = StringEscapeUtils.unescapeXml(fulltext);
+							fulltext = escapeText(fulltext);
+							fulltext = StringEscapeUtils.escapeXml(fulltext);
 						}
-						catch ( Exception e2 ) { log.warn(e2); }
+						catch ( Exception ex )
+						{
+							log.warn(
+								"Error reading or parsing FileStore content: "
+									+ subject + "/" + fn
+							);
+						}
+						finally
+						{
+							try
+							{
+								if( is != null ) { is.close(); }
+							}
+							catch ( Exception e2 ) { log.warn(e2); }
+						}
 					}
 				}
 			}

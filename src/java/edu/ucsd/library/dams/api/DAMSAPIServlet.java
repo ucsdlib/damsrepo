@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
 import java.net.URLEncoder;
 import javax.naming.InitialContext;
 
@@ -102,6 +103,7 @@ public class DAMSAPIServlet extends HttpServlet
 	private Map<String,String> idMinters; // ID series name=>url map
 	private Map<String,String> nsmap;     // URI/name to URI map
 	private String idNS;                  // Prefix for unqualified identifiers
+	private String prNS;                  // Prefix for unqualified predicates
 
 	// uploads
 	private int uploadCount = 0; // current number of uploads being processed
@@ -121,6 +123,9 @@ public class DAMSAPIServlet extends HttpServlet
 
 	// fedora compat
 	protected String fedoraObjectDS;  // datastream id that maps to object RDF
+
+	// number detection
+	private static Pattern numberPattern = null;
 
 	// initialize servlet parameters
 	public void init( ServletConfig config ) throws ServletException
@@ -152,6 +157,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			nsmap = TripleStoreUtil.namespaceMap(props);
 			idNS = nsmap.get("damsid");
+			prNS = nsmap.get("dams");
 
 			// solr
 			solrBase = props.getProperty("solr.base");
@@ -278,7 +284,10 @@ public class DAMSAPIServlet extends HttpServlet
 				if ( info.get("obj") != null )
 				{
 					DAMSObject obj = (DAMSObject)info.get("obj");
-					output( obj, false, req.getParameterMap(), req.getPathInfo(), res );
+					output(
+						obj, false, req.getParameterMap(),
+						req.getPathInfo(), res
+					);
 					outputRequired = false;
 				}
 			}
@@ -291,7 +300,9 @@ public class DAMSAPIServlet extends HttpServlet
 				if ( info.get("obj") != null )
 				{
 					DAMSObject obj = (DAMSObject)info.get("obj");
-					output( obj, true, req.getParameterMap(), req.getPathInfo(), res );
+					output(
+						obj, true, req.getParameterMap(), req.getPathInfo(), res
+					);
 					outputRequired = false;
 				}
 			}
@@ -310,26 +321,48 @@ public class DAMSAPIServlet extends HttpServlet
 				ts = triplestore(req);
 				info = objectValidate( path[2], fs, ts );
 			}
-			// GET /files/bb1234567x/1-1.tif
+			// GET /files/bb1234567x/1.tif
 			else if ( path.length == 4 && path[1].equals("files") )
 			{
-				fileShow( path[2], path[3], req, res );
+				fileShow( path[2], null, path[3], req, res );
 				outputRequired = false;
 			}
-			// GET /files/bb1234567x/1-1.tif/exists
+			// GET /files/bb1234567x/1/1.tif
+			else if ( path.length == 5 && path[1].equals("files")
+				&& isNumber(path[3]) )
+			{
+				fileShow( path[2], path[3], path[4], req, res );
+				outputRequired = false;
+			}
+			// GET /files/bb1234567x/1.tif/exists
 			else if ( path.length == 5 && path[1].equals("files")
 				&& path[4].equals("exists") )
 			{
 				fs = filestore(req);
-				info = fileExists( path[2], path[3], fs );
+				info = fileExists( path[2], null, path[3], fs );
 			}
-			// GET /files/bb1234567x/1-1.tif/fixity
+			// GET /files/bb1234567x/1/1.tif/exists
+			else if ( path.length == 6 && path[1].equals("files")
+				&& path[4].equals("exists") && isNumber(path[3]) )
+			{
+				fs = filestore(req);
+				info = fileExists( path[2], path[3], path[4], fs );
+			}
+			// GET /files/bb1234567x/1.tif/fixity
 			else if ( path.length == 5 && path[1].equals("files")
 				&& path[4].equals("fixity") )
 			{
 				fs = filestore(req);
 				ts = triplestore(req);
-				info = fileFixity( path[2], path[3], fs, ts );
+				info = fileFixity( path[2], null, path[3], fs, ts );
+			}
+			// GET /files/bb1234567x/1/1.tif/fixity
+			else if ( path.length == 6 && path[1].equals("files")
+				&& path[4].equals("fixity") && isNumber(path[3]) )
+			{
+				fs = filestore(req);
+				ts = triplestore(req);
+				info = fileFixity( path[2], path[3], path[4], fs, ts );
 			}
 			// GET /client/info
 			else if ( path.length == 3 && path[1].equals("client")
@@ -462,7 +495,7 @@ public class DAMSAPIServlet extends HttpServlet
 					fs = filestore(req);
 				}
 				objectTransform(
-					path[2], null, export, ts, xsl, fs, dest,
+					path[2], null, null, export, ts, xsl, fs, dest,
 					req.getParameterMap(), req.getPathInfo(), res
 				);
 				outputRequired = false;
@@ -475,7 +508,7 @@ public class DAMSAPIServlet extends HttpServlet
 				ts = triplestore(req);
 				info = indexUpdate( ids, ts );
 			}
-			// POST /files/bb1234567x/1-1.tif
+			// POST /files/bb1234567x/1.tif
 			else if ( path.length == 4 && path[1].equals("files") )
 			{
 				try
@@ -495,7 +528,9 @@ public class DAMSAPIServlet extends HttpServlet
 						params = bundle.getParams();
 						fs = filestore(req);
 						ts = triplestore(req);
-						info = fileUpload(path[2], path[3], false, in, fs, ts);
+						info = fileUpload(
+							path[2], null, path[3], false, in, fs, ts
+						);
 					}
 				}
 				catch ( Exception ex )
@@ -504,21 +539,69 @@ public class DAMSAPIServlet extends HttpServlet
 					info = error("Error uploading file");
 				}
 			}
-			// POST /files/bb1234567x/1-1.tif/characterize
+			// POST /files/bb1234567x/1/1.tif
+			else if ( path.length == 5 && path[1].equals("files")
+				&& isNumber(path[3]) )
+			{
+				try
+				{
+					// make sure request is multipart with a file upload
+					if ( !ServletFileUpload.isMultipartContent(req) )
+					{
+						info = error(
+							HttpServletResponse.SC_BAD_REQUEST,
+							"Multipart required"
+						);
+					}
+					else
+					{
+						InputBundle bundle = input( req );
+						InputStream in = bundle.getInputStream();
+						params = bundle.getParams();
+						fs = filestore(req);
+						ts = triplestore(req);
+						info = fileUpload(
+							path[2], path[3], path[4], false, in, fs, ts
+						);
+					}
+				}
+				catch ( Exception ex )
+				{
+					log.warn("Error uploading file", ex );
+					info = error("Error uploading file");
+				}
+			}
+			// POST /files/bb1234567x/1.tif/characterize
 			else if ( path.length == 5 && path[1].equals("files")
 				&& path[4].equals("characterize") )
 			{
 				fs = filestore(req);
 				ts = triplestore(req);
-				info = fileCharacterize( path[2], path[3], fs, ts );
+				info = fileCharacterize( path[2], null, path[3], fs, ts );
 			}
-			// POST /files/bb1234567x/1-1.tif/derivatives
+			// POST /files/bb1234567x/1/1.tif/characterize
+			else if ( path.length == 6 && path[1].equals("files")
+				&& path[4].equals("characterize") && isNumber(path[3]) )
+			{
+				fs = filestore(req);
+				ts = triplestore(req);
+				info = fileCharacterize( path[2], path[3], path[4], fs, ts );
+			}
+			// POST /files/bb1234567x/1.tif/derivatives
 			else if ( path.length == 5 && path[1].equals("files")
 				&& path[4].equals("derivatives") )
 			{
 				fs = filestore(req);
 				ts = triplestore(req);
-				info = fileDerivatives( path[2], path[3], fs, ts );
+				info = fileDerivatives( path[2], null, path[3], fs, ts );
+			}
+			// POST /files/bb1234567x/1/1.tif/derivatives
+			else if ( path.length == 6 && path[1].equals("files")
+				&& path[4].equals("derivatives") && isNumber(path[3]) )
+			{
+				fs = filestore(req);
+				ts = triplestore(req);
+				info = fileDerivatives( path[2], path[3], path[4], fs, ts );
 			}
 			else
 			{
@@ -568,7 +651,7 @@ public class DAMSAPIServlet extends HttpServlet
 			String[] path = path( req );
 	
 			// PUT /objects/bb1234567x
-			if ( path.length == 3 )
+			if ( path.length == 3 && path[1].equals("objects") )
 			{
 				try
 				{
@@ -590,8 +673,8 @@ public class DAMSAPIServlet extends HttpServlet
 					info = error( "Error updating object" );
 				}
 			}
-			// PUT /objects/bb1234567x/1-1.tif
-			else if ( path.length == 4 )
+			// PUT /files/bb1234567x/1.tif
+			else if ( path.length == 4 && path[1].equals("files") )
 			{
 				try
 				{
@@ -610,7 +693,41 @@ public class DAMSAPIServlet extends HttpServlet
 						params = bundle.getParams();
 						fs = filestore(req);
 						ts = triplestore(req);
-						info = fileUpload( path[2], path[3], true, in, fs, ts );
+						info = fileUpload(
+							path[2], null, path[3], true, in, fs, ts
+						);
+					}
+				}
+				catch ( Exception ex )
+				{
+					log.warn( "Error updating file", ex );
+					info = error( "Error updating file" );
+				}
+			}
+			// PUT /files/bb1234567x/1/1.tif
+			else if ( path.length == 5 && path[1].equals("files")
+				&& isNumber(path[3]) )
+			{
+				try
+				{
+					// make sure request is multipart with a file upload
+					if ( !ServletFileUpload.isMultipartContent(req) )
+					{
+						info = error(
+							HttpServletResponse.SC_BAD_REQUEST,
+							"Multipart required"
+						);
+					}
+					else
+					{
+						InputBundle bundle = input( req );
+						InputStream in = bundle.getInputStream();
+						params = bundle.getParams();
+						fs = filestore(req);
+						ts = triplestore(req);
+						info = fileUpload(
+							path[2], path[3], path[4], true, in, fs, ts
+						);
 					}
 				}
 				catch ( Exception ex )
@@ -678,12 +795,20 @@ public class DAMSAPIServlet extends HttpServlet
 				String tsName = getParamString(req,"ts",tsDefault);
 				info = indexDelete( ids, tsName );
 			}
-			// DELETE /files/bb1234567x/1-1.tif
+			// DELETE /files/bb1234567x/1.tif
 			else if ( path.length == 4 && path[1].equals("files") )
 			{
 				fs = filestore(req);
 				ts = triplestore(req);
-				info = fileDelete( path[2], path[3], fs, ts );
+				info = fileDelete( path[2], null, path[3], fs, ts );
+			}
+			// DELETE /files/bb1234567x/1/1.tif
+			else if ( path.length == 5 && path[1].equals("files")
+				&& isNumber(path[3]) )
+			{
+				fs = filestore(req);
+				ts = triplestore(req);
+				info = fileDelete( path[2], path[3], path[4], fs, ts );
 			}
 			else
 			{
@@ -772,14 +897,15 @@ public class DAMSAPIServlet extends HttpServlet
 		return null; // DAMS_MGR
 		// output = metadata: list of objects
 	}
-	public Map fileCharacterize( String objid, String fileid, FileStore fs, TripleStore ts )
+	public Map fileCharacterize( String objid, String cmpid, String fileid,
+		FileStore fs, TripleStore ts )
 	{
+		// XXX component
 		return null; // DAMS_MGR
 		// output = status message
-		// if res is null, update triplestore but don't output anything
 	}
-	public Map fileUpload( String objid, String fileid, boolean overwrite,
-		 InputStream in, FileStore fs, TripleStore ts )
+	public Map fileUpload( String objid, String cmpid, String fileid,
+		boolean overwrite, InputStream in, FileStore fs, TripleStore ts )
 	{
 		try
 		{
@@ -813,14 +939,14 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 	
 			// make sure appropriate method is being used to create/update
-			if ( !overwrite && fs.exists( objid, fileid ) )
+			if ( !overwrite && fs.exists( objid, cmpid, fileid ) )
 			{
 				return error(
 					HttpServletResponse.SC_FORBIDDEN,
 					"File already exists, use PUT to overwrite"
 				);
 			}
-			else if ( overwrite && !fs.exists( objid, fileid ) )
+			else if ( overwrite && !fs.exists( objid, cmpid, fileid ) )
 			{
 				return error(
 					HttpServletResponse.SC_FORBIDDEN,
@@ -829,9 +955,9 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 	
 			// upload file
-			fs.write( objid, fileid, in );
-			boolean successful = fs.exists(objid,fileid)
-				&& fs.length(objid,fileid) > 0;
+			fs.write( objid, cmpid, fileid, in );
+			boolean successful = fs.exists(objid,cmpid,fileid)
+				&& fs.length(objid,cmpid,fileid) > 0;
 			in.close();
 	
 			String type = (overwrite) ? "file modification" : "file creation";
@@ -851,12 +977,13 @@ public class DAMSAPIServlet extends HttpServlet
 					message = "File created successfully";
 				}
 				createEvent(
-					ts, objid, fileid, type, true, detail, null
+					ts, objid, cmpid, fileid, type, true, detail, null
 				);
 
 				// FILE_META: update file metadata
-				fileDeleteMetadata( objid, fileid, ts );
-				fileCharacterize( objid, fileid, fs, ts );
+				fileDeleteMetadata( objid, cmpid, fileid, ts );
+				fileCharacterize( objid, cmpid, fileid, fs, ts );
+				// XXX: need to recreate link from object/component to file
 
 				return status( status, message );
 			}
@@ -865,7 +992,7 @@ public class DAMSAPIServlet extends HttpServlet
 				if ( overwrite ) { message = "File update failed"; }
 				else { message = "File creation failed"; }
 				createEvent(
-					ts, objid, fileid, type, false, detail,
+					ts, objid, cmpid, fileid, type, false, detail,
 					"Failed to upload file"
 				);
 
@@ -878,22 +1005,29 @@ public class DAMSAPIServlet extends HttpServlet
 			return error( "Error uploading file: " + ex.toString() );
 		}
 	}
-	public Map fileDelete( String objid, String fileid, FileStore fs, TripleStore ts )
+	public Map fileDelete( String objid, String cmpid, String fileid,
+		FileStore fs, TripleStore ts )
 	{
 		try
 		{
 			// both objid and fileid are required
 			if ( objid == null || objid.trim().equals("") )
 			{
-				return error( HttpServletResponse.SC_BAD_REQUEST, "Object identifier required" );
+				return error(
+					HttpServletResponse.SC_BAD_REQUEST,
+					"Object identifier required"
+				);
 			}
 			if ( fileid == null || fileid.trim().equals("") )
 			{
-				return error( HttpServletResponse.SC_BAD_REQUEST, "File identifier required" );
+				return error(
+					HttpServletResponse.SC_BAD_REQUEST,
+					"File identifier required"
+				);
 			}
 	
 			// make sure the file exists
-			if ( !fs.exists( objid, fileid ) )
+			if ( !fs.exists( objid, cmpid, fileid ) )
 			{
 				return error(
 					HttpServletResponse.SC_FORBIDDEN,
@@ -902,29 +1036,29 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 	
 			// delete the file
-			fs.trash( objid, fileid );
-			boolean successful = !fs.exists(objid,fileid);
+			fs.trash( objid, cmpid, fileid );
+			boolean successful = !fs.exists(objid,cmpid,fileid);
 	
 			if ( successful )
 			{
 				createEvent(
-					null, objid, fileid, "file deletion", true,
+					null, objid, cmpid, fileid, "file deletion", true,
 					"Deleting file EVENT_DETAIL_SPEC", null
 				);
 
 				// FILE_META: update file metadata
-				fileDeleteMetadata( objid, fileid, ts );
+				fileDeleteMetadata( objid, cmpid, fileid, ts );
 
 				return status( "File deleted successfully" );
 			}
 			else
 			{
 				createEvent(
-					null, objid, fileid, "file deletion", false,
+					null, objid, cmpid, fileid, "file deletion", false,
 					"Deleting file EVENT_DETAIL_SPEC", "outcome detail spec"
 				);
 				return error(
-					"Failed to delete file: " + objid + "/" + fileid
+					"Failed to delete file: " + objid + fileString(cmpid,fileid)
 				);
 			}
 		}
@@ -934,22 +1068,25 @@ public class DAMSAPIServlet extends HttpServlet
 			return error( "Error deleting file: " + ex.toString() );
 		}
 	}
-	public Map fileDerivatives( String objid, String fileid,
+	public Map fileDerivatives( String objid, String cmpid, String fileid,
 		FileStore fs, TripleStore ts )
 	{
 		return null; // DAMS_MGR
 	}
-	public Map fileExists( String objid, String fileid, FileStore fs )
+	public Map fileExists( String objid, String cmpid, String fileid,
+		FileStore fs )
 	{
 		try
 		{
-			if ( fs.exists( objid, fileid ) )
+			if ( fs.exists( objid, cmpid, fileid ) )
 			{
 				return status( "File exists" );
 			}
 			else
 			{
-				return error( HttpServletResponse.SC_NOT_FOUND, "File does not exist" );
+				return error(
+					HttpServletResponse.SC_NOT_FOUND, "File does not exist"
+				);
 			}
 		}
 		catch ( Exception ex )
@@ -958,8 +1095,8 @@ public class DAMSAPIServlet extends HttpServlet
 			return error( "Error processing request: " + ex.toString() );
 		}
 	}
-	public Map fileFixity( String objid, String fileid, FileStore fs,
-		TripleStore ts )
+	public Map fileFixity( String objid, String cmpid, String fileid,
+		FileStore fs, TripleStore ts )
 	{
 		return null; // DAMS_MGR
 	}
@@ -1048,7 +1185,6 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( in != null )
 			{
 				// XXX: impl other modes
-				// XXX: error handling
 				if ( mode == null || mode.equals("") || mode.equals("all") )
 				{
 					DAMSObject trans = new DAMSObject(ts,null,nsmap);
@@ -1087,7 +1223,7 @@ public class DAMSAPIServlet extends HttpServlet
 							message = "Object saved successfully";
 						}
 						createEvent(
-							ts, objid, null, type, true, detail, null
+							ts, objid, null, null, type, true, detail, null
 						);
 						return status( status, message );
 					}
@@ -1127,7 +1263,7 @@ public class DAMSAPIServlet extends HttpServlet
 							message = "Object saved successfully";
 						}
 						createEvent(
-							ts, objid, null, type, true, detail, null
+							ts, objid, null, null, type, true, detail, null
 						);
 						edit.removeBackup();
 						return status( status, message );
@@ -1136,13 +1272,19 @@ public class DAMSAPIServlet extends HttpServlet
 					{
 						// failure
 						String msg = edit.getException().toString();
-						createEvent( ts, objid, null, type, false, "EVENT_DETAIL_SPEC", msg );
+						createEvent(
+							ts, objid, null, null, type, false,
+							"EVENT_DETAIL_SPEC", msg
+						);
 						return error( msg );
 					}
 				}
 				else
 				{
-					return error( HttpServletResponse.SC_BAD_REQUEST, "Object metadata must be supplied as a file upload or in the adds parameter" );
+					return error(
+						HttpServletResponse.SC_BAD_REQUEST,
+						"Object metadata must be supplied as a file upload or in the adds parameter"
+					);
 				}
 			}
 		}
@@ -1179,12 +1321,12 @@ public class DAMSAPIServlet extends HttpServlet
 
 			if ( ! ts.exists(id) )
 			{
-				createEvent( ts, objid, null, "object deletion", true, "Deleting object EVENT_DETAIL_SPEC", null );
+				createEvent( ts, objid, null, null, "object deletion", true, "Deleting object EVENT_DETAIL_SPEC", null );
 				return status( "Object deleted successfully" );
 			}
 			else
 			{
-				createEvent( ts, objid, null, "object deletion", false, "Deleting object EVENT_DETAIL_SPEC", "outcome detail spec" );
+				createEvent( ts, objid, null, null, "object deletion", false, "Deleting object EVENT_DETAIL_SPEC", "outcome detail spec" );
 				return error( "Object deletion failed" );
 			}
 			//ts.addLiteralStatement(id,updatedFlag,"delete",id);
@@ -1307,12 +1449,12 @@ public class DAMSAPIServlet extends HttpServlet
 	 * @param ts TripleStore to retrieve the object from.
 	 * @param xslName Filename of XSL stylesheet.
 	**/
-	public void objectTransform( String objid, String fileid, boolean export,
-		TripleStore ts, String xslName, Map<String,String[]> params,
-		String pathInfo, HttpServletResponse res )
+	public void objectTransform( String objid, String cmpid, String fileid,
+		boolean export, TripleStore ts, String xslName,
+		Map<String,String[]> params, String pathInfo, HttpServletResponse res )
 	{
 		objectTransform(
-			objid, fileid, export, ts, xslName,
+			objid, cmpid, fileid, export, ts, xslName,
 			null, null, params, pathInfo, res
 		);
 	}
@@ -1321,35 +1463,40 @@ public class DAMSAPIServlet extends HttpServlet
 	 * the fileid as a parameter to the stylesheet) optionally saving the
 	 * output as a new file.
 	 * @param objid Object identifier.
+	 * @param fileid Component identifier.
 	 * @param fileid File identifier.
 	 * @param ts TripleStore to retrieve the object from.
 	 * @param xslName Filename of XSL stylesheet.
 	 * @param fs If not null, save the result to this FileStore.
 	 * @param destid If not null, save the result as this file.
 	**/
-	public void objectTransform( String objid, String fileid, boolean export,
-		TripleStore ts, String xslName, FileStore fs, String destid,
-		Map<String,String[]> params, String pathInfo, HttpServletResponse res )
+	public void objectTransform( String objid, String cmpid, String fileid,
+		boolean export, TripleStore ts, String xslName, FileStore fs,
+		String destid, Map<String,String[]> params, String pathInfo,
+		HttpServletResponse res )
 	{
 		try
 		{
 			// get object from triplestore as Document
 			Map m = objectShow( objid, ts );
-			String rdfxml = null;
+			String xml = null;
 			if ( m.get("obj") != null )
 			{
 				DAMSObject obj = (DAMSObject)m.get("obj");
-				rdfxml = obj.getRDFXML(export);
+				xml = obj.getRDFXML(export);
 			}
 
 			// then do xslt...
 			if ( fileid != null ) { params.put("fileid",new String[]{fileid}); }
-			String content = xslt( rdfxml, xslName, params, queryString(params) );
+			if ( cmpid != null ) { params.put("cmpid",new String[]{cmpid}); }
+			String content = xslt( xml, xslName, params, queryString(params) );
 			output( res.SC_OK, content, "text/xml", res );
 		}
 		catch ( Exception ex )
 		{
-			output( error("Error transforming metadata"), params, pathInfo, res );
+			output(
+				error("Error transforming metadata"), params, pathInfo, res
+			);
 		}
 	}
 	public Map objectExists( String objid, TripleStore ts )
@@ -1399,32 +1546,34 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 	}
 
-	private void fileDeleteMetadata( String objid, String fileid,
+	private void fileDeleteMetadata( String objid, String cmpid, String fileid,
 		TripleStore ts ) throws TripleStoreException
 	{
 		try
 		{
 			// identifier object for the file
-			Identifier fileIdentifier = Identifier.publicURI(
-				idNS + objid + "/" + fileid
+			Identifier objID = Identifier.publicURI( idNS + objid );
+			Identifier fileID = Identifier.publicURI(
+				idNS + objid + fileString(cmpid, fileid)
 			);
+			Identifier hasFilePred = Identifier.publicURI( prNS + "hasFile" );
 
-			// delete file metadata
-// ZZZ: need to delete bnodes related to any linked SourceCapture and/or
-// OtherRights objects
-			ts.removeStatements( fileIdentifier, null, null );
+			// delete file metadata (n.b. first arg is object identifer, not
+			// the subject of the triple, so this works for files attached
+			// to components, etc.)
+			TripleStoreUtil.recursiveDelete( objID, hasFilePred, fileID, ts );
 
 			// delete links from object/components
-			ts.removeStatements( null, null, fileIdentifier );
+			ts.removeStatements( null, null, fileID );
 		}
 		catch ( Exception ex )
 		{
 			log.error( "Error deleting file metadata", ex );
 		}
 	}
-	private void createEvent( TripleStore ts, String objid, String fileid,
-		String type, boolean success, String detail, String outcomeNote )
-		throws TripleStoreException
+	private void createEvent( TripleStore ts, String objid, String cmpid,
+		String fileid, String type, boolean success, String detail,
+		String outcomeNote ) throws TripleStoreException
 	{
 		try
 		{
@@ -1443,6 +1592,7 @@ public class DAMSAPIServlet extends HttpServlet
 	
 			// create event object and save to the triplestore
 			String obj = objid.startsWith("http") ? objid : idNS + objid;
+			if ( cmpid != null ) { obj += "/" + cmpid; }
 			if ( fileid != null ) { obj += "/" + fileid; }
 			Identifier subID = Identifier.publicURI( obj );
 			Event e = new Event(
@@ -1460,14 +1610,14 @@ public class DAMSAPIServlet extends HttpServlet
 	//=========================================================================
 	// Methods that handle their own response
 	//=========================================================================
-	public void fileShow( String objid, String fileid, HttpServletRequest req,
-		HttpServletResponse res )
+	public void fileShow( String objid, String cmpid, String fileid,
+		HttpServletRequest req, HttpServletResponse res )
 	{
 		// ZZZ: access control
 		req.setAttribute(
 			"edu.ucsd.library.dams.api.DAMSAPIServlet.authorized","true"
 		);
-		String url = "/file/" + objid + "/" + fileid;
+		String url = "/file/" + objid + fileString(cmpid, fileid);
 		if ( req.getQueryString() != null && !req.getQueryString().equals("") )
 		{
 			url += "?" + req.getQueryString();
@@ -2024,6 +2174,18 @@ public class DAMSAPIServlet extends HttpServlet
 	//========================================================================
 	// Request parsing, input, etc.
 	//========================================================================
+	public static boolean isNumber( String s )
+	{
+		if ( numberPattern == null )
+		{
+			numberPattern = Pattern.compile("\\d+");
+		}
+		return numberPattern.matcher( s ).matches();
+	}
+	public static String fileString( String cmpid, String fileid )
+	{
+		return (cmpid != null) ? "/" + cmpid + "/" + fileid : "/" + fileid;
+	}
 	public List<String> list( Properties props, String prefix, String suffix )
 	{
 		List<String> values = new ArrayList<String>();

@@ -101,11 +101,15 @@ public class FileStoreUtil
 		try
 		{
 			// trash existing destination files
-			String[] files = fs.list( objectID );
-			for ( int i = 0; i < files.length; i++ )
+			String[] components = fs.listComponents( objectID );
+			for ( int i = 0; i < components.length; i++ )
 			{
-				fs.trash( objectID, files[i] );
-				trashed++;
+				String[] files = fs.listFiles( objectID, components[i] );
+				for ( int j = 0; j < files.length; j++ )
+				{
+					fs.trash( objectID, components[i], files[j] );
+					trashed++;
+				}
 			}
 		}
 		catch ( Exception ex )
@@ -134,11 +138,15 @@ public class FileStoreUtil
 			trashObject( dst, objectID );
 
 			// copy new files from source
-			String[] srcFiles = src.list( objectID );
-			for ( int i = 0; i < srcFiles.length; i++ )
+			String[] components = src.listComponents( objectID );
+			for ( int i = 0; i < components.length; i++ )
 			{
-				copyFile( src, dst, objectID, srcFiles[i] );
-				files++;
+				String[] srcFiles = src.listFiles( objectID, components[i] );
+				for ( int j = 0; j < srcFiles.length; j++ )
+				{
+					copyFile( src, dst, objectID, components[i], srcFiles[j] );
+					files++;
+				}
 			}
 		}
 		catch ( Exception ex )
@@ -156,12 +164,12 @@ public class FileStoreUtil
 	 * @param fileID File identifier.
 	**/
 	public static void copyFile( FileStore src, FileStore dst, String objectID,
-		String fileID ) throws FileStoreException
+		String componentID, String fileID ) throws FileStoreException
 	{
 		try
 		{
-			InputStream in = src.getInputStream( objectID, fileID );
-			dst.write( objectID, fileID, in );
+			InputStream in = src.getInputStream( objectID, componentID, fileID );
+			dst.write( objectID, componentID, fileID, in );
 		}
 		catch ( Exception ex )
 		{
@@ -169,129 +177,6 @@ public class FileStoreUtil
 		}
 	}
 
-	/**
-	 * Copy a file from one FileStore to another.
-	 * @param src FileStore to perform operation on.
-	 * @param dst FileStore to perform operation on.
-	 * @param filename Fully-qualified (org-id-filename) filename to copy.
-	**/
-	public static void copyFile( FileStore src, FileStore dst, String filename )
-		throws FileStoreException
-	{
-		String[] parts = filename.split("-",3);
-		copyFile( src, dst, parts[1], parts[2] );
-	}
-	/**
-	 * Test whether a file exists in the FileStore.
-	 * @param fs FileStore to perform operation on.
-	 * @param filename Fully-qualified (org-id-filename) filename.
-	**/
-	public static boolean exists( FileStore fs, String filename )
-		throws FileStoreException
-	{
-		String[] parts = filename.split("-",3);
-		return fs.exists( parts[1], parts[2] );
-	}
-	/**
-	 * Get the length of a file in bytes.
-	 * @param fs FileStore to perform operation on.
-	 * @param filename Fully-qualified (org-id-filename) filename.
-	**/
-	public static long length( FileStore fs, String filename )
-		throws FileStoreException
-	{
-		String[] parts = filename.split("-",3);
-		return fs.length( parts[1], parts[2] );
-	}
-	/**
-	 * Read the contents of a file as a byte array.
-	 * @param fs FileStore to perform operation on.
-	 * @param filename Fully-qualified (org-id-filename) filename.
-	**/
-	public static byte[] read( FileStore fs, String filename )
-		throws FileStoreException
-	{
-		String[] parts = filename.split("-",3);
-		return fs.read( parts[1], parts[2] );
-	}
-	/**
-	 * Get a File object (for local file-based impl. only).
-	 * @param fs FileStore to perform operation on.
-	 * @param filename Fully-qualified (org-id-filename) filename.
-	**/
-	public static File getFile( FileStore fs, String filename )
-		throws FileStoreException
-	{
-		try
-		{
-			LocalStore local = (LocalStore)fs;
-			String[] parts = filename.split("-",3);
-			return local.getFile( parts[1], parts[2] );
-		}
-		catch ( ClassCastException ccx )
-		{
-			throw new FileStoreException(ccx);
-		}
-	}
-	/**
-	 * Get an InputStream to read data from a file.
-	 * @param fs FileStore to perform operation on.
-	 * @param filename Fully-qualified (org-id-filename) filename.
-	**/
-	public static InputStream getInputStream( FileStore fs, String filename )
-		throws FileStoreException
-	{
-		String[] parts = filename.split("-",3);
-		return fs.getInputStream( parts[1], parts[2] );
-	}
-	/**
-	 * Read the contents of a file to an OutputStream.
-	 * @param fs FileStore to perform operation on.
-	 * @param filename Fully-qualified (org-id-filename) filename.
-	 * @param out OutputStream object to write data to.
-	**/
-	public static void read( FileStore fs, String filename, OutputStream out )
-		throws FileStoreException
-	{
-		String[] parts = filename.split("-",3);
-		fs.read( parts[1], parts[2], out );
-	}
-	/**
-	 * Write the contents of a byte array to a file.
-	 * @param fs FileStore to perform operation on.
-	 * @param filename Fully-qualified (org-id-filename) filename.
-	 * @param data Byte array containing data.
-	**/
-	public static void write( FileStore fs, String filename, byte[] data )
-		throws FileStoreException
-	{
-		String[] parts = filename.split("-",3);
-		fs.write( parts[1], parts[2], data );
-	}
-	/**
-	 * Write the contents of an inputstream to a file.
-	 * @param fs FileStore to perform operation on.
-	 * @param filename Fully-qualified (org-id-filename) filename.
-	 * @param in InputStream object to read data from.
-	**/
-	public static void write( FileStore fs, String filename, InputStream in )
-		throws FileStoreException
-	{
-		String[] parts = filename.split("-",3);
-		fs.write( parts[1], parts[2], in );
-	}
-	/**
-	 * Move a file to the trash.
-	 * @param fs FileStore to perform operation on.
-	 * @param filename Fully-qualified (org-id-filename) filename.
-	**/
-	public static void trash( FileStore fs, String filename )
-		throws FileStoreException
-	{
-		String[] parts = filename.split("-",3);
-		fs.trash( parts[1], parts[2] );
-	}
-	
 	/**
 	 * Copy data from an input stream to an output stream.
 	**/

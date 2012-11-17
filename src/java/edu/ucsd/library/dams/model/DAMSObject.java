@@ -238,9 +238,18 @@ public class DAMSObject
 	}
 
 	/**
+	 * Get a list of Component identifiers associated with this object.
+	**/
+	public List<String> listComponents()
+	{
+		// XXX
+		return null;
+	}
+
+	/**
 	 * Get a list of File identifiers associated with this object.
 	**/
-	public List<String> listFiles()
+	public List<String> listFiles( String componentID )
 	{
 		// XXX
 		return null;
