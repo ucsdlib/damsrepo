@@ -177,7 +177,7 @@ public class DAMSObject
 		while ( it.hasNext() )
 		{
 			Statement stmt = it.nextStatement();
-			translatePredicate(stmt);
+			translateARKs(stmt);
 			slist.add(stmt);
 			if ( !stmt.hasLiteralObject() )
 			{
@@ -190,18 +190,32 @@ public class DAMSObject
 		}
 		it.close();
 	}
-	private void translatePredicate( Statement stmt )
-		throws TripleStoreException
+	private void translateARKs( Statement stmt ) throws TripleStoreException
 	{
-		Identifier ark = stmt.getPredicate();
-		String pre = arkToPre( ark.getId() );
-		if ( pre == null )
+		// translate predicate ARKs into URIs (throw ex if can't translate)
+		Identifier predArk = stmt.getPredicate();
+		String pre = arkToPre( predArk.getId() );
+		if ( pre != null )
+		{
+			stmt.setPredicate( Identifier.publicURI(pre) );
+		}
+		else
 		{
 			throw new TripleStoreException(
-				"Can't find name for " + ark.getId()
+				"Can't find name for " + predArk.getId()
 			);
 		}
-		stmt.setPredicate( Identifier.publicURI(pre) );
+
+		// translate object ARKs into URIs (allow untranslated??)
+		Identifier objArk = stmt.getObject();
+		if ( objArk != null )
+		{
+			String obj = arkToPre( objArk.getId() );
+			if ( obj != null )
+			{
+				stmt.setObject( Identifier.publicURI(obj) );
+			}
+		}
 	}
 
 	/**

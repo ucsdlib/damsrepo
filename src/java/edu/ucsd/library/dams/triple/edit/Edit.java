@@ -205,6 +205,11 @@ public class Edit
 						o = ts.blankNode();
 						blankNodes.put(object, o);
 					}
+					else if ( (object.startsWith("<") && object.endsWith(">"))
+						|| object.startsWith("_:") || object.indexOf(":") > 0 )
+					{
+						o = objectURI( object );
+					}
 					//if the subject is a new node, there should already be a
 					//reference in the hashmap
 					if(subject.startsWith("node"))
@@ -485,6 +490,7 @@ public class Edit
 		// make sure name is full URI
 		String localName = name;
 		String arkName = null;
+		// XXX: add support for owl:, rdf:, etc.
 		if ( localName.startsWith("dams:") )
 		{
 			localName = prNS + localName.substring(5);
@@ -499,6 +505,27 @@ public class Edit
 			throw new TripleStoreException("Can't find ARK for " + name);
 		}
 		return Identifier.publicURI(arkName);
+	}
+	private Identifier objectURI( String object )
+	{
+		if ( object == null ) { return null; }
+		else if ( object.startsWith("<") && object.endsWith(">") )
+		{
+			object = object.substring(1,object.length()-1);
+		}
+
+		if ( object.startsWith(idNS) ) { return Identifier.publicURI(object); }
+		else
+		{
+			try
+			{
+				return predicate(object);
+			}
+			catch ( Exception ex )
+			{
+				return null;
+			}
+		}
 	}
 	/**
 	 * predicate translation from human-readable URIs to ARK URIs

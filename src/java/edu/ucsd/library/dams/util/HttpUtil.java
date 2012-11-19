@@ -145,7 +145,7 @@ public class HttpUtil
 			);;
 			for ( String line = null; (line=in.readLine()) != null; )
 			{
-				buf.append( line );
+				buf.append( line + "\n" );
 			}
 		}
 		finally

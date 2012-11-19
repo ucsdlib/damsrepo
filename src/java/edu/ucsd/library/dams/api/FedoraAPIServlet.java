@@ -97,7 +97,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			String[] path = path( req );
 
 			// GET /objects/[oid]
-			// STATUS: TEST
+			// STATUS: WORKING
 			if ( path.length == 3 && path[1].equals("objects") )
 			{
 				ts = triplestore(req);
@@ -107,7 +107,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				);
 			}
 			// GET /objects/[oid]/datastreams
-			// STATUS: TEST
+			// STATUS: WORKING
 			else if ( path.length == 4 && path[1].equals("objects")
 				&& path[3].equals("datastreams") )
 			{
@@ -118,7 +118,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fid]
-			// STATUS: TEST
+			// STATUS: WORKING
 			else if ( path.length == 5 && path[1].equals("objects")
 				&& path[3].equals("datastreams") )
 			{
@@ -129,7 +129,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fid]/content
-			// STATUS: TEST
+			// STATUS: WORKING
 			else if ( path.length == 6 && path[1].equals("objects")
 				&& path[3].equals("datastreams") && path[5].equals("content") )
 			{
@@ -138,7 +138,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		catch ( Exception ex )
 		{
-			log.warn( ex );
+			log.warn( "Error 1", ex );
 		}
 		finally
 		{
@@ -159,7 +159,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			String[] path = path( req );
 
 			// POST /objects/nextPID
-			// STATUS: TEST
+			// STATUS: WORKING
 			if ( path.length == 3 && path[1].equals("objects")
 				&& path[2].equals("nextPID") )
 			{
@@ -173,22 +173,28 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				output( res.SC_OK, content, "text/xml", res );
 			}
 			// POST /objects/[oid]
-			// STATUS: TEST
+			// STATUS: empty: WORKING, file: WORKING
 			else if ( path.length == 3 && path[1].equals("objects") )
 			{
 				InputBundle bundle = input( req );
 				InputStream in = bundle.getInputStream();
-				String adds = "[{'subject':'" + path[2]
-					+ "','predicate':'rdf:type','object':'dams:Object'}]";
+				String adds = null;
+				if ( in == null )
+				{
+					adds = "[{\"subject\":\"" + path[2] + "\","
+					+ "\"predicate\":\"rdf:type\","
+					+ "\"object\":\"<dams:Object>\"}]";
+				}
+				ts = triplestore(req);
 				Map info = objectCreate( path[2], in, adds, ts );
 
 				// output id plaintext
 				output( res.SC_OK, path[2], "text/plain", res );
 			}
 			// POST /objects/[oid]/datastreams/[fid]
-			// STATUS: TEST
-			else if ( path.length == 5 && path[2].equals("objects")
-				&& path[4].equals("datastreams") )
+			// STATUS: WORKING
+			else if ( path.length == 5 && path[1].equals("objects")
+				&& path[3].equals("datastreams") )
 			{
 				InputBundle bundle = input( req );
 				InputStream in = bundle.getInputStream();
@@ -206,7 +212,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		catch ( Exception ex )
 		{
-			log.warn( ex );
+			log.warn( "Error 2", ex );
 		}
 		finally
 		{
@@ -227,8 +233,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			String[] path = path( req );
 
 			// PUT /objects/[oid]/datastreams/[fid]
-			// STATUS: TEST
-			if ( path.length == 5 && path[2].equals("objects")
+			// STATUS: WORKING
+			if ( path.length == 5 && path[1].equals("objects")
 				&& path[3].equals("datastreams")
 				&& path[4].equals(fedoraObjectDS) )
 			{
@@ -246,8 +252,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				);
 			}
 			// PUT /objects/[oid]/datastreams/[fid]
-			// STATUS: TEST
-			else if ( path.length == 5 && path[2].equals("objects")
+			// STATUS: WORKING
+			else if ( path.length == 5 && path[1].equals("objects")
 				&& path[3].equals("datastreams") )
 			{
 				// upload other data files
@@ -272,7 +278,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		catch ( Exception ex )
 		{
-			log.warn( ex );
+			log.warn( "Error 3", ex );
 		}
 		finally
 		{
@@ -293,10 +299,11 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			String[] path = path( req );
 			// DELETE /objects/[oid]
-			// STATUS: TEST
+			// STATUS: WORKING
 			if ( path.length == 3 && path[1].equals("objects") )
 			{
 				// delete object
+				ts = triplestore(req);
 				info = objectDelete( path[2], ts );
 
 				outputTransform(
@@ -305,9 +312,9 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				);
 			}
 			// DELETE /objects/[oid]/datastreams/[fid]
-			// STATUS: TEST
-			else if ( path.length == 5 && path[2].equals("objects")
-				&& path[4].equals("datastreams") )
+			// STATUS: WORKING
+			else if ( path.length == 5 && path[1].equals("objects")
+				&& path[3].equals("datastreams") )
 			{
 				// delete file
 				ts = triplestore(req);
@@ -331,7 +338,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		catch ( Exception ex )
 		{
-			log.warn( ex );
+			log.warn( "Error 4", ex );
 		}
 		finally
 		{
@@ -353,26 +360,47 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			rdfxml = obj.getRDFXML(true);
 		}
 
+		// if rdfxml is null, throw an error
+		if ( rdfxml == null )
+		{
+			output(
+				res.SC_INTERNAL_SERVER_ERROR,
+				"Error retrieving object '" + objid + "'", "text/plain", res
+			);
+			return;
+		}
+
 		// output expected XML
 		Map<String,String[]> params =  new HashMap<String,String[]>();
 		params.put("objid", new String[]{ objid } );
 		if ( fileid != null )
 		{
-			params.put("fileid", new String[]{ fileid } );
-			if ( cmpid != null )
-			{
-				params.put("cmpid", new String[]{ cmpid } );
-			}
+			String dsid = dsid( cmpid, fileid );
+			params.put("fileid", new String[]{ dsid } );
 		}
 		else
 		{
 			params.put("objectDS", new String[]{ fedoraObjectDS } );
-			params.put(
-				"objectSize", new String[]{ String.valueOf(rdfxml.length()) }
+			if ( rdfxml != null )
+			{
+				params.put(
+					"objectSize",
+					new String[]{ String.valueOf(rdfxml.length()) }
+				);
+			}
+		}
+		try
+		{
+			String content =  xslt( rdfxml, xsl, params, null );
+			output( res.SC_OK, content, contentType, res );
+		}
+		catch ( Exception ex )
+		{
+			output(
+				res.SC_INTERNAL_SERVER_ERROR, "Error: " + ex.toString(),
+				"text/plain", res
 			);
 		}
-		String content = xslt( rdfxml, xsl, params, null );
-		output( res.SC_OK, content, contentType, res );
 	}
 	private static String cmpid( String s )
 	{
@@ -384,6 +412,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	{
 		if ( s == null || !s.startsWith("_") ) { return null; }
 		int idx = s.indexOf("_",1);
-		return (idx > 0) ? s.substring(1,idx) : s.substring(1);
+		return (idx > 0) ? s.substring(idx+1) : s.substring(1);
+	}
+	private static String dsid( String cmpid, String fileid )
+	{
+		return (cmpid != null) ? "/" + cmpid + "/" + fileid : "/" + fileid;
 	}
 }

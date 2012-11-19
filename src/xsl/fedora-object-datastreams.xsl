@@ -19,8 +19,8 @@
       <datastream dsid="rightsMetadata" label="" mimeType="text/xml" />
       <datastream dsid="{$objectDS}" label="DAMS RDF metadata" mimeType="application/rdf+xml" />
       <xsl:for-each select="//dams:File">
-        <xsl:variable name="dsid" select="substring-after(@rdf:about,concat($objid,'/'))"/>
-        <datastream dsid="{$dsid}" label="" mimeType="{dams:mimeType}"/>
+        <xsl:variable name="dsid" select="translate(substring-after(@rdf:about,concat($objid,'/')),'/','_')"/>
+        <datastream dsid="_{$dsid}" label="" mimeType="{dams:mimeType}"/>
       </xsl:for-each>
     </objectDatastreams>
   </xsl:template>

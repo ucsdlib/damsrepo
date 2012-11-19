@@ -9,11 +9,13 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
@@ -126,6 +128,9 @@ public class DAMSAPIServlet extends HttpServlet
 
 	// number detection
 	private static Pattern numberPattern = null;
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat(
+		"yyyy-MM-dd'T'hh:mm:ssZ"
+	);
 
 	// initialize servlet parameters
 	public void init( ServletConfig config ) throws ServletException
@@ -898,11 +903,25 @@ public class DAMSAPIServlet extends HttpServlet
 		// output = metadata: list of objects
 	}
 	public Map fileCharacterize( String objid, String cmpid, String fileid,
-		FileStore fs, TripleStore ts )
+		FileStore fs, TripleStore ts ) throws TripleStoreException
 	{
-		// XXX component
-		return null; // DAMS_MGR
-		// output = status message
+		String objuri = ( objid.startsWith(idNS) ) ? objid : idNS + objid;
+		String fpart = (cmpid != null) ? cmpid + "/" + fileid : fileid;
+		Identifier oid = Identifier.publicURI( objuri );
+		Identifier fid = Identifier.publicURI( objuri + "/" + fpart );
+
+		DAMSObject trans = new DAMSObject( ts, null, nsmap );
+		String hasFileArk = trans.preToArk( prNS + "hasFile" );
+		Identifier hasFile = Identifier.publicURI( hasFileArk );
+		ts.addStatement( oid, hasFile, fid, oid );
+
+		// date created
+		String dateCreatedArk = trans.preToArk( prNS + "dateCreated" );
+		Identifier dateCreated = Identifier.publicURI( dateCreatedArk );
+		String datestr = dateFormat.format( new Date() );
+		ts.addLiteralStatement( fid, dateCreated, "\"" + datestr + "\"", oid );
+
+		return null; // XXX DAMS_MGR
 	}
 	public Map fileUpload( String objid, String cmpid, String fileid,
 		boolean overwrite, InputStream in, FileStore fs, TripleStore ts )
@@ -912,16 +931,24 @@ public class DAMSAPIServlet extends HttpServlet
 			// both objid and fileid are required
 			if ( objid == null || objid.trim().equals("") )
 			{
-				return error(HttpServletResponse.SC_BAD_REQUEST, "Object identifier required");
+				return error(
+					HttpServletResponse.SC_BAD_REQUEST,
+					"Object identifier required"
+				);
 			}
 			if ( fileid == null || fileid.trim().equals("") )
 			{
-				return error( HttpServletResponse.SC_BAD_REQUEST, "File identifier required");
+				return error(
+					HttpServletResponse.SC_BAD_REQUEST,
+					"File identifier required"				);
 			}
 	
 			if ( in == null )
 			{
-				return error( HttpServletResponse.SC_BAD_REQUEST, "File upload required");
+				return error(
+					HttpServletResponse.SC_BAD_REQUEST,
+					"File upload required"
+				);
 			}
 
 			// check upload count and abort if at limit
@@ -929,7 +956,8 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				log.info("Upload: refused");
 				return error(
-					HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Too many concurrent uploads"
+					HttpServletResponse.SC_SERVICE_UNAVAILABLE,
+					"Too many concurrent uploads"
 				);
 			}
 			else
@@ -981,9 +1009,12 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 
 				// FILE_META: update file metadata
-				fileDeleteMetadata( objid, cmpid, fileid, ts );
+				if ( overwrite )
+				{
+					fileDeleteMetadata( objid, cmpid, fileid, ts );
+				}
+
 				fileCharacterize( objid, cmpid, fileid, fs, ts );
-				// XXX: need to recreate link from object/component to file
 
 				return status( status, message );
 			}
@@ -1003,6 +1034,10 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			log.warn( "Error uploading file", ex );
 			return error( "Error uploading file: " + ex.toString() );
+		}
+		finally
+		{
+			uploadCount--;
 		}
 	}
 	public Map fileDelete( String objid, String cmpid, String fileid,
@@ -1042,7 +1077,7 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( successful )
 			{
 				createEvent(
-					null, objid, cmpid, fileid, "file deletion", true,
+					ts, objid, cmpid, fileid, "file deletion", true,
 					"Deleting file EVENT_DETAIL_SPEC", null
 				);
 
@@ -1054,7 +1089,7 @@ public class DAMSAPIServlet extends HttpServlet
 			else
 			{
 				createEvent(
-					null, objid, cmpid, fileid, "file deletion", false,
+					ts, objid, cmpid, fileid, "file deletion", false,
 					"Deleting file EVENT_DETAIL_SPEC", "outcome detail spec"
 				);
 				return error(
@@ -1326,7 +1361,10 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			else
 			{
-				createEvent( ts, objid, null, null, "object deletion", false, "Deleting object EVENT_DETAIL_SPEC", "outcome detail spec" );
+				createEvent(
+					ts, objid, null, null, "object deletion", false,
+					"Deleting object EVENT_DETAIL_SPEC", "outcome detail spec"
+				);
 				return error( "Object deletion failed" );
 			}
 			//ts.addLiteralStatement(id,updatedFlag,"delete",id);
@@ -1417,7 +1455,8 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( objid == null || objid.equals("") )
 			{
 				return error(
-					HttpServletResponse.SC_BAD_REQUEST, "Object id must be specified"
+					HttpServletResponse.SC_BAD_REQUEST,
+					"Object id must be specified"
 				);
 			}
             if ( !objid.startsWith("http") ) { objid = idNS + objid; }
@@ -1494,6 +1533,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
+			log.warn( "Error transforming metadata", ex );
 			output(
 				error("Error transforming metadata"), params, pathInfo, res
 			);
@@ -1580,7 +1620,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// mint ARK for event
 			String minterURL = idMinters.get(minterDefault) + "1";
 			String eventARK = HttpUtil.get(minterURL);
-			eventARK = eventARK.replaceAll(".*/","");
+			eventARK = eventARK.replaceAll(".*/","").trim();
 			Identifier eventID = Identifier.publicURI( idNS + eventARK );
 	
 			// lookup user identifier
@@ -2115,6 +2155,11 @@ public class DAMSAPIServlet extends HttpServlet
         Map<String,String[]> params, String queryString )
 		throws TransformerException
     {
+		if ( xml == null )
+		{
+			throw new TransformerException("No input document provided");
+		}
+
         // params
         String casGroupTest = getParamString(params,"casGroupTest",null);
 
@@ -2338,7 +2383,7 @@ public class DAMSAPIServlet extends HttpServlet
 		// get parameters using vanilla api when there is not file upload
 		if ( ! ServletFileUpload.isMultipartContent(req) )
 		{
-			return new InputBundle( req.getParameterMap(), null );
+			log.debug("Upload not multipart/form-data, proceding anyway");
 		}
 
 		// process parts
@@ -2362,6 +2407,13 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( item.getFieldName().equals("file") )
 			{
 				in = item.getInputStream();
+			}
+			else
+			{
+				log.info(
+					"Unprocessed parameter: " + item.getFieldName()
+						+ " = " + item.getString()
+				);
 			}
 		}
 		return new InputBundle( params, in );

@@ -180,13 +180,14 @@ public class TripleStoreUtil
 		Model m, edu.ucsd.library.dams.triple.Statement stmt, DAMSObject trans )
 		throws TripleStoreException
 	{
-		Resource s = toResource( m, stmt.getSubject() );
+		Resource s = toResource( m, stmt.getSubject(), null );
 		Property p = toProperty( m, stmt.getPredicate(), trans );
 		RDFNode  o = stmt.hasLiteralObject() ?
-			toLiteral(m,stmt.getLiteral()) : toResource(m,stmt.getObject());
+			toLiteral(m,stmt.getLiteral()) : toResource(m,stmt.getObject(),trans);
 		return m.createStatement(s, p, o);
 	}
-	private static Resource toResource( Model m, Identifier id )
+	private static Resource toResource( Model m, Identifier id,
+		DAMSObject trans )
 	{
 		Resource res = null;
 		if ( id != null && id.isBlankNode() )
@@ -195,6 +196,19 @@ public class TripleStoreUtil
 		}
 		else if ( id != null )
 		{
+			if ( trans != null )
+			{
+				// translate ARKs to URIs
+				try
+				{
+					String uri = trans.arkToPre( id.getId() );
+					if ( uri != null ) { id.setId(uri); }
+				}
+				catch ( Exception ex )
+				{
+					log.info("Error translating object ARK", ex);
+				}
+			}
 			res = m.createResource( id.getId() );
 		}
 		return res;
@@ -712,33 +726,39 @@ public class TripleStoreUtil
 		Identifier obj, TripleStore ts ) throws TripleStoreException
 	{
 		// iterate through all statements for the object & classify by subject
-		Map<Identifier,List<Statement>> map
-			= new HashMap<Identifier,List<Statement>>();
+		Map<String,List<Statement>> map
+			= new HashMap<String,List<Statement>>();
 		for ( StatementIterator st = ts.sparqlDescribe( sub ); st.hasNext(); )
 		{
 			Statement s = st.nextStatement();
-			List<Statement> statements = map.get(s.getSubject());
-			if ( statements == null )
+			List<Statement> children = map.get(s.getSubject().getId());
+			if ( children == null )
 			{
-				statements = new ArrayList<Statement>();
+				children = new ArrayList<Statement>();
 			}
-			statements.add( s );
-			map.put( s.getSubject(), statements );
+			children.add( s );
+			map.put( s.getSubject().getId(), children );
 		}
 
 		// recursively remove statements
 		recursiveDelete( sub, pre, obj, map, ts );
+
+		// if obj is public URI, also delete all children of it
+		if ( !obj.isBlankNode() )
+		{
+			recursiveDelete( obj, null, null, map, ts );
+		}
 	}
 
 	/**
 	 * Recursively delete statements.
 	**/
 	private static void recursiveDelete( Identifier sub, Identifier pre,
-		Identifier obj, Map<Identifier,List<Statement>> map, TripleStore ts )
+		Identifier obj, Map<String,List<Statement>> map, TripleStore ts )
 		throws TripleStoreException
 	{
-		List<Statement> list = map.get( sub );
-		for ( int i = 0; i < list.size(); i++ )
+		List<Statement> list = map.get( sub.getId() );
+		for ( int i = 0; list != null && i < list.size(); i++ )
 		{
 			Statement s = list.get(i);
 			if ( pre == null || s.getPredicate().equals(pre) )
