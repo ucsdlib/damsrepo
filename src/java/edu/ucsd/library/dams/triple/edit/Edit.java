@@ -23,7 +23,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import edu.ucsd.library.dams.model.DAMSObject;
+import edu.ucsd.library.dams.triple.ArkTranslator;
 import edu.ucsd.library.dams.triple.Identifier;
 import edu.ucsd.library.dams.triple.TripleStore;
 import edu.ucsd.library.dams.triple.TripleStoreUtil;
@@ -48,13 +48,12 @@ public class Edit
 	private String backupDir = null;
 	private String backupFile = null;
 	private String idNS = null;
-	private String prNS = null;
 	private String owlSameAs = null;
 	private EditData backup = null;
 	private List triplesData = null;
 
 	// for pre/ark mapping
-	private DAMSObject trans = null;
+	private ArkTranslator trans = null;
 
 	// status tracking
 	private Exception exception = null;
@@ -94,9 +93,8 @@ public class Edit
 		}
 		this.ark = ark.replaceAll(".*/","");
 		this.ts = ts;
-		this.trans = new DAMSObject( ts, "", nsmap );
+		this.trans = new ArkTranslator( ts, nsmap );
 		this.idNS = nsmap.get("damsid");
-		this.prNS = nsmap.get("dams");
 		this.backupDir = backupDir;
 	}
 
@@ -488,23 +486,12 @@ public class Edit
 	private Identifier predicate( String name ) throws TripleStoreException
 	{
 		// make sure name is full URI
-		String localName = name;
-		String arkName = null;
-		// XXX: add support for owl:, rdf:, etc.
-		if ( localName.startsWith("dams:") )
-		{
-			localName = prNS + localName.substring(5);
-			arkName = trans.preToArk(localName);
-		}
-		else
-		{
-			arkName = trans.lblToArk(localName);
-		}
-		if ( arkName == null )
-		{
-			throw new TripleStoreException("Can't find ARK for " + name);
-		}
-		return Identifier.publicURI(arkName);
+// XXX:do we need to translate here? can't we just pass it along and let the
+// triplestore impl handle it???
+//		String localName = name;
+//		String arkName = trans.toARK(localName, true);
+//		return Identifier.publicURI(arkName);
+		return Identifier.publicURI( name );
 	}
 	private Identifier objectURI( String object )
 	{

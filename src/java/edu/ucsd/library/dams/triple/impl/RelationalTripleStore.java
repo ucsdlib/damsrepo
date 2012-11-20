@@ -31,7 +31,7 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 import org.apache.commons.lang3.StringEscapeUtils;
 
-import edu.ucsd.library.dams.model.DAMSObject;
+import edu.ucsd.library.dams.triple.ArkTranslator;
 import edu.ucsd.library.dams.triple.BindingIterator;
 import edu.ucsd.library.dams.triple.Identifier;
 import edu.ucsd.library.dams.triple.SubjectIterator;
@@ -42,6 +42,13 @@ import edu.ucsd.library.dams.triple.TripleStoreUtil;
 import edu.ucsd.library.dams.triple.TripleStoreException;
 import edu.ucsd.library.dams.triple.convertor.SQLConvertor;
 import edu.ucsd.library.dams.triple.convertor.STSTableSchema;
+
+/***
+ XXX translate between ARKs and URIs/labels
+	- when adding triples -> uriToArk
+	- when selecting triples or bindings -> arkToUri
+	- when performing queries -> lblToArk
+***/
 
 /**
  * Basic triplestore using a relational database for storage and transactions.
@@ -59,6 +66,8 @@ public class RelationalTripleStore implements TripleStore
 	protected String tableName = null;
 	protected String tsName = null;
 	protected Map<String,String> nsmap = null;
+	protected String idNS = null;
+	protected ArkTranslator trans = null;
 	protected int added = 0;
 	protected int insertCount = 0;
 	protected int selectCount = 0;
@@ -66,7 +75,6 @@ public class RelationalTripleStore implements TripleStore
 	protected boolean logIngest = false;
 	protected boolean logUpdates = true;
 	private String columnDef = null;
-	private static Pattern spacePattern = Pattern.compile("\\s+");
 
 	/***********************************************************************/
 	/*** Constructor Core **************************************************/
@@ -94,6 +102,7 @@ public class RelationalTripleStore implements TripleStore
 		try
 		{
 			nsmap = TripleStoreUtil.namespaceMap( props );
+			idNS = nsmap.get("idNS");
 		}
 		catch ( Exception ex ) { throw new TripleStoreException(ex); }
 
@@ -144,6 +153,9 @@ public class RelationalTripleStore implements TripleStore
 				log.error( "Unable to get direct connection", ex );
 			}
 		}
+
+		// setup ark/uri translation
+		trans = new ArkTranslator( this, nsmap );
 	}
 
 
@@ -223,9 +235,8 @@ public class RelationalTripleStore implements TripleStore
 	{
 		try
 		{
-			DAMSObject trans = new DAMSObject( this, "", nsmap );
 			FileInputStream in = new FileInputStream(filename);
-			TripleStoreUtil.loadRDFXML( in, this, trans );
+			TripleStoreUtil.loadRDFXML( in, this, idNS );
 		}
 		catch ( TripleStoreException ex )
 		{
@@ -240,9 +251,8 @@ public class RelationalTripleStore implements TripleStore
 	{
 		try
 		{
-			DAMSObject trans = new DAMSObject( this, "", nsmap );
 			FileInputStream in = new FileInputStream(filename);
-			TripleStoreUtil.loadNTriples( in, this, trans );
+			TripleStoreUtil.loadNTriples( in, this, idNS );
 		}
 		catch ( TripleStoreException ex )
 		{
@@ -346,6 +356,7 @@ public class RelationalTripleStore implements TripleStore
 		try
 		{
 			selectCount++;
+			sql = trans.translateURIs(sql); // XXX trans
 			log.debug("sql: " + sql);
 			stmt = con.createStatement();
 			rs = stmt.executeQuery( sql );
@@ -404,12 +415,37 @@ public class RelationalTripleStore implements TripleStore
 	 * Escape values for use in insert/delete/update statements.  Handles
 	 * special characters (accents, etc.) without munging quotes.
 	**/
-	protected static String escapeValue( String s )
+	protected static String escapeValue( String s, ArkTranslator trans )
+		throws TripleStoreException
 	{
-		if ( s == null ) { return s; }
-		String escaped = StringEscapeUtils.escapeJava(s);
-		escaped = escaped.replaceAll("\\\\\"","\""); // unescape quotes: \" -> "
-		return escaped;
+		if ( s == null || s.startsWith("_:") )
+		{
+			// throw back nulls and blank nodes
+			return s;
+		}
+		else if ( s.startsWith("<") && s.endsWith(">") )
+		{
+			// lookup ARKs for URIs
+			String ark = trans.toARK(
+				s.substring(1,s.length()-1), false // XXX trans
+			);
+			return "<" + ark + ">";
+		}
+		else
+		{
+			// escape and quote literals
+			String escaped = null;
+			if ( s.startsWith("\"") && s.endsWith("\"") )
+			{
+				escaped = s.substring(1,s.length()-1);
+			}
+			else
+			{
+				escaped = s;
+			}
+			escaped = "\"" + StringEscapeUtils.escapeJava(escaped) + "\"";
+			return escaped;
+		}
 	}
 	/**
 	 * Escape values for use in insert/delete/update statements.
@@ -487,7 +523,7 @@ public class RelationalTripleStore implements TripleStore
 		String sql = "SELECT * from " + tableName()
 			+ " WHERE parent = '" + id + "'";
 		ResultSet rs = select(sql);
-		return new RelationalStatementIterator(rs);
+		return new RelationalStatementIterator(rs, trans);
 	}
 	/**
 	 * Select all triples for a group of objects, including blank-node children
@@ -506,7 +542,7 @@ public class RelationalTripleStore implements TripleStore
 		}
 		sql += ")";
 		ResultSet rs = select(sql);
-		return new RelationalStatementIterator(rs);
+		return new RelationalStatementIterator(rs, trans);
 	}
 	/**
 	 * Perform a SQL SELECT query.
@@ -596,8 +632,10 @@ public class RelationalTripleStore implements TripleStore
 			}
 			insertStatement.clearParameters();
 			insertStatement.setString( 1, subject.toString() );
-			insertStatement.setString( 2, predicate.toString() );
-			String escaped = escapeValue(object);
+			insertStatement.setString(
+				2, trans.toARK(predicate,false).toString() // XXX trans
+			);
+			String escaped = escapeValue(object,trans);
 			insertStatement.setString( 3, escaped );
 			insertStatement.setString( 4, parent.toString() );
 			update( insertStatement );
@@ -675,7 +713,7 @@ public class RelationalTripleStore implements TripleStore
 		}
 
 		ResultSet rs = select(sql);
-		return new RelationalStatementIterator(rs);
+		return new RelationalStatementIterator(rs, trans);
 	}
 	public StatementIterator listLiteralStatements( Identifier subject,
 		Identifier predicate, String object ) throws TripleStoreException
@@ -690,7 +728,7 @@ public class RelationalTripleStore implements TripleStore
 		}
 
 		ResultSet rs = select(sql);
-		return new RelationalStatementIterator(rs);
+		return new RelationalStatementIterator(rs, trans);
 	}
 
 	public void removeStatements( Identifier subject, Identifier predicate,
@@ -721,8 +759,12 @@ public class RelationalTripleStore implements TripleStore
 		if ( subject != null || predicate != null || object != null )
 		{
 			sql += " WHERE ";
-			sql += conditions( subject, predicate, escapeValue(object) );
-		}	
+			sql += conditions(
+				subject,
+				trans.toARK(predicate,true), // XXX trans
+				escapeValue(object,trans)
+			);
+		}
 		update( sql );
 	}
 	/**
@@ -923,11 +965,13 @@ class RelationalSubjectIterator extends SubjectIterator
 class RelationalStatementIterator extends StatementIterator
 {
 	private ResultSet rs = null;
+	private ArkTranslator trans = null;
 	private boolean checkedState = false;
 	private boolean checkedValue = false;
-	public RelationalStatementIterator( ResultSet rs )
+	public RelationalStatementIterator( ResultSet rs, ArkTranslator trans )
 	{
 		this.rs = rs;
+		this.trans = trans;
 	}
 	public boolean hasNext()
 	{
@@ -966,6 +1010,7 @@ class RelationalStatementIterator extends StatementIterator
 				String obj = rs.getString("object");
 				Identifier subId = RelationalTripleStore.toIdentifier(sub);
 				Identifier preId = RelationalTripleStore.toIdentifier(pre);
+				preId = trans.toURI( preId, true ); // XXX trans
 				boolean lit = RelationalTripleStore.isLiteral(obj);
 				if ( lit )
 				{
@@ -974,6 +1019,7 @@ class RelationalStatementIterator extends StatementIterator
 				else
 				{
 					Identifier objId = RelationalTripleStore.toIdentifier(obj);
+					objId = trans.toURI( objId, false ); // XXX trans
 					stmt = new Statement( subId, preId, objId );
 				}
 
@@ -1076,6 +1122,7 @@ class RelationalBindingIterator extends BindingIterator
 				checkedState = false;
 				for ( int i = 0; i < cols.length; i++ )
 				{
+// XXX trans???
 					bindings.put(
 						names[i],
 						RelationalTripleStore.stripBrackets(

@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import edu.ucsd.library.dams.triple.BindingIterator;
 import edu.ucsd.library.dams.triple.Identifier;
 import edu.ucsd.library.dams.triple.Statement;
@@ -27,94 +29,21 @@ public class DAMSObject
 	private TripleStore ts;
 	private String tsName;
 	private Identifier id;
+	private Map<String,String> nsmap;
 	private String idNS;
-	private String prNS;
-	private String owlSameAs;
-	private String rdfLabel;
-	private Map<String,String> nsmap = null;
-
-	private Map<String,String> preToArkMap = null;
-	private Map<String,String> lblToArkMap = null;
-	private Map<String,String> arkToPreMap = null;
 
 	/**
 	 * Main constructor.
 	 * @param ts TripleStore to load metadata from.
 	 * @param id Object identifer (can be full or relative to idNS)
-	 * @param nsmap Map from prefixes/names to URIs.
 	**/
 	public DAMSObject( TripleStore ts, String id, Map<String,String> nsmap )
 	{
 		this.ts = ts;
 		this.nsmap = nsmap;
-		this.idNS = nsmap.get("damsid");
-		this.prNS = nsmap.get("dams");
-		this.owlSameAs = nsmap.get("owl:sameAs");
-		this.rdfLabel = nsmap.get("rdf:label");
+		this.idNS = nsmap.get("idNS");
 		String iduri = (id != null && id.startsWith("http")) ? id : idNS + id;
 		this.id = Identifier.publicURI(iduri);
-	}
-
-	public Map<String,String> namespaceMap() { return nsmap; }
-	public String getIdentifierNamespace() { return idNS; }
-	//public String getPredicateNamespace() { return prNS; }
-	//public String getOwlSameAs() { return owlSameAs; }
-	//public String getRdfLabel() { return rdfLabel; }
-
-	private void loadMap() throws TripleStoreException
-	{
-		if ( preToArkMap == null && arkToPreMap == null && lblToArkMap == null )
-		{
-			preToArkMap = new HashMap<String,String>();
-			lblToArkMap = new HashMap<String,String>();
-			arkToPreMap = new HashMap<String,String>();
-			String sparql = "select ?ark ?pre "
-				+ "where { ?ark <" + owlSameAs + "> ?pre }";
-			BindingIterator bindings = ts.sparqlSelect(sparql);
-			while ( bindings.hasNext() )
-			{
-				Map<String,String> binding = bindings.nextBinding();
-				String ark = binding.get("ark");
-				String pre = binding.get("pre");
-				arkToPreMap.put( ark, pre );
-				preToArkMap.put( pre, ark );
-			}
-			bindings.close();
-
-			String lblquery = "select ?ark ?lbl "
-				+ "where { ?ark <" + rdfLabel + "> ?lbl }";
-			BindingIterator lblBindings = ts.sparqlSelect(lblquery);
-			while ( lblBindings.hasNext() )
-			{
-				Map<String,String> binding = lblBindings.nextBinding();
-				String ark = binding.get("ark");
-				String lbl = binding.get("lbl");
-				try { lbl = lbl.substring(1,lbl.length()-1); }
-				catch ( Exception ex ) {}
-				lblToArkMap.put( lbl, ark );
-			}
-			lblBindings.close();
-		}
-	}
-	public String arkToPre( String ark ) throws TripleStoreException
-	{
-		loadMap();
-		return arkToPreMap.get(ark);
-	}
-	public String preToArk( String pre ) throws TripleStoreException
-	{
-		loadMap();
-		return preToArkMap.get(pre);
-	}
-	public String lblToArk( String lbl ) throws TripleStoreException
-	{
-		loadMap();
-		return lblToArkMap.get(lbl);
-	}
-	public Map<String,String> predicateMap() throws TripleStoreException
-	{
-		loadMap();
-		return arkToPreMap;
 	}
 
 	/**
@@ -177,7 +106,6 @@ public class DAMSObject
 		while ( it.hasNext() )
 		{
 			Statement stmt = it.nextStatement();
-			translateARKs(stmt);
 			slist.add(stmt);
 			if ( !stmt.hasLiteralObject() )
 			{
@@ -190,33 +118,6 @@ public class DAMSObject
 		}
 		it.close();
 	}
-	private void translateARKs( Statement stmt ) throws TripleStoreException
-	{
-		// translate predicate ARKs into URIs (throw ex if can't translate)
-		Identifier predArk = stmt.getPredicate();
-		String pre = arkToPre( predArk.getId() );
-		if ( pre != null )
-		{
-			stmt.setPredicate( Identifier.publicURI(pre) );
-		}
-		else
-		{
-			throw new TripleStoreException(
-				"Can't find name for " + predArk.getId()
-			);
-		}
-
-		// translate object ARKs into URIs (allow untranslated??)
-		Identifier objArk = stmt.getObject();
-		if ( objArk != null )
-		{
-			String obj = arkToPre( objArk.getId() );
-			if ( obj != null )
-			{
-				stmt.setObject( Identifier.publicURI(obj) );
-			}
-		}
-	}
 
 	/**
 	 * Get object metadata in NTriples
@@ -226,7 +127,7 @@ public class DAMSObject
 		StringBuffer buf = new StringBuffer();
 		StatementIterator it = getStatements( recurse );
 		StringWriter writer = new StringWriter();
-		TripleStoreUtil.outputNTriples( it, writer, this );
+		TripleStoreUtil.outputNTriples( it, writer, nsmap );
 		return writer.toString();
 	}
 
@@ -238,7 +139,7 @@ public class DAMSObject
 		StringBuffer buf = new StringBuffer();
 		StatementIterator it = getStatements( recurse );
 		StringWriter writer = new StringWriter();
-		TripleStoreUtil.outputRDFXML( it, writer, this );
+		TripleStoreUtil.outputRDFXML( it, writer, nsmap );
 		return writer.toString();
 	}
 

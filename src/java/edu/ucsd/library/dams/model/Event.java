@@ -22,14 +22,12 @@ public class Event
 	private String outcomeNote;
 	private Date eventDate;
 
-	private DAMSObject trans;
 	private SimpleDateFormat fmt = new SimpleDateFormat(
 		"yyyy-MM-dd'T'hh:mm:ssZ"
 	);
 
 	public Event( Identifier eventID, Identifier subject, Identifier userID,
-		boolean success, String type, String detail, String outcomeNote,
-		DAMSObject trans )
+		boolean success, String type, String detail, String outcomeNote )
 	{
 		this.eventID     = eventID;
 		this.subject     = subject;
@@ -38,7 +36,6 @@ public class Event
 		this.type        = type;
 		this.detail      = detail;
 		this.outcomeNote = outcomeNote;
-		this.trans = trans;
 		eventDate = new Date();
 	}
 	public void save( TripleStore ts ) throws TripleStoreException
@@ -81,7 +78,6 @@ public class Event
 	}
 	private Identifier id( String pred ) throws TripleStoreException
 	{
-		String id = pred.startsWith("http") ? pred : trans.lblToArk(pred);
-		return Identifier.publicURI( id );
+		return Identifier.publicURI( pred );
 	}
 }

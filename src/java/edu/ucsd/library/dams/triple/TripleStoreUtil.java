@@ -42,7 +42,6 @@ import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 
 import org.apache.log4j.Logger;
 
-import edu.ucsd.library.dams.model.DAMSObject;
 import edu.ucsd.library.dams.solr.SolrHelper;
 
 
@@ -134,20 +133,20 @@ public class TripleStoreUtil
 	 * Output a set of Statements as RDF/XML.
 	**/
 	public static void outputRDFXML( StatementIterator iter, Writer writer,
-		DAMSObject trans ) throws TripleStoreException
+		Map<String,String> nsmap ) throws TripleStoreException
 	{
-		outputRDF( iter, writer, "RDF/XML-ABBREV", trans );
+		outputRDF( iter, writer, "RDF/XML-ABBREV", nsmap );
 	}
 	/**
 	 * Output a set of Statements as NTriples.
 	**/
 	public static void outputNTriples( StatementIterator iter, Writer writer,
-		DAMSObject trans ) throws TripleStoreException
+		Map<String,String> nsmap ) throws TripleStoreException
 	{
-		outputRDF( iter, writer, "N-TRIPLE", trans );
+		outputRDF( iter, writer, "N-TRIPLE", nsmap );
 	}
 	private static void outputRDF( StatementIterator it, Writer writer,
-		String format, DAMSObject trans ) throws TripleStoreException
+		String format, Map<String,String> nsmap ) throws TripleStoreException
 	{
 		Model model = ModelFactory.createDefaultModel();
 		try
@@ -155,12 +154,11 @@ public class TripleStoreUtil
 			// load statements into a jena model
 			for ( int i = 0; it.hasNext(); i++ )
 			{
-				model.add( jenaStatement(model,it.nextStatement(),trans) );
+				model.add( jenaStatement(model,it.nextStatement()) );
 			}
 
 			// register namespace prefixes
-			Map<String,String> nsmap = trans.namespaceMap();
-			for ( Iterator<String> i2 = nsmap.keySet().iterator(); i2.hasNext();)
+			for (Iterator<String> i2 = nsmap.keySet().iterator(); i2.hasNext();)
 			{
 				String prefix = i2.next();
 				if ( prefix.indexOf(":") == -1 )
@@ -177,17 +175,16 @@ public class TripleStoreUtil
 		}
 	}
 	private static com.hp.hpl.jena.rdf.model.Statement jenaStatement(
-		Model m, edu.ucsd.library.dams.triple.Statement stmt, DAMSObject trans )
+		Model m, edu.ucsd.library.dams.triple.Statement stmt )
 		throws TripleStoreException
 	{
-		Resource s = toResource( m, stmt.getSubject(), null );
-		Property p = toProperty( m, stmt.getPredicate(), trans );
+		Resource s = toResource( m, stmt.getSubject() );
+		Property p = toProperty( m, stmt.getPredicate() );
 		RDFNode  o = stmt.hasLiteralObject() ?
-			toLiteral(m,stmt.getLiteral()) : toResource(m,stmt.getObject(),trans);
+			toLiteral(m,stmt.getLiteral()) : toResource(m,stmt.getObject());
 		return m.createStatement(s, p, o);
 	}
-	private static Resource toResource( Model m, Identifier id,
-		DAMSObject trans )
+	private static Resource toResource( Model m, Identifier id )
 	{
 		Resource res = null;
 		if ( id != null && id.isBlankNode() )
@@ -196,39 +193,17 @@ public class TripleStoreUtil
 		}
 		else if ( id != null )
 		{
-			if ( trans != null )
-			{
-				// translate ARKs to URIs
-				try
-				{
-					String uri = trans.arkToPre( id.getId() );
-					if ( uri != null ) { id.setId(uri); }
-				}
-				catch ( Exception ex )
-				{
-					log.info("Error translating object ARK", ex);
-				}
-			}
 			res = m.createResource( id.getId() );
 		}
 		return res;
 	}
-	private static Property toProperty( Model m, Identifier id,
-		DAMSObject trans ) throws TripleStoreException
+	private static Property toProperty( Model m, Identifier id )
+		throws TripleStoreException
 	{
 		Property prop = null;
 		if ( id != null && !id.isBlankNode() )
 		{
-			// translate arks to predicate URIs
 			String ark = id.getId();
-			if ( trans != null )
-			{
-				String pre = trans.arkToPre( ark );
-				if ( pre != null )
-				{
-					ark = pre;
-				}
-			}
 			prop = m.createProperty( ark );
 		}
 		return prop;
@@ -271,17 +246,17 @@ public class TripleStoreUtil
 	}
 
 	public static void loadNTriples( InputStream in, TripleStore ts,
-		DAMSObject trans ) throws TripleStoreException
+		String idNS ) throws TripleStoreException
 	{
-		loadRDF( in, ts, trans, "N-TRIPLE" );
+		loadRDF( in, ts, "N-TRIPLE", idNS );
 	}
-	public static void loadRDFXML( InputStream in, TripleStore ts,
-		DAMSObject trans ) throws TripleStoreException
+	public static void loadRDFXML( InputStream in, TripleStore ts, String idNS )
+		throws TripleStoreException
 	{
-		loadRDF( in, ts, trans, "RDF/XML" );
+		loadRDF( in, ts, "RDF/XML", idNS );
 	}
-	private static void loadRDF( InputStream in, TripleStore ts,
-		DAMSObject trans, String format ) throws TripleStoreException
+	private static void loadRDF( InputStream in, TripleStore ts, String format,
+		String idNS ) throws TripleStoreException
 	{
 		// bnode parent tracking
 		Map<String,Identifier> bnodes = new HashMap<String,Identifier>();
@@ -302,14 +277,13 @@ public class TripleStoreUtil
 		// iterate over all statements and load into triplestore
 		try
 		{
-			String idNS = trans.getIdentifierNamespace();
 			StmtIterator it = model.listStatements();
 			while ( it.hasNext() )
 			{
 				com.hp.hpl.jena.rdf.model.Statement s = it.nextStatement();
 				Statement stmt = null;
 				Identifier sub = toIdentifier( s.getSubject(), bnodes, ts );
-				Identifier pre = toIdentifier( s.getPredicate(), trans );
+				Identifier pre = toIdentifier( s.getPredicate() );
 				Identifier objId = null;
 				String obj = null;
 				if ( s.getObject().isLiteral() )
@@ -442,20 +416,12 @@ public class TripleStoreUtil
 	}
 
 	/**
-	 * Create identifier for a resource, with pre->ark translation.
+	 * Create identifier for a resource
 	**/
-	private static Identifier toIdentifier( Resource res, DAMSObject trans )
+	private static Identifier toIdentifier( Resource res )
 		throws TripleStoreException
 	{
 		String pre = res.getURI();
-		if ( trans != null )
-		{
-			String ark = trans.preToArk( pre );
-			if ( ark != null )
-			{
-				pre = ark;
-			}
-		}
 		return Identifier.publicURI( pre );
 	}
 

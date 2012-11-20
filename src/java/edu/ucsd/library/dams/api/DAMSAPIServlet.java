@@ -70,6 +70,8 @@ import edu.ucsd.library.dams.model.Event;
 import edu.ucsd.library.dams.solr.SolrFormat;
 import edu.ucsd.library.dams.solr.SolrHelper;
 import edu.ucsd.library.dams.solr.SolrIndexer;
+import edu.ucsd.library.dams.triple.ArkTranslator;
+import edu.ucsd.library.dams.triple.BindingIterator;
 import edu.ucsd.library.dams.triple.Identifier;
 import edu.ucsd.library.dams.triple.TripleStore;
 import edu.ucsd.library.dams.triple.TripleStoreException;
@@ -891,11 +893,37 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public Map collectionListAll( TripleStore ts )
 	{
-		return null; // DAMS_MGR
+		try
+		{
+			List<Map<String,String>> collections = new ArrayList<Map<String,String>>();
+			String sparql = "select ?collection ?title where { ?collection <http://library.ucsd.edu/ontology/dams#title> ?bn . ?bn <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> ?title . ?collection <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Object> }";
+			BindingIterator cols = ts.sparqlSelect(sparql);
+			while ( cols.hasNext() )
+			{
+				// remove redundant quotes in map
+				Map<String,String> binding = cols.nextBinding();
+				Iterator<String> it = binding.keySet().iterator();
+				while ( it.hasNext() )
+				{
+					String k = it.next();
+					String v = binding.get(k);
+					if ( v.startsWith("\"") && v.endsWith("\"") )
+					{
+						v = v.substring(1,v.length()-1);
+						binding.put(k,v);
+					}
+				}
+				collections.add( binding );
+			}
+			Map info = new HashMap();
+			info.put( "collections", collections );
+			return info;
+		}
+		catch ( Exception ex )
+		{
+			return error( "Error listing collections: " + ex.toString() );
+		}
 		// output = metadata: list of collection objects
-// AAA IMPL
-// - list all collection URIs (sparql)
-// - get all top-level collection objects (bulk describe)
 	}
 	public Map collectionListObjects( String colid, TripleStore ts  )
 	{
@@ -910,14 +938,11 @@ public class DAMSAPIServlet extends HttpServlet
 		Identifier oid = Identifier.publicURI( objuri );
 		Identifier fid = Identifier.publicURI( objuri + "/" + fpart );
 
-		DAMSObject trans = new DAMSObject( ts, null, nsmap );
-		String hasFileArk = trans.preToArk( prNS + "hasFile" );
-		Identifier hasFile = Identifier.publicURI( hasFileArk );
+		Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
 		ts.addStatement( oid, hasFile, fid, oid );
 
 		// date created
-		String dateCreatedArk = trans.preToArk( prNS + "dateCreated" );
-		Identifier dateCreated = Identifier.publicURI( dateCreatedArk );
+		Identifier dateCreated = Identifier.publicURI( prNS + "dateCreated" );
 		String datestr = dateFormat.format( new Date() );
 		ts.addLiteralStatement( fid, dateCreated, "\"" + datestr + "\"", oid );
 
@@ -1222,7 +1247,6 @@ public class DAMSAPIServlet extends HttpServlet
 				// XXX: impl other modes
 				if ( mode == null || mode.equals("") || mode.equals("all") )
 				{
-					DAMSObject trans = new DAMSObject(ts,null,nsmap);
 					if ( !create )
 					{
 						try
@@ -1239,7 +1263,7 @@ public class DAMSAPIServlet extends HttpServlet
 					try
 					{
 						// ingest RDF/XML from inputstream
-						TripleStoreUtil.loadRDFXML( in, ts, trans );
+						TripleStoreUtil.loadRDFXML( in, ts, idNS );
 						
 						// success
 						int status = -1;
@@ -1566,12 +1590,13 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		return null; // DAMS_MGR
 	}
+/** XXX: do we need this -- predicate/ARK translation should be automatic ***/
 	public Map predicateList( TripleStore ts )
 	{
 		try
 		{
 			// setup damsobject
-			DAMSObject trans = new DAMSObject( ts, null, nsmap );
+			ArkTranslator trans = new ArkTranslator( ts, nsmap );
 			Map<String,String> predicates = trans.predicateMap();
 
 			// build map and display
@@ -1627,9 +1652,6 @@ public class DAMSAPIServlet extends HttpServlet
 			// ZZZ: AUTH: who is making the request? hydra or end-user?
 			Identifier userID = null;
 
-			// predicate translator
-			DAMSObject trans = new DAMSObject( ts, objid, nsmap );
-	
 			// create event object and save to the triplestore
 			String obj = objid.startsWith("http") ? objid : idNS + objid;
 			if ( cmpid != null ) { obj += "/" + cmpid; }
@@ -1637,7 +1659,7 @@ public class DAMSAPIServlet extends HttpServlet
 			Identifier subID = Identifier.publicURI( obj );
 			Event e = new Event(
 				eventID, subID, userID, success, type,
-				detail, outcomeNote, trans
+				detail, outcomeNote
 			);
 			e.save(ts);
 		}
@@ -2077,8 +2099,23 @@ public class DAMSAPIServlet extends HttpServlet
 				List list = (List)val;
 				for ( int i = 0; i < list.size(); i++ )
 				{
+					Object o = list.get(i);
 					Element sub = e.addElement("value");
-					sub.setText( list.get(i).toString() );
+					if ( o instanceof Map )
+					{
+						Map valmap = (Map)o;
+						Iterator fields = valmap.keySet().iterator();
+						while( fields.hasNext() )
+						{
+							String field = (String)fields.next();
+							Element sub2 = sub.addElement( field );
+							sub2.setText( valmap.get(field).toString() );
+						}
+					}
+					else
+					{
+						sub.setText( o.toString() );
+					}
 				}
 			}
 			else if ( val instanceof Map )
@@ -2116,25 +2153,38 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			String key = (String)keys.next();
 			Object val = m.get(key);
-			StringBuffer buf = new StringBuffer();
 			Element row = table.addElement("tr");
 			Element keyCell = row.addElement("td");
 			keyCell.setText(key);
 			Element valCell = row.addElement("td");
 			if ( val instanceof String )
 			{
-				buf.append( val.toString() );
-				valCell.setText(buf.toString());
+				valCell.setText(val.toString());
 			}
 			else if ( val instanceof List )
 			{
 				List list = (List)val;
 				for ( int i = 0; i < list.size(); i++ )
 				{
-					if ( i > 0 ) { buf.append(", "); }
-					buf.append( list.get(i).toString() );
+					Element p = valCell.addElement("p");
+					Object o = list.get(i);
+					if ( o instanceof Map )
+					{
+						Map valmap = (Map)o;
+						Iterator fields = valmap.keySet().iterator();
+						while ( fields.hasNext() )
+						{
+							String field = (String)fields.next();
+							String value = (String)valmap.get(field);
+							p.addText(field + ": " + value);
+							if ( fields.hasNext() ) { p.addElement("br"); }
+						}
+					}
+					else
+					{
+						p.setText( o.toString() );
+					}
 				}
-				valCell.setText(buf.toString());
 			}
 			else if ( val instanceof Map )
 			{
