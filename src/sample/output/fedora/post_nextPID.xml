@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pidList  xmlns="http://www.fedora.info/definitions/1/0/management/"  xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fedora.info/definitions/1/0/management/ http://www.fedora.info/definitions/1/0/getNextPIDInfo.xsd">  <pid>changeme:8</pid>
+</pidList>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?><management:validation  xmlns:management="http://www.fedora.info/definitions/1/0/management/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fedora.info/definitions/1/0/management/ http://www.fedora.info/definitions/1/0/validation.xsd" pid="fedora-system:FedoraObject-3.0"  valid="true">
+  <management:asOfDateTime>2012-11-07T18:44:58.897Z</management:asOfDateTime>
+  <management:contentModels>
+    <management:model>info:fedora/fedora-system:ContentModel-3.0</management:model>
+    <management:model>info:fedora/fedora-system:FedoraObject-3.0</management:model>
+  </management:contentModels>
+  <management:problems>
+  </management:problems>
+  <management:datastreamProblems>
+  </management:datastreamProblems>
+</management:validation>

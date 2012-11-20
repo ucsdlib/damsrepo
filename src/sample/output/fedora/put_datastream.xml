@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datastreamProfile  xmlns="http://www.fedora.info/definitions/1/0/management/"  xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fedora.info/definitions/1/0/management/ http://www.fedora.info/definitions/1/0/datastreamProfile.xsd" pid="changeme:7" dsID="foo" >
+<dsLabel>
+</dsLabel>
+<dsVersionID>foo.1</dsVersionID>
+<dsCreateDate>2012-11-07T18:38:36.976Z</dsCreateDate>
+<dsState>A</dsState>
+<dsMIME>application/x-www-form-urlencoded</dsMIME>
+<dsFormatURI>
+</dsFormatURI>
+<dsControlGroup>X</dsControlGroup>
+<dsSize>43</dsSize>
+<dsVersionable>true</dsVersionable>
+<dsInfoType>
+</dsInfoType>
+<dsLocation>changeme:7+foo+foo.1</dsLocation>
+<dsLocationType>
+</dsLocationType>
+<dsChecksumType>DISABLED</dsChecksumType>
+<dsChecksum>none</dsChecksum>
+</datastreamProfile>

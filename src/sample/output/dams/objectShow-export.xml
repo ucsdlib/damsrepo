@@ -1,0 +1,198 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dams="http://library.ucsd.edu/ontology/dams#"
+    xmlns:mads="http://www.loc.gov/mads/rdf/v1#"
+    xmlns:damsid="http://library.ucsd.edu/ark:/20775/">
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bb01010101">
+    <dams:date rdf:parseType="Resource">
+      <dams:beginDate>2012-03-01</dams:beginDate>
+      <dams:endDate>2012-03-31</dams:endDate>
+      <rdf:value>March 2012</rdf:value>
+    </dams:date>
+    <dams:hasFile>
+      <dams:File rdf:about="http://library.ucsd.edu/ark:/20775/bb01010101/1-3.jpg">
+        <dams:dateCreated>2012-11-01T14:41:00-0500</dams:dateCreated>
+        <dams:compositionLevel>0</dams:compositionLevel>
+        <dams:objectCategory>file</dams:objectCategory>
+        <dams:md5checksum>412f1eaccc1eed0e09610ca29fd66a8c</dams:md5checksum>
+        <dams:size>131914</dams:size>
+        <dams:formatVersion>1.02</dams:formatVersion>
+        <dams:use>visual-service</dams:use>
+        <dams:preservationLevel>none</dams:preservationLevel>
+        <dams:formatName>JPEG</dams:formatName>
+        <dams:event>
+          <dams:Event rdf:about="http://library.ucsd.edu/ark:/20775/bb13131313">
+            <dams:type>object creation</dams:type>
+            <dams:endDate>2012-11-06T09:26:34-0500</dams:endDate>
+            <dams:detail>Object created</dams:detail>
+            <dams:outcome>success</dams:outcome>
+            <dams:relationship rdf:parseType="Resource">
+              <dams:role rdf:resource="http://library.ucsd.edu/ontology/dams#initiator"/>
+              <dams:name>
+                <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bb09090909">
+                  <mads:authoritativeLabel xml:lang="en">Administrator, Bob, 1977-</mads:authoritativeLabel>
+                  <mads:elementList>
+                    <rdf:Description rdf:nodeID="A0">
+                      <rdf:first>
+                        <mads:FullNameElement>
+                          <mads:elementValue>Administrator, Bob,</mads:elementValue>
+                          <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#TopicElement"/>
+                          <mads:elementValue xml:lang="en">Relics</mads:elementValue>
+                        </mads:FullNameElement>
+                      </rdf:first>
+                      <rdf:rest rdf:parseType="Collection">
+                        <mads:DateNameElement>
+                          <mads:elementValue xml:lang="en">1977-</mads:elementValue>
+                        </mads:DateNameElement>
+                      </rdf:rest>
+                      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                    </rdf:Description>
+                  </mads:elementList>
+                </mads:PersonalName>
+              </dams:name>
+            </dams:relationship>
+          </dams:Event>
+        </dams:event>
+        <dams:mimeType>image/jpeg</dams:mimeType>
+        <dams:crc32checksum>1ca45b7d</dams:crc32checksum>
+      </dams:File>
+    </dams:hasFile>
+    <dams:otherRights>
+      <dams:OtherRights rdf:about="http://library.ucsd.edu/ark:/20775/bb06060606">
+        <dams:otherRightsBasis>fair use</dams:otherRightsBasis>
+        <dams:relationship rdf:parseType="Resource">
+          <dams:role rdf:resource="http://library.ucsd.edu/ontology/dams#decisionmaker"/>
+          <dams:name rdf:resource="http://library.ucsd.edu/ark:/20775/bb09090909"/>
+        </dams:relationship>
+        <dams:permission rdf:parseType="Resource">
+          <dams:type>display</dams:type>
+        </dams:permission>
+      </dams:OtherRights>
+    </dams:otherRights>
+    <dams:language rdf:resource="http://library.ucsd.edu/ontology/dams#en"/>
+    <dams:typeOfResource>image</dams:typeOfResource>
+    <dams:copyright>
+      <dams:Copyright rdf:about="http://library.ucsd.edu/ark:/20775/bb05050505">
+        <dams:copyrightStatus>Under copyright -- 3rd Party</dams:copyrightStatus>
+        <dams:copyrightJurisdiction>us</dams:copyrightJurisdiction>
+      </dams:Copyright>
+    </dams:copyright>
+    <dams:event>
+      <dams:Event rdf:about="http://library.ucsd.edu/ark:/20775/bb07070707">
+        <dams:type>object creation</dams:type>
+        <dams:endDate>2012-11-06T09:26:34-0500</dams:endDate>
+        <dams:detail>Object created</dams:detail>
+        <dams:outcome>success</dams:outcome>
+        <dams:relationship rdf:parseType="Resource">
+          <dams:role rdf:resource="http://library.ucsd.edu/ontology/dams#initiator"/>
+          <dams:name rdf:resource="http://library.ucsd.edu/ark:/20775/bb09090909"/>
+        </dams:relationship>
+      </dams:Event>
+    </dams:event>
+    <dams:event>
+      <dams:Event rdf:about="http://library.ucsd.edu/ark:/20775/bb33333333">
+        <dams:type>object modification</dams:type>
+        <dams:endDate>2012-11-07T11:11:11-0500</dams:endDate>
+        <dams:detail>Object updated</dams:detail>
+        <dams:outcome>success</dams:outcome>
+        <dams:relationship rdf:parseType="Resource">
+          <dams:role rdf:resource="http://library.ucsd.edu/ontology/dams#initiator"/>
+          <dams:name rdf:resource="http://library.ucsd.edu/ark:/20775/bb09090909"/>
+        </dams:relationship>
+      </dams:Event>
+    </dams:event>
+    <dams:collection>
+      <dams:Collection rdf:about="http://library.ucsd.edu/ark:/20775/bb03030303">
+        <dams:title rdf:parseType="Resource">
+          <rdf:value>Test Collection</rdf:value>
+        </dams:title>
+      </dams:Collection>
+    </dams:collection>
+    <dams:relationship rdf:parseType="Resource">
+      <dams:role rdf:resource="http://library.ucsd.edu/ontology/dams#creator"/>
+      <dams:name>
+        <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bb08080808">
+          <mads:authoritativeLabel xml:lang="en">Artist, Alice, 1966-</mads:authoritativeLabel>
+          <mads:elementList>
+            <rdf:Description rdf:nodeID="A1">
+              <rdf:first>
+                <mads:FullNameElement>
+                  <mads:elementValue>Artist, Alice,</mads:elementValue>
+                  <mads:elementValue>Jefferson, Thomas</mads:elementValue>
+                </mads:FullNameElement>
+              </rdf:first>
+              <rdf:rest rdf:parseType="Collection">
+                <mads:DateNameElement>
+                  <mads:elementValue xml:lang="en">1966-</mads:elementValue>
+                  <mads:elementValue xml:lang="en">1743-1826-</mads:elementValue>
+                </mads:DateNameElement>
+              </rdf:rest>
+            </rdf:Description>
+          </mads:elementList>
+        </mads:PersonalName>
+      </dams:name>
+    </dams:relationship>
+    <dams:title rdf:parseType="Resource">
+      <rdf:value>The real thing</rdf:value>
+      <dams:relatedTitle rdf:parseType="Resource">
+        <rdf:value xml:lang="fr">Le chose vrai</rdf:value>
+        <dams:type>translated</dams:type>
+      </dams:relatedTitle>
+    </dams:title>
+    <dams:hasFile>
+      <dams:File rdf:about="http://library.ucsd.edu/ark:/20775/bb01010101/1-1.tif">
+        <dams:formatVersion>5.0</dams:formatVersion>
+        <dams:size rdf:datatype="http://www.w3.org/2001/XMLSchema#int">6340220</dams:size>
+        <dams:objectCategory>file</dams:objectCategory>
+        <dams:event>
+          <dams:Event rdf:about="http://library.ucsd.edu/ark:/20775/bb12121212">
+            <dams:type>object creation</dams:type>
+            <dams:endDate>2012-11-06T09:26:34-0500</dams:endDate>
+            <dams:detail>Object created</dams:detail>
+            <dams:outcome>success</dams:outcome>
+            <dams:relationship rdf:parseType="Resource">
+              <dams:role rdf:resource="http://library.ucsd.edu/ontology/dams#initiator"/>
+              <dams:name rdf:resource="http://library.ucsd.edu/ark:/20775/bb09090909"/>
+            </dams:relationship>
+          </dams:Event>
+        </dams:event>
+        <dams:formatName>TIFF</dams:formatName>
+        <dams:md5checksum>f69c4f85cafbe05e55068cedd4353146</dams:md5checksum>
+        <dams:crc32checksum>5ffa698b</dams:crc32checksum>
+        <dams:use>visual-source</dams:use>
+        <dams:compositionLevel>0</dams:compositionLevel>
+        <dams:preservationLevel>full</dams:preservationLevel>
+        <dams:dateCreated>2012-11-01T14:40:00-0500</dams:dateCreated>
+        <dams:mimeType>image/tiff</dams:mimeType>
+      </dams:File>
+    </dams:hasFile>
+    <dams:repository>
+      <dams:Repository rdf:about="http://library.ucsd.edu/ark:/20775/bb02020202">
+        <dams:repositoryName>Test Repository</dams:repositoryName>
+        <dams:repositoryURI>http://library.ucsd.edu/test/</dams:repositoryURI>
+      </dams:Repository>
+    </dams:repository>
+    <dams:otherResource rdf:parseType="Resource">
+      <dams:type>online exhibit</dams:type>
+      <dams:description>foo</dams:description>
+      <dams:uri>http://library.ucsd.edu/test/foo/</dams:uri>
+    </dams:otherResource>
+    <dams:subject>
+      <mads:ComplexSubject rdf:about="http://library.ucsd.edu/ark:/20775/bb04040404">
+        <mads:authoritativeLabel xml:lang="en">Jefferson, Thomas, 1743-1826--Relics--1826</mads:authoritativeLabel>
+        <mads:componentList rdf:parseType="Collection">
+          <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bb10101010">
+            <mads:authoritativeLabel xml:lang="en">Jefferson, Thomas, 1743-1826-</mads:authoritativeLabel>
+            <mads:elementList rdf:nodeID="A1"/>
+          </mads:PersonalName>
+          <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bb11111111">
+            <mads:elementList rdf:nodeID="A0"/>
+          </mads:Topic>
+          <mads:Temporal>
+            <mads:elementValue>1826</mads:elementValue>
+          </mads:Temporal>
+        </mads:componentList>
+      </mads:ComplexSubject>
+    </dams:subject>
+  </dams:Object>
+</rdf:RDF>
