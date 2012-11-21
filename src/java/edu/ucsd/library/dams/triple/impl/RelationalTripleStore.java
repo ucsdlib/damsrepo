@@ -433,18 +433,7 @@ public class RelationalTripleStore implements TripleStore
 		}
 		else
 		{
-			// escape and quote literals
-			String escaped = null;
-			if ( s.startsWith("\"") && s.endsWith("\"") )
-			{
-				escaped = s.substring(1,s.length()-1);
-			}
-			else
-			{
-				escaped = s;
-			}
-			escaped = "\"" + StringEscapeUtils.escapeJava(escaped) + "\"";
-			return escaped;
+			return TripleStoreUtil.parseLiteral(s);
 		}
 	}
 	/**

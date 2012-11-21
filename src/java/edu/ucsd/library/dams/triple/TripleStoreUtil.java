@@ -53,6 +53,7 @@ public class TripleStoreUtil
 {
 	private static Logger log = Logger.getLogger( TripleStoreUtil.class );
 	private static String ns = "http://libraries.ucsd.edu/ark:/20775/";
+	private static Model staticModel = ModelFactory.createDefaultModel();
 
 	/**
 	 * Get an instance of a triplestore class.
@@ -210,6 +211,7 @@ public class TripleStoreUtil
 	}
 	private static Literal toLiteral( Model m, String s )
 	{
+		if ( m == null ) { m = staticModel; }
 		// literal with language tag
 		if ( s != null && !s.endsWith("\"") && s.indexOf("\"@") > 0 )
 		{
@@ -550,6 +552,11 @@ public class TripleStoreUtil
 			text += "^^<" + type + ">";
 		}
 		return text;
+	}
+	public static String parseLiteral( String s )
+	{
+		Literal lit = toLiteral(null,s);
+		return literalString(lit);
 	}
 
 	/**
