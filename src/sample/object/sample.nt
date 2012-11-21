@@ -26,6 +26,7 @@ _:bn01n05 <http://library.ucsd.edu/ontology/dams#uri> "http://library.ucsd.edu/t
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#hasComponent> <http://library.ucsd.edu/ark:/20775/bb01010101/1> .
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#hasComponent> <http://library.ucsd.edu/ark:/20775/bb01010101/2> .
 <http://library.ucsd.edu/ark:/20775/bb01010101/1> <http://library.ucsd.edu/ontology/dams#hasFile> <http://library.ucsd.edu/ark:/20775/bb01010101/1/1.tif> .
+<http://library.ucsd.edu/ark:/20775/bb01010101/1/1.tif> <http://library.ucsd.edu/ontology/dams#object> <http://library.ucsd.edu/ark:/20775/bb01010101> .
 <http://library.ucsd.edu/ark:/20775/bb01010101/1/1.tif> <http://library.ucsd.edu/ontology/dams#event> <http://library.ucsd.edu/ark:/20775/bb12121212> .
 <http://library.ucsd.edu/ark:/20775/bb01010101/1/1.tif> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#File> .
 <http://library.ucsd.edu/ark:/20775/bb01010101/1/1.tif> <http://library.ucsd.edu/ontology/dams#use> "visual-source" .
@@ -40,6 +41,7 @@ _:bn01n05 <http://library.ucsd.edu/ontology/dams#uri> "http://library.ucsd.edu/t
 <http://library.ucsd.edu/ark:/20775/bb01010101/1/1.tif> <http://library.ucsd.edu/ontology/dams#crc32checksum> "5ffa698b" .
 <http://library.ucsd.edu/ark:/20775/bb01010101/1/1.tif> <http://library.ucsd.edu/ontology/dams#md5checksum> "f69c4f85cafbe05e55068cedd4353146" .
 <http://library.ucsd.edu/ark:/20775/bb01010101/2> <http://library.ucsd.edu/ontology/dams#hasFile> <http://library.ucsd.edu/ark:/20775/bb01010101/2/1.jpg> .
+<http://library.ucsd.edu/ark:/20775/bb01010101/2/1.jpg> <http://library.ucsd.edu/ontology/dams#object> <http://library.ucsd.edu/ark:/20775/bb01010101> .
 <http://library.ucsd.edu/ark:/20775/bb01010101/2/1.jpg> <http://library.ucsd.edu/ontology/dams#event> <http://library.ucsd.edu/ark:/20775/bb13131313> .
 <http://library.ucsd.edu/ark:/20775/bb01010101/2/1.jpg> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#File> .
 <http://library.ucsd.edu/ark:/20775/bb01010101/2/1.jpg> <http://library.ucsd.edu/ontology/dams#use> "visual-service" .

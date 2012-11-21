@@ -73,6 +73,8 @@ import edu.ucsd.library.dams.solr.SolrIndexer;
 import edu.ucsd.library.dams.triple.ArkTranslator;
 import edu.ucsd.library.dams.triple.BindingIterator;
 import edu.ucsd.library.dams.triple.Identifier;
+import edu.ucsd.library.dams.triple.Statement;
+import edu.ucsd.library.dams.triple.StatementIterator;
 import edu.ucsd.library.dams.triple.TripleStore;
 import edu.ucsd.library.dams.triple.TripleStoreException;
 import edu.ucsd.library.dams.triple.TripleStoreUtil;
@@ -288,7 +290,7 @@ public class DAMSAPIServlet extends HttpServlet
 				&& path[3].equals("files") )
 			{
 				ts = triplestore(req);
-				info = collectionFiles( path[2], ts );
+				info = collectionListFiles( path[2], ts );
 			}
 			// GET /objects/bb1234567x
 			else if ( path.length == 3 && path[1].equals("objects") )
@@ -326,6 +328,26 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				ts = triplestore(req);
 				info = objectExists( path[2], ts );
+			}
+			// GET /objects/bb1234567x/files
+			else if ( path.length == 4 && path[1].equals("objects")
+				&& path[3].equals("files") )
+			{
+				ts = triplestore(req);
+				info = objectListFiles( path[2], ts );
+			}
+			// GET /objects/bb1234567x/transform
+			else if ( path.length == 4 && path[1].equals("objects")
+				&& path[3].equals("transform") )
+			{
+				ts = triplestore(req);
+				String xsl = getParamString(req,"xsl",null);
+				boolean export = getParamBool(req,"recursive",false);
+				objectTransform(
+					path[2], null, null, export, ts, xsl, null, null,
+					req.getParameterMap(), req.getPathInfo(), res
+				);
+				outputRequired = false;
 			}
 			// GET /objects/bb1234567x/validate
 			else if ( path.length == 4 && path[1].equals("objects")
@@ -885,11 +907,21 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public Map collectionCount( String colid, TripleStore ts )
 	{
-		String coluri = ( colid.startsWith(idNS) ) ? colid : idNS + colid;
-		String sparql = "select ?id where { ?id <" + prNS + "collection> "
-			+ "<" + coluri + "> }";
 		try
 		{
+			String coluri = ( colid.startsWith(idNS) ) ? colid : idNS + colid;
+			Identifier col = Identifier.publicURI( coluri );
+			if ( !ts.exists(col) )
+			{
+				return error(
+					HttpServletResponse.SC_NOT_FOUND,
+					"Collection does not exist"
+				);
+			}
+
+			String sparql = "select ?id where { ?id <" + prNS + "collection> "
+				+ "<" + coluri + "> }";
+
 			long count = ts.sparqlCount( sparql );
 			Map info = new LinkedHashMap();
 			info.put("count",count);
@@ -902,24 +934,105 @@ public class DAMSAPIServlet extends HttpServlet
 			return error(msg);
 		}
 	}
-	public Map collectionFiles( String colid, TripleStore ts )
+	public Map collectionListFiles( String colid, TripleStore ts )
 	{
-		String coluri = ( colid.startsWith(idNS) ) ? colid : idNS + colid;
-		String sparql = "select ?file where { ?obj <" + prNS + "collection> "
-			+ "<" + coluri + "> . ?file <" + prNS + "object> ?obj ."
-			+ "?file <" + prNS + "sourceName> ?source ."
-			+ "?file <" + prNS + "sourcePath> ?path }";
 		try
 		{
-			BindingIterator fileBindings = ts.sparqlSelect( sparql );
-			List<Map<String,String>> files = bindings(fileBindings);
+			String coluri = ( colid.startsWith(idNS) ) ? colid : idNS + colid;
+			Identifier col = Identifier.publicURI( coluri );
+			if ( !ts.exists(col) )
+			{
+				return error(
+					HttpServletResponse.SC_NOT_FOUND,
+					"Collection does not exist"
+				);
+			}
+
+			// should be able to do this with sparql, but for now, we can
+			// just use our API to list objects and then list files for each
+			// object
+			List files = new ArrayList();
+			Map objlist = collectionListObjects( colid, ts  );
+			List objects = (List)objlist.get("objects");
+			for ( int i = 0; i < objects.size(); i++ )
+			{
+				Map obj = (Map)objects.get(i);
+				String objid = (String)obj.get("obj");
+				Map objfiles = objectListFiles( objid, ts );
+				List filelist = (List)objfiles.get("files");
+				files.addAll( filelist );
+			}
+
 			Map info = new LinkedHashMap();
 			info.put("files",files);
 			return info;
 		}
 		catch ( Exception ex )
 		{
-			String msg = "Error counting collection members: " + colid;
+			String msg = "Error listing files in a collection: " + colid;
+			log.info(msg, ex );
+			return error(msg);
+		}
+	}
+	public Map objectListFiles( String objid, TripleStore ts )
+	{
+		try
+		{
+			String objuri = ( objid.startsWith(idNS) ) ? objid : idNS + objid;
+			Identifier obj = Identifier.publicURI( objuri );
+			if ( !ts.exists(obj) )
+			{
+				return error(
+					HttpServletResponse.SC_NOT_FOUND, "Object does not exist"
+				);
+			}
+
+			Map<String,Map<String,String>> fm 
+				= new HashMap<String,Map<String,String>>();
+			StatementIterator stmtit = ts.sparqlDescribe( obj );
+			while ( stmtit.hasNext() )
+			{
+				Statement s = stmtit.nextStatement();
+				String id = s.getSubject().getId();
+				if ( !id.equals(objuri) && id.startsWith(objuri) )
+				{
+					String p = s.getPredicate().getId();
+					p = p.replaceAll(prNS,"");
+					String o = s.getLiteral();
+					if ( !p.equals("hasFile") && o != null )
+					{
+						if ( o.startsWith("\"") && o.endsWith("\"") )
+						{
+							o = o.substring(1,o.length()-1);
+						}
+						Map<String,String> m = fm.get(id);
+						if ( m == null )
+						{
+							m = new HashMap<String,String>();
+							m.put("object",objid);
+							m.put("id",id);
+						}
+						m.put( p, o );
+						fm.put( id, m );
+					}
+				}
+			}
+
+			// convert map to list
+			ArrayList fl = new ArrayList();
+			for ( Iterator fit = fm.values().iterator(); fit.hasNext(); )
+			{
+				Map finfo = (Map)fit.next();
+				if ( finfo.size() > 0 ) { fl.add(finfo); }
+			}
+
+			Map info = new LinkedHashMap();
+			info.put("files",fl);
+			return info;
+		}
+		catch ( Exception ex )
+		{
+			String msg = "Error listing files for object: " + objid;
 			log.info(msg, ex );
 			return error(msg);
 		}
@@ -949,7 +1062,6 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			return error( "Error listing collections: " + ex.toString() );
 		}
-		// output = metadata: list of collection objects
 	}
 
 	private List<Map<String,String>> bindings( BindingIterator bit )
@@ -977,8 +1089,30 @@ public class DAMSAPIServlet extends HttpServlet
 
 	public Map collectionListObjects( String colid, TripleStore ts  )
 	{
-		return null; // DAMS_MGR
-		// output = metadata: list of objects
+		try
+		{
+			String coluri = ( colid.startsWith(idNS) ) ? colid : idNS + colid;
+			Identifier col = Identifier.publicURI( coluri );
+			if ( !ts.exists(col) )
+			{
+				return error(
+					HttpServletResponse.SC_NOT_FOUND,
+					"Collection does not exist"
+				);
+			}
+
+			String sparql = "select ?obj where { ?obj <" + prNS + "collection> "
+				+ "<" + idNS + colid + "> }";
+			BindingIterator bind = ts.sparqlSelect(sparql);
+			List<Map<String,String>> objects = bindings(bind);
+			Map info = new HashMap();
+			info.put( "objects", objects );
+			return info;
+		}
+		catch ( Exception ex )
+		{
+			return error( "Error listing collections: " + ex.toString() );
+		}
 	}
 	public Map fileCharacterize( String objid, String cmpid, String fileid,
 		FileStore fs, TripleStore ts ) throws TripleStoreException
@@ -1588,6 +1722,11 @@ public class DAMSAPIServlet extends HttpServlet
 		String destid, Map<String,String[]> params, String pathInfo,
 		HttpServletResponse res )
 	{
+System.out.println("objectTransform: " + objid + "/" + cmpid + "/" + fileid);
+System.out.println("   export: " + export);
+System.out.println("   xslName: " + xslName);
+System.out.println("   destid: " + destid);
+System.out.println("   fs: " + fs);
 		try
 		{
 			// get object from triplestore as Document
@@ -1598,12 +1737,24 @@ public class DAMSAPIServlet extends HttpServlet
 				DAMSObject obj = (DAMSObject)m.get("obj");
 				xml = obj.getRDFXML(export);
 			}
+			else
+			{
+				// if there is no object, output the error message we received
+				output( m, params, pathInfo, res );
+			}
 
-			// then do xslt...
+			// transform metadata and output
 			if ( fileid != null ) { params.put("fileid",new String[]{fileid}); }
 			if ( cmpid != null ) { params.put("cmpid",new String[]{cmpid}); }
 			String content = xslt( xml, xslName, params, queryString(params) );
 			output( res.SC_OK, content, "text/xml", res );
+
+			// if destid specified, then also save output
+			if ( destid != null )
+			{
+				System.err.println("write: " + destid);
+				fs.write( objid, cmpid, destid, content.getBytes() );
+			}
 		}
 		catch ( Exception ex )
 		{
