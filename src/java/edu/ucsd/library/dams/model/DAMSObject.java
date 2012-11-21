@@ -31,6 +31,7 @@ public class DAMSObject
 	private Identifier id;
 	private Map<String,String> nsmap;
 	private String idNS;
+	private String owlNS;
 
 	/**
 	 * Main constructor.
@@ -42,6 +43,7 @@ public class DAMSObject
 		this.ts = ts;
 		this.nsmap = nsmap;
 		this.idNS = nsmap.get("damsid");
+		this.owlNS = nsmap.get("owl");
 		String iduri = (id != null && id.startsWith("http")) ? id : idNS + id;
 		this.id = Identifier.publicURI(iduri);
 	}
@@ -73,7 +75,8 @@ public class DAMSObject
 		finally { it.close(); }
 
 		// recurse over children until no new identifiers are found
-		while ( todo.size() > 0 )
+		int MAX_RECURSION = 10;
+		for ( int i = 0; i < MAX_RECURSION && todo.size() > 0; i++ )
 		{
 			// describe all objects in the todo set
 			StatementIterator it2 = ts.sparqlDescribe(todo);
@@ -85,6 +88,15 @@ public class DAMSObject
 			// process the batch of statements
 			try { process( it2, slist, done, todo ); }
 			finally { it2.close(); }
+		}
+
+		// output unprocessed statements
+		if ( todo.size() > 0 )
+		{
+			for ( Iterator<Identifier> todoit = todo.iterator(); it.hasNext(); )
+			{
+				System.out.println( "todo: " + todoit.next().toString() );
+			}
 		}
 
 		return new StatementListIterator( slist );
@@ -112,7 +124,12 @@ public class DAMSObject
 				Identifier o = stmt.getObject();
 				if ( !o.isBlankNode() && !done.contains(o) )
 				{
-					todo.add(o);
+					// don't follow owl predicates
+					String p = stmt.getPredicate().getId();
+					if ( !p.startsWith(owlNS) )
+					{
+						todo.add(o);
+					}
 				}
 			}
 		}
