@@ -102,7 +102,7 @@ public class RelationalTripleStore implements TripleStore
 		try
 		{
 			nsmap = TripleStoreUtil.namespaceMap( props );
-			idNS = nsmap.get("idNS");
+			idNS = nsmap.get("damsid");
 		}
 		catch ( Exception ex ) { throw new TripleStoreException(ex); }
 

@@ -41,7 +41,7 @@ public class DAMSObject
 	{
 		this.ts = ts;
 		this.nsmap = nsmap;
-		this.idNS = nsmap.get("idNS");
+		this.idNS = nsmap.get("damsid");
 		String iduri = (id != null && id.startsWith("http")) ? id : idNS + id;
 		this.id = Identifier.publicURI(iduri);
 	}

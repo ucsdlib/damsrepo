@@ -283,6 +283,13 @@ public class DAMSAPIServlet extends HttpServlet
 				ts = triplestore(req);
 				info = collectionEmbargo( path[2], ts );
 			}
+			// GET /collections/bb1234567x/files
+			else if ( path.length == 4 && path[1].equals("collections")
+				&& path[3].equals("files") )
+			{
+				ts = triplestore(req);
+				info = collectionFiles( path[2], ts );
+			}
 			// GET /objects/bb1234567x
 			else if ( path.length == 3 && path[1].equals("objects") )
 			{
@@ -878,8 +885,44 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public Map collectionCount( String colid, TripleStore ts )
 	{
-		return null; // DAMS_MGR
-		// output = status message
+		String coluri = ( colid.startsWith(idNS) ) ? colid : idNS + colid;
+		String sparql = "select ?id where { ?id <" + prNS + "collection> "
+			+ "<" + coluri + "> }";
+		try
+		{
+			long count = ts.sparqlCount( sparql );
+			Map info = new LinkedHashMap();
+			info.put("count",count);
+			return info;
+		}
+		catch ( Exception ex )
+		{
+			String msg = "Error counting collection members: " + colid;
+			log.info(msg, ex );
+			return error(msg);
+		}
+	}
+	public Map collectionFiles( String colid, TripleStore ts )
+	{
+		String coluri = ( colid.startsWith(idNS) ) ? colid : idNS + colid;
+		String sparql = "select ?file where { ?obj <" + prNS + "collection> "
+			+ "<" + coluri + "> . ?file <" + prNS + "object> ?obj ."
+			+ "?file <" + prNS + "sourceName> ?source ."
+			+ "?file <" + prNS + "sourcePath> ?path }";
+		try
+		{
+			BindingIterator fileBindings = ts.sparqlSelect( sparql );
+			List<Map<String,String>> files = bindings(fileBindings);
+			Map info = new LinkedHashMap();
+			info.put("files",files);
+			return info;
+		}
+		catch ( Exception ex )
+		{
+			String msg = "Error counting collection members: " + colid;
+			log.info(msg, ex );
+			return error(msg);
+		}
 	}
 	public Map collectionEmbargo( String colid, TripleStore ts )
 	{
@@ -895,26 +938,9 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		try
 		{
-			List<Map<String,String>> collections = new ArrayList<Map<String,String>>();
-			String sparql = "select ?collection ?title where { ?collection <http://library.ucsd.edu/ontology/dams#title> ?bn . ?bn <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> ?title . ?collection <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Object> }";
+			String sparql = "select ?collection ?title where { ?collection <" + prNS + "title> ?bn . ?bn <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> ?title . ?collection <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <" + prNS + "Object> }";
 			BindingIterator cols = ts.sparqlSelect(sparql);
-			while ( cols.hasNext() )
-			{
-				// remove redundant quotes in map
-				Map<String,String> binding = cols.nextBinding();
-				Iterator<String> it = binding.keySet().iterator();
-				while ( it.hasNext() )
-				{
-					String k = it.next();
-					String v = binding.get(k);
-					if ( v.startsWith("\"") && v.endsWith("\"") )
-					{
-						v = v.substring(1,v.length()-1);
-						binding.put(k,v);
-					}
-				}
-				collections.add( binding );
-			}
+			List<Map<String,String>> collections = bindings(cols);
 			Map info = new HashMap();
 			info.put( "collections", collections );
 			return info;
@@ -925,6 +951,30 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		// output = metadata: list of collection objects
 	}
+
+	private List<Map<String,String>> bindings( BindingIterator bit )
+	{
+		List<Map<String,String>> bindings = new ArrayList<Map<String,String>>();
+		while ( bit.hasNext() )
+		{
+			// remove redundant quotes in map
+			Map<String,String> binding = bit.nextBinding();
+			Iterator<String> it = binding.keySet().iterator();
+			while ( it.hasNext() )
+			{
+				String k = it.next();
+				String v = binding.get(k);
+				if ( v.startsWith("\"") && v.endsWith("\"") )
+				{
+					v = v.substring(1,v.length()-1);
+					binding.put(k,v);
+				}
+			}
+			bindings.add( binding );
+		}
+		return bindings;
+	}
+
 	public Map collectionListObjects( String colid, TripleStore ts  )
 	{
 		return null; // DAMS_MGR
