@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+// dams
 import edu.ucsd.library.dams.triple.BindingIterator;
 import edu.ucsd.library.dams.triple.Identifier;
 import edu.ucsd.library.dams.triple.Statement;
@@ -164,24 +166,6 @@ public class DAMSObject
 	 * Get object metadata, converted to JSON
 	**/
 	public String getSolrJsonData()
-	{
-		// XXX
-		return null;
-	}
-
-	/**
-	 * Get a list of Component identifiers associated with this object.
-	**/
-	public List<String> listComponents()
-	{
-		// XXX
-		return null;
-	}
-
-	/**
-	 * Get a list of File identifiers associated with this object.
-	**/
-	public List<String> listFiles( String componentID )
 	{
 		// XXX
 		return null;

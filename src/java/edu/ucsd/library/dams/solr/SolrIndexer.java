@@ -925,16 +925,15 @@ public class SolrIndexer
 		if ( fs != null )
 		{
 			String fulltext = null;
-			List<String> components = obj.listComponents();
-			for ( int i = 0; i < components.size(); i++ )
+			String[] components = fs.listComponents(subject);
+			for ( int i = 0; i < components.length; i++ )
 			{
-				String compid = components.get(i);
-				List<String> files = obj.listFiles( compid );
-				for ( int j = 0; j < files.size(); j++ )
+				String compid = components[i];
+				String[] files = fs.listFiles( subject, compid );
+				for ( int j = 0; j < files.length; j++ )
 				{
-					String fn = files.get(j);
-					if ( fn != null && fn.endsWith(".pdf")
-						&& fs.exists(subject,compid,fn) )
+					String fn = files[j];
+					if ( fn != null && fn.endsWith(".pdf") )
 					{
 						// read to string 
 						InputStream is = null;

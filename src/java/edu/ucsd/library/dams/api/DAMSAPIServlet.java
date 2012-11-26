@@ -1722,11 +1722,6 @@ public class DAMSAPIServlet extends HttpServlet
 		String destid, Map<String,String[]> params, String pathInfo,
 		HttpServletResponse res )
 	{
-System.out.println("objectTransform: " + objid + "/" + cmpid + "/" + fileid);
-System.out.println("   export: " + export);
-System.out.println("   xslName: " + xslName);
-System.out.println("   destid: " + destid);
-System.out.println("   fs: " + fs);
 		try
 		{
 			// get object from triplestore as Document
@@ -1752,7 +1747,6 @@ System.out.println("   fs: " + fs);
 			// if destid specified, then also save output
 			if ( destid != null )
 			{
-				System.err.println("write: " + destid);
 				fs.write( objid, cmpid, destid, content.getBytes() );
 			}
 		}
