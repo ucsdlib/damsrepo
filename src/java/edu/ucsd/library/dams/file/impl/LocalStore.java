@@ -95,9 +95,17 @@ public class LocalStore implements FileStore
 				if ( fn.indexOf(objectID) > -1 && !fn.endsWith("manifest.txt")
 					&& !fn.startsWith(".") )
 				{
-					int offset = fn.indexOf(objectID) + objectID.length() + 1;
-// XXX: if starts with xxx-comp...
-					fileList.add( fn.substring( offset ) );
+					// only add files that match objectID (and component ID if specified)
+					String prefix = objectID;
+					if ( componentID != null )
+					{
+						prefix += "-" + componentID;
+					}
+					int offset = fn.indexOf(prefix);
+					if ( offset > -1 )
+					{
+						fileList.add( fn.substring( offset + prefix.length() + 1 ) );
+					}
 				}
 			}
 

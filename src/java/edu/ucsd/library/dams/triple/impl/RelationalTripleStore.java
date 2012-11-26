@@ -43,13 +43,6 @@ import edu.ucsd.library.dams.triple.TripleStoreException;
 import edu.ucsd.library.dams.triple.convertor.SQLConvertor;
 import edu.ucsd.library.dams.triple.convertor.STSTableSchema;
 
-/***
- XXX translate between ARKs and URIs/labels
-	- when adding triples -> uriToArk
-	- when selecting triples or bindings -> arkToUri
-	- when performing queries -> lblToArk
-***/
-
 /**
  * Basic triplestore using a relational database for storage and transactions.
  * Provides SPARQL-to-SQL translation, a standard SQL implementation, NTriples
@@ -356,7 +349,7 @@ public class RelationalTripleStore implements TripleStore
 		try
 		{
 			selectCount++;
-			sql = trans.translateURIs(sql); // XXX trans
+			sql = trans.translateURIs(sql);
 			log.debug("sql: " + sql);
 			stmt = con.createStatement();
 			rs = stmt.executeQuery( sql );
@@ -427,7 +420,7 @@ public class RelationalTripleStore implements TripleStore
 		{
 			// lookup ARKs for URIs
 			String ark = trans.toARK(
-				s.substring(1,s.length()-1), false // XXX trans
+				s.substring(1,s.length()-1), false
 			);
 			return "<" + ark + ">";
 		}
@@ -622,7 +615,7 @@ public class RelationalTripleStore implements TripleStore
 			insertStatement.clearParameters();
 			insertStatement.setString( 1, subject.toString() );
 			insertStatement.setString(
-				2, trans.toARK(predicate,false).toString() // XXX trans
+				2, trans.toARK(predicate,false).toString()
 			);
 			String escaped = escapeValue(object,trans);
 			insertStatement.setString( 3, escaped );
@@ -750,7 +743,7 @@ public class RelationalTripleStore implements TripleStore
 			sql += " WHERE ";
 			sql += conditions(
 				subject,
-				trans.toARK(predicate,true), // XXX trans
+				trans.toARK(predicate,true),
 				escapeValue(object,trans)
 			);
 		}
@@ -999,7 +992,7 @@ class RelationalStatementIterator extends StatementIterator
 				String obj = rs.getString("object");
 				Identifier subId = RelationalTripleStore.toIdentifier(sub);
 				Identifier preId = RelationalTripleStore.toIdentifier(pre);
-				preId = trans.toURI( preId, true ); // XXX trans
+				preId = trans.toURI( preId, true );
 				boolean lit = RelationalTripleStore.isLiteral(obj);
 				if ( lit )
 				{
@@ -1008,7 +1001,7 @@ class RelationalStatementIterator extends StatementIterator
 				else
 				{
 					Identifier objId = RelationalTripleStore.toIdentifier(obj);
-					objId = trans.toURI( objId, false ); // XXX trans
+					objId = trans.toURI( objId, false );
 					stmt = new Statement( subId, preId, objId );
 				}
 

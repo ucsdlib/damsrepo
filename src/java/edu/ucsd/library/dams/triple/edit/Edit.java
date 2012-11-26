@@ -486,11 +486,6 @@ public class Edit
 	private Identifier predicate( String name ) throws TripleStoreException
 	{
 		// make sure name is full URI
-// XXX:do we need to translate here? can't we just pass it along and let the
-// triplestore impl handle it???
-//		String localName = name;
-//		String arkName = trans.toARK(localName, true);
-//		return Identifier.publicURI(arkName);
 		return Identifier.publicURI( name );
 	}
 	private Identifier objectURI( String object )

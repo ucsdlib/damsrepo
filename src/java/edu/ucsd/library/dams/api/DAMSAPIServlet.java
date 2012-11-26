@@ -1791,7 +1791,7 @@ System.out.println("   fs: " + fs);
 	{
 		return null; // DAMS_MGR
 	}
-/** XXX: do we need this -- predicate/ARK translation should be automatic ***/
+	// XXX: probably don't need this with automatic ARK/URI translation
 	public Map predicateList( TripleStore ts )
 	{
 		try
