@@ -370,6 +370,20 @@ public class DAMSAPIServlet extends HttpServlet
 				fileShow( path[2], path[3], path[4], req, res );
 				outputRequired = false;
 			}
+			// GET /files/bb1234567x/1.tif/characterize
+			else if ( path.length == 5 && path[1].equals("files")
+				&& path[4].equals("characterize") )
+			{
+				fs = filestore(req);
+				info = fileCharacterize( path[2], null, path[3], fs, null );
+			}
+			// GET /files/bb1234567x/1/1.tif/characterize
+			else if ( path.length == 6 && path[1].equals("files")
+				&& path[4].equals("characterize") && isNumber(path[3]) )
+			{
+				fs = filestore(req);
+				info = fileCharacterize( path[2], path[3], path[4], fs, null );
+			}
 			// GET /files/bb1234567x/1.tif/exists
 			else if ( path.length == 5 && path[1].equals("files")
 				&& path[4].equals("exists") )
@@ -1042,11 +1056,6 @@ public class DAMSAPIServlet extends HttpServlet
 		return null; // DAMS_MGR
 		// output = metadata: list of objects (??)
 	}
-	public Map collectionIndexDelete( String colid, String tsName )
-	{
-		return null; // DAMS_MGR
-		// output = status message
-	}
 	public Map collectionListAll( TripleStore ts )
 	{
 		try
@@ -1117,20 +1126,46 @@ public class DAMSAPIServlet extends HttpServlet
 	public Map fileCharacterize( String objid, String cmpid, String fileid,
 		FileStore fs, TripleStore ts ) throws TripleStoreException
 	{
+/*
+	data dictionary:
+		property           source
+		size				jhove, filestore
+		mimeType			jhove
+		formatName			jhove
+		formatVersion		jhove
+		dateCreated			jhove
+		quality				jhove
+		preservationLevel	fixed
+		objectCategory		fixed
+		compositionLevel	fixed
+		use                	user?
+		sourceFilename		upload request?
+		sourcePath			upload request?
+		crc32checksum		fixity
+		
+*/
 		String objuri = ( objid.startsWith(idNS) ) ? objid : idNS + objid;
 		String fpart = (cmpid != null) ? cmpid + "/" + fileid : fileid;
 		Identifier oid = Identifier.publicURI( objuri );
 		Identifier fid = Identifier.publicURI( objuri + "/" + fpart );
 
 		Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
-		ts.addStatement( oid, hasFile, fid, oid );
+		if ( ts != null )
+		{
+			ts.addStatement( oid, hasFile, fid, oid );
+		}
 
 		// date created
 		Identifier dateCreated = Identifier.publicURI( prNS + "dateCreated" );
 		String datestr = dateFormat.format( new Date() );
-		ts.addLiteralStatement( fid, dateCreated, "\"" + datestr + "\"", oid );
+		if ( ts != null )
+		{
+			ts.addLiteralStatement(
+				fid, dateCreated, "\"" + datestr + "\"", oid
+			);
+		}
 
-		return null; // XXX DAMS_MGR
+		return null; // DAMS_MGR XXX: output metadata as well as save to ts
 	}
 	public Map fileUpload( String objid, String cmpid, String fileid,
 		boolean overwrite, InputStream in, FileStore fs, TripleStore ts )
