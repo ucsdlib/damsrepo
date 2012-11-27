@@ -165,6 +165,7 @@ public class SolrIndexer
 		// variables
 		this.solrBase = solrBase;
 		this.solrCore = solrCore;
+		this.nsmap = nsmap;
 		this.postBuffer = new StringBuffer("<add>");
 
 		// initialize Solr
@@ -609,6 +610,7 @@ public class SolrIndexer
 			if ( !success )
 			{
 				log.error("SolrIndexer.flush(): Index add failed!");
+				System.out.println("solrxml: " + postBuffer.toString());
 				if (throwExceptions) {throw new IOException("Solr add failed");}
 			}
 			else if ( autoCommit )
@@ -697,7 +699,7 @@ public class SolrIndexer
 		catch ( Exception ex )
 		{
 			log.warn("Error loading name data");
-			ex.printStackTrace();
+			//ex.printStackTrace();
 		}
 
 		// collection info
@@ -735,7 +737,8 @@ public class SolrIndexer
 		}
 		catch ( Exception ex )
 		{
-			log.warn("Error loading collection data", ex );
+			log.warn("Error loading collection data" );
+			//ex.printStackTrace();
 		}
 	}
 
@@ -915,9 +918,8 @@ public class SolrIndexer
 		}
 
 		// system md
-		addChild( root, "field", datasource + "_" + subject, "name", "id");
-		addChild( root, "field", datasource, "name", "ds" );
-		addChild( root, "field", subject,	"name", "subject");
+		addChild( root, "field", subject,	"name", "id");
+		addChild( root, "field", datasource, "name", "ts" );
 		String datestring = enteredFormat.format( new Date() );
 		addChild( root, "field", datestring, "name", "entereddate");
 
@@ -1020,7 +1022,7 @@ public class SolrIndexer
 					for ( int i = 0; i < xslDocs.size(); i++ )
 					{
 						Document xslDoc = xslDocs.get(i);
-						List xslFields = xslDoc.selectNodes("/doc/field");
+						List xslFields = xslDoc.selectNodes("/add/doc/field");
 						for ( int j = 0; j < xslFields.size(); j++ )
 						{
 							Element xslElem = (Element)xslFields.get(j);
@@ -1032,8 +1034,9 @@ public class SolrIndexer
 							xslElem2.setText( txt );
 
 							String name = xslElem2.attributeValue("name");
-							if ( name != null && name.equals("Facet_Date")
-								&& datesort == null )
+							if ( name != null && datesort == null
+								&& (name.equals("date_start")
+									|| name.equals("date_end")) )
 							{
 								// Facet_Date post-processing
 								// parse dates and try to get something usable

@@ -13,7 +13,6 @@
   </xsl:template>
   <xsl:template match="dams:Object" priority="2">
     <doc>
-
       <!-- relationship -->
       <xsl:for-each select="dams:relationship">
         <field name="name">

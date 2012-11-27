@@ -73,12 +73,12 @@ public class SolrHelper
 	 * @param id The id field of the object to remove.
 	 * @throws IOException On error interacting with Solr.
 	**/
-	public boolean delete( String core, String ds, String id )
+	public boolean delete( String core, String id )
 		throws IOException
 	{
 		return update(
 			multiURL + "/" + core,
-			"<delete><id>" + ds + "_" + id + "</id></delete>"
+			"<delete><id>" + id + "</id></delete>"
 		);
 	}
 

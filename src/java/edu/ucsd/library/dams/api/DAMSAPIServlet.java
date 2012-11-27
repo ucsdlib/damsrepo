@@ -122,6 +122,7 @@ public class DAMSAPIServlet extends HttpServlet
 	private String xslBase;		    // base dir for server-side XSL stylesheets
 	private String encodingDefault; // default character encoding
 	private String mimeDefault;     // default output mime type
+	private File solrXslFile;       // default solr xsl stylesheet
 
 	// ip address mapping
 	private String roleDefault;		   // default role if not matching
@@ -173,6 +174,7 @@ public class DAMSAPIServlet extends HttpServlet
 			mimeDefault = props.getProperty("solr.mimeDefault");
 			encodingDefault = props.getProperty("solr.encoding");
 			xslBase = props.getProperty("solr.xslDir");
+			solrXslFile = new File( xslBase, "solrindexer.xsl" );
 
 			// access control/filters
 			roleDefault = props.getProperty("role.default");
@@ -503,7 +505,8 @@ public class DAMSAPIServlet extends HttpServlet
 			// POST /index
 			if ( path.length == 2 && path[1].equals("index") )
 			{
-				String[] ids = req.getParameterValues("id");
+				InputBundle input = input(req);
+				String[] ids = input.getParams().get("id");
 				ts = triplestore(req);
 				info = indexUpdate( ids, ts );
 			}
@@ -829,7 +832,8 @@ public class DAMSAPIServlet extends HttpServlet
 			// DELETE /index
 			if ( path.length == 2 && path[1].equals("index") )
 			{
-				String[] ids = req.getParameterValues("id");
+				InputBundle input = input(req);
+				String[] ids = input.getParams().get("id");
 				String tsName = getParamString(req,"ts",tsDefault);
 				info = indexDelete( ids, tsName );
 			}
@@ -1630,7 +1634,9 @@ public class DAMSAPIServlet extends HttpServlet
 		// make sure we have some ids to index
 		if ( ids == null || ids.length == 0 )
 		{
-			return error( HttpServletResponse.SC_BAD_REQUEST, "No identifier specified" );
+			return error(
+				HttpServletResponse.SC_BAD_REQUEST, "No identifier specified"
+			);
 		}
 
 		// connect to solr
@@ -1642,7 +1648,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// delete individual records
 			for ( int i = 0; i < ids.length; i++ )
 			{
-				if ( solr.delete( tsName, tsName, ids[i] ) )
+				if ( solr.delete( tsName, ids[i] ) )
 				{
 					recordsDeleted++;
 				}
@@ -1650,6 +1656,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// commit changes
 			solr.commit( tsName );
+			solr.optimize( tsName );
 
 			// report status
 			return status( "Solr: deleted " + recordsDeleted + " records" );
@@ -1672,6 +1679,8 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			// connect to solr
 			SolrIndexer indexer = new SolrIndexer( ts, solrBase, nsmap );
+System.out.println("xsl: " + solrXslFile.getAbsolutePath());
+			indexer.addXslFile( solrXslFile );
 
 			// index each record
 			for ( int i = 0; i < ids.length; i++ )
@@ -1785,6 +1794,7 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( destid != null )
 			{
 				fs.write( objid, cmpid, destid, content.getBytes() );
+				// XXX createEvent() type="transformation--metadata"
 			}
 		}
 		catch ( Exception ex )
