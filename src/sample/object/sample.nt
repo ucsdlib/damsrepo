@@ -41,6 +41,8 @@ _:bn01n05 <http://library.ucsd.edu/ontology/dams#uri> "http://library.ucsd.edu/t
 <http://library.ucsd.edu/ark:/20775/bb01010101/1/1.tif> <http://library.ucsd.edu/ontology/dams#dateCreated> "2012-11-01T14:40:00-0500" .
 <http://library.ucsd.edu/ark:/20775/bb01010101/1/1.tif> <http://library.ucsd.edu/ontology/dams#crc32checksum> "5ffa698b" .
 <http://library.ucsd.edu/ark:/20775/bb01010101/1/1.tif> <http://library.ucsd.edu/ontology/dams#md5checksum> "f69c4f85cafbe05e55068cedd4353146" .
+<http://library.ucsd.edu/ark:/20775/bb01010101/1/1.tif> <http://library.ucsd.edu/ontology/dams#sourcePath> "/pub/data1/staging/test" .
+<http://library.ucsd.edu/ark:/20775/bb01010101/1/1.tif> <http://library.ucsd.edu/ontology/dams#sourceFilename> "000112123131.tiff" .
 <http://library.ucsd.edu/ark:/20775/bb01010101/2> <http://library.ucsd.edu/ontology/dams#hasFile> <http://library.ucsd.edu/ark:/20775/bb01010101/2/1.jpg> .
 <http://library.ucsd.edu/ark:/20775/bb01010101/2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Component> .
 <http://library.ucsd.edu/ark:/20775/bb01010101/2/1.jpg> <http://library.ucsd.edu/ontology/dams#object> <http://library.ucsd.edu/ark:/20775/bb01010101> .
@@ -57,6 +59,8 @@ _:bn01n05 <http://library.ucsd.edu/ontology/dams#uri> "http://library.ucsd.edu/t
 <http://library.ucsd.edu/ark:/20775/bb01010101/2/1.jpg> <http://library.ucsd.edu/ontology/dams#dateCreated> "2012-11-01T14:41:00-0500" .
 <http://library.ucsd.edu/ark:/20775/bb01010101/2/1.jpg> <http://library.ucsd.edu/ontology/dams#crc32checksum> "1ca45b7d" .
 <http://library.ucsd.edu/ark:/20775/bb01010101/2/1.jpg> <http://library.ucsd.edu/ontology/dams#md5checksum> "412f1eaccc1eed0e09610ca29fd66a8c" .
+<http://library.ucsd.edu/ark:/20775/bb01010101/2/1.jpg> <http://library.ucsd.edu/ontology/dams#sourcePath> "/pub/data1/staging/test" .
+<http://library.ucsd.edu/ark:/20775/bb01010101/2/1.jpg> <http://library.ucsd.edu/ontology/dams#sourceFilename> "000112123132.jpeg" .
 <http://library.ucsd.edu/ark:/20775/bb02020202> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Repository> .
 <http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#repositoryName> "Test Repository" .
 <http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#repositoryURI> "http://library.ucsd.edu/test/" .

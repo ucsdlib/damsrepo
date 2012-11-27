@@ -146,3 +146,7 @@
 <http://library.ucsd.edu/ark:/20775/xx00000073> <http://library.ucsd.edu/ark:/20775/xx00000002> "dams:Component" .
 <http://library.ucsd.edu/ark:/20775/xx00000074> <http://library.ucsd.edu/ark:/20775/xx00000001> <http://library.ucsd.edu/ontology/dams#note> .
 <http://library.ucsd.edu/ark:/20775/xx00000074> <http://library.ucsd.edu/ark:/20775/xx00000002> "dams:note" .
+<http://library.ucsd.edu/ark:/20775/xx00000075> <http://library.ucsd.edu/ark:/20775/xx00000001> <http://library.ucsd.edu/ontology/dams#sourceFilename> .
+<http://library.ucsd.edu/ark:/20775/xx00000075> <http://library.ucsd.edu/ark:/20775/xx00000002> "dams:sourceFilename" .
+<http://library.ucsd.edu/ark:/20775/xx00000076> <http://library.ucsd.edu/ark:/20775/xx00000001> <http://library.ucsd.edu/ontology/dams#sourcePath> .
+<http://library.ucsd.edu/ark:/20775/xx00000076> <http://library.ucsd.edu/ark:/20775/xx00000002> "dams:sourcePath" .
