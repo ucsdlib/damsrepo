@@ -436,6 +436,7 @@ public class DAMSAPIServlet extends HttpServlet
 				List<String> filestores = list(props,"fs.",".className");
 				info = new LinkedHashMap();
 				info.put( "filestores", filestores );
+				info.put( "defaultFilestore", fsDefault );
 			}
 			// GET /system/triplestores
 			else if ( path.length == 3 && path[1].equals("system" )
@@ -444,6 +445,7 @@ public class DAMSAPIServlet extends HttpServlet
 				List<String> triplestores = list(props,"ts.",".className");
 				info = new LinkedHashMap();
 				info.put( "triplestores", triplestores );
+				info.put( "defaultTriplestore", tsDefault );
 			}
 			else
 			{
