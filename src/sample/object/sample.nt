@@ -7,7 +7,7 @@
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#event> <http://library.ucsd.edu/ark:/20775/bb07070707> .
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#relationship> _:bn01n01 .
 _:bn01n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Relationship> .
-_:bn01n01 <http://library.ucsd.edu/ontology/dams#role> <http://id.loc.gov/vocabulary/relators/cre> .
+_:bn01n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ark:/20775/bd55639754> .
 _:bn01n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/ark:/20775/bb08080808> .
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#date> _:bn01n02 .
 _:bn01n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Date> .
@@ -21,7 +21,7 @@ _:bn01n03 <http://library.ucsd.edu/ontology/dams#relatedTitle> _:bn01n04 .
 _:bn01n04 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Title> .
 _:bn01n04 <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Le chose vrai"@fr .
 _:bn01n04 <http://library.ucsd.edu/ontology/dams#type> "translated" .
-<http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#language> <http://id.loc.gov/vocabulary/iso639-1/en> .
+<http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#language> <http://library.ucsd.edu/ark:/20775/bd0410344f> .
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#otherResource> _:bn01n05 .
 _:bn01n05 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#RelatedResource> .
 _:bn01n05 <http://library.ucsd.edu/ontology/dams#type> "online exhibit" .
@@ -86,7 +86,7 @@ _:bn05n01 <http://library.ucsd.edu/ontology/dams#beginDate> "1993-12-31" .
 <http://library.ucsd.edu/ark:/20775/bb06060606> <http://library.ucsd.edu/ontology/dams#otherRightsURI> <http://library.ucsd.edu/lisn/policy/2010-12-31-a.pdf> .
 <http://library.ucsd.edu/ark:/20775/bb06060606> <http://library.ucsd.edu/ontology/dams#relationship> _:bn08n01 .
 _:bn08n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Relationship> .
-_:bn08n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ontology/role#decisionmaker> .
+_:bn08n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ark:/20775/bd3004227d> .
 _:bn08n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/ark:/20775/bb09090909> .
 <http://library.ucsd.edu/ark:/20775/bb06060606> <http://library.ucsd.edu/ontology/dams#permission> _:bn08n02 .
 _:bn08n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Permission> .
@@ -99,7 +99,7 @@ _:bn08n02 <http://library.ucsd.edu/ontology/dams#beginDate> "2011-09-24" .
 <http://library.ucsd.edu/ark:/20775/bb07070707> <http://library.ucsd.edu/ontology/dams#outcome> "success" .
 <http://library.ucsd.edu/ark:/20775/bb07070707> <http://library.ucsd.edu/ontology/dams#relationship> _:bn07n01 .
 _:bn07n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Relationship> .
-_:bn07n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ontology/role#initiator> .
+_:bn07n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ark:/20775/bd1707286t> .
 _:bn07n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/ark:/20775/bb09090909> .
 
 <http://library.ucsd.edu/ark:/20775/bb08080808> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#PersonalName> .
@@ -162,7 +162,7 @@ _:bn11n02 <http://www.loc.gov/mads/rdf/v1#elementValue> "Relics"@en .
 <http://library.ucsd.edu/ark:/20775/bb12121212> <http://library.ucsd.edu/ontology/dams#endDate> "2012-11-06T09:26:34-0500" .
 <http://library.ucsd.edu/ark:/20775/bb12121212> <http://library.ucsd.edu/ontology/dams#outcome> "success" .
 <http://library.ucsd.edu/ark:/20775/bb12121212> <http://library.ucsd.edu/ontology/dams#relationship> _:bn12n01 .
-_:bn12n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ontology/role#initiator> .
+_:bn12n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ark:/20775/bd1707286t> .
 _:bn12n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/ark:/20775/bb09090909> .
 
 <http://library.ucsd.edu/ark:/20775/bb13131313> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#DAMSEvent> .
@@ -170,7 +170,7 @@ _:bn12n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/
 <http://library.ucsd.edu/ark:/20775/bb13131313> <http://library.ucsd.edu/ontology/dams#endDate> "2012-11-06T09:26:34-0500" .
 <http://library.ucsd.edu/ark:/20775/bb13131313> <http://library.ucsd.edu/ontology/dams#outcome> "success" .
 <http://library.ucsd.edu/ark:/20775/bb13131313> <http://library.ucsd.edu/ontology/dams#relationship> _:bn13n01 .
-_:bn13n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ontology/role#initiator> .
+_:bn13n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ark:/20775/bd1707286t> .
 _:bn13n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/ark:/20775/bb09090909> .
 
 <http://library.ucsd.edu/ark:/20775/bb28282828> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#DAMSEvent> .
@@ -178,7 +178,7 @@ _:bn13n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/
 <http://library.ucsd.edu/ark:/20775/bb28282828> <http://library.ucsd.edu/ontology/dams#endDate> "2012-11-06T09:26:34-0500" .
 <http://library.ucsd.edu/ark:/20775/bb28282828> <http://library.ucsd.edu/ontology/dams#outcome> "success" .
 <http://library.ucsd.edu/ark:/20775/bb28282828> <http://library.ucsd.edu/ontology/dams#relationship> _:bn28n01 .
-_:bn28n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ontology/role#initiator> .
+_:bn28n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ark:/20775/bd1707286t> .
 _:bn28n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/ark:/20775/bb09090909> .
 
 <http://library.ucsd.edu/ark:/20775/bb29292929> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#DAMSEvent> .
@@ -186,7 +186,7 @@ _:bn28n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/
 <http://library.ucsd.edu/ark:/20775/bb29292929> <http://library.ucsd.edu/ontology/dams#endDate> "2012-11-06T09:26:34-0500" .
 <http://library.ucsd.edu/ark:/20775/bb29292929> <http://library.ucsd.edu/ontology/dams#outcome> "success" .
 <http://library.ucsd.edu/ark:/20775/bb29292929> <http://library.ucsd.edu/ontology/dams#relationship> _:bn29n01 .
-_:bn29n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ontology/role#initiator> .
+_:bn29n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ark:/20775/bd1707286t> .
 _:bn29n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/ark:/20775/bb09090909> .
 
 <http://library.ucsd.edu/ark:/20775/bb30303030> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#DAMSEvent> .
@@ -194,7 +194,7 @@ _:bn29n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/
 <http://library.ucsd.edu/ark:/20775/bb30303030> <http://library.ucsd.edu/ontology/dams#endDate> "2012-11-06T09:26:34-0500" .
 <http://library.ucsd.edu/ark:/20775/bb30303030> <http://library.ucsd.edu/ontology/dams#outcome> "success" .
 <http://library.ucsd.edu/ark:/20775/bb30303030> <http://library.ucsd.edu/ontology/dams#relationship> _:bn30n01 .
-_:bn30n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ontology/role#initiator> .
+_:bn30n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ark:/20775/bd1707286t> .
 _:bn30n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/ark:/20775/bb09090909> .
 <http://library.ucsd.edu/ark:/20775/bb14141414> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Vocabulary> .
 <http://library.ucsd.edu/ark:/20775/bb14141414> <http://library.ucsd.edu/ontology/dams#description> "Role" .
@@ -266,7 +266,7 @@ _:bn03n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "UCSD Electronic Th
 <http://library.ucsd.edu/ark:/20775/bb03030303> <http://library.ucsd.edu/ontology/dams#date> _:bn03n02 .
 _:bn03n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Date> .
 _:bn03n02 <http://library.ucsd.edu/ontology/dams#beginDate> "2009-05-03" .
-<http://library.ucsd.edu/ark:/20775/bb03030303> <http://library.ucsd.edu/ontology/dams#language> <http://id.loc.gov/vocabulary/iso639-1/en> .
+<http://library.ucsd.edu/ark:/20775/bb03030303> <http://library.ucsd.edu/ontology/dams#language> <http://library.ucsd.edu/ark:/20775/bd0410344f> .
 <http://library.ucsd.edu/ark:/20775/bb03030303> <http://library.ucsd.edu/ontology/dams#note> _:bn03n03 .
 _:bn03n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#ScopeContentNote> .
 _:bn03n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Electronic theses and dissertations submitted by UC San Diego students as part of their degree requirements and representing all UC San Diego academic programs." .
@@ -285,7 +285,7 @@ _:bn24n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Historical Dissert
 _:bn24n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Date> .
 _:bn24n02 <http://library.ucsd.edu/ontology/dams#beginDate> "2009-05-03" .
 _:bn24n02 <http://library.ucsd.edu/ontology/dams#endDate> "2010-06-30" .
-<http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#language> <http://id.loc.gov/vocabulary/iso639-1/en> .
+<http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#language> <http://library.ucsd.edu/ark:/20775/bd0410344f> .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#hasPart> <http://library.ucsd.edu/ark:/20775/bb25252525> .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#event> <http://library.ucsd.edu/ark:/20775/bb29292929> .
 
@@ -298,6 +298,6 @@ _:bn25n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "May 2009" .
 _:bn25n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Date> .
 _:bn25n02 <http://library.ucsd.edu/ontology/dams#beginDate> "2009-05-03" .
 _:bn25n02 <http://library.ucsd.edu/ontology/dams#endDate> "2009-05-31" .
-<http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#language> <http://id.loc.gov/vocabulary/iso639-1/en> .
+<http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#language> <http://library.ucsd.edu/ark:/20775/bd0410344f> .
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#provenanceCollection> <http://library.ucsd.edu/ark:/20775/bb24242424> .
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#event> <http://library.ucsd.edu/ark:/20775/bb30303030> .

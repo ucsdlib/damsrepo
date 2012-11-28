@@ -578,24 +578,9 @@
 <http://library.ucsd.edu/ark:/20775/bd7202213z> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ontology/dams#Vocabulary> .
 <http://library.ucsd.edu/ark:/20775/bd5905273w> <http://library.ucsd.edu/ark:/20775/bd4608335b> "dams:VocabularyEntry" .
 <http://library.ucsd.edu/ark:/20775/bd5905273w> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
-<http://library.ucsd.edu/ark:/20775/bd55639754> <http://library.ucsd.edu/ark:/20775/bd4608335b> "marcrel:cre" .
-<http://library.ucsd.edu/ark:/20775/bd55639754> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://id.loc.gov/vocabulary/relators/cre> .
-<http://library.ucsd.edu/ark:/20775/bd4301164f> <http://library.ucsd.edu/ark:/20775/bd4608335b> "marcrel:aut" .
-<http://library.ucsd.edu/ark:/20775/bd4301164f> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://id.loc.gov/vocabulary/relators/aut> .
-<http://library.ucsd.edu/ark:/20775/bd3004227d> <http://library.ucsd.edu/ark:/20775/bd4608335b> "damsrole:decisionmaker" .
-<http://library.ucsd.edu/ark:/20775/bd3004227d> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ontology/role#decisionmaker> .
-<http://library.ucsd.edu/ark:/20775/bd1707286t> <http://library.ucsd.edu/ark:/20775/bd4608335b> "damsrole:initiator" .
-<http://library.ucsd.edu/ark:/20775/bd1707286t> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ontology/role#initiator> .
-<http://library.ucsd.edu/ark:/20775/bd0410344f> <http://library.ucsd.edu/ark:/20775/bd4608335b> "iso639-1:en" .
-<http://library.ucsd.edu/ark:/20775/bd0410344f> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://id.loc.gov/vocabulary/iso639-1/en> .
-<http://library.ucsd.edu/ark:/20775/bd91134949> <http://library.ucsd.edu/ark:/20775/bd4608335b> "iso639-1:fr" .
-<http://library.ucsd.edu/ark:/20775/bd91134949> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://id.loc.gov/vocabulary/iso639-1/fr> .
-
 <http://library.ucsd.edu/ark:/20775/bd7816554v> <http://library.ucsd.edu/ark:/20775/bd4608335b> "dams:permission" .
 <http://library.ucsd.edu/ark:/20775/bd7816554v> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ontology/dams#permission> .
-
 <http://library.ucsd.edu/ark:/20775/bd65196169> <http://library.ucsd.edu/ark:/20775/bd4608335b> "dams:restriction" .
 <http://library.ucsd.edu/ark:/20775/bd65196169> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ontology/dams#restriction> .
-
 <http://library.ucsd.edu/ark:/20775/bd5256804m> <http://library.ucsd.edu/ark:/20775/bd4608335b> "dams:otherResource" .
 <http://library.ucsd.edu/ark:/20775/bd5256804m> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ontology/dams#otherResource> .
