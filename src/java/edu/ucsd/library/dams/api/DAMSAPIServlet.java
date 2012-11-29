@@ -3,6 +3,7 @@ package edu.ucsd.library.dams.api;
 // java core api
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -66,6 +67,9 @@ import org.json.simple.JSONValue;
 import edu.ucsd.library.dams.file.Checksum;
 import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.file.FileStoreUtil;
+import edu.ucsd.library.dams.file.impl.LocalStore;
+import edu.ucsd.library.dams.jhove.KBDataObject;
+import edu.ucsd.library.dams.jhove.MyJhoveBase;
 import edu.ucsd.library.dams.model.DAMSObject;
 import edu.ucsd.library.dams.model.Event;
 import edu.ucsd.library.dams.solr.SolrFormat;
@@ -1204,47 +1208,114 @@ public class DAMSAPIServlet extends HttpServlet
 		FileStore fs, TripleStore ts, TripleStore es )
 		throws TripleStoreException
 	{
-/*
-	data dictionary:
-		property           source
-		size				jhove, filestore
-		mimeType			jhove
-		formatName			jhove
-		formatVersion		jhove
-		dateCreated			jhove
-		quality				jhove
-		preservationLevel	fixed
-		objectCategory		fixed
-		compositionLevel	fixed
-		use                	user?
-		sourceFilename		upload request?
-		sourcePath			upload request?
-		crc32checksum		fixity
-		
-*/
-		String objuri = ( objid.startsWith(idNS) ) ? objid : idNS + objid;
-		String fpart = (cmpid != null) ? cmpid + "/" + fileid : fileid;
-		Identifier oid = Identifier.publicURI( objuri );
-		Identifier fid = Identifier.publicURI( objuri + "/" + fpart );
 
-		Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
-		if ( ts != null )
-		{
-			ts.addStatement( oid, hasFile, fid, oid );
+		String sourceFile = null;
+		boolean srcDelete = false;
+		try{
+			
+			// both objid and fileid are required
+			if ( objid == null || objid.trim().equals("") )
+			{
+				return error(
+					HttpServletResponse.SC_BAD_REQUEST,
+					"Object identifier required"
+				);
+			}
+			if ( fileid == null || fileid.trim().equals("") )
+			{
+				return error(
+					HttpServletResponse.SC_BAD_REQUEST,
+					"File identifier required"				);
+			}
+	
+			String objuri = ( objid.startsWith(idNS) ) ? objid : idNS + objid;
+			String fpart = (cmpid != null) ? cmpid + "/" + fileid : fileid;
+			
+			sourceFile = fs.getPath( objid, cmpid, fileid );
+			if ( ! ( fs instanceof LocalStore ) )
+			{
+				srcDelete = true;
+				// Copy file to local disk
+				File srcFile = File.createTempFile("tmp-" + fpart.getClass().getName().toLowerCase(), fpart);
+				FileOutputStream fos = new FileOutputStream(srcFile);
+				fs.read( objid, cmpid, fileid, fos );
+				fos.close();
+				sourceFile = srcFile.getAbsolutePath();
+			}
+	
+			Map<String, String> m = jhoveExtraction( sourceFile );
+			
+			//XXX
+			/* ??? User submitted properties ??? */
+			String use = null; 
+			String dateCreated = null;
+			String sourceFilename = null;
+			String sourcePath = null;
+			
+			// Output is saved to the triplestore.
+			Identifier oid = Identifier.publicURI( objuri );
+			Identifier fid = Identifier.publicURI( objuri + "/" + fpart );
+	
+			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
+			if ( ts != null )
+			{	
+	
+				ts.addStatement( oid, hasFile, fid, oid );
+	
+				// Add/Replace properties submitted from user
+				if ( use == null )
+					 use = "visual-source";
+				m.put("user", use);
+				
+				if ( dateCreated != null && dateCreated.length() > 0 )
+					m.put( "dateCreated", dateCreated );
+				if ( sourceFilename != null && sourceFilename.length() > 0 )
+					m.put( "sourceFilename", sourceFilename );
+				if ( sourcePath != null && sourcePath.length() > 0 )
+					m.put( "sourcePath", sourcePath );
+				
+				// Add constant properties
+				m.put( "preservationLevel", "full" );
+				m.put( "objectCategory", "file" );
+				m.put( "compositionLevel", "1" );
+				
+				String key = null;
+				String value = null;
+				for ( Iterator it=m.keySet().iterator(); it.hasNext(); )
+				{
+					key = (String)it.next();
+					if ( ! key.equals( "status" ) )
+					{
+						value = m.get(key);
+						if(value != null && value.length() > 0)
+							ts.addLiteralStatement(fid, Identifier.publicURI( prNS + key ), "\"" + value + "\"", oid);
+					}
+				}
+				createEvent( ts, es, objid, cmpid, fileid, "Jhove Extraction", true, "Jhove extraction EVENT_DETAIL_SPEC", m.get("status") );
+				return status( HttpServletResponse.SC_OK, "Jhove extracted and saved successfully" ); // DAMS_MGR XXX: output metadata as well as save to ts
+			} 
+			else
+			{
+				// Output is displayed but not saved to the triplestore.
+				m.put("id", fid.getId());
+				m.put("object", oid.getId());
+				Map<String, List<Map<String, String>>> info = new HashMap<String, List<Map<String, String>>>();
+				List <Map<String, String>> files = new ArrayList<Map<String, String>>(); 
+				
+				info.put("files", files);
+				return info;
+			}
 		}
-
-		// date created
-		Identifier dateCreated = Identifier.publicURI( prNS + "dateCreated" );
-		String datestr = dateFormat.format( new Date() );
-		if ( ts != null )
+		catch ( Exception ex )
 		{
-			ts.addLiteralStatement(
-				fid, dateCreated, "\"" + datestr + "\"", oid
-			);
+			log.warn( "Error Jhove extraction", ex );
+			return error( "Error Jhove extraction: " + ex.toString() );
 		}
-
-		// XXX: createEvent()
-		return null; // DAMS_MGR XXX: output metadata as well as save to ts
+		finally
+		{
+			if(srcDelete)
+				new File(sourceFile).delete();
+		}
 	}
 	public Map<String,String> recordedChecksums( String objid, String cmpid,
 		String fileid, TripleStore ts )
@@ -2785,6 +2856,50 @@ public class DAMSAPIServlet extends HttpServlet
 			return defaultValue;
 		}
 	}
+	/**
+	 * Extract technical metadata with Jhove
+	 * @param srcFilename
+	 * @return
+	 * @throws Exception
+	 */
+	public static Map<String, String> jhoveExtraction(String srcFilename) throws Exception{
+		/*
+		data dictionary:
+			property           source
+			size				jhove, filestore
+			mimeType			jhove
+			formatName			jhove
+			formatVersion		jhove
+			dateCreated			jhove
+			quality				jhove
+			preservationLevel	fixed
+			objectCategory		fixed
+			compositionLevel	fixed
+			use                	user?
+			sourceFilename		upload request?
+			sourcePath			upload request?
+			crc32checksum		fixity
+			
+	*/
+		MyJhoveBase jhove = MyJhoveBase.getMyJhoveBase();
+		KBDataObject kobj = jhove.getJhoveMetaData(srcFilename);
+		Map<String, String> props = new HashMap<String, String>();
+		props.put("size", String.valueOf(kobj.getSize()));
+		props.put("mimeType", kobj.getMIMEtype());
+		props.put("formatName", kobj.getFormat());
+		props.put("formatVersion", kobj.getVersion());
+		props.put("dateCreated", dateFormat.format(kobj.getDateModified()));
+		props.put("quality", kobj.getQuality());
+		props.put("duration", kobj.getDuration());
+		props.put("sourceFilename", kobj.getLocalFileName());
+		props.put("sourcePath", kobj.getFilePath());
+		props.put("crc32checksum", kobj.getCheckSum_CRC32());
+		props.put("md5checksum", kobj.getChecksum_MD5());
+		props.put("sha1checksum", kobj.getChecksum_SHA());
+		props.put("status", kobj.getStatus());
+		return props;
+	}
+
 	protected static String getParamString( HttpServletRequest req, String key,
 		String defaultValue )
 	{

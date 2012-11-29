@@ -100,7 +100,7 @@
       <fileset refid="lib"/>
     </copy>
     <copy todir="${webapp}/WEB-INF/classes">
-      <fileset dir="${props}" includes="**/*.properties"/>
+      <fileset dir="${props}" includes="**/*.properties, jhove.conf"/>
     </copy>
     <copy todir="${webapp}/WEB-INF/">
       <fileset dir="${webinf}" excludes="context.xml"/>
