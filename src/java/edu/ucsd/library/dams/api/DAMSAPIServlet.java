@@ -304,6 +304,20 @@ public class DAMSAPIServlet extends HttpServlet
 				ts = triplestore(req);
 				info = collectionListFiles( path[2], ts );
 			}
+			// GET /events/bb1234567x
+			else if ( path.length == 3  && path[1].equals("events") )
+			{
+				es = events(req);
+				info = objectShow( path[2], es, null );
+				if ( info.get("obj") != null )
+				{
+					DAMSObject obj = (DAMSObject)info.get("obj");
+					output(
+						obj, true, req.getParameterMap(), req.getPathInfo(), res
+					);
+					outputRequired = false;
+				}
+			}
 			// GET /objects/bb1234567x
 			else if ( path.length == 3 && path[1].equals("objects") )
 			{

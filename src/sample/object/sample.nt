@@ -170,10 +170,6 @@ _:bn11n02 <http://www.loc.gov/mads/rdf/v1#elementValue> "Relics"@en .
 <http://library.ucsd.edu/ark:/20775/bd3004227d> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb14141414> .
 <http://library.ucsd.edu/ark:/20775/bd3004227d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Decision Maker" .
 
-<http://library.ucsd.edu/ark:/20775/bd1707286t> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Role> .
-<http://library.ucsd.edu/ark:/20775/bd1707286t> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb14141414> .
-<http://library.ucsd.edu/ark:/20775/bd1707286t> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Initiator" .
-
 <http://library.ucsd.edu/ark:/20775/bd0410344f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Language> .
 <http://library.ucsd.edu/ark:/20775/bd0410344f> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb15151515> .
 <http://library.ucsd.edu/ark:/20775/bd0410344f> <http://library.ucsd.edu/ontology/dams#code> "en" .
