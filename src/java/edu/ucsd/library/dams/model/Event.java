@@ -14,6 +14,7 @@ import edu.ucsd.library.dams.triple.TripleStoreException;
 public class Event
 {
 	private Identifier eventID;
+	private Identifier parent;
 	private Identifier subject;
 	private Identifier userID;
 	private boolean success;
@@ -26,10 +27,12 @@ public class Event
 		"yyyy-MM-dd'T'hh:mm:ssZ"
 	);
 
-	public Event( Identifier eventID, Identifier subject, Identifier userID,
-		boolean success, String type, String detail, String outcomeNote )
+	public Event( Identifier eventID, Identifier parent, Identifier subject,
+		Identifier userID, boolean success, String type, String detail,
+		String outcomeNote )
 	{
 		this.eventID     = eventID;
+		this.parent      = parent;
 		this.subject     = subject;
 		this.userID      = userID;
 		this.success     = success;
@@ -38,31 +41,32 @@ public class Event
 		this.outcomeNote = outcomeNote;
 		eventDate = new Date();
 	}
-	public void save( TripleStore ts ) throws TripleStoreException
+	public void save( TripleStore ts, TripleStore es )
+		throws TripleStoreException
 	{
 		// link subject to event
-		ts.addStatement( subject, id("dams:event"), eventID, subject );
+		ts.addStatement( subject, id("dams:event"), eventID, parent );
 
 		// insert event metadata
-		ts.addLiteralStatement( eventID, id("dams:type"), q(type), eventID );
-		ts.addLiteralStatement( eventID, id("dams:detail"), q(detail), eventID );
-		ts.addLiteralStatement(
+		es.addLiteralStatement( eventID, id("dams:type"), q(type), eventID );
+		es.addLiteralStatement( eventID, id("dams:detail"), q(detail), eventID );
+		es.addLiteralStatement(
 			eventID, id("dams:eventDate"), q(fmt.format(eventDate)), eventID
 		);
 		if ( outcomeNote != null && !outcomeNote.equals("") )
 		{
-			ts.addLiteralStatement(
+			es.addLiteralStatement(
 				eventID, id("dams:outcomeNote"), q(outcomeNote), eventID
 			);
 		}
 		String outcome = success ? q("success") : q("failure");
-		ts.addLiteralStatement( eventID, id("dams:outcome"), q(outcome), eventID );
+		es.addLiteralStatement( eventID, id("dams:outcome"), q(outcome), eventID );
 
-		Identifier bn = ts.blankNode();
-		ts.addStatement( eventID, id("dams:relationship"), bn, eventID );
+		Identifier bn = es.blankNode();
+		es.addStatement( eventID, id("dams:relationship"), bn, eventID );
 		if ( this.userID == null ) { this.userID = id("dams:unknownUser"); }
-		ts.addStatement( bn, id("dams:name"), userID, eventID );
-		ts.addStatement( bn, id("dams:role"), id("dams:initiator"), eventID );
+		es.addStatement( bn, id("dams:name"), userID, eventID );
+		es.addStatement( bn, id("dams:role"), id("dams:initiator"), eventID );
 	}
 	private String q( String s )
 	{

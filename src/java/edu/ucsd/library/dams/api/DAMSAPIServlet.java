@@ -63,6 +63,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 // dams
+import edu.ucsd.library.dams.file.Checksum;
 import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.file.FileStoreUtil;
 import edu.ucsd.library.dams.model.DAMSObject;
@@ -441,7 +442,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			// GET /files/bb1234567x/1/1.tif/fixity // XXX: POST b/c event?
 			else if ( path.length == 6 && path[1].equals("files")
-				&& path[4].equals("fixity") && isNumber(path[3]) )
+				&& path[5].equals("fixity") && isNumber(path[3]) )
 			{
 				fs = filestore(req);
 				ts = triplestore(req);
@@ -1245,6 +1246,53 @@ public class DAMSAPIServlet extends HttpServlet
 		// XXX: createEvent()
 		return null; // DAMS_MGR XXX: output metadata as well as save to ts
 	}
+	public Map<String,String> recordedChecksums( String objid, String cmpid,
+		String fileid, TripleStore ts )
+	{
+		Map<String,String> sums = new HashMap<String,String>();
+		try
+		{
+			String objuri = ( objid.startsWith(idNS) ) ? objid : idNS + objid;
+			Identifier obj = Identifier.publicURI( objuri );
+			if ( !ts.exists(obj) )
+			{
+				return error(
+					HttpServletResponse.SC_NOT_FOUND, "Object does not exist"
+				);
+			}
+
+			String suffix = (cmpid != null) ? cmpid + "/" + fileid : fileid;
+			String fileuri = objuri + "/" + suffix;
+
+			StatementIterator stmtit = ts.sparqlDescribe( obj );
+			while ( stmtit.hasNext() )
+			{
+				Statement s = stmtit.nextStatement();
+				String sub = s.getSubject().getId();
+				if ( sub.equals(fileuri) )
+				{
+					String pre = s.getPredicate().getId();
+					if ( pre.endsWith("checksum") )
+					{
+						pre = pre.substring( prNS.length(), pre.length()-8 );
+						String val = s.getLiteral();
+						if ( val.startsWith("\"") && val.indexOf("\"",1) > 1)
+						{
+							val = val.substring( 1, val.indexOf("\"",1) );
+						}
+						sums.put( pre, val );
+					}
+				}
+			}
+		}
+		catch ( Exception ex )
+		{
+			String msg = "Error retrieving checksums: " + ex.toString();
+			log.info(msg, ex );
+			return error(msg);
+		}
+		return sums;
+	}
 	public Map fileUpload( String objid, String cmpid, String fileid,
 		boolean overwrite, InputStream in, FileStore fs, TripleStore ts,
 		TripleStore es )
@@ -1328,7 +1376,7 @@ public class DAMSAPIServlet extends HttpServlet
 					message = "File created successfully";
 				}
 				createEvent(
-					es, objid, cmpid, fileid, type, true, detail, null
+					ts, es, objid, cmpid, fileid, type, true, detail, null
 				);
 
 				// FILE_META: update file metadata
@@ -1346,7 +1394,7 @@ public class DAMSAPIServlet extends HttpServlet
 				if ( overwrite ) { message = "File update failed"; }
 				else { message = "File creation failed"; }
 				createEvent(
-					es, objid, cmpid, fileid, type, false, detail,
+					ts, es, objid, cmpid, fileid, type, false, detail,
 					"Failed to upload file"
 				);
 
@@ -1400,7 +1448,7 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( successful )
 			{
 				createEvent(
-					es, objid, cmpid, fileid, "file deletion", true,
+					ts, es, objid, cmpid, fileid, "file deletion", true,
 					"Deleting file EVENT_DETAIL_SPEC", null
 				);
 
@@ -1412,7 +1460,7 @@ public class DAMSAPIServlet extends HttpServlet
 			else
 			{
 				createEvent(
-					es, objid, cmpid, fileid, "file deletion", false,
+					ts, es, objid, cmpid, fileid, "file deletion", false,
 					"Deleting file EVENT_DETAIL_SPEC", "outcome detail spec"
 				);
 				return error(
@@ -1456,7 +1504,73 @@ public class DAMSAPIServlet extends HttpServlet
 	public Map fileFixity( String objid, String cmpid, String fileid,
 		FileStore fs, TripleStore ts, TripleStore es )
 	{
-		return null; // DAMS_MGR
+		Map info = new LinkedHashMap();
+		InputStream in = null;
+		try
+		{
+			// retrieve recorded checksums from triplestore
+			Map<String,String> recorded = recordedChecksums(
+				objid, cmpid, fileid, ts
+			);
+			boolean crcB = recorded.containsKey("crc32");
+			boolean md5B = recorded.containsKey("md5");
+			boolean sha1B = recorded.containsKey("sha1");
+			boolean sha256B = recorded.containsKey("sha256");
+			boolean sha512B = recorded.containsKey("sha512");
+
+			// calculate current checksums from file
+			in = fs.getInputStream( objid, cmpid, fileid );
+			Map<String,String> actual = Checksum.checksums(
+				in, null, crcB, md5B, sha1B, sha256B, sha512B 
+			);
+
+			// compare and build response
+			boolean success = true;
+			String detail = "";
+			Iterator<String> it = recorded.keySet().iterator();
+			while ( it.hasNext() )
+			{
+				String alg = it.next();
+				String rec = recorded.get(alg);
+				String act = actual.get(alg);
+				if ( rec != null && act != null && rec.equals(act) )
+				{
+					info.put( alg, act );
+					detail += alg + "=" + act + " ";
+				}
+				else
+				{
+					String msg = "recorded: " + rec + ", calculated: " + act;
+					info.put( alg, msg );
+					info.put(
+						"statusCode",
+						HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+					);
+					success = false;
+
+					detail += alg + ": " + msg + ". ";
+				}
+			}
+
+			// log fixity check event
+			if ( es != null )
+			{
+				createEvent(
+					ts, es, objid, cmpid, fileid, "fixity check--content",
+					success, detail, null
+				);
+			}
+		}
+		catch ( Exception ex )
+		{
+			log.error( "Error comparing checksums", ex );
+			return error( "Error comparing checksums: " + ex.toString() );
+		}
+		finally
+		{
+			if ( in != null ) { try {in.close();} catch (Exception ex2){} }
+		}
+		return info;
 	}
 	public Map identifierCreate( String name, int count )
 	{
@@ -1583,7 +1697,7 @@ public class DAMSAPIServlet extends HttpServlet
 							message = "Object saved successfully";
 						}
 						createEvent(
-							es, objid, null, null, type, true, detail, null
+							ts, es, objid, null, null, type, true, detail, null
 						);
 						return status( status, message );
 					}
@@ -1623,7 +1737,7 @@ public class DAMSAPIServlet extends HttpServlet
 							message = "Object saved successfully";
 						}
 						createEvent(
-							es, objid, null, null, type, true, detail, null
+							ts, es, objid, null, null, type, true, detail, null
 						);
 						edit.removeBackup();
 						return status( status, message );
@@ -1633,7 +1747,7 @@ public class DAMSAPIServlet extends HttpServlet
 						// failure
 						String msg = edit.getException().toString();
 						createEvent(
-							es, objid, null, null, type, false,
+							ts, es, objid, null, null, type, false,
 							"EVENT_DETAIL_SPEC", msg
 						);
 						return error( msg );
@@ -1681,13 +1795,13 @@ public class DAMSAPIServlet extends HttpServlet
 
 			if ( ! ts.exists(id) )
 			{
-				createEvent( es, objid, null, null, "object deletion", true, "Deleting object EVENT_DETAIL_SPEC", null );
+				createEvent( ts, es, objid, null, null, "object deletion", true, "Deleting object EVENT_DETAIL_SPEC", null );
 				return status( "Object deleted successfully" );
 			}
 			else
 			{
 				createEvent(
-					es, objid, null, null, "object deletion", false,
+					ts, es, objid, null, null, "object deletion", false,
 					"Deleting object EVENT_DETAIL_SPEC", "outcome detail spec"
 				);
 				return error( "Object deletion failed" );
@@ -1957,9 +2071,9 @@ public class DAMSAPIServlet extends HttpServlet
 			log.error( "Error deleting file metadata", ex );
 		}
 	}
-	private void createEvent( TripleStore ts, String objid, String cmpid,
-		String fileid, String type, boolean success, String detail,
-		String outcomeNote ) throws TripleStoreException
+	private void createEvent( TripleStore ts, TripleStore es, String objid,
+		String cmpid, String fileid, String type, boolean success,
+		String detail, String outcomeNote ) throws TripleStoreException
 	{
 		try
 		{
@@ -1975,14 +2089,15 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// create event object and save to the triplestore
 			String obj = objid.startsWith("http") ? objid : idNS + objid;
+			Identifier objID = Identifier.publicURI(obj);
 			if ( cmpid != null ) { obj += "/" + cmpid; }
 			if ( fileid != null ) { obj += "/" + fileid; }
 			Identifier subID = Identifier.publicURI( obj );
 			Event e = new Event(
-				eventID, subID, userID, success, type,
+				eventID, objID, subID, userID, success, type,
 				detail, outcomeNote
 			);
-			e.save(ts);
+			e.save(ts,es);
 		}
 		catch ( IOException ex )
 		{
