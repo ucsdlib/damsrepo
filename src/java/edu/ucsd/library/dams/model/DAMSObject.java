@@ -29,26 +29,38 @@ import edu.ucsd.library.dams.triple.TripleStoreException;
 public class DAMSObject
 {
 	private TripleStore ts;
+	private TripleStore es;
 	private String tsName;
 	private Identifier id;
 	private Map<String,String> nsmap;
 	private String idNS;
 	private String owlNS;
+	private String eventPred;
 
 	/**
 	 * Main constructor.
 	 * @param ts TripleStore to load metadata from.
+	 * @param es TripleStore to load events from.
 	 * @param id Object identifer (can be full or relative to idNS)
 	**/
-	public DAMSObject( TripleStore ts, String id, Map<String,String> nsmap )
+	public DAMSObject( TripleStore ts, TripleStore es, String id,
+		Map<String,String> nsmap )
 	{
 		this.ts = ts;
+		this.es = es;
 		this.nsmap = nsmap;
 		this.idNS = nsmap.get("damsid");
 		this.owlNS = nsmap.get("owl");
+		this.eventPred = nsmap.get("dams") + "event";
 		String iduri = (id != null && id.startsWith("http")) ? id : idNS + id;
 		this.id = Identifier.publicURI(iduri);
 	}
+
+	// recursive describe
+	List<Statement> slist  = new ArrayList<Statement>();
+	Set<String> done       = new HashSet<String>();
+	Set<Identifier> todo   = new HashSet<Identifier>();
+	Set<Identifier> events = new HashSet<Identifier>();
 
 	/**
 	 * Get an iterator of all statements about this object.
@@ -65,32 +77,38 @@ public class DAMSObject
 			return ts.sparqlDescribe( id );
 		}
 
-		// recursive describe
-		List<Statement> slist = new ArrayList<Statement>();
-		Set<Identifier> done  = new HashSet<Identifier>();
-		Set<Identifier> todo  = new HashSet<Identifier>();
-
 		// initial describe
 		StatementIterator it = ts.sparqlDescribe( id );
-		done.add( id );
-		try { process( it, slist, done, todo ); }
+		done.add( id.getId() );
+		try { process( it ); }
 		finally { it.close(); }
 
 		// recurse over children until no new identifiers are found
 		int MAX_RECURSION = 10;
 		for ( int i = 0; i < MAX_RECURSION && todo.size() > 0; i++ )
 		{
+System.out.println("todo1: " + todo.size());
 			// describe all objects in the todo set
 			StatementIterator it2 = ts.sparqlDescribe(todo);
 
-			// move ids from todo to done now that we've gotten their triples
-			done.addAll( todo );
-			todo.clear();
-
 			// process the batch of statements
-			try { process( it2, slist, done, todo ); }
+			try { process( it2 ); }
 			finally { it2.close(); }
+System.out.println("todo2: " + todo.size());
+
+			// get events from separate triplestore
+			if ( es != null && events.size() > 0 )
+			{
+				// look for outstanding subjects
+				StatementIterator it3 = es.sparqlDescribe(events);
+	
+				// process the batch of statements
+				try { process( it3 ); }
+				finally { it3.close(); }
+			}
+System.out.println("todo3: " + todo.size());
 		}
+
 
 		// output unprocessed statements
 		if ( todo.size() > 0 )
@@ -101,6 +119,7 @@ public class DAMSObject
 			}
 		}
 
+
 		return new StatementListIterator( slist );
 	}
 	/**
@@ -108,8 +127,7 @@ public class DAMSObject
 	 * checking for any object URIs that are not in the done set and adding
 	 * them to the todo set
 	**/
-	private void process( StatementIterator it, List<Statement> slist,
-		Set<Identifier> done, Set<Identifier> todo ) throws TripleStoreException
+	private void process( StatementIterator it ) throws TripleStoreException
 	{
 		/*
 			need to limit recursion to prevent Collection/hasObject or
@@ -121,14 +139,28 @@ public class DAMSObject
 		{
 			Statement stmt = it.nextStatement();
 			slist.add(stmt);
+
+			// move identifier from todo to done
+			Identifier s = stmt.getSubject();
+			if ( !s.isBlankNode() )
+			{
+				todo.remove(s);
+				done.add( s.getId() );
+			}
+
+			// add child object URIs todo
 			if ( !stmt.hasLiteralObject() )
 			{
 				Identifier o = stmt.getObject();
-				if ( !o.isBlankNode() && !done.contains(o) )
+				if ( !o.isBlankNode() && !done.contains(o.getId()) )
 				{
 					// don't follow owl predicates
 					String p = stmt.getPredicate().getId();
-					if ( !p.startsWith(owlNS) )
+					if ( p.equals(eventPred) )
+					{
+						events.add(o);
+					}
+					else if ( !p.startsWith(owlNS) )
 					{
 						todo.add(o);
 					}

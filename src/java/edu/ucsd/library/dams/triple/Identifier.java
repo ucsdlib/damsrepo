@@ -96,12 +96,12 @@ public class Identifier
 		}
 		else
 		{
-			return this.toString().equals( otherId.toString() );
+			return id.equals( otherId.id );
 		}
 	}
 	public int hashCode()
 	{
-		return toString().hashCode();
+		return id.hashCode();
 	}
 	public String debug()
 	{

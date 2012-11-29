@@ -89,6 +89,34 @@ public class Statement
 		s.append(" .");
 		return s.toString();
 	}
+	public boolean equals( Object o )
+	{
+		if ( o instanceof Statement )
+		{
+			Statement stmt = (Statement)o;
+			if ( literalObject && stmt.literalObject )
+			{
+				return ( stmt.subject.equals( subject )
+					  && stmt.predicate.equals( predicate )
+					  && stmt.literal.equals( literal ) );
+			}
+			else if ( ! literalObject && !stmt.literalObject )
+			{
+				return ( stmt.subject.equals( subject )
+					  && stmt.predicate.equals( predicate )
+					  && stmt.object.equals( object ) );
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+	public int hashCode() { return toString().hashCode(); }
 	private static String escapeLiteral( String s )
 	{
 		if ( s == null ) { return null; }

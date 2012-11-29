@@ -405,7 +405,7 @@ public class SolrIndexer
 		}
 
 		status( "indexSubject: " + ark );
-		DAMSObject obj = new DAMSObject( ts, ark, nsmap );
+		DAMSObject obj = new DAMSObject( ts, null, ark, nsmap ); // XXX events
 		if ( predicates.size() == 0 && collectionData.size() == 0 
 			&& colNames.size() == 0 )
 		{
@@ -484,7 +484,8 @@ public class SolrIndexer
 				for ( int i = 1; i <= numComponents; i++ )
 				{
 					String cSub = ark + "-1-" + i;
-					DAMSObject cObj = new DAMSObject( ts, cSub, nsmap );
+					// XXX events
+					DAMSObject cObj = new DAMSObject( ts, null, cSub, nsmap );
 					Document cDoc = toIndexXML( cSub, cObj );
 					// add "rdf:item_of = ark" to link to parent record
 					addField( cDoc.getRootElement(), "bb2765355h", ark );
@@ -524,7 +525,8 @@ public class SolrIndexer
 				for ( int i = 1; i <= numComponents; i++ )
 				{
 					String cSub = ark + "-1-" + i;
-					DAMSObject cObj = new DAMSObject( ts, cSub, nsmap );
+					// XXX events
+					DAMSObject cObj = new DAMSObject( ts, null, cSub, nsmap );
 					Document cDoc = toIndexXML( cSub, cObj );
 					// add "rdf:item_of = ark" to link to parent record
 					addField( cDoc.getRootElement(), "bb2765355h", ark );

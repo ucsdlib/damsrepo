@@ -91,6 +91,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	{
 		FileStore fs = null;
 		TripleStore ts = null;
+		TripleStore es = null;
 
 		try
 		{
@@ -101,9 +102,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			if ( path.length == 3 && path[1].equals("objects") )
 			{
 				ts = triplestore(req);
+				es = events(req);
 				outputTransform(
 					path[2], null, null, "fedora-object-profile.xsl",
-					"text/xml", ts, res
+					"text/xml", ts, es, res
 				);
 			}
 			// GET /objects/[oid]/datastreams
@@ -112,9 +114,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[3].equals("datastreams") )
 			{
 				ts = triplestore(req);
+				es = events(req);
 				outputTransform(
 					path[2], null, null, "fedora-object-datastreams.xsl",
-					"text/xml", ts, res
+					"text/xml", ts, es, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fid]
@@ -123,9 +126,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[3].equals("datastreams") )
 			{
 				ts = triplestore(req);
+				es = events(req);
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					"fedora-datastream-profile.xsl", "text/xml", ts, res
+					"fedora-datastream-profile.xsl", "text/xml", ts, es, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fid]/content
@@ -142,7 +146,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		finally
 		{
-			cleanup( fs, ts );
+			cleanup( fs, ts, es );
 		}
 	}
 
@@ -153,6 +157,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	{
 		FileStore fs = null;
 		TripleStore ts = null;
+		TripleStore es = null;
 
 		try
 		{
@@ -186,7 +191,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					+ "\"object\":\"<dams:Object>\"}]";
 				}
 				ts = triplestore(req);
-				Map info = objectCreate( path[2], in, adds, ts );
+				es = events(req);
+				Map info = objectCreate( path[2], in, adds, ts, es );
 
 				// output id plaintext
 				output( res.SC_OK, path[2], "text/plain", res );
@@ -200,13 +206,15 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				fs = filestore(req);
 				ts = triplestore(req);
+				es = events(req);
 				Map info = fileUpload(
-					path[2], cmpid(path[4]), fileid(path[4]), false, in, fs, ts
+					path[2], cmpid(path[4]), fileid(path[4]),
+					false, in, fs, ts, es
 				);
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					"fedora-datastream-profile.xsl", "text/xml", ts, res
+					"fedora-datastream-profile.xsl", "text/xml", ts, es, res
 				);
 			}
 		}
@@ -216,7 +224,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		finally
 		{
-			cleanup( fs, ts );
+			cleanup( fs, ts, es );
 		}
 	}
 
@@ -227,6 +235,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	{
 		FileStore fs = null;
 		TripleStore ts = null;
+		TripleStore es = null;
 
 		try
 		{
@@ -242,13 +251,14 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputBundle bundle = input(req);
 				InputStream in = bundle.getInputStream();
 				ts = triplestore(req);
+				es = events(req);
 				objectUpdate(
-					path[2], in, "all", null, null, null, ts
+					path[2], in, "all", null, null, null, ts, es
 				);
 
 				outputTransform(
 					path[2], null, null, "fedora-datastream-profile.xsl",
-					"text/xml", ts, res
+					"text/xml", ts, es, res
 				);
 			}
 			// PUT /objects/[oid]/datastreams/[fid]
@@ -261,13 +271,15 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				fs = filestore(req);
 				ts = triplestore(req);
+				es = events(req);
 				fileUpload(
-					path[2], cmpid(path[4]), fileid(path[4]), true, in, fs, ts
+					path[2], cmpid(path[4]), fileid(path[4]),
+					true, in, fs, ts, es
 				);
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					"fedora-datastream-profile.xsl", "text/xml", ts, res
+					"fedora-datastream-profile.xsl", "text/xml", ts, es, res
 				);
 			}
 			else
@@ -282,7 +294,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		finally
 		{
-			cleanup( fs, ts );
+			cleanup( fs, ts, es );
 		}
 	}
 
@@ -293,6 +305,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	{
 		FileStore fs = null;
 		TripleStore ts = null;
+		TripleStore es = null;
 		Map info = null;
 
 		try
@@ -304,11 +317,12 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			{
 				// delete object
 				ts = triplestore(req);
-				info = objectDelete( path[2], ts );
+				es = events(req);
+				info = objectDelete( path[2], ts, es );
 
 				outputTransform(
 					path[2], null, null, "fedora-datastream-delete.xsl",
-					"text/plain", ts, res
+					"text/plain", ts, es, res
 				);
 			}
 			// DELETE /objects/[oid]/datastreams/[fid]
@@ -318,14 +332,15 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			{
 				// delete file
 				ts = triplestore(req);
+				es = events(req);
 				fs = filestore(req);
 				info = fileDelete(
-					path[2], cmpid(path[4]), fileid(path[4]), fs, ts
+					path[2], cmpid(path[4]), fileid(path[4]), fs, ts, es
 				);
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					"fedora-datastream-delete.xsl", "text/plain", ts, res
+					"fedora-datastream-delete.xsl", "text/plain", ts, es, res
 				);
 			}
 			else
@@ -342,18 +357,18 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		finally
 		{
-			cleanup( fs, ts );
+			cleanup( fs, ts, es );
 		}
 	}
 
 	private void outputTransform( String objid, String cmpid, String fileid,
-		String xsl, String contentType, TripleStore ts,
+		String xsl, String contentType, TripleStore ts, TripleStore es,
 		HttpServletResponse res )
 		throws TripleStoreException, TransformerException
 	{
 		// get object metadata
 		String rdfxml = null;
-		Map info = objectShow( objid, ts );
+		Map info = objectShow( objid, ts, es );
 		if ( info.get("obj") != null )
 		{
 			DAMSObject obj = (DAMSObject)info.get("obj");
