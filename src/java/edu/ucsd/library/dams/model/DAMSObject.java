@@ -87,14 +87,12 @@ public class DAMSObject
 		int MAX_RECURSION = 10;
 		for ( int i = 0; i < MAX_RECURSION && todo.size() > 0; i++ )
 		{
-System.out.println("todo1: " + todo.size());
 			// describe all objects in the todo set
 			StatementIterator it2 = ts.sparqlDescribe(todo);
 
 			// process the batch of statements
 			try { process( it2 ); }
 			finally { it2.close(); }
-System.out.println("todo2: " + todo.size());
 
 			// get events from separate triplestore
 			if ( es != null && events.size() > 0 )
@@ -106,7 +104,6 @@ System.out.println("todo2: " + todo.size());
 				try { process( it3 ); }
 				finally { it3.close(); }
 			}
-System.out.println("todo3: " + todo.size());
 		}
 
 
