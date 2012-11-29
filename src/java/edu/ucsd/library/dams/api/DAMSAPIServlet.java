@@ -1211,6 +1211,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 		String sourceFile = null;
 		boolean srcDelete = false;
+		StatementIterator sit = null;
 		try{
 			
 			// both objid and fileid are required
@@ -1259,8 +1260,13 @@ public class DAMSAPIServlet extends HttpServlet
 			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
 			if ( ts != null )
 			{	
-	
-				ts.addStatement( oid, hasFile, fid, oid );
+				sit = ts.listStatements(oid, hasFile, fid);
+				if(sit.hasNext()){
+					return error(
+							HttpServletResponse.SC_FORBIDDEN,
+							"File characterize already exists. Please use PUT instead"
+						);
+				}
 	
 				// Add/Replace properties submitted from user
 				if ( use == null )
@@ -1291,6 +1297,7 @@ public class DAMSAPIServlet extends HttpServlet
 							ts.addLiteralStatement(fid, Identifier.publicURI( prNS + key ), "\"" + value + "\"", oid);
 					}
 				}
+				ts.addStatement( oid, hasFile, fid, oid );
 				createEvent( ts, es, objid, cmpid, fileid, "Jhove Extraction", true, "Jhove extraction EVENT_DETAIL_SPEC", m.get("status") );
 				return status( HttpServletResponse.SC_OK, "Jhove extracted and saved successfully" ); // DAMS_MGR XXX: output metadata as well as save to ts
 			} 
@@ -1315,6 +1322,10 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			if(srcDelete)
 				new File(sourceFile).delete();
+			if(sit != null) {
+				sit.close();
+				sit = null;
+			}
 		}
 	}
 	public Map<String,String> recordedChecksums( String objid, String cmpid,
