@@ -211,6 +211,7 @@ _:bn22n01 <http://library.ucsd.edu/ontology/dams#type> "display" .
 _:bn22n01 <http://library.ucsd.edu/ontology/dams#beginDate> "2010-01-01" .
 
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#ProvenanceCollection> .
+<http://library.ucsd.edu/ark:/20775/bb24242424> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Collection> .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#title> _:bn24n01 .
 _:bn24n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Title> .
 _:bn24n01 <http://library.ucsd.edu/ontology/dams#type> "main" .
@@ -224,6 +225,7 @@ _:bn24n02 <http://library.ucsd.edu/ontology/dams#endDate> "2010-06-30" .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#event> <http://library.ucsd.edu/ark:/20775/bb29292929> .
 
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#ProvenanceCollectionPart> .
+<http://library.ucsd.edu/ark:/20775/bb25252525> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Collection> .
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#title> _:bn25n01 .
 _:bn25n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Title> .
 _:bn25n01 <http://library.ucsd.edu/ontology/dams#type> "main" .
@@ -237,6 +239,7 @@ _:bn25n02 <http://library.ucsd.edu/ontology/dams#endDate> "2009-05-31" .
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#event> <http://library.ucsd.edu/ark:/20775/bb30303030> .
 
 <http://library.ucsd.edu/ark:/20775/bb03030303> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#AssembledCollection> .
+<http://library.ucsd.edu/ark:/20775/bb03030303> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Collection> .
 <http://library.ucsd.edu/ark:/20775/bb03030303> <http://library.ucsd.edu/ontology/dams#title> _:bn03n01 .
 _:bn03n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Title> .
 _:bn03n01 <http://library.ucsd.edu/ontology/dams#type> "main" .

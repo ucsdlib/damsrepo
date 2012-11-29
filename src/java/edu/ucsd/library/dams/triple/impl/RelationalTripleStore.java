@@ -399,7 +399,6 @@ public class RelationalTripleStore implements TripleStore
 		}
 		catch ( RuntimeException ex )
 		{
-			System.err.println("s: " + s);
 			throw ex;
 		}
 	}
@@ -1104,12 +1103,9 @@ class RelationalBindingIterator extends BindingIterator
 				checkedState = false;
 				for ( int i = 0; i < cols.length; i++ )
 				{
-// XXX trans???
+					String val = rs.getString(cols[i]); // XXX trans???
 					bindings.put(
-						names[i],
-						RelationalTripleStore.stripBrackets(
-							rs.getString(cols[i])
-						)
+						names[i], RelationalTripleStore.stripBrackets( val )
 					);
 				}
 			}

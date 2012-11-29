@@ -1122,7 +1122,7 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		try
 		{
-			String sparql = "select ?collection ?title where { ?collection <" + prNS + "title> ?bn . ?bn <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> ?title . ?collection <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <" + prNS + "Object> }";
+			String sparql = "select ?collection ?title where { ?collection <" + prNS + "title> ?bn . ?bn <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> ?title . ?collection <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <" + prNS + "Collection> }";
 			BindingIterator cols = ts.sparqlSelect(sparql);
 			List<Map<String,String>> collections = bindings(cols);
 			Map info = new HashMap();
