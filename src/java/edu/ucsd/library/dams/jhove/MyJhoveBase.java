@@ -64,7 +64,7 @@ public class MyJhoveBase extends JhoveBase {
 		MyJhoveBase jebase = null;
 		if(myJhoves.size() == 0){
 			if(jhoveconf == null || !new File(jhoveconf).exists()){
-				jhoveconf = System.getProperty("catalina.base") + "/WEB-INF/classes/jhove.conf";
+				jhoveconf = System.getProperty("catalina.base") + "/webapps/dams/WEB-INF/classes/jhove.conf";
 				if(!new File(jhoveconf).exists())
 					throw new Exception("Configuration file was not found: " + jhoveconf);
 			}
@@ -164,6 +164,7 @@ public class MyJhoveBase extends JhoveBase {
     public void parseXml(KBDataObject kobj, StringWriter swriter) throws DocumentException, ParseException {
     	StringBuffer xmldata = new StringBuffer(swriter.toString());
     	kobj.setMetaxml(xmldata);
+    	System.out.println(xmldata);
        	//Log.console("JHOVE xml:");
     	//Log.console(xmldata.toString());
 		//try {
@@ -203,11 +204,11 @@ public class MyJhoveBase extends JhoveBase {
 		    	kobj.setStatus(statusstr);
 		    
 		    String imageWidth = jdoc.valueOf("//imageWidth");
-		    String imageLength = jdoc.valueOf("//imageLength");
+		    String imageLength = jdoc.valueOf("//imageHeight");
 		    if(imageWidth != null && imageLength != null && imageWidth.length() > 0)
 		    	kobj.setQuality(imageWidth + "x" + imageLength);
 
-			List resultnodes = jdoc.selectNodes("/jhove/repInfo/messages/message[@severity='error'");
+			List resultnodes = jdoc.selectNodes("/jhove/repInfo/messages/message[@severity='error']");
 			for (int r = 0; resultnodes != null && r < resultnodes.size(); r++) {
 				Object noderesult = resultnodes.get(r);
 				if (noderesult instanceof Node) {
