@@ -161,10 +161,9 @@ public class MyJhoveBase extends JhoveBase {
      * @throws DocumentException 
      * @throws ParseException 
      */
-    public void parseXml(KBDataObject kobj, StringWriter swriter) throws DocumentException, ParseException {
+    public void parseXml(JhoveInfo kobj, StringWriter swriter) throws DocumentException, ParseException {
     	StringBuffer xmldata = new StringBuffer(swriter.toString());
     	kobj.setMetaxml(xmldata);
-    	System.out.println(xmldata);
        	//Log.console("JHOVE xml:");
     	//Log.console(xmldata.toString());
 		//try {
@@ -261,17 +260,17 @@ public class MyJhoveBase extends JhoveBase {
 		}
 	}*/
 	
-	public KBDataObject getJhoveMetaData(String srcFileName) throws Exception {
+	public JhoveInfo getJhoveMetaData(String srcFileName) throws Exception {
 		File file = new File(srcFileName);
-		KBDataObject kobj = new KBDataObject();
-		kobj.setLocalFileName(file.getName());
-		kobj.setFilePath(file.getParent());
+		JhoveInfo dataObj = new JhoveInfo();
+		dataObj.setLocalFileName(file.getName());
+		dataObj.setFilePath(file.getParent());
 		/*if (_jebase == null) {
 			initJhoveEngine(); 			
 		}*/
 		resetAbort ();
 		if (!file.canRead()) {
-			String emsg = "Can read file for Jhove analysis: " + kobj.getFilePath() + File.separatorChar + kobj.getLocalFileName();
+			String emsg = "Can read file for Jhove analysis: " + dataObj.getFilePath() + File.separatorChar + dataObj.getLocalFileName();
 			throw new Exception (emsg);										
 		}
 		JhoveAnalysisProgress jprogress = new JhoveAnalysisProgress();
@@ -303,8 +302,8 @@ public class MyJhoveBase extends JhoveBase {
 	                new XmlHandler(),
 	                kwriter,   // output
 	                paths);
-			parseXml(kobj, swriter);
-			if (!kobj.getValid()) {
+			parseXml(dataObj, swriter);
+			if (!dataObj.getValid()) {
 				swriter.close();
 				kwriter.close();
 				swriter = new StringWriter();
@@ -317,7 +316,7 @@ public class MyJhoveBase extends JhoveBase {
 		                new XmlHandler(),
 		                kwriter,   // output
 		                paths);
-				parseXml(kobj, swriter);
+				parseXml(dataObj, swriter);
 			}
 		}
 		catch (Exception e) {
@@ -336,22 +335,22 @@ public class MyJhoveBase extends JhoveBase {
 		                new XmlHandler(),
 		                kwriter,   // output
 		                paths);
-				parseXml(kobj, swriter);
+				parseXml(dataObj, swriter);
 			}else
 				throw new Exception(e);			
 		}finally{
 			swriter.close();
 			kwriter.close();
 		}
-		if (!kobj.getValid())
+		if (!dataObj.getValid())
 			throw new Exception("Unable to extract file: " + srcFileName);
 
 		String fileExt = srcFileName.substring(srcFileName.lastIndexOf('.'));
 		if(MEDIA_FILES.indexOf(fileExt.toLowerCase()) >= 0){
 			String duration = FfmpegUtil.getDuration(srcFileName, ffmpegCommand);
-			kobj.setDuration(duration);
+			dataObj.setDuration(duration);
 		}
-		return kobj;
+		return dataObj;
 	}
 
 	public static synchronized void setJhoveConfig(String jhoveconf){
