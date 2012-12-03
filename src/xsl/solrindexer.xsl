@@ -27,10 +27,59 @@
         </field>
       </xsl:for-each>
 
-      <!-- rights XXX -->
-      <!-- copyright XXX -->
-      <!-- event XXX -->
-      <!-- otherResource XXX -->
+      <!-- license -->
+      <!-- statute -->
+      <!-- copyright -->
+      <xsl:for-each select="dams:copyright/dams:Copyright">
+        <field name="copyright_status">
+          <xsl:value-of select="dams:copyrightStatus"/>
+        </field>
+        <field name="copyright_jurisdiction">
+          <xsl:value-of select="dams:copyrightJurisdiction"/>
+        </field>
+        <field name="copyright_note">
+          <xsl:value-of select="dams:copyrightNote"/>
+        </field>
+        <field name="copyright_purpose">
+          <xsl:value-of select="dams:copyrightPurposeNote"/>
+        </field>
+        <field name="copyright_date">
+          <xsl:value-of select="dams:date"/>
+        </field>
+      </xsl:for-each>
+
+      <!-- other rights -->
+      <xsl:for-each select="dams:otherRights/dams:OtherRights">
+        <field name="other_rights_basis">
+          <xsl:value-of select="dams:otherRightsBasis"/>
+        </field>
+        <field name="other_rights_note">
+          <xsl:value-of select="dams:otherRightsNote"/>
+        </field>
+        <field name="other_rights_uri">
+          <xsl:value-of select="dams:otherRightsURI/@rdf:resource"/>
+        </field>
+        <field name="other_rights_decider">
+          <xsl:value-of select="dams:relationship/dams:Relationship[dams:role/dams:Role/rdf:value/text() = 'Decision Maker']/dams:name//mads:authoritativeLabel"/>
+        </field>
+        <field name="other_rights_permission">
+          <xsl:value-of select="dams:permission/dams:Permission"/>
+        </field>
+        <field name="other_rights_restriction">
+          <xsl:value-of select="dams:restriction/dams:Restriction"/>
+        </field>
+      </xsl:for-each>
+
+      <!-- event ??? -->
+
+      <!-- otherResource -->
+      <xsl:for-each select="dams:otherResource/dams:RelatedResource">
+        <field name="related_resource">
+          <xsl:value-of select="dams:uri"/>
+          <xsl:value-of select="dams:type"/>:
+          <xsl:value-of select="dams:description"/>
+        </field>
+      </xsl:for-each>
 
       <!-- language -->
       <xsl:for-each select="dams:language/@rdf:resource">
@@ -64,12 +113,12 @@
       </xsl:for-each>
 
       <!-- title -->
-      <xsl:for-each select="dams:title">
+      <xsl:for-each select="dams:title/dams:Title">
         <field name="title">
           <xsl:value-of select="rdf:value"/>
         </field>
-        <xsl:if test="dams:relatedTitle">
-          <xsl:for-each select="dams:relatedTitle">
+        <xsl:if test="dams:relatedTitle/dams:Title">
+          <xsl:for-each select="dams:relatedTitle/dams:Title">
             <field name="title_{dams:type}">
               <xsl:value-of select="rdf:value"/>
             </field>

@@ -1257,7 +1257,7 @@ public class DAMSAPIServlet extends HttpServlet
 			Identifier fid = Identifier.publicURI( objuri + "/" + fpart );
 	
 			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
-			if ( ts != null )
+			if ( ts != null && es != null )
 			{	
 	
 				ts.addStatement( oid, hasFile, fid, oid );
@@ -1277,7 +1277,8 @@ public class DAMSAPIServlet extends HttpServlet
 				// Add constant properties
 				m.put( "preservationLevel", "full" );
 				m.put( "objectCategory", "file" );
-				m.put( "compositionLevel", "1" );
+				// # of decoding/extraction steps to get usable file
+				m.put( "compositionLevel", "0" );
 				
 				String key = null;
 				String value = null;
@@ -1292,7 +1293,7 @@ public class DAMSAPIServlet extends HttpServlet
 					}
 				}
 				createEvent( ts, es, objid, cmpid, fileid, "Jhove Extraction", true, "Jhove extraction EVENT_DETAIL_SPEC", m.get("status") );
-				return status( HttpServletResponse.SC_OK, "Jhove extracted and saved successfully" ); // DAMS_MGR XXX: output metadata as well as save to ts
+				return status( HttpServletResponse.SC_OK, "Jhove extracted and saved successfully" );
 			} 
 			else
 			{
@@ -1591,6 +1592,9 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// calculate current checksums from file
 			in = fs.getInputStream( objid, cmpid, fileid );
+			// XXX: uses same core checksuming code as JHove, do we need this
+			// duplication?? only benefit is not having to pull data to local
+			// filesystem
 			Map<String,String> actual = Checksum.checksums(
 				in, null, crcB, md5B, sha1B, sha256B, sha512B 
 			);
@@ -2872,13 +2876,15 @@ public class DAMSAPIServlet extends HttpServlet
 			formatVersion		jhove
 			dateCreated			jhove
 			quality				jhove
-			preservationLevel	fixed
-			objectCategory		fixed
-			compositionLevel	fixed
-			use                	user?
-			sourceFilename		upload request?
-			sourcePath			upload request?
-			crc32checksum		fixity
+			crc32checksum		jhove XXX: do we want other checksum algorithms?
+			md5checksum			jhove
+			sha1checksum		jhove
+			preservationLevel	fixed=full
+			objectCategory		fixed=file
+			compositionLevel	fixed=0
+			sourceFilename		jhove tmp file/initial upload/automatic
+			sourcePath			jhove tmp file/initial upload/user-specified
+			use                	user-specified/type from mime, role=service?
 			
 	*/
 		MyJhoveBase jhove = MyJhoveBase.getMyJhoveBase();
@@ -3003,11 +3009,16 @@ public class DAMSAPIServlet extends HttpServlet
 				params.put(
 					item.getFieldName(), new String[]{item.getString()}
 				);
+				log.info(
+					"Parameter: " + item.getFieldName()
+						+ " = " + item.getString()
+				);
 			}
 			// file gets opened as an input stream
 			else if ( item.getFieldName().equals("file") )
 			{
 				in = item.getInputStream();
+				log.info("File: " + item.getFieldName() + ", " + item.getName());
 			}
 			else
 			{

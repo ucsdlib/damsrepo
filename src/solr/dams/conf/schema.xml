@@ -2,22 +2,34 @@
 <schema name="dams" version="1.5">
  <fields>
    <field name="_version_" type="long" indexed="true" stored="true"/>
-   <field name="id"               type="string"       indexed="true" stored="true" required="true"  multiValued="false" /> 
-   <field name="ts"               type="string"       indexed="true" stored="true" required="true"  multiValued="false" /> 
-   <field name="entereddate"      type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
-   <field name="datesort"         type="date" indexed="true" stored="true" required="false" multiValued="false" /> 
-   <field name="name"             type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
-   <field name="lang"             type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
-   <field name="type"             type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
-   <field name="collection"       type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
-   <field name="repository"       type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
-   <field name="repository_uri"   type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
-   <field name="title"            type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
-   <field name="title_translated" type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
-   <field name="subject"          type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
-   <field name="date_display"     type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
-   <field name="date_begin"       type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
-   <field name="date_end"         type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <field name="id"                       type="string"       indexed="true" stored="true" required="true"  multiValued="false" /> 
+   <field name="ts"                       type="string"       indexed="true" stored="true" required="true"  multiValued="false" /> 
+   <field name="entereddate"              type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
+   <field name="datesort"                 type="date" indexed="true" stored="true" required="false" multiValued="false" /> 
+   <field name="name"                     type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <field name="lang"                     type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <field name="type"                     type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <field name="collection"               type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <field name="repository"               type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <field name="repository_uri"           type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <field name="title"                    type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <dynamicField name="title_*"           type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <field name="subject"                  type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <field name="date_display"             type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <field name="date_begin"               type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <field name="date_end"                 type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <field name="copyright_status"         type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+   <field name="copyright_jurisdiction"   type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+   <field name="copyright_note"           type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+   <field name="copyright_purpose"        type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+   <field name="copyright_date"           type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+   <field name="other_rights_basis"       type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+   <field name="other_rights_note"        type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+   <field name="other_rights_uri"         type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+   <field name="other_rights_decider"     type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+   <field name="other_rights_permission"  type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+   <field name="other_rights_restriction" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+   <field name="related_resource"         type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
