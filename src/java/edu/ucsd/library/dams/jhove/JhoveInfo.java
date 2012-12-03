@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 //KB DTO
 
-public class KBDataObject implements Serializable {
+public class JhoveInfo implements Serializable {
 	String entityID = "";
 
 	String localFileName = "";
@@ -52,7 +52,7 @@ public class KBDataObject implements Serializable {
 	
 	int rowNumber = -1;     //Row number on KB display window
 
-	public KBDataObject() {
+	public JhoveInfo() {
 		super();
 	}
 
@@ -62,7 +62,7 @@ public class KBDataObject implements Serializable {
 		return kobject;
 	}
 
-	public KBDataObject(String arkid, String entityid, String prefix,
+	public JhoveInfo(String arkid, String entityid, String prefix,
 			String name) {
 		super();
 		arkID = arkid;

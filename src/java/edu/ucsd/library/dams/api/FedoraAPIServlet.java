@@ -204,12 +204,13 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			{
 				InputBundle bundle = input( req );
 				InputStream in = bundle.getInputStream();
+				Map<String,String[]> params = bundle.getParams();
 				fs = filestore(req);
 				ts = triplestore(req);
 				es = events(req);
 				Map info = fileUpload(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					false, in, fs, ts, es
+					false, in, fs, ts, es, params
 				);
 
 				outputTransform(
@@ -269,12 +270,13 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				// upload other data files
 				InputBundle bundle = input(req);
 				InputStream in = bundle.getInputStream();
+				Map<String,String[]> params = bundle.getParams();
 				fs = filestore(req);
 				ts = triplestore(req);
 				es = events(req);
 				fileUpload(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					true, in, fs, ts, es
+					true, in, fs, ts, es, params
 				);
 
 				outputTransform(
