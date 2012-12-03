@@ -1281,6 +1281,21 @@ public class DAMSAPIServlet extends HttpServlet
 	
 			String objuri = ( objid.startsWith(idNS) ) ? objid : idNS + objid;
 			String fpart = (cmpid != null) ? cmpid + "/" + fileid : fileid;
+			Identifier oid = Identifier.publicURI( objuri );
+			Identifier fid = Identifier.publicURI( objuri + "/" + fpart );
+	
+			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
+	
+			if ( ts != null )
+			{	
+				sit = ts.listStatements(oid, hasFile, fid);
+				if(sit.hasNext()){
+					return error(
+							HttpServletResponse.SC_FORBIDDEN,
+							"Characterization for file " + fid.getId() + " already exists. Please use PUT instead"
+						);
+				}
+			}
 			
 			sourceFile = fs.getPath( objid, cmpid, fileid );
 			if ( ! ( fs instanceof LocalStore ) )
@@ -1288,6 +1303,14 @@ public class DAMSAPIServlet extends HttpServlet
 				srcDelete = true;
 				// Copy file to local disk
 				File srcFile = File.createTempFile("tmp-" + fpart.getClass().getName().toLowerCase(), fpart);
+				long fileSize = fs.length(objid, cmpid, fileid);
+				if( srcFile.getFreeSpace() < fileSize )
+				{
+					return error(
+							HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+							"There are no enough disk space to create a temp file for " + fid.getId()
+						);
+				}
 				FileOutputStream fos = new FileOutputStream(srcFile);
 				fs.read( objid, cmpid, fileid, fos );
 				fos.close();
@@ -1307,10 +1330,6 @@ public class DAMSAPIServlet extends HttpServlet
 			String sourcePath = input!=null?input[0]:null;
 			
 			// Output is saved to the triplestore.
-			Identifier oid = Identifier.publicURI( objuri );
-			Identifier fid = Identifier.publicURI( objuri + "/" + fpart );
-	
-			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
 			if ( ts != null && es != null )
 			{	
 				sit = ts.listStatements(oid, hasFile, fid);
@@ -1322,10 +1341,12 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 	
 				// Add/Replace properties submitted from user
-				if ( use == null ){
+				
+				// Required use property
+				if ( use == null || use.length() == 0)
 					 use =  getFileUse( fileid );
-					 m.put("use", use);
-				}
+				m.put("use", use);
+				
 				
 				if ( dateCreated != null && dateCreated.length() > 0 )
 					m.put( "dateCreated", dateCreated );
@@ -1707,8 +1728,8 @@ public class DAMSAPIServlet extends HttpServlet
 
 				String[] uses = {"visual-thumbnail"};
 				params.put("use", uses);
-				fileCharacterize( objid, cmpid, fileid, fs, ts, null,  params);
-				createEvent( ts, es, objid, cmpid, fileid, "Derivatives Creation", true, "Derivatives creation EVENT_DETAIL_SPEC", null );
+				fileCharacterize( objid, cmpid, derid, fs, ts, es,  params);
+				createEvent( ts, es, objid, cmpid, derid, "Derivatives Creation", true, "Derivatives creation EVENT_DETAIL_SPEC", null );
 			}
 		}
 		catch ( Exception ex )
