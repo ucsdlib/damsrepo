@@ -228,14 +228,15 @@ public class DAMSAPIServlet extends HttpServlet
 			
 			// derivative list
 			String derList = props.getProperty("derivatives.list");
-			if(derList == null)
-				derList = "2:768x768, 3:450x450, 4:150x150, 5:65x65";
 			derivativesMap = new HashMap<String, String>();
-			String[] derivatives = derList.split(",");
-			for ( int i=0; i<derivatives.length; i++ )
+			if(derList != null)
 			{
-				String[] pair = derivatives[i].split(":");
-				derivativesMap.put(pair[0].trim(), pair[1].trim());
+				String[] derivatives = derList.split(",");
+				for ( int i=0; i<derivatives.length; i++ )
+				{
+					String[] pair = derivatives[i].split(":");
+					derivativesMap.put(pair[0].trim(), pair[1].trim());
+				}
 			}
 			
 			// ImageMagick convert command
@@ -748,7 +749,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			// POST /files/bb1234567x/1/1.tif/derivatives
 			else if ( path.length == 6 && path[1].equals("files")
-				&& path[4].equals("derivatives") && isNumber(path[3]) )
+				&& isNumber(path[3]) && path[5].equals("derivatives") )
 			{
 				fs = filestore(req);
 				ts = triplestore(req);
@@ -1276,7 +1277,8 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				return error(
 					HttpServletResponse.SC_BAD_REQUEST,
-					"File identifier required"				);
+					"File identifier required"
+				);
 			}
 	
 			String objuri = ( objid.startsWith(idNS) ) ? objid : idNS + objid;
@@ -1660,7 +1662,14 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				return error(
 					HttpServletResponse.SC_BAD_REQUEST,
-					"File identifier required"				);
+					"File identifier required"
+				);
+			}
+			if ( derivativesMap == null || derivativesMap.size() == 0 )
+			{
+				return error(
+					"Derivative dimensions not configured."
+				);
 			}
 			
 			String objuri = ( objid.startsWith(idNS) ) ? objid : idNS + objid;
