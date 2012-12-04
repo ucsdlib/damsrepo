@@ -447,7 +447,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			// GET /files/bb1234567x/1/1.tif/characterize
 			else if ( path.length == 6 && path[1].equals("files")
-				&& path[4].equals("characterize") && isNumber(path[3]) )
+				&& isNumber(path[3]) && path[5].equals("characterize") )
 			{
 				fs = filestore(req);
 				info = fileCharacterize(
@@ -1389,12 +1389,8 @@ public class DAMSAPIServlet extends HttpServlet
 			else
 			{
 				// Output is displayed but not saved to the triplestore.
-				m.put("id", fid.getId());
-				m.put("object", oid.getId());
-				Map<String, List<Map<String, String>>> info = new HashMap<String, List<Map<String, String>>>();
-				List <Map<String, String>> files = new ArrayList<Map<String, String>>(); 
-				
-				info.put("files", files);
+				Map info = new HashMap();
+				info.put("characterization",m);
 				return info;
 			}
 		}

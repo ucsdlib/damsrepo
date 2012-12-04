@@ -270,7 +270,7 @@ public class MyJhoveBase extends JhoveBase {
 		}*/
 		resetAbort ();
 		if (!file.canRead()) {
-			String emsg = "Can read file for Jhove analysis: " + dataObj.getFilePath() + File.separatorChar + dataObj.getLocalFileName();
+			String emsg = "Can't read file for Jhove analysis: " + dataObj.getFilePath() + File.separatorChar + dataObj.getLocalFileName();
 			throw new Exception (emsg);										
 		}
 		JhoveAnalysisProgress jprogress = new JhoveAnalysisProgress();
