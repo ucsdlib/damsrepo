@@ -146,6 +146,7 @@ public class DAMSAPIServlet extends HttpServlet
 	// derivatives creation
 	private Map<String, String> derivativesMap; // derivatives map
 	private String magickCommand; 				// ImageMagick command
+	private long jhoveMaxSize;                  // local file cache size limit
 	
 	// number detection
 	private static Pattern numberPattern = null;
@@ -218,10 +219,8 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// files
 			fsDefault = props.getProperty("fs.default");
-			String maxCount = props.getProperty( "fs.maxUploadCount" );
-			maxUploadCount = Integer.parseInt(maxCount);
-			String maxSize = props.getProperty( "fs.maxUploadSize" );
-			maxUploadSize = Long.parseLong(maxSize);
+			maxUploadCount = getPropInt(props, "fs.maxUploadCount", -1 );
+			maxUploadSize  = getPropLong(props, "fs.maxUploadSize", -1L );
 
 			// fedora compat
 			fedoraObjectDS = props.getProperty("fedora.objectDS");
@@ -248,6 +247,7 @@ public class DAMSAPIServlet extends HttpServlet
 			String jhoveConf = props.getProperty("jhove.conf");
 			if ( jhoveConf != null )
 				MyJhoveBase.setJhoveConfig("jhove.conf");
+			jhoveMaxSize = getPropLong( props, "jhove.maxSize", -1L );
 		}
 		catch ( Exception ex )
 		{
@@ -887,7 +887,8 @@ public class DAMSAPIServlet extends HttpServlet
 						ts = triplestore(req);
 						es = events(req);
 						info = fileUpload(
-							path[2], path[3], path[4], true, in, fs, ts, es, params
+							path[2], path[3], path[4], true, in, fs, ts, es,
+							params
 						);
 					}
 				}
@@ -1250,14 +1251,16 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 	}
 	public Map fileCharacterize( String objid, String cmpid, String fileid,
-			FileStore fs, TripleStore ts, TripleStore es )
-			throws TripleStoreException
+		FileStore fs, TripleStore ts, TripleStore es )
+		throws TripleStoreException
 	{
-		return fileCharacterize( objid, cmpid, fileid, fs, ts, es, new HashMap<String, String[]>() );
+		return fileCharacterize(
+			objid, cmpid, fileid, fs, ts, es, new HashMap<String, String[]>()
+		);
 	}
 	public Map fileCharacterize( String objid, String cmpid, String fileid,
-		FileStore fs, TripleStore ts, TripleStore es, Map<String, String[]> params )
-		throws TripleStoreException
+		FileStore fs, TripleStore ts, TripleStore es,
+		Map<String, String[]> params ) throws TripleStoreException
 	{
 
 		String sourceFile = null;
@@ -1292,34 +1295,72 @@ public class DAMSAPIServlet extends HttpServlet
 			{	
 				sit = ts.listStatements(oid, hasFile, fid);
 				if(sit.hasNext()){
+					// there is no PUT for characterization, what is the use
+					// case for tech md redo?  when a new file is uploaded,
+					// tech md should already be deleted in fileUpload...
 					return error(
-							HttpServletResponse.SC_FORBIDDEN,
-							"Characterization for file " + fid.getId() + " already exists. Please use PUT instead"
-						);
+						HttpServletResponse.SC_FORBIDDEN,
+						"Characterization for file " + fid.getId()
+							+ " already exists. Please use PUT instead"
+					);
 				}
 			}
-			
-			sourceFile = fs.getPath( objid, cmpid, fileid );
-			if ( ! ( fs instanceof LocalStore ) )
+
+			Map<String, String> m = null;
+			if (   getParamString(params,"formatName",null) != null
+				&& getParamString(params,"mimeType",null) != null
+				&& (getParamString(params,"crc32checksum",null) != null
+					|| getParamString(params,"md5checksum",null) != null
+					|| getParamString(params,"sha1checksum",null) != null ) )
 			{
-				srcDelete = true;
-				// Copy file to local disk
-				File srcFile = File.createTempFile("tmp-" + fpart.getClass().getName().toLowerCase(), fpart);
-				long fileSize = fs.length(objid, cmpid, fileid);
-				if( srcFile.getFreeSpace() < fileSize )
-				{
-					return error(
-							HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-							"There are no enough disk space to create a temp file for " + fid.getId()
-						);
-				}
-				FileOutputStream fos = new FileOutputStream(srcFile);
-				fs.read( objid, cmpid, fileid, fos );
-				fos.close();
-				sourceFile = srcFile.getAbsolutePath();
+				// if formatName, mimeType and at least one checksum are
+				// specified, skip jhove processing
+				m = new HashMap<String,String>();
+				m.put("size",getParamString(params,"size",null) );
+				m.put("formatName",getParamString(params,"formatName",null) );
+				m.put("formatVersion",getParamString(params,"formatVersion",null) );
+				m.put("mimeType",getParamString(params,"mimeType",null) );
+				m.put("crc32checksum",getParamString(params,"crc32checksum",null) );
+				m.put("md5checksum",getParamString(params,"md5checksum",null) );
+				m.put("sha1checksum",getParamString(params,"sha1checksum",null) );
 			}
-	
-			Map<String, String> m = jhoveExtraction( sourceFile );
+			else
+			{
+				// extract technical metadata using jhove
+
+				sourceFile = fs.getPath( objid, cmpid, fileid );
+				if ( ! ( fs instanceof LocalStore ) )
+				{
+					// Copy file to local disk
+					File srcFile = File.createTempFile(
+						"tmp-" + fpart.getClass().getName().toLowerCase(), fpart
+					);
+					long fileSize = fs.length(objid, cmpid, fileid);
+					if ( jhoveMaxSize != -1L && fileSize > jhoveMaxSize )
+					{
+						return error(
+							HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE,
+							"File is too large to retrieve for local processing"
+							+ " (maxSize=" + jhoveMaxSize + "): " + fid.getId()
+						);
+					}
+					else if ( fileSize > srcFile.getFreeSpace() )
+					{
+						return error(
+							HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE,
+							"There is not enough disk space to create a temp"
+							+ " file for " + fid.getId()
+						);
+					}
+					srcDelete = true;
+					FileOutputStream fos = new FileOutputStream(srcFile);
+					fs.read( objid, cmpid, fileid, fos );
+					fos.close();
+					sourceFile = srcFile.getAbsolutePath();
+				}
+		
+				m = jhoveExtraction( sourceFile );
+			}
 
 			// User submitted properties: use, dateCreated, sourceFilename, and sourcePath
 			String[] input = params.get("use");
@@ -1486,7 +1527,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 
 			// check upload count and abort if at limit
-			if ( uploadCount >= maxUploadCount )
+			if ( maxUploadCount != -1 && uploadCount >= maxUploadCount )
 			{
 				log.info("Upload: refused");
 				return error(
@@ -1542,15 +1583,36 @@ public class DAMSAPIServlet extends HttpServlet
 					ts, es, objid, cmpid, fileid, type, true, detail, null
 				);
 
-				// FILE_META: update file metadata
+				Map info = status( status, message );
+
+				// delete any existing metadata when replacing files
 				if ( overwrite )
 				{
-					fileDeleteMetadata( objid, cmpid, fileid, ts );
+					Map delInfo = fileDeleteMetadata(objid, cmpid, fileid, ts);
+					int delStat = getParamInt(delInfo,"statusCode",200);
+					if ( delStat > 299 )
+					{
+						info.put(
+							"existing_metadata_deletion",
+							delStat + ": " + delInfo.get("message")
+						);
+					}
 				}
 
-				fileCharacterize( objid, cmpid, fileid, fs, ts, es, params );
+				// perform characterization and pass along any error messages
+				Map charInfo = fileCharacterize(
+					objid, cmpid, fileid, fs, ts, es, params
+				);
+				int charStat = getParamInt(charInfo,"statusCode",200);
+				if ( charStat > 299 )
+				{
+					info.put(
+						"characterization",
+						charStat + ": " + charInfo.get("message")
+					);
+				}
 
-				return status( status, message );
+				return info;
 			}
 			else
 			{
@@ -2329,7 +2391,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 	}
 
-	private void fileDeleteMetadata( String objid, String cmpid, String fileid,
+	private Map fileDeleteMetadata( String objid, String cmpid, String fileid,
 		TripleStore ts ) throws TripleStoreException
 	{
 		try
@@ -2348,10 +2410,13 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// delete links from object/components
 			ts.removeStatements( null, null, fileID );
+
+			return status("File metadata deleted successfully");
 		}
 		catch ( Exception ex )
 		{
 			log.error( "Error deleting file metadata", ex );
+			return error("Error deleting file metadata: " + ex.toString());
 		}
 	}
 	private void createEvent( TripleStore ts, TripleStore es, String objid,
@@ -3149,6 +3214,44 @@ public class DAMSAPIServlet extends HttpServlet
 		return compositionLevel;
 	}
 
+	protected static int getPropInt( Properties props, String key,
+		int defaultValue )
+	{
+		if ( props == null ) { return defaultValue; }
+
+		int value = defaultValue;
+		String val = props.getProperty(key);
+		try
+		{
+			int i = Integer.parseInt(val);
+			value = i;
+		}
+		catch ( Exception ex )
+		{
+			log.debug("Error parsing integer property: " + ex.toString());
+			value = defaultValue;
+		}
+		return value;
+	}
+	protected static long getPropLong( Properties props, String key,
+		long defaultValue )
+	{
+		if ( props == null ) { return defaultValue; }
+
+		long value = defaultValue;
+		String val = props.getProperty(key);
+		try
+		{
+			long l = Long.parseLong(val);
+			value = l;
+		}
+		catch ( Exception ex )
+		{
+			log.debug("Error parsing long property: " + ex.toString());
+			value = defaultValue;
+		}
+		return value;
+	}
 	protected static String getParamString( HttpServletRequest req, String key,
 		String defaultValue )
 	{
@@ -3199,25 +3302,36 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		return defaultValue;
 	}
-	protected static int getParamInt( Map<String,String[]> params, String key,
-		int defaultValue )
+	protected static int getParamInt( Map params, String key, int defaultValue )
 	{
 		if ( params == null ) { return defaultValue; }
 
 		int value = defaultValue;
-		String[] arr = params.get(key);
-		if ( arr != null && arr.length > 0 && arr[0] != null )
+		String s = null;
+
+		Object o = params.get(key);
+		if ( o instanceof String[] )
 		{
-			try
+			String[] arr = (String[])o;
+			if ( arr != null && arr.length > 0 && arr[0] != null )
 			{
-				int i = Integer.parseInt(arr[0]);
-				value = i;
+				s = arr[0];
 			}
-			catch ( Exception ex )
-			{
-				log.debug("Error parsing integer parameter: " + ex.toString());
-				value = defaultValue;
-			}
+		}
+		else if ( o instanceof String )
+		{
+			s = (String)o;
+		}
+
+		try
+		{
+			int i = Integer.parseInt(s);
+			value = i;
+		}
+		catch ( Exception ex )
+		{
+			log.debug("Error parsing integer parameter: " + ex.toString());
+			value = defaultValue;
 		}
 		return value;
 	}
@@ -3241,7 +3355,7 @@ public class DAMSAPIServlet extends HttpServlet
 		InputStream in = null;
 		FileItemFactory factory = new DiskFileItemFactory();
 		ServletFileUpload upload = new ServletFileUpload( factory );
-		upload.setSizeMax( maxUploadSize );
+		if ( maxUploadSize != -1L ) { upload.setSizeMax( maxUploadSize ); }
 		List items = upload.parseRequest( req );
 		for ( int i = 0; i < items.size(); i++ )
 		{
