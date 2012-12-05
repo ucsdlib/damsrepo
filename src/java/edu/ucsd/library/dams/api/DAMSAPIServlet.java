@@ -123,6 +123,7 @@ public class DAMSAPIServlet extends HttpServlet
 	private Map<String,String> nsmap;     // URI/name to URI map
 	private String idNS;                  // Prefix for unqualified identifiers
 	private String prNS;                  // Prefix for unqualified predicates
+	private String rdfNS;                 // Prefix for RDF predicates
 
 	// uploads
 	private int uploadCount = 0; // current number of uploads being processed
@@ -192,6 +193,7 @@ public class DAMSAPIServlet extends HttpServlet
 			nsmap = TripleStoreUtil.namespaceMap(props);
 			idNS = nsmap.get("damsid");
 			prNS = nsmap.get("dams");
+			rdfNS = nsmap.get("rdf");
 
 			// solr
 			solrBase = props.getProperty("solr.base");
@@ -1189,7 +1191,7 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		try
 		{
-			String sparql = "select ?collection ?title where { ?collection <" + prNS + "title> ?bn . ?bn <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> ?title . ?collection <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <" + prNS + "Collection> }";
+			String sparql = "select ?collection ?title where { ?collection <" + prNS + "title> ?bn . ?bn <" + rdfNS + "value> ?title . ?collection <" + rdfNS + "type> <" + prNS + "Collection> }";
 			BindingIterator cols = ts.sparqlSelect(sparql);
 			List<Map<String,String>> collections = bindings(cols);
 			Map info = new HashMap();
@@ -1287,11 +1289,23 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 	
 			String objuri = ( objid.startsWith(idNS) ) ? objid : idNS + objid;
-			String fpart = (cmpid != null) ? cmpid + "/" + fileid : fileid;
 			Identifier oid = Identifier.publicURI( objuri );
-			Identifier fid = Identifier.publicURI( objuri + "/" + fpart );
+			Identifier cid = null;
+			Identifier fid = null;
+			if ( cmpid != null )
+			{
+				cid = Identifier.publicURI(objuri + "/" + cmpid);
+				fid = Identifier.publicURI(objuri + "/" + cmpid + "/" + fileid);
+			}
+			else
+			{
+				fid = Identifier.publicURI( objuri + "/" + fileid );
+			}
 	
 			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
+			Identifier hasComp = Identifier.publicURI( prNS + "hasComponent" );
+			Identifier cmpType = Identifier.publicURI( prNS + "Component" );
+			Identifier rdfType = Identifier.publicURI( rdfNS + "type" );
 	
 			if ( ts != null )
 			{	
@@ -1350,9 +1364,7 @@ public class DAMSAPIServlet extends HttpServlet
 				else
 				{
 					// if file not available locally, copy to local disk 
-					File srcFile = File.createTempFile(
-						"tmp-" + fpart.getClass().getName().toLowerCase(), fpart
-					);
+					File srcFile = File.createTempFile( "jhovetmp", null );
 					long fileSize = fs.length(objid, cmpid, fileid);
 
 					// make sure file is not too large to copy locally...
@@ -1399,7 +1411,14 @@ public class DAMSAPIServlet extends HttpServlet
 			// Output is saved to the triplestore.
 			if ( ts != null && es != null )
 			{	
-				sit = ts.listStatements(oid, hasFile, fid);
+				if ( cmpid != null )
+				{
+					sit = ts.listStatements(cid, hasFile, fid);
+				}
+				else
+				{
+					sit = ts.listStatements(oid, hasFile, fid);
+				}
 				if(sit.hasNext()){
 					return error(
 						HttpServletResponse.SC_FORBIDDEN,
@@ -1416,7 +1435,6 @@ public class DAMSAPIServlet extends HttpServlet
 					 use =  getFileUse( fileid );
 				}
 				m.put("use", use);
-				
 				
 				if ( dateCreated != null && dateCreated.length() > 0 )
 				{
@@ -1462,7 +1480,23 @@ public class DAMSAPIServlet extends HttpServlet
 						}
 					}
 				}
-				ts.addStatement( oid, hasFile, fid, oid );
+
+				// link from object/component to file record
+				if ( cmpid != null )
+				{
+					// if component record doesn't exist, create stub
+					sit = ts.listStatements(oid, hasComp, cid);
+					if(!sit.hasNext())
+					{
+						ts.addStatement( oid, hasComp, cid, oid );
+						ts.addStatement( cid, rdfType, cmpType, oid );
+					}
+					ts.addStatement( cid, hasFile, fid, oid );
+				}
+				else
+				{
+					ts.addStatement( oid, hasFile, fid, oid );
+				}
 				
 				// Create event when required with es
 				if(es != null)
