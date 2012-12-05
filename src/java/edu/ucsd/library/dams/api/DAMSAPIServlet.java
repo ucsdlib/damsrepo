@@ -113,6 +113,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 	// default data stores
 	protected String fsDefault;	// FileStore to be used when not specified
+	protected String fsStaging; // local staging directory
 	protected String tsDefault;	// TripleStore to be used when not specified
 	protected String tsEvents;	// TripleStore to be used for events
 
@@ -219,6 +220,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// files
 			fsDefault = props.getProperty("fs.default");
+			fsStaging = props.getProperty( "fs.staging" );
 			maxUploadCount = getPropInt(props, "fs.maxUploadCount", -1 );
 			maxUploadSize  = getPropLong(props, "fs.maxUploadSize", -1L );
 
@@ -1327,15 +1329,33 @@ public class DAMSAPIServlet extends HttpServlet
 			else
 			{
 				// extract technical metadata using jhove
+				File localFile = getParamFile(params,"local",null);
 
-				sourceFile = fs.getPath( objid, cmpid, fileid );
-				if ( ! ( fs instanceof LocalStore ) )
+				if ( fs instanceof LocalStore )
 				{
-					// Copy file to local disk
+					// use localstore version if possible
+					sourceFile = fs.getPath( objid, cmpid, fileid );
+					log.info(
+						"Jhove extraction, source=localStore: " + sourceFile
+					);
+				}
+				else if ( localFile != null )
+				{
+					// otherwise, use staged source file
+					sourceFile = localFile.getAbsolutePath();
+					log.info(
+						"Jhove extraction, source=local file: " + sourceFile
+					);
+				}
+				else
+				{
+					// if file not available locally, copy to local disk 
 					File srcFile = File.createTempFile(
 						"tmp-" + fpart.getClass().getName().toLowerCase(), fpart
 					);
 					long fileSize = fs.length(objid, cmpid, fileid);
+
+					// make sure file is not too large to copy locally...
 					if ( jhoveMaxSize != -1L && fileSize > jhoveMaxSize )
 					{
 						return error(
@@ -1357,12 +1377,16 @@ public class DAMSAPIServlet extends HttpServlet
 					fs.read( objid, cmpid, fileid, fos );
 					fos.close();
 					sourceFile = srcFile.getAbsolutePath();
+					log.info(
+						"Jhove extraction, source=cached file: " + sourceFile
+					);
 				}
 		
 				m = jhoveExtraction( sourceFile );
 			}
 
-			// User submitted properties: use, dateCreated, sourceFilename, and sourcePath
+			// User submitted properties: use, dateCreated, sourceFilename, and
+			// sourcePath
 			String[] input = params.get("use");
 			String use = input!=null?input[0]:null;
 			input = params.get("dateCreated");
@@ -1378,31 +1402,44 @@ public class DAMSAPIServlet extends HttpServlet
 				sit = ts.listStatements(oid, hasFile, fid);
 				if(sit.hasNext()){
 					return error(
-							HttpServletResponse.SC_FORBIDDEN,
-							"Characterization for file " + fid.getId() + " already exists. Please use PUT instead"
-						);
+						HttpServletResponse.SC_FORBIDDEN,
+						"Characterization for file " + fid.getId()
+						+ " already exists. Please use PUT instead"
+					);
 				}
 	
 				// Add/Replace properties submitted from user
 				
 				// Required use property
 				if ( use == null || use.length() == 0)
+				{
 					 use =  getFileUse( fileid );
+				}
 				m.put("use", use);
 				
 				
 				if ( dateCreated != null && dateCreated.length() > 0 )
+				{
 					m.put( "dateCreated", dateCreated );
+				}
 				if ( sourceFilename != null && sourceFilename.length() > 0 )
+				{
 					m.put( "sourceFileName", sourceFilename );
+				}
 				if ( sourcePath != null && sourcePath.length() > 0 )
+				{
 					m.put( "sourcePath", sourcePath );
+				}
 				
 				// Add constant properties
 
 				String compositionLevel = m.get("compositionLevel");
 				if( compositionLevel == null )
-					compositionLevel = getDefaultCompositionLevel( sourceFilename );
+				{
+					compositionLevel = getDefaultCompositionLevel(
+						sourceFilename
+					);
+				}
 				m.put( "preservationLevel", "full" );
 				m.put( "objectCategory", "file" );
 				// # of decoding/extraction steps to get usable file
@@ -1417,15 +1454,25 @@ public class DAMSAPIServlet extends HttpServlet
 					{
 						value = m.get(key);
 						if(value != null && value.length() > 0)
-							ts.addLiteralStatement(fid, Identifier.publicURI( prNS + key ), "\"" + value + "\"", oid);
+						{
+							ts.addLiteralStatement(
+								fid, Identifier.publicURI( prNS + key ),
+								"\"" + value + "\"", oid
+							);
+						}
 					}
 				}
 				ts.addStatement( oid, hasFile, fid, oid );
 				
 				// Create event when required with es
 				if(es != null)
-					createEvent( ts, es, objid, cmpid, fileid, "Jhove Extraction", true, "Jhove extraction EVENT_DETAIL_SPEC", m.get("status") );
-				return status( HttpServletResponse.SC_OK, "Jhove extracted and saved successfully" );
+				{
+					createEvent(
+						ts, es, objid, cmpid, fileid, "Jhove Extraction", true,
+						"Jhove extraction EVENT_DETAIL_SPEC", m.get("status")
+					);
+				}
+				return status( "Jhove extracted and saved successfully" );
 			} 
 			else
 			{
@@ -1443,8 +1490,11 @@ public class DAMSAPIServlet extends HttpServlet
 		finally
 		{
 			if(srcDelete)
+			{
 				new File(sourceFile).delete();
-			if(sit != null) {
+			}
+			if(sit != null)
+			{
 				sit.close();
 				sit = null;
 			}
@@ -1522,7 +1572,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				return error(
 					HttpServletResponse.SC_BAD_REQUEST,
-					"File upload required"
+					"File upload or locally-staged file required"
 				);
 			}
 
@@ -3116,6 +3166,29 @@ public class DAMSAPIServlet extends HttpServlet
 		// return the default role if nothing matches
 		return roleDefault;
 	}
+	protected File getParamFile( Map<String,String[]> params,
+		String key, File defaultFile )
+	{
+		if ( params == null ) { return defaultFile; }
+
+		File f = null;
+		String[] arr = params.get(key);
+		if ( arr != null && arr.length > 0 && arr[0] != null
+			&& !arr[0].trim().equals("") )
+		{
+			f = new File( fsStaging, arr[0] );
+		}
+
+		// make sure file exists
+		if ( f != null && f.isFile() && f.exists() )
+		{
+			return f;
+		}
+		else
+		{
+			return defaultFile;
+		}
+	}
 	protected static String getParamString( Map<String,String[]> params,
 		String key, String defaultValue )
 	{
@@ -3386,6 +3459,16 @@ public class DAMSAPIServlet extends HttpServlet
 					"Unprocessed parameter: " + item.getFieldName()
 						+ " = " + item.getString()
 				);
+			}
+		}
+
+		// if not upload found, check for locally-staged file
+		if ( in == null )
+		{
+			File f = getParamFile(params,"local",null);
+			if ( f != null )
+			{
+				in = new FileInputStream(f);
 			}
 		}
 		return new InputBundle( params, in );
