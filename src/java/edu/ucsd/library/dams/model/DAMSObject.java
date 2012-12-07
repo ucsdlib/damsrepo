@@ -35,6 +35,7 @@ public class DAMSObject
 	private Map<String,String> nsmap;
 	private String idNS;
 	private String owlNS;
+	private String rdfNS;
 	private String eventPred;
 
 	/**
@@ -51,6 +52,7 @@ public class DAMSObject
 		this.nsmap = nsmap;
 		this.idNS = nsmap.get("damsid");
 		this.owlNS = nsmap.get("owl");
+		this.rdfNS = nsmap.get("rdf");
 		this.eventPred = nsmap.get("dams") + "event";
 		String iduri = (id != null && id.startsWith("http")) ? id : idNS + id;
 		this.id = Identifier.publicURI(iduri);
@@ -106,16 +108,16 @@ public class DAMSObject
 			}
 		}
 
-
 		// output unprocessed statements
 		if ( todo.size() > 0 )
 		{
-			for ( Iterator<Identifier> todoit = todo.iterator(); it.hasNext(); )
+			Iterator<Identifier> todoit = todo.iterator();
+			while ( todoit.hasNext() )
 			{
-				System.out.println( "todo: " + todoit.next().toString() );
+				Identifier id = todoit.next();
+				System.out.println( "todo: " + id.toString() );
 			}
 		}
-
 
 		return new StatementListIterator( slist );
 	}
@@ -157,7 +159,8 @@ public class DAMSObject
 					{
 						events.add(o);
 					}
-					else if ( !p.startsWith(owlNS) )
+					else if ( !p.equals(rdfNS + "type") && !p.startsWith(owlNS)
+						&& o.getId().startsWith(idNS) )
 					{
 						todo.add(o);
 					}
