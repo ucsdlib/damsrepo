@@ -138,7 +138,16 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[3].equals("datastreams") && path[5].equals("content")
 				&& path[4].equals( fedoraObjectDS ) )
 			{
-				// XXX
+                ts = triplestore(req);
+                Map info = objectShow( path[2], ts, null );
+                if ( info.get("obj") != null )
+                {
+                    DAMSObject obj = (DAMSObject)info.get("obj");
+                    output(
+                        obj, false, req.getParameterMap(),
+                        req.getPathInfo(), res
+                    );
+                }
 			}
 			// GET /objects/[oid]/datastreams/rightsMetadata/content
 			// STATUS: TEST
