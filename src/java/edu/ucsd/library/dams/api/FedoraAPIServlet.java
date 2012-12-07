@@ -158,6 +158,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				ts = triplestore(req);
 				Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put( "defaultGroup", new String[]{roleDefault} );
+				params.put( "adminGroup", new String[]{roleAdmin} );
 				outputTransform(
 					path[2], null, null, "fedora-rightsMetadata.xsl", params,
 					"text/xml", ts, null, res

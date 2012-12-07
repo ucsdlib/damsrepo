@@ -5,6 +5,7 @@
   <xsl:output method="xml" indent="yes"/>
   <xsl:param name="objid"/>
   <xsl:param name="defaultGroup"/>
+  <xsl:param name="adminGroup"/>
   <xsl:template match="/">
     <rightsMetadata>
       <copyright>
@@ -29,14 +30,17 @@
       </copyright>
       <access type="discover">
         <group><xsl:value-of select="$defaultGroup"/></group>
+        <group><xsl:value-of select="$adminGroup"/></group>
       </access>
       <access type="read">
         <group><xsl:value-of select="$defaultGroup"/></group>
+        <group><xsl:value-of select="$adminGroup"/></group>
       </access>
       <access type="edit">
         <xsl:for-each select="//dams:Repository/dams:repositoryGroup">
           <group><xsl:value-of select="."/></group>
         </xsl:for-each>
+        <group><xsl:value-of select="$adminGroup"/></group>
       </access>
 <!-- copyrightPurposeNote?
       <use>

@@ -139,7 +139,8 @@ public class DAMSAPIServlet extends HttpServlet
 	private File solrXslFile;       // default solr xsl stylesheet
 
 	// ip address mapping
-	protected String roleDefault;		  // default role if not matching
+	protected String roleDefault;         // default role if not matching
+	protected String roleAdmin;           // special role for administrators
 	private Map<String,String[]> roleMap; // map of roles to IP addresses
 
 	// fedora compat
@@ -204,6 +205,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// access control/filters
 			roleDefault = props.getProperty("role.default");
+			roleAdmin = props.getProperty("role.admin");
 			String roleList = props.getProperty("role.list");
 			String[] roles = roleList.split(",");
 			roleMap = new HashMap<String,String[]>();

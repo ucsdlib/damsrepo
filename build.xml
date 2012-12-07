@@ -128,7 +128,8 @@
   </target>
 
   <!-- deploy webapp -->
-  <target name="local-deploy" description="Deploy webapp to local dir (farm)">
+  <target name="local-deploy" description="Deploy webapp to local dir"
+      depends="xsl">
     <echo level="info" message="war = 'file://${dist}/${appName}.war'"/>
     <copy file="${dist}/${appName}.war" todir="${deploy.home}"/>
   </target>
