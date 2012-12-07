@@ -346,6 +346,39 @@ public class DAMSAPIServlet extends HttpServlet
 				ts = triplestore(req);
 				info = collectionListFiles( path[2], ts );
 			}
+			// GET /repositories
+			else if ( path.length == 2 && path[1].equals("repositories") )
+			{
+				ts = triplestore(req);
+				info = repositoryListAll( ts );
+			}
+			// GET /repositories/bb1234567x
+			else if ( path.length == 3 && path[1].equals("repositories") )
+			{
+				ts = triplestore(req);
+				info = repositoryListObjects( path[2], ts );
+			}
+			// GET /repositories/bb1234567x/count
+			else if ( path.length == 4 && path[1].equals("repositories")
+				&& path[3].equals("count") )
+			{
+				ts = triplestore(req);
+				info = repositoryCount( path[2], ts );
+			}
+			// GET /repositories/bb1234567x/embargo
+			else if ( path.length == 4 && path[1].equals("repositories")
+				&& path[3].equals("embargo") )
+			{
+				ts = triplestore(req);
+				info = repositoryEmbargo( path[2], ts );
+			}
+			// GET /repositories/bb1234567x/files
+			else if ( path.length == 4 && path[1].equals("repositories")
+				&& path[3].equals("files") )
+			{
+				ts = triplestore(req);
+				info = repositoryListFiles( path[2], ts );
+			}
 			// GET /events/bb1234567x
 			else if ( path.length == 3  && path[1].equals("events") )
 			{
@@ -1052,20 +1085,28 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public Map collectionCount( String colid, TripleStore ts )
 	{
+		return count( "collection", colid, ts );
+	}
+	public Map repositoryCount( String repid, TripleStore ts )
+	{
+		return count( "repository", repid, ts );
+	}
+	protected Map count( String pred, String obj, TripleStore ts )
+	{
 		try
 		{
-			String coluri = ( colid.startsWith(idNS) ) ? colid : idNS + colid;
-			Identifier col = Identifier.publicURI( coluri );
-			if ( !ts.exists(col) )
+			String objuri = ( obj.startsWith(idNS) ) ? obj : idNS + obj;
+			Identifier objid = Identifier.publicURI( objuri );
+			if ( !ts.exists(objid) )
 			{
 				return error(
 					HttpServletResponse.SC_NOT_FOUND,
-					"Collection does not exist"
+					pred + " does not exist"
 				);
 			}
 
-			String sparql = "select ?id where { ?id <" + prNS + "collection> "
-				+ "<" + coluri + "> }";
+			String sparql = "select ?id where { ?id <" + prNS + pred + "> "
+				+ "<" + objuri + "> }";
 
 			long count = ts.sparqlCount( sparql );
 			Map info = new LinkedHashMap();
@@ -1074,35 +1115,42 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			String msg = "Error counting collection members: " + colid;
+			String msg = "Error counting " + pred + " members: " + obj;
 			log.info(msg, ex );
 			return error(msg);
 		}
 	}
 	public Map collectionListFiles( String colid, TripleStore ts )
 	{
+		return listFiles( "collection", colid, ts );
+	}
+	public Map repositoryListFiles( String repid, TripleStore ts )
+	{
+		return listFiles( "repository", repid, ts );
+	}
+	protected Map listFiles( String pred, String obj, TripleStore ts )
+	{
 		try
 		{
-			String coluri = ( colid.startsWith(idNS) ) ? colid : idNS + colid;
-			Identifier col = Identifier.publicURI( coluri );
-			if ( !ts.exists(col) )
-			{
-				return error(
-					HttpServletResponse.SC_NOT_FOUND,
-					"Collection does not exist"
-				);
-			}
-
 			// should be able to do this with sparql, but for now, we can
 			// just use our API to list objects and then list files for each
 			// object
 			List files = new ArrayList();
-			Map objlist = collectionListObjects( colid, ts  );
+			Map objlist = listObjects( pred, obj, ts  );
+
+			// check status of object list
+			int status = getParamInt(objlist,"statusCode",200);
 			List objects = (List)objlist.get("objects");
+			if ( status > 299 || objects == null )
+			{
+				return objlist;
+			}
+
+			// list files of each object
 			for ( int i = 0; i < objects.size(); i++ )
 			{
-				Map obj = (Map)objects.get(i);
-				String objid = (String)obj.get("obj");
+				Map o = (Map)objects.get(i);
+				String objid = (String)o.get("obj");
 				Map objfiles = objectListFiles( objid, ts );
 				List filelist = (List)objfiles.get("files");
 				files.addAll( filelist );
@@ -1114,7 +1162,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			String msg = "Error listing files in a collection: " + colid;
+			String msg = "Error listing files in a " + pred + ": " + obj;
 			log.info(msg, ex );
 			return error(msg);
 		}
@@ -1182,10 +1230,31 @@ public class DAMSAPIServlet extends HttpServlet
 			return error(msg);
 		}
 	}
+	public Map repositoryEmbargo( String colid, TripleStore ts )
+	{
+		return null; // DAMS_MGR
+		// output = metadata: list of objects (??)
+	}
 	public Map collectionEmbargo( String colid, TripleStore ts )
 	{
 		return null; // DAMS_MGR
 		// output = metadata: list of objects (??)
+	}
+	public Map repositoryListAll( TripleStore ts )
+	{
+		try
+		{
+			String sparql = "select ?repository ?name where { ?repository <" + prNS + "repositoryName> ?name }";
+			BindingIterator repos = ts.sparqlSelect(sparql);
+			List<Map<String,String>> repoList = bindings(repos);
+			Map info = new HashMap();
+			info.put( "repositories", repoList );
+			return info;
+		}
+		catch ( Exception ex )
+		{
+			return error( "Error listing repositories: " + ex.toString() );
+		}
 	}
 	public Map collectionListAll( TripleStore ts )
 	{
@@ -1229,20 +1298,28 @@ public class DAMSAPIServlet extends HttpServlet
 
 	public Map collectionListObjects( String colid, TripleStore ts  )
 	{
+		return listObjects( "collection", colid, ts );
+	}
+	public Map repositoryListObjects( String repid, TripleStore ts  )
+	{
+		return listObjects( "repository", repid, ts );
+	}
+	public Map listObjects( String pred, String obj, TripleStore ts  )
+	{
 		try
 		{
-			String coluri = ( colid.startsWith(idNS) ) ? colid : idNS + colid;
-			Identifier col = Identifier.publicURI( coluri );
-			if ( !ts.exists(col) )
+			String uri = ( obj.startsWith(idNS) ) ? obj : idNS + obj;
+			Identifier id = Identifier.publicURI( uri );
+			if ( !ts.exists(id) )
 			{
 				return error(
 					HttpServletResponse.SC_NOT_FOUND,
-					"Collection does not exist"
+					pred + " does not exist"
 				);
 			}
 
-			String sparql = "select ?obj where { ?obj <" + prNS + "collection> "
-				+ "<" + idNS + colid + "> }";
+			String sparql = "select ?obj where { ?obj <" + prNS + pred + "> "
+				+ "<" + uri + "> }";
 			BindingIterator bind = ts.sparqlSelect(sparql);
 			List<Map<String,String>> objects = bindings(bind);
 			Map info = new HashMap();
@@ -1251,7 +1328,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			return error( "Error listing collections: " + ex.toString() );
+			return error( "Error listing " + pred + ": " + ex.toString() );
 		}
 	}
 	public Map fileCharacterize( String objid, String cmpid, String fileid,
