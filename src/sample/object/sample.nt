@@ -70,6 +70,7 @@ _:bn01n05 <http://library.ucsd.edu/ontology/dams#uri> "http://library.ucsd.edu/t
 <http://library.ucsd.edu/ark:/20775/bb02020202> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Repository> .
 <http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#repositoryName> "Test Repository" .
 <http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#repositoryURI> "http://library.ucsd.edu/test/" .
+<http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#repositoryGroup> "TEST-Staff" .
 
 <http://library.ucsd.edu/ark:/20775/bb05050505> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Copyright> .
 <http://library.ucsd.edu/ark:/20775/bb05050505> <http://library.ucsd.edu/ontology/dams#copyrightStatus> "Under copyright -- 3rd Party" .

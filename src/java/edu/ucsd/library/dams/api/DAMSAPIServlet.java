@@ -139,7 +139,7 @@ public class DAMSAPIServlet extends HttpServlet
 	private File solrXslFile;       // default solr xsl stylesheet
 
 	// ip address mapping
-	private String roleDefault;		   // default role if not matching
+	protected String roleDefault;		  // default role if not matching
 	private Map<String,String[]> roleMap; // map of roles to IP addresses
 
 	// fedora compat

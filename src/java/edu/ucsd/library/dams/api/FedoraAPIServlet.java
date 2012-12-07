@@ -104,7 +104,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				ts = triplestore(req);
 				es = events(req);
 				outputTransform(
-					path[2], null, null, "fedora-object-profile.xsl",
+					path[2], null, null, "fedora-object-profile.xsl", null,
 					"text/xml", ts, es, res
 				);
 			}
@@ -116,7 +116,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				ts = triplestore(req);
 				es = events(req);
 				outputTransform(
-					path[2], null, null, "fedora-object-datastreams.xsl",
+					path[2], null, null, "fedora-object-datastreams.xsl", null,
 					"text/xml", ts, es, res
 				);
 			}
@@ -129,7 +129,38 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				es = events(req);
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					"fedora-datastream-profile.xsl", "text/xml", ts, es, res
+					"fedora-datastream-profile.xsl", null, "text/xml", ts, es, res
+				);
+			}
+			// GET /objects/[oid]/datastreams/[fedoraObjectDS]/content
+			// STATUS: NOT IMPLEMENTED XXX
+			else if ( path.length == 6 && path[1].equals("objects")
+				&& path[3].equals("datastreams") && path[5].equals("content")
+				&& path[4].equals( fedoraObjectDS ) )
+			{
+                ts = triplestore(req);
+                Map info = objectShow( path[2], ts, null );
+                if ( info.get("obj") != null )
+                {
+                    DAMSObject obj = (DAMSObject)info.get("obj");
+                    output(
+                        obj, false, req.getParameterMap(),
+                        req.getPathInfo(), res
+                    );
+                }
+			}
+			// GET /objects/[oid]/datastreams/rightsMetadata/content
+			// STATUS: TEST
+			else if ( path.length == 6 && path[1].equals("objects")
+				&& path[3].equals("datastreams") && path[5].equals("content")
+				&& path[4].equals("rightsMetadata") )
+			{
+				ts = triplestore(req);
+				Map<String,String[]> params = new HashMap<String,String[]>();
+				params.put( "defaultGroup", new String[]{roleDefault} );
+				outputTransform(
+					path[2], null, null, "fedora-rightsMetadata.xsl", params,
+					"text/xml", ts, null, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fid]/content
@@ -215,7 +246,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					"fedora-datastream-profile.xsl", "text/xml", ts, es, res
+					"fedora-datastream-profile.xsl", null, "text/xml", ts, es, res
 				);
 			}
 		}
@@ -258,7 +289,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				);
 
 				outputTransform(
-					path[2], null, null, "fedora-datastream-profile.xsl",
+					path[2], null, null, "fedora-datastream-profile.xsl", null,
 					"text/xml", ts, es, res
 				);
 			}
@@ -281,7 +312,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					"fedora-datastream-profile.xsl", "text/xml", ts, es, res
+					"fedora-datastream-profile.xsl", null, "text/xml", ts, es, res
 				);
 			}
 			else
@@ -323,7 +354,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				info = objectDelete( path[2], ts, es );
 
 				outputTransform(
-					path[2], null, null, "fedora-datastream-delete.xsl",
+					path[2], null, null, "fedora-datastream-delete.xsl", null,
 					"text/plain", ts, es, res
 				);
 			}
@@ -342,7 +373,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					"fedora-datastream-delete.xsl", "text/plain", ts, es, res
+					"fedora-datastream-delete.xsl", null, "text/plain", ts, es, res
 				);
 			}
 			else
@@ -364,8 +395,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	}
 
 	private void outputTransform( String objid, String cmpid, String fileid,
-		String xsl, String contentType, TripleStore ts, TripleStore es,
-		HttpServletResponse res )
+		String xsl, Map<String,String[]> params, String contentType,
+		TripleStore ts, TripleStore es, HttpServletResponse res )
 		throws TripleStoreException, TransformerException
 	{
 		// get object metadata
@@ -388,7 +419,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 
 		// output expected XML
-		Map<String,String[]> params =  new HashMap<String,String[]>();
+		if ( params == null )
+		{
+			params =  new HashMap<String,String[]>();
+		}
 		params.put("objid", new String[]{ objid } );
 		if ( fileid != null )
 		{
