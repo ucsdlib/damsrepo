@@ -11,6 +11,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// logging
+import org.apache.log4j.Logger;
+
 // dams
 import edu.ucsd.library.dams.triple.BindingIterator;
 import edu.ucsd.library.dams.triple.Identifier;
@@ -28,6 +31,9 @@ import edu.ucsd.library.dams.triple.TripleStoreException;
 **/
 public class DAMSObject
 {
+	// logging
+	private static Logger log = Logger.getLogger(DAMSObject.class);
+
 	private TripleStore ts;
 	private TripleStore es;
 	private String tsName;
@@ -115,7 +121,7 @@ public class DAMSObject
 			while ( todoit.hasNext() )
 			{
 				Identifier id = todoit.next();
-				System.out.println( "todo: " + id.toString() );
+				log.debug( "unprocessed links: " + id.toString() );
 			}
 		}
 

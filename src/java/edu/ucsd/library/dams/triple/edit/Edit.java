@@ -292,6 +292,7 @@ public class Edit
 	{
 		try
 		{
+			Identifier sub = (Identifier)subject;
 			Identifier parent = identifier(ark);
 			Identifier pred = predicate(predicate);
 			if( subject instanceof String )
@@ -309,13 +310,13 @@ public class Edit
 			if( object instanceof String )
 			{
 				ts.addLiteralStatement(
-					(Identifier)subject, pred, object.toString(), parent
+					sub, pred, object.toString(), parent
 				);
 			}
 			else
 			{
 				ts.addStatement(
-					(Identifier)subject, pred, (Identifier)object, parent
+					sub, pred, (Identifier)object, parent
 				);
 			}
 		}
