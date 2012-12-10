@@ -32,6 +32,7 @@ import javax.naming.InitialContext;
 
 // servlet api
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -105,8 +106,11 @@ public class DAMSAPIServlet extends HttpServlet
 	// logging
 	private static Logger log = Logger.getLogger(DAMSAPIServlet.class);
 
-	private Properties props; // config
-	private String damsHome;  // config file location
+	private Properties props;      // config
+	private String damsHome;       // config file location
+	private String appVersion;     // application (user) version
+	private String srcVersion;     // source code version
+	private String buildTimestamp; // timestamp application was built
 
 	// default output format
 	private String formatDefault; // output format to use when not specified
@@ -161,6 +165,10 @@ public class DAMSAPIServlet extends HttpServlet
 	public void init( ServletConfig config ) throws ServletException
 	{
 		config();
+		ServletContext ctx = config.getServletContext();
+		appVersion     = ctx.getInitParameter("app-version");
+		srcVersion     = ctx.getInitParameter("src-version");
+		buildTimestamp = ctx.getInitParameter("build-timestamp");
 		super.init(config);
 	}
 	private String config()
@@ -566,6 +574,15 @@ public class DAMSAPIServlet extends HttpServlet
 				info.put( "triplestores", triplestores );
 				info.put( "defaultTriplestore", tsDefault );
 				info.put( "eventsTriplestore", tsEvents );
+			}
+			// GET /system/version
+			else if ( path.length == 3 && path[1].equals("system" )
+				&& path[2].equals("version") )
+			{
+				info = new LinkedHashMap();
+				info.put( "appVersion",     appVersion );
+				info.put( "srcVersion",     srcVersion );
+				info.put( "buildTimestamp", buildTimestamp );
 			}
 			else
 			{

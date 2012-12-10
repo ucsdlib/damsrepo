@@ -9,6 +9,18 @@
   <description>
     UC San Diego Library Digital Asset Management System
   </description>
+  <context-param>
+    <param-name>app-version</param-name>
+    <param-value>@app_version@</param-value>
+  </context-param>
+  <context-param>
+    <param-name>src-version</param-name>
+    <param-value>@src_version@</param-value>
+  </context-param>
+  <context-param>
+    <param-name>build-timestamp</param-name>
+    <param-value>@build_timestamp@</param-value>
+  </context-param>
   <servlet>
     <servlet-name>DAMSAPIServlet</servlet-name>
     <servlet-class>edu.ucsd.library.dams.api.DAMSAPIServlet</servlet-class>
