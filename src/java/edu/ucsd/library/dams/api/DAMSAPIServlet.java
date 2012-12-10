@@ -2168,9 +2168,10 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( in != null )
 			{
 				// XXX: impl other modes
-				if ( mode == null || mode.equals("") || mode.equals("all") )
+				if ( mode == null || mode.equals("") || mode.equals("all")
+					|| mode.equals("add") )
 				{
-					if ( !create )
+					if ( !create && mode != null && mode.equals("all") )
 					{
 						try
 						{
