@@ -364,7 +364,7 @@ public class TripleStoreUtil
 			// warn about unclaimed orphans?
 			for ( int i = 0; i < orphans.size(); i++ )
 			{
-				System.err.println("orphan: " + orphans.get(i).toString());
+				log.warn("orphan: " + orphans.get(i).toString());
 			}
 			if ( bnodes.size() > 0 )
 			{
