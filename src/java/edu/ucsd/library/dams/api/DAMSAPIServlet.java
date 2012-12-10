@@ -529,8 +529,8 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 3 && path[1].equals("client")
 				&& path[2].equals("info") )
 			{
-				String ip = req.getRemoteAddr();
-				String user = req.getRemoteUser();
+				String ip   = getParamString(req, "ip",   req.getRemoteAddr());
+				String user = getParamString(req, "user", req.getRemoteUser());
 				info = clientInfo( ip, user );
 			}
 			// GET /system/config
