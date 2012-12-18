@@ -1963,8 +1963,6 @@ public class DAMSAPIServlet extends HttpServlet
 			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
 			
 			String[] sizes = params.get("size");
-			if( sizes != null && sizes.length > 0)
-				sizes = sizes[0].split(",");
 			if ( sizes != null)
 			{
 				int len = sizes.length;
@@ -1978,7 +1976,10 @@ public class DAMSAPIServlet extends HttpServlet
 								"Unknow derivative name: " + derName
 							);
 					}
-					sit = ts.listStatements(oid, hasFile, fid);
+					
+					String dfpart = fpart.replace( fileid, derName + ".jpg" );
+					Identifier dfid = Identifier.publicURI( objuri + "/" + dfpart );
+					sit = ts.listStatements(oid, hasFile, dfid);
 					if(sit.hasNext()){
 						return error(
 								HttpServletResponse.SC_FORBIDDEN,
