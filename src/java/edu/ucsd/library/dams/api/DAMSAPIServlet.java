@@ -499,7 +499,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				fs = filestore(req);
 				info = fileCharacterize(
-					path[2], null, path[3], fs, null, null
+					path[2], null, path[3], false, fs, null, null, null
 				);
 			}
 			// GET /files/bb1234567x/1/1.tif/characterize
@@ -508,7 +508,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				fs = filestore(req);
 				info = fileCharacterize(
-					path[2], path[3], path[4], fs, null, null
+					path[2], path[3], path[4], false, fs, null, null, null
 				);
 			}
 			// GET /files/bb1234567x/1.tif/exists
@@ -787,7 +787,7 @@ public class DAMSAPIServlet extends HttpServlet
 				es = events(req);
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
-				info = fileCharacterize( path[2], null, path[3], fs, ts, es, params );
+				info = fileCharacterize( path[2], null, path[3], false, fs, ts, es, params );
 			}
 			// POST /files/bb1234567x/1/1.tif/characterize
 			else if ( path.length == 6 && path[1].equals("files")
@@ -798,7 +798,7 @@ public class DAMSAPIServlet extends HttpServlet
 				es = events(req);
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
-				info = fileCharacterize( path[2], path[3], path[4], fs, ts, es, params );
+				info = fileCharacterize( path[2], path[3], path[4], false, fs, ts, es, params );
 			}
 			// POST /files/bb1234567x/1.tif/derivatives
 			else if ( path.length == 5 && path[1].equals("files")
@@ -811,7 +811,7 @@ public class DAMSAPIServlet extends HttpServlet
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
 				params.put("frame", req.getParameterValues("frame"));
-				info = fileDerivatives( path[2], null, path[3], fs, ts, es, params );
+				info = fileDerivatives( path[2], null, path[3], false, fs, ts, es, params );
 			}
 			// POST /files/bb1234567x/1/1.tif/derivatives
 			else if ( path.length == 6 && path[1].equals("files")
@@ -824,7 +824,7 @@ public class DAMSAPIServlet extends HttpServlet
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
 				params.put("frame", req.getParameterValues("frame"));
-				info = fileDerivatives( path[2], path[3], path[4], fs, ts, es, params );
+				info = fileDerivatives( path[2], path[3], path[4], false, fs, ts, es, params );
 			}
 			else
 			{
@@ -963,6 +963,32 @@ public class DAMSAPIServlet extends HttpServlet
 					log.warn( "Error updating file", ex );
 					info = error( "Error updating file" );
 				}
+			}
+			// PUT /files/bb1234567x/1.tif/derivatives
+			else if ( path.length == 5 && path[1].equals("files")
+				&& path[4].equals("derivatives") )
+			{
+				fs = filestore(req);
+				ts = triplestore(req);
+				es = events(req);
+				
+				params = new HashMap<String, String[]>();
+				params.put("size", req.getParameterValues("size"));
+				params.put("frame", req.getParameterValues("frame"));
+				info = fileDerivatives( path[2], null, path[3], true, fs, ts, es, params );
+			}
+			// PUT /files/bb1234567x/1/1.tif/derivatives
+			else if ( path.length == 6 && path[1].equals("files")
+				&& isNumber(path[3]) && path[5].equals("derivatives") )
+			{
+				fs = filestore(req);
+				ts = triplestore(req);
+				es = events(req);
+				
+				params = new HashMap<String, String[]>();
+				params.put("size", req.getParameterValues("size"));
+				params.put("frame", req.getParameterValues("frame"));
+				info = fileDerivatives( path[2], path[3], path[4], true, fs, ts, es, params );
 			}
 			else
 			{
@@ -1378,15 +1404,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 	}
 	public Map fileCharacterize( String objid, String cmpid, String fileid,
-		FileStore fs, TripleStore ts, TripleStore es )
-		throws TripleStoreException
-	{
-		return fileCharacterize(
-			objid, cmpid, fileid, fs, ts, es, new HashMap<String, String[]>()
-		);
-	}
-	public Map fileCharacterize( String objid, String cmpid, String fileid,
-		FileStore fs, TripleStore ts, TripleStore es,
+		boolean overwrite, FileStore fs, TripleStore ts, TripleStore es,
 		Map<String, String[]> params ) throws TripleStoreException
 	{
 
@@ -1430,7 +1448,7 @@ public class DAMSAPIServlet extends HttpServlet
 			Identifier cmpType = Identifier.publicURI( prNS + "Component" );
 			Identifier rdfType = Identifier.publicURI( rdfNS + "type" );
 	
-			if ( ts != null )
+			if ( ts != null && !overwrite )
 			{	
 				sit = ts.listStatements(oid, hasFile, fid);
 				if(sit.hasNext()){
@@ -1534,20 +1552,30 @@ public class DAMSAPIServlet extends HttpServlet
 			// Output is saved to the triplestore.
 			if ( ts != null && es != null )
 			{	
-				if ( cmpid != null )
+				if ( overwrite )
 				{
-					sit = ts.listStatements(cid, hasFile, fid);
+					// delete existing metadata
+					fileDeleteMetadata( objid, cmpid, fileid, ts );
 				}
 				else
 				{
-					sit = ts.listStatements(oid, hasFile, fid);
-				}
-				if(sit.hasNext()){
-					return error(
-						HttpServletResponse.SC_FORBIDDEN,
-						"Characterization for file " + fid.getId()
-						+ " already exists. Please use PUT instead"
-					);
+					// check for file metadata and complain if it exists
+					if ( cmpid != null )
+					{
+						sit = ts.listStatements(cid, hasFile, fid);
+					}
+					else
+					{
+						sit = ts.listStatements(oid, hasFile, fid);
+					}
+					if(sit.hasNext())
+					{
+						return error(
+							HttpServletResponse.SC_FORBIDDEN,
+							"Characterization for file " + fid.getId()
+							+ " already exists. Please use PUT instead"
+						);
+					}
 				}
 	
 				// Add/Replace properties submitted from user
@@ -1808,7 +1836,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 				// perform characterization and pass along any error messages
 				Map charInfo = fileCharacterize(
-					objid, cmpid, fileid, fs, ts, es, params
+					objid, cmpid, fileid, overwrite, fs, ts, es, params
 				);
 				int charStat = getParamInt(charInfo,"statusCode",200);
 				if ( charStat > 299 )
@@ -1907,9 +1935,9 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 	}
 	public Map fileDerivatives( String objid, String cmpid, String fileid,
-		FileStore fs, TripleStore ts, TripleStore es, Map<String, String[]> params )
+		boolean overwrite, FileStore fs, TripleStore ts, TripleStore es,
+		Map<String, String[]> params )
 	{
-
 		String derName = null;
 		StatementIterator sit = null;
 		String errorMessage = "";
@@ -1960,12 +1988,19 @@ public class DAMSAPIServlet extends HttpServlet
 								"Unknow derivative name: " + derName
 							);
 					}
-					sit = ts.listStatements(oid, hasFile, fid);
-					if(sit.hasNext()){
-						return error(
+					String dfpart = fpart.replace( fileid, derName + ".jpg" );
+					Identifier dfid = Identifier.publicURI( objuri + "/" + dfpart );
+					if ( !overwrite )
+					{
+						sit = ts.listStatements(oid, hasFile, dfid);
+						if(sit.hasNext())
+						{
+							return error(
 								HttpServletResponse.SC_FORBIDDEN,
-								"Derivative " + fid.getId() + " already exists. Please use PUT instead"
+								"Derivative " + dfid.getId()
+									+ " already exists. Please use PUT instead"
 							);
+						}
 					}
 				}
 			}
@@ -2002,7 +2037,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 				String[] uses = {"visual-thumbnail"};
 				params.put("use", uses);
-				fileCharacterize( objid, cmpid, derid, fs, ts, es,  params);
+				fileCharacterize( objid, cmpid, derid, overwrite, fs, ts, es,  params);
 				createEvent( ts, es, objid, cmpid, derid, "Derivatives Creation", true, "Derivatives creation EVENT_DETAIL_SPEC", null );
 			}
 		}
