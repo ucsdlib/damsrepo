@@ -29,15 +29,9 @@ import java.net.URLEncoder;
 
 import javax.activation.FileDataSource;
 import javax.activation.MimetypesFileTypeMap;
-import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
 import javax.naming.NamingException;
 import javax.naming.NameNotFoundException;
-import javax.naming.PartialResultException;
 
 // servlet api
 import javax.servlet.ServletConfig;
@@ -100,6 +94,7 @@ import edu.ucsd.library.dams.triple.TripleStoreException;
 import edu.ucsd.library.dams.triple.TripleStoreUtil;
 import edu.ucsd.library.dams.triple.edit.Edit;
 import edu.ucsd.library.dams.util.HttpUtil;
+import edu.ucsd.library.dams.util.LDAPUtil;
 
 /**
  * Servlet implementing the DAMS REST API.
@@ -170,18 +165,8 @@ public class DAMSAPIServlet extends HttpServlet
 		"yyyy-MM-dd'T'hh:mm:ssZ"
 	);
 
-	// ldap authorization
-	private static String ldapURL;
-	private static String ldapUser;
-	private static String ldapPass;
-	private static String bindPrefix;
-	private static String bindSuffix;
-	private static String queryPrefix;
-	private static String querySuffix;
-	private static String groupAttribute;
-	private static String nameAttribute;
-	private static String groupSuffix;
-	private static String ldapPrincipal;
+	// ldap for group lookup
+	private LDAPUtil ldaputil;
 
 	// initialize servlet parameters
 	public void init( ServletConfig config ) throws ServletException
@@ -285,18 +270,8 @@ public class DAMSAPIServlet extends HttpServlet
 				MyJhoveBase.setJhoveConfig("jhove.conf");
 			jhoveMaxSize = getPropLong( props, "jhove.maxSize", -1L );
 
-			// ldap authorization
-			ldapURL = props.getProperty( "ldap.url" );
-			ldapUser = props.getProperty( "ldap.user" );
-			ldapPass = props.getProperty( "ldap.pass" );
-			bindPrefix = props.getProperty( "ldap.bindPrefix" );
-			bindSuffix = props.getProperty( "ldap.bindSuffix" );
-			queryPrefix = props.getProperty( "ldap.queryPrefix" );
-			querySuffix = props.getProperty( "ldap.querySuffix" );
-			groupAttribute = props.getProperty("ldap.groupAttribute");
-			nameAttribute = props.getProperty("ldap.nameAttribute");
-			groupSuffix = props.getProperty("ldap.groupSuffix");
-			ldapPrincipal = bindPrefix + ldapUser + bindSuffix;
+			// ldap for group lookup
+			ldaputil = new LDAPUtil( props );
 		}
 		catch ( Exception ex )
 		{
@@ -524,7 +499,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				fs = filestore(req);
 				info = fileCharacterize(
-					path[2], null, path[3], fs, null, null
+					path[2], null, path[3], false, fs, null, null, null
 				);
 			}
 			// GET /files/bb1234567x/1/1.tif/characterize
@@ -533,7 +508,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				fs = filestore(req);
 				info = fileCharacterize(
-					path[2], path[3], path[4], fs, null, null
+					path[2], path[3], path[4], false, fs, null, null, null
 				);
 			}
 			// GET /files/bb1234567x/1.tif/exists
@@ -812,7 +787,7 @@ public class DAMSAPIServlet extends HttpServlet
 				es = events(req);
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
-				info = fileCharacterize( path[2], null, path[3], fs, ts, es, params );
+				info = fileCharacterize( path[2], null, path[3], false, fs, ts, es, params );
 			}
 			// POST /files/bb1234567x/1/1.tif/characterize
 			else if ( path.length == 6 && path[1].equals("files")
@@ -823,7 +798,7 @@ public class DAMSAPIServlet extends HttpServlet
 				es = events(req);
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
-				info = fileCharacterize( path[2], path[3], path[4], fs, ts, es, params );
+				info = fileCharacterize( path[2], path[3], path[4], false, fs, ts, es, params );
 			}
 			// POST /files/bb1234567x/1.tif/derivatives
 			else if ( path.length == 5 && path[1].equals("files")
@@ -836,7 +811,7 @@ public class DAMSAPIServlet extends HttpServlet
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
 				params.put("frame", req.getParameterValues("frame"));
-				info = fileDerivatives( path[2], null, path[3], fs, ts, es, params );
+				info = fileDerivatives( path[2], null, path[3], false, fs, ts, es, params );
 			}
 			// POST /files/bb1234567x/1/1.tif/derivatives
 			else if ( path.length == 6 && path[1].equals("files")
@@ -849,7 +824,7 @@ public class DAMSAPIServlet extends HttpServlet
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
 				params.put("frame", req.getParameterValues("frame"));
-				info = fileDerivatives( path[2], path[3], path[4], fs, ts, es, params );
+				info = fileDerivatives( path[2], path[3], path[4], false, fs, ts, es, params );
 			}
 			else
 			{
@@ -988,6 +963,32 @@ public class DAMSAPIServlet extends HttpServlet
 					log.warn( "Error updating file", ex );
 					info = error( "Error updating file" );
 				}
+			}
+			// PUT /files/bb1234567x/1.tif/derivatives
+			else if ( path.length == 5 && path[1].equals("files")
+				&& path[4].equals("derivatives") )
+			{
+				fs = filestore(req);
+				ts = triplestore(req);
+				es = events(req);
+				
+				params = new HashMap<String, String[]>();
+				params.put("size", req.getParameterValues("size"));
+				params.put("frame", req.getParameterValues("frame"));
+				info = fileDerivatives( path[2], null, path[3], true, fs, ts, es, params );
+			}
+			// PUT /files/bb1234567x/1/1.tif/derivatives
+			else if ( path.length == 6 && path[1].equals("files")
+				&& isNumber(path[3]) && path[5].equals("derivatives") )
+			{
+				fs = filestore(req);
+				ts = triplestore(req);
+				es = events(req);
+				
+				params = new HashMap<String, String[]>();
+				params.put("size", req.getParameterValues("size"));
+				params.put("frame", req.getParameterValues("frame"));
+				info = fileDerivatives( path[2], path[3], path[4], true, fs, ts, es, params );
 			}
 			else
 			{
@@ -1134,11 +1135,18 @@ public class DAMSAPIServlet extends HttpServlet
 		if ( user == null ) { user = ""; }
 		else
 		{
-			Map ldapInfo = ldapInfo( user );
-			if ( ldapInfo != null )
+			try
 			{
-				info.put( "user", user );
-				info.putAll( ldapInfo );
+				Map ldapInfo = ldaputil.lookup( user, null );
+				if ( ldapInfo != null )
+				{
+					info.put( "user", user );
+					info.putAll( ldapInfo );
+				}
+			}
+			catch ( Exception ex )
+			{
+				log.warn( "Error looking up groups", ex );
 			}
 		}
 
@@ -1396,15 +1404,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 	}
 	public Map fileCharacterize( String objid, String cmpid, String fileid,
-		FileStore fs, TripleStore ts, TripleStore es )
-		throws TripleStoreException
-	{
-		return fileCharacterize(
-			objid, cmpid, fileid, fs, ts, es, new HashMap<String, String[]>()
-		);
-	}
-	public Map fileCharacterize( String objid, String cmpid, String fileid,
-		FileStore fs, TripleStore ts, TripleStore es,
+		boolean overwrite, FileStore fs, TripleStore ts, TripleStore es,
 		Map<String, String[]> params ) throws TripleStoreException
 	{
 
@@ -1448,7 +1448,7 @@ public class DAMSAPIServlet extends HttpServlet
 			Identifier cmpType = Identifier.publicURI( prNS + "Component" );
 			Identifier rdfType = Identifier.publicURI( rdfNS + "type" );
 	
-			if ( ts != null )
+			if ( ts != null && !overwrite )
 			{	
 				sit = ts.listStatements(oid, hasFile, fid);
 				if(sit.hasNext()){
@@ -1552,20 +1552,30 @@ public class DAMSAPIServlet extends HttpServlet
 			// Output is saved to the triplestore.
 			if ( ts != null && es != null )
 			{	
-				if ( cmpid != null )
+				if ( overwrite )
 				{
-					sit = ts.listStatements(cid, hasFile, fid);
+					// delete existing metadata
+					fileDeleteMetadata( objid, cmpid, fileid, ts );
 				}
 				else
 				{
-					sit = ts.listStatements(oid, hasFile, fid);
-				}
-				if(sit.hasNext()){
-					return error(
-						HttpServletResponse.SC_FORBIDDEN,
-						"Characterization for file " + fid.getId()
-						+ " already exists. Please use PUT instead"
-					);
+					// check for file metadata and complain if it exists
+					if ( cmpid != null )
+					{
+						sit = ts.listStatements(cid, hasFile, fid);
+					}
+					else
+					{
+						sit = ts.listStatements(oid, hasFile, fid);
+					}
+					if(sit.hasNext())
+					{
+						return error(
+							HttpServletResponse.SC_FORBIDDEN,
+							"Characterization for file " + fid.getId()
+							+ " already exists. Please use PUT instead"
+						);
+					}
 				}
 	
 				// Add/Replace properties submitted from user
@@ -1826,7 +1836,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 				// perform characterization and pass along any error messages
 				Map charInfo = fileCharacterize(
-					objid, cmpid, fileid, fs, ts, es, params
+					objid, cmpid, fileid, overwrite, fs, ts, es, params
 				);
 				int charStat = getParamInt(charInfo,"statusCode",200);
 				if ( charStat > 299 )
@@ -1925,9 +1935,9 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 	}
 	public Map fileDerivatives( String objid, String cmpid, String fileid,
-		FileStore fs, TripleStore ts, TripleStore es, Map<String, String[]> params )
+		boolean overwrite, FileStore fs, TripleStore ts, TripleStore es,
+		Map<String, String[]> params )
 	{
-
 		String derName = null;
 		StatementIterator sit = null;
 		String errorMessage = "";
@@ -1978,12 +1988,19 @@ public class DAMSAPIServlet extends HttpServlet
 								"Unknow derivative name: " + derName
 							);
 					}
-					sit = ts.listStatements(oid, hasFile, fid);
-					if(sit.hasNext()){
-						return error(
+					String dfpart = fpart.replace( fileid, derName + ".jpg" );
+					Identifier dfid = Identifier.publicURI( objuri + "/" + dfpart );
+					if ( !overwrite )
+					{
+						sit = ts.listStatements(oid, hasFile, dfid);
+						if(sit.hasNext())
+						{
+							return error(
 								HttpServletResponse.SC_FORBIDDEN,
-								"Derivative " + fid.getId() + " already exists. Please use PUT instead"
+								"Derivative " + dfid.getId()
+									+ " already exists. Please use PUT instead"
 							);
+						}
 					}
 				}
 			}
@@ -2020,7 +2037,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 				String[] uses = {"visual-thumbnail"};
 				params.put("use", uses);
-				fileCharacterize( objid, cmpid, derid, fs, ts, es,  params);
+				fileCharacterize( objid, cmpid, derid, overwrite, fs, ts, es,  params);
 				createEvent( ts, es, objid, cmpid, derid, "Derivatives Creation", true, "Derivatives creation EVENT_DETAIL_SPEC", null );
 			}
 		}
@@ -3341,77 +3358,6 @@ public class DAMSAPIServlet extends HttpServlet
 
 		// return the default role if nothing matches
 		return roleDefault;
-	}
-	private Map ldapInfo( String user )
-	{
-		Map info = new LinkedHashMap();
-
-		// check config and parameter
-		if ( user == null || user.trim().equals("") || ldapURL == null
-			|| ldapPrincipal == null )
-		{
-			return info;
-		}
-
-		List<String> groupList = new ArrayList<String>();
-		String ldapQuery = queryPrefix + user + querySuffix;
-
-		Hashtable<String,String> env = new Hashtable<String,String>();
-		env.put( 
-			Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory"
-		);
-		env.put(Context.PROVIDER_URL, ldapURL);
-		env.put(Context.SECURITY_PRINCIPAL, ldapPrincipal);
-		env.put(Context.SECURITY_CREDENTIALS, ldapPass);
-		if( ldapURL.startsWith("ldaps") )
-		{
-			env.put(Context.SECURITY_PROTOCOL, "ssl");
-		}
-		try
-		{
-			DirContext ctx = null;
-			try
-			{
-				ctx = new InitialDirContext(env);
-		 	}
-			catch ( PartialResultException prex ) {}
-
-			// get user info and list of groups
-			Attributes attribs = ctx.getAttributes(
-				ldapQuery, new String[]{groupAttribute,nameAttribute}
-			);
-			Attribute name = attribs.get( nameAttribute );
-			for ( int i = 0; name != null && i < name.size(); i++ )
-			{
-				info.put( "name", name.get(i) );
-			}
-			Attribute groups = attribs.get( groupAttribute );
-			for ( int i = 0; groups != null && i < groups.size(); i++ )
-			{
-				String grp = (String)groups.get(i);
-				if ( grp.endsWith(groupSuffix) )
-				{
-					// clean up group names
-					grp = grp.substring(0,grp.indexOf(groupSuffix)-1);
-					grp = grp.replaceAll("CN=","");
-					grp = grp.replaceAll(",OU=","/");
-					groupList.add(grp);
-				}
-			}
-			info.put("groups",groupList);
-
-			ctx.close();
-		}
-		catch (NameNotFoundException ex)
-		{
-			// name not found in directory
-			info = null;
-		}
-		catch (NamingException ex)
-		{
-			log.warn( "Error retrieving LDAP info", ex );
-		}
-		return info;
 	}
 	protected File getParamFile( Map<String,String[]> params,
 		String key, File defaultFile )
