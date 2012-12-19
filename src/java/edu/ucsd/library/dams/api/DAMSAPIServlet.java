@@ -29,15 +29,9 @@ import java.net.URLEncoder;
 
 import javax.activation.FileDataSource;
 import javax.activation.MimetypesFileTypeMap;
-import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
 import javax.naming.NamingException;
 import javax.naming.NameNotFoundException;
-import javax.naming.PartialResultException;
 
 // servlet api
 import javax.servlet.ServletConfig;
@@ -100,6 +94,7 @@ import edu.ucsd.library.dams.triple.TripleStoreException;
 import edu.ucsd.library.dams.triple.TripleStoreUtil;
 import edu.ucsd.library.dams.triple.edit.Edit;
 import edu.ucsd.library.dams.util.HttpUtil;
+import edu.ucsd.library.dams.util.LDAPUtil;
 
 /**
  * Servlet implementing the DAMS REST API.
@@ -170,18 +165,8 @@ public class DAMSAPIServlet extends HttpServlet
 		"yyyy-MM-dd'T'hh:mm:ssZ"
 	);
 
-	// ldap authorization
-	private static String ldapURL;
-	private static String ldapUser;
-	private static String ldapPass;
-	private static String bindPrefix;
-	private static String bindSuffix;
-	private static String queryPrefix;
-	private static String querySuffix;
-	private static String groupAttribute;
-	private static String nameAttribute;
-	private static String groupSuffix;
-	private static String ldapPrincipal;
+	// ldap for group lookup
+	private LDAPUtil ldaputil;
 
 	// initialize servlet parameters
 	public void init( ServletConfig config ) throws ServletException
@@ -285,18 +270,8 @@ public class DAMSAPIServlet extends HttpServlet
 				MyJhoveBase.setJhoveConfig("jhove.conf");
 			jhoveMaxSize = getPropLong( props, "jhove.maxSize", -1L );
 
-			// ldap authorization
-			ldapURL = props.getProperty( "ldap.url" );
-			ldapUser = props.getProperty( "ldap.user" );
-			ldapPass = props.getProperty( "ldap.pass" );
-			bindPrefix = props.getProperty( "ldap.bindPrefix" );
-			bindSuffix = props.getProperty( "ldap.bindSuffix" );
-			queryPrefix = props.getProperty( "ldap.queryPrefix" );
-			querySuffix = props.getProperty( "ldap.querySuffix" );
-			groupAttribute = props.getProperty("ldap.groupAttribute");
-			nameAttribute = props.getProperty("ldap.nameAttribute");
-			groupSuffix = props.getProperty("ldap.groupSuffix");
-			ldapPrincipal = bindPrefix + ldapUser + bindSuffix;
+			// ldap for group lookup
+			ldaputil = new LDAPUtil( props );
 		}
 		catch ( Exception ex )
 		{
@@ -1134,11 +1109,18 @@ public class DAMSAPIServlet extends HttpServlet
 		if ( user == null ) { user = ""; }
 		else
 		{
-			Map ldapInfo = ldapInfo( user );
-			if ( ldapInfo != null )
+			try
 			{
-				info.put( "user", user );
-				info.putAll( ldapInfo );
+				Map ldapInfo = ldaputil.lookup( user, null );
+				if ( ldapInfo != null )
+				{
+					info.put( "user", user );
+					info.putAll( ldapInfo );
+				}
+			}
+			catch ( Exception ex )
+			{
+				log.warn( "Error looking up groups", ex );
 			}
 		}
 
@@ -3341,77 +3323,6 @@ public class DAMSAPIServlet extends HttpServlet
 
 		// return the default role if nothing matches
 		return roleDefault;
-	}
-	private Map ldapInfo( String user )
-	{
-		Map info = new LinkedHashMap();
-
-		// check config and parameter
-		if ( user == null || user.trim().equals("") || ldapURL == null
-			|| ldapPrincipal == null )
-		{
-			return info;
-		}
-
-		List<String> groupList = new ArrayList<String>();
-		String ldapQuery = queryPrefix + user + querySuffix;
-
-		Hashtable<String,String> env = new Hashtable<String,String>();
-		env.put( 
-			Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory"
-		);
-		env.put(Context.PROVIDER_URL, ldapURL);
-		env.put(Context.SECURITY_PRINCIPAL, ldapPrincipal);
-		env.put(Context.SECURITY_CREDENTIALS, ldapPass);
-		if( ldapURL.startsWith("ldaps") )
-		{
-			env.put(Context.SECURITY_PROTOCOL, "ssl");
-		}
-		try
-		{
-			DirContext ctx = null;
-			try
-			{
-				ctx = new InitialDirContext(env);
-		 	}
-			catch ( PartialResultException prex ) {}
-
-			// get user info and list of groups
-			Attributes attribs = ctx.getAttributes(
-				ldapQuery, new String[]{groupAttribute,nameAttribute}
-			);
-			Attribute name = attribs.get( nameAttribute );
-			for ( int i = 0; name != null && i < name.size(); i++ )
-			{
-				info.put( "name", name.get(i) );
-			}
-			Attribute groups = attribs.get( groupAttribute );
-			for ( int i = 0; groups != null && i < groups.size(); i++ )
-			{
-				String grp = (String)groups.get(i);
-				if ( grp.endsWith(groupSuffix) )
-				{
-					// clean up group names
-					grp = grp.substring(0,grp.indexOf(groupSuffix)-1);
-					grp = grp.replaceAll("CN=","");
-					grp = grp.replaceAll(",OU=","/");
-					groupList.add(grp);
-				}
-			}
-			info.put("groups",groupList);
-
-			ctx.close();
-		}
-		catch (NameNotFoundException ex)
-		{
-			// name not found in directory
-			info = null;
-		}
-		catch (NamingException ex)
-		{
-			log.warn( "Error retrieving LDAP info", ex );
-		}
-		return info;
 	}
 	protected File getParamFile( Map<String,String[]> params,
 		String key, File defaultFile )
