@@ -69,6 +69,7 @@ Hydra critical path: create/read/update/delete
 
 Out Method REST URI                                  Impl.
 --- ------ --------                                  -----
+XML GET    /describe                                 config + xsl
 XML GET    /objects/[oid]                            objectShow + xsl
 XML GET    /objects/[oid]/datastreams                objectShow + xsl
 XML GET    /objects/[oid]/datastreams/[fid]          objectShow + select + xsl
@@ -97,9 +98,20 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			String[] path = path( req );
 
+			// GET /describe
+			// STATUS: impl
+			if ( path.length == 2 && path[1].equals("describe") )
+			{
+				Map info = systemInfo( req );
+
+				// transform output to fedora format
+				String xml = toXMLString( info );
+				String content = xslt( xml, "fedora-describe.xsl", null, null );
+				output( res.SC_OK, content, "text/xml", res );
+			}
 			// GET /objects/[oid]
 			// STATUS: WORKING
-			if ( path.length == 3 && path[1].equals("objects") )
+			else if ( path.length == 3 && path[1].equals("objects") )
 			{
 				ts = triplestore(req);
 				es = events(req);
@@ -133,7 +145,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fedoraObjectDS]/content
-			// STATUS: NOT IMPLEMENTED XXX
+			// STATUS: TEST
 			else if ( path.length == 6 && path[1].equals("objects")
 				&& path[3].equals("datastreams") && path[5].equals("content")
 				&& path[4].equals( fedoraObjectDS ) )

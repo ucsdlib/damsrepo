@@ -153,6 +153,9 @@ public class DAMSAPIServlet extends HttpServlet
 
 	// fedora compat
 	protected String fedoraObjectDS;  // datastream id that maps to object RDF
+	protected String sampleObject;    // sample object for fedora demo
+	protected String adminEmail;      // email address of system admin
+	protected String fedoraCompat;    // fedora version emulated
 
 	// derivatives creation
 	private Map<String, String> derivativesMap; // derivatives map
@@ -245,6 +248,9 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// fedora compat
 			fedoraObjectDS = props.getProperty("fedora.objectDS");
+			sampleObject = props.getProperty("fedora.samplePID");
+			adminEmail = props.getProperty("fedora.adminEmail");
+			fedoraCompat = props.getProperty("fedora.compatVersion");
 			
 			// derivative list
 			String derList = props.getProperty("derivatives.list");
@@ -280,6 +286,18 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 
 		return error;
+	}
+	protected Map systemInfo( HttpServletRequest req )
+	{
+		String baseURL = req.getScheme() + "://" + req.getServerName() + ":"
+			+ req.getServerPort() + req.getContextPath();
+
+		Map info = new LinkedHashMap();
+		info.put( "sampleObject", sampleObject );
+		info.put( "adminEmail",   adminEmail );
+		info.put( "fedoraCompat", fedoraCompat );
+		info.put( "baseURL",      baseURL );
+		return info;
 	}
 
 
@@ -558,6 +576,12 @@ public class DAMSAPIServlet extends HttpServlet
 				String err = config();
 				if ( err == null ) { info = status("Configuration reloaded"); }
 				else { info = error( err ); }
+			}
+			// GET /system/info
+			else if ( path.length == 3 && path[1].equals("system" )
+				&& path[2].equals("info") )
+			{
+				info = systemInfo(req);
 			}
 			// GET /system/predicates
 			else if ( path.length == 3 && path[1].equals("system" )
