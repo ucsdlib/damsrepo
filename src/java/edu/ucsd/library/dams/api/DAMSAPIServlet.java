@@ -37,6 +37,7 @@ import javax.naming.NameNotFoundException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -129,9 +130,9 @@ public class DAMSAPIServlet extends HttpServlet
 	protected String minterDefault;	      // ID series when not specified
 	private Map<String,String> idMinters; // ID series name=>url map
 	private Map<String,String> nsmap;     // URI/name to URI map
-	private String idNS;                  // Prefix for unqualified identifiers
-	private String prNS;                  // Prefix for unqualified predicates
-	private String rdfNS;                 // Prefix for RDF predicates
+	protected String idNS;                // Prefix for unqualified identifiers
+	protected String prNS;                // Prefix for unqualified predicates
+	protected String rdfNS;               // Prefix for RDF predicates
 
 	// uploads
 	private int uploadCount = 0; // current number of uploads being processed
@@ -153,6 +154,9 @@ public class DAMSAPIServlet extends HttpServlet
 
 	// fedora compat
 	protected String fedoraObjectDS;  // datastream id that maps to object RDF
+	protected String fedoraRightsDS;  // datastream id that maps to rights
+	protected String fedoraLinksDS;   // datastream id that maps to links
+	protected String fedoraSystemDS;  // datastream id that maps to system info
 	protected String sampleObject;    // sample object for fedora demo
 	protected String adminEmail;      // email address of system admin
 	protected String fedoraCompat;    // fedora version emulated
@@ -248,6 +252,9 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// fedora compat
 			fedoraObjectDS = props.getProperty("fedora.objectDS");
+			fedoraRightsDS = props.getProperty("fedora.rightsDS");
+			fedoraLinksDS  = props.getProperty("fedora.linksDS");
+			fedoraSystemDS  = props.getProperty("fedora.systemDS");
 			sampleObject = props.getProperty("fedora.samplePID");
 			adminEmail = props.getProperty("fedora.adminEmail");
 			fedoraCompat = props.getProperty("fedora.compatVersion");
@@ -2232,7 +2239,7 @@ public class DAMSAPIServlet extends HttpServlet
 			objid, false, in, mode, adds, updates, deletes, ts, es
 		);
 	}
-	private Map objectEdit( String objid, boolean create, InputStream in,
+	protected Map objectEdit( String objid, boolean create, InputStream in,
 		String mode, String adds, String updates, String deletes,
 		TripleStore ts, TripleStore es )
 	{
@@ -3646,8 +3653,17 @@ public class DAMSAPIServlet extends HttpServlet
 		FileItemFactory factory = new DiskFileItemFactory();
 		ServletFileUpload upload = new ServletFileUpload( factory );
 		if ( maxUploadSize != -1L ) { upload.setSizeMax( maxUploadSize ); }
-		List items = upload.parseRequest( req );
-		for ( int i = 0; i < items.size(); i++ )
+		List items = null;
+		try
+		{
+			upload.parseRequest( req );
+		}
+		catch ( Exception ex )
+		{
+			in = req.getInputStream();
+			params = req.getParameterMap();
+		}
+		for ( int i = 0; items != null && i < items.size(); i++ )
 		{
 			FileItem item = (FileItem)items.get(i);
 			// form fields go in parameter map

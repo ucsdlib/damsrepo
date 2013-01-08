@@ -1,9 +1,11 @@
 package edu.ucsd.library.dams.api;
 
 // java core api
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 // servlet api
@@ -14,12 +16,23 @@ import javax.servlet.http.HttpServletResponse;
 // xslt
 import javax.xml.transform.TransformerException;
 
+// dom4j
+import org.dom4j.Attribute;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.Namespace;
+import org.dom4j.Node;
+import org.dom4j.QName;
+import org.dom4j.io.SAXReader;
+
 // logging
 import org.apache.log4j.Logger;
 
 // dams
 import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.model.DAMSObject;
+import edu.ucsd.library.dams.triple.Identifier;
 import edu.ucsd.library.dams.triple.TripleStore;
 import edu.ucsd.library.dams.triple.TripleStoreException;
 
@@ -90,6 +103,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	**/
 	public void doGet( HttpServletRequest req, HttpServletResponse res )
 	{
+System.out.println("fedora GET " + req.getPathInfo());
 		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
@@ -139,9 +153,12 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			{
 				ts = triplestore(req);
 				es = events(req);
+				Map<String,String[]> params = new HashMap<String,String[]>();
+				params.put("dsName",new String[]{path[4]});
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					"fedora-datastream-profile.xsl", null, "text/xml", ts, es, res
+					"fedora-datastream-profile.xsl", params, "text/xml",
+					ts, es, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fedoraObjectDS]/content
@@ -161,20 +178,49 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
                     );
                 }
 			}
-			// GET /objects/[oid]/datastreams/rightsMetadata/content
+			// GET /objects/[oid]/datastreams/[fedoraRightsDS]/content
 			// STATUS: TEST
 			else if ( path.length == 6 && path[1].equals("objects")
 				&& path[3].equals("datastreams") && path[5].equals("content")
-				&& path[4].equals("rightsMetadata") )
+				&& path[4].equals(fedoraRightsDS) )
 			{
 				ts = triplestore(req);
 				Map<String,String[]> params = new HashMap<String,String[]>();
-				params.put( "defaultGroup", new String[]{roleDefault} );
-				params.put( "adminGroup", new String[]{roleAdmin} );
+				params.put("defaultGroup", new String[]{roleDefault} );
+				params.put("adminGroup", new String[]{roleAdmin} );
+				params.put("dsName",new String[]{fedoraRightsDS});
 				outputTransform(
 					path[2], null, null, "fedora-rightsMetadata.xsl", params,
 					"text/xml", ts, null, res
 				);
+			}
+			// GET /objects/[oid]/datastreams/[fedoraLinksDS]/content
+			// STATUS: TEST
+			else if ( path.length == 6 && path[1].equals("objects")
+				&& path[3].equals("datastreams") && path[5].equals("content")
+				&& path[4].equals(fedoraLinksDS) )
+			{
+                ts = triplestore(req);
+                Map<String,String[]> params = new HashMap<String,String[]>();
+				params.put("dsName",new String[]{fedoraLinksDS});
+                outputTransform(
+                    path[2], null, null, "fedora-linksMetadata.xsl", params,
+                    "text/xml", ts, null, res
+                );
+			}
+			// GET /objects/[oid]/datastreams/[fedoraSystemDS]/content
+			// STATUS: TEST
+			else if ( path.length == 6 && path[1].equals("objects")
+				&& path[3].equals("datastreams") && path[5].equals("content")
+				&& path[4].equals(fedoraSystemDS) )
+			{
+                ts = triplestore(req);
+                Map<String,String[]> params = new HashMap<String,String[]>();
+				params.put("dsName",new String[]{fedoraSystemDS});
+                outputTransform(
+                    path[2], null, null, "fedora-systemMetadata.xsl", params,
+                    "text/xml", ts, null, res
+                );
 			}
 			// GET /objects/[oid]/datastreams/[fid]/content
 			// STATUS: WORKING
@@ -186,7 +232,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error 1", ex );
+			log.warn( "Error processing GET request", ex );
 		}
 		finally
 		{
@@ -199,6 +245,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	**/
 	public void doPost( HttpServletRequest req, HttpServletResponse res )
 	{
+System.out.println("fedora PST " + req.getPathInfo());
 		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
@@ -249,6 +296,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputBundle bundle = input( req );
 				InputStream in = bundle.getInputStream();
 				Map<String,String[]> params = bundle.getParams();
+				params.put("dsName",new String[]{path[4]});
 				fs = filestore(req);
 				ts = triplestore(req);
 				es = events(req);
@@ -259,13 +307,14 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					"fedora-datastream-profile.xsl", null, "text/xml", ts, es, res
+					"fedora-datastream-profile.xsl", params, "text/xml",
+					ts, es, res
 				);
 			}
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error 2", ex );
+			log.warn( "Error processing POST request", ex );
 		}
 		finally
 		{
@@ -278,6 +327,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	**/
 	public void doPut( HttpServletRequest req, HttpServletResponse res )
 	{
+System.out.println("fedora PUT " + req.getPathInfo());
 		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
@@ -286,7 +336,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			String[] path = path( req );
 
-			// PUT /objects/[oid]/datastreams/[fid]
+			// PUT /objects/[oid]/datastreams/[fedoraObjectDS]
 			// STATUS: WORKING
 			if ( path.length == 5 && path[1].equals("objects")
 				&& path[3].equals("datastreams")
@@ -297,14 +347,34 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				ts = triplestore(req);
 				es = events(req);
-				objectUpdate(
-					path[2], in, "all", null, null, null, ts, es
+				Identifier id = Identifier.publicURI( idNS + path[2] );
+				boolean exists = ts.exists(id);
+				InputStream in2 = pruneInput( in, idNS + path[2] );
+
+				objectEdit(
+					path[2], !exists, in2, "all", null, null, null, ts, es
 				);
 
+				Map<String,String[]> params = new HashMap<String,String[]>();
+				params.put("dsName",new String[]{fedoraObjectDS});
 				outputTransform(
-					path[2], null, null, "fedora-datastream-profile.xsl", null,
-					"text/xml", ts, es, res
+					path[2], null, null, "fedora-datastream-profile.xsl",
+					params, "text/xml", ts, es, res
 				);
+			}
+			// PUT /objects/[oid]/datastreams/[fedoraRightsDS]
+			else if ( path.length == 5 && path[1].equals("objects")
+				&& path[3].equals("datastreams")
+				&& path[4].equals(fedoraRightsDS) )
+			{
+				// ignore
+			}
+			// PUT /objects/[oid]/datastreams/[fedoraLinksDS]
+			else if ( path.length == 5 && path[1].equals("objects")
+				&& path[3].equals("datastreams")
+				&& path[4].equals(fedoraLinksDS) )
+			{
+				// ignore
 			}
 			// PUT /objects/[oid]/datastreams/[fid]
 			// STATUS: WORKING
@@ -315,6 +385,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputBundle bundle = input(req);
 				InputStream in = bundle.getInputStream();
 				Map<String,String[]> params = bundle.getParams();
+				params.put("dsName",new String[]{path[4]});
 				fs = filestore(req);
 				ts = triplestore(req);
 				es = events(req);
@@ -325,7 +396,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					"fedora-datastream-profile.xsl", null, "text/xml", ts, es, res
+					"fedora-datastream-profile.xsl", params, "text/xml",
+					ts, es, res
 				);
 			}
 			else
@@ -336,7 +408,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error 3", ex );
+			log.warn( "Error processing PUT request", ex );
 		}
 		finally
 		{
@@ -349,6 +421,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	**/
 	public void doDelete( HttpServletRequest req, HttpServletResponse res )
 	{
+System.out.println("fedora DEL " + req.getPathInfo());
 		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
@@ -399,7 +472,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error 4", ex );
+			log.warn( "Error processing DELETE request", ex );
 		}
 		finally
 		{
@@ -424,10 +497,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		// if rdfxml is null, throw an error
 		if ( rdfxml == null )
 		{
-			output(
-				res.SC_INTERNAL_SERVER_ERROR,
-				"Error retrieving object '" + objid + "'", "text/plain", res
-			);
+			output( res.SC_OK, objid, "text/plain", res );
 			return;
 		}
 
@@ -444,7 +514,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		else
 		{
-			params.put("objectDS", new String[]{ fedoraObjectDS } );
 			if ( rdfxml != null )
 			{
 				params.put(
@@ -465,6 +534,50 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				"text/plain", res
 			);
 		}
+	}
+	private InputStream pruneInput( InputStream in, String objURI )
+	{
+		Document doc = null;
+		String xml = null;
+		try
+		{
+			// parse doc
+			SAXReader parser = new SAXReader();
+			doc = parser.read(in);
+
+			// remove empty rdf:resource links
+			List remove = doc.selectNodes("//dams:relationship[dams:Relationship/dams:name/@rdf:resource='' and dams:Relationship/dams:role/@rdf:resource='']");
+			List emptyRefs = doc.selectNodes("//*[@rdf:resource='']");
+			remove.addAll( emptyRefs );
+			for ( int i = 0; i < remove.size(); i++ )
+			{
+				Node n = (Node)remove.get(i);
+				n.detach();
+			}
+	
+			// fix rdf:about
+			Element objElem = (Element)doc.selectSingleNode("/rdf:RDF/*");
+			if ( objElem != null )
+			{
+				QName rdfAbout = new QName("about",new Namespace("rdf",rdfNS));
+				Attribute aboutAttrib = objElem.attribute( rdfAbout );
+				aboutAttrib.setValue( objURI );
+			}
+			xml = doc.asXML();
+			System.out.println("pruned: " + xml);
+		}
+		catch ( Exception ex )
+		{
+			ex.printStackTrace();
+			if ( doc != null ) { System.err.println("doc: " + doc.asXML());}
+		}
+
+		return new ByteArrayInputStream(xml.getBytes());
+	}
+	
+	private static void prune( Document doc, String xpath )
+	{
+		List matches = doc.selectNodes( xpath );
 	}
 	private static String cmpid( String s )
 	{

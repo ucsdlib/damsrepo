@@ -5,12 +5,12 @@
   <xsl:output method="xml" indent="yes"/>
   <xsl:param name="objid"/>
   <xsl:param name="fileid"/>
-  <xsl:param name="objectDS"/>
+  <xsl:param name="dsName"/>
   <xsl:param name="objectSize"/>
   <xsl:variable name="dsid">
     <xsl:choose>
       <xsl:when test="$fileid != ''"><xsl:value-of select="translate($fileid,'/','_')"/></xsl:when>
-      <xsl:otherwise><xsl:value-of select="$objectDS"/></xsl:otherwise>
+      <xsl:otherwise><xsl:value-of select="$dsName"/></xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
 
@@ -65,17 +65,18 @@
           <dsChecksumType>DISABLED</dsChecksumType>
           <dsChecksum>none</dsChecksum>
           <xsl:choose>
-            <xsl:when test="//dams:Object/dams:event/dams:Event[dams:type='object modification']">
+            <xsl:when test="//dams:Object/dams:event/dams:DAMSEvent[dams:type='object modification']">
               <!-- XXX find latest date if there are multiple modification events -->
-              <dsCreateDate><xsl:value-of select="//dams:Object/dams:event/dams:Event[dams:type='object modification']/dams:endDate"/></dsCreateDate>
+              <dsCreateDate><xsl:value-of select="//dams:Object/dams:event/dams:DAMSEvent[dams:type='object modification']/dams:eventDate"/></dsCreateDate>
             </xsl:when>
-            <xsl:when test="//dams:Object/dams:event/dams:Event[dams:type='object creation']">
-              <dsCreateDate><xsl:value-of select="//dams:Object/dams:event/dams:Event[dams:type='object creation']/dams:endDate"/></dsCreateDate>
+            <xsl:when test="//dams:Object/dams:event/dams:DAMSEvent[dams:type='object creation']">
+              <dsCreateDate><xsl:value-of select="//dams:Object/dams:event/dams:DAMSEvent[dams:type='object creation']/dams:eventDate"/></dsCreateDate>
             </xsl:when>
-            <xsl:otherwise><dsCreateDate>ERROR</dsCreateDate></xsl:otherwise>
+            <xsl:otherwise><dsCreateDate><xsl:value-of select="//dams:eventDate"/></dsCreateDate></xsl:otherwise>
           </xsl:choose>
         </xsl:otherwise>
       </xsl:choose>
+
     </datastreamProfile>
   </xsl:template>
 </xsl:stylesheet>
