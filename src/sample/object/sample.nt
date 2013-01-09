@@ -321,3 +321,30 @@ _:bn03n03 <http://library.ucsd.edu/ontology/dams#type> "scope_and_content" .
 <http://library.ucsd.edu/ark:/20775/bb42424242> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
 <http://library.ucsd.edu/ark:/20775/bb42424242> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
 <http://library.ucsd.edu/ark:/20775/bb42424242> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "mixed material" .
+
+<http://library.ucsd.edu/ark:/20775/bb43434343> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Vocabulary> .
+<http://library.ucsd.edu/ark:/20775/bb43434343> <http://library.ucsd.edu/ontology/dams#description> "ISO 3166-1 Country Value List" .
+
+<http://library.ucsd.edu/ark:/20775/bb44444444> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/43434343> .
+<http://library.ucsd.edu/ark:/20775/bb44444444> <http://library.ucsd.edu/ontology/dams#authority> "ISO 3166-1" .
+<http://library.ucsd.edu/ark:/20775/bb44444444> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
+<http://library.ucsd.edu/ark:/20775/bb44444444> <http://library.ucsd.edu/ontology/dams#code> "be" .
+<http://library.ucsd.edu/ark:/20775/bb44444444> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Belgium" .
+
+<http://library.ucsd.edu/ark:/20775/bb45454545> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/43434343> .
+<http://library.ucsd.edu/ark:/20775/bb45454545> <http://library.ucsd.edu/ontology/dams#authority> "ISO 3166-1" .
+<http://library.ucsd.edu/ark:/20775/bb45454545> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
+<http://library.ucsd.edu/ark:/20775/bb45454545> <http://library.ucsd.edu/ontology/dams#code> "fr" .
+<http://library.ucsd.edu/ark:/20775/bb45454545> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "France" .
+
+<http://library.ucsd.edu/ark:/20775/bb46464646> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/43434343> .
+<http://library.ucsd.edu/ark:/20775/bb46464646> <http://library.ucsd.edu/ontology/dams#authority> "ISO 3166-1" .
+<http://library.ucsd.edu/ark:/20775/bb46464646> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
+<http://library.ucsd.edu/ark:/20775/bb46464646> <http://library.ucsd.edu/ontology/dams#code> "jp" .
+<http://library.ucsd.edu/ark:/20775/bb46464646> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Japan" .
+
+<http://library.ucsd.edu/ark:/20775/bb47474747> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/43434343> .
+<http://library.ucsd.edu/ark:/20775/bb47474747> <http://library.ucsd.edu/ontology/dams#authority> "ISO 3166-1" .
+<http://library.ucsd.edu/ark:/20775/bb47474747> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
+<http://library.ucsd.edu/ark:/20775/bb47474747> <http://library.ucsd.edu/ontology/dams#code> "us" .
+<http://library.ucsd.edu/ark:/20775/bb47474747> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "United States" .
