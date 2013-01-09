@@ -264,3 +264,60 @@ _:bn03n03 <http://library.ucsd.edu/ontology/dams#type> "scope_and_content" .
 <http://library.ucsd.edu/ark:/20775/bb03030303> <http://library.ucsd.edu/ontology/dams#hasProvenanceCollection> <http://library.ucsd.edu/ark:/20775/bb24242424> .
 <http://library.ucsd.edu/ark:/20775/bb03030303> <http://library.ucsd.edu/ontology/dams#event> <http://library.ucsd.edu/ark:/20775/bb28282828> .
 
+<http://library.ucsd.edu/ark:/20775/bb31313131> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Vocabulary> .
+<http://library.ucsd.edu/ark:/20775/bb31313131> <http://library.ucsd.edu/ontology/dams#description> "mods:typeOfResource Value List" .
+
+<http://library.ucsd.edu/ark:/20775/bb32323232> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb32323232> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
+<http://library.ucsd.edu/ark:/20775/bb32323232> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
+<http://library.ucsd.edu/ark:/20775/bb32323232> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "text" .
+
+<http://library.ucsd.edu/ark:/20775/bb33333333> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb33333333> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
+<http://library.ucsd.edu/ark:/20775/bb33333333> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
+<http://library.ucsd.edu/ark:/20775/bb33333333> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "cartographic" .
+
+<http://library.ucsd.edu/ark:/20775/bb34343434> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb34343434> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
+<http://library.ucsd.edu/ark:/20775/bb34343434> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
+<http://library.ucsd.edu/ark:/20775/bb34343434> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "notated music" .
+
+<http://library.ucsd.edu/ark:/20775/bb35353535> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb35353535> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
+<http://library.ucsd.edu/ark:/20775/bb35353535> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
+<http://library.ucsd.edu/ark:/20775/bb35353535> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "sound recording-musical" .
+
+<http://library.ucsd.edu/ark:/20775/bb36363636> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb36363636> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
+<http://library.ucsd.edu/ark:/20775/bb36363636> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
+<http://library.ucsd.edu/ark:/20775/bb36363636> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "sound recording-nonmusical,sound recording" .
+
+<http://library.ucsd.edu/ark:/20775/bb37373737> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb37373737> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
+<http://library.ucsd.edu/ark:/20775/bb37373737> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
+<http://library.ucsd.edu/ark:/20775/bb37373737> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "still image" .
+
+<http://library.ucsd.edu/ark:/20775/bb38383838> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb38383838> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
+<http://library.ucsd.edu/ark:/20775/bb38383838> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
+<http://library.ucsd.edu/ark:/20775/bb38383838> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "moving image" .
+
+<http://library.ucsd.edu/ark:/20775/bb39393939> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb39393939> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
+<http://library.ucsd.edu/ark:/20775/bb39393939> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
+<http://library.ucsd.edu/ark:/20775/bb39393939> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "three dimensional object" .
+
+<http://library.ucsd.edu/ark:/20775/bb40404040> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb40404040> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
+<http://library.ucsd.edu/ark:/20775/bb40404040> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
+<http://library.ucsd.edu/ark:/20775/bb40404040> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "software" .
+
+<http://library.ucsd.edu/ark:/20775/bb41414141> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb41414141> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
+<http://library.ucsd.edu/ark:/20775/bb41414141> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
+<http://library.ucsd.edu/ark:/20775/bb41414141> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "multimedia" .
+
+<http://library.ucsd.edu/ark:/20775/bb42424242> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb42424242> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
+<http://library.ucsd.edu/ark:/20775/bb42424242> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
+<http://library.ucsd.edu/ark:/20775/bb42424242> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "mixed material" .
