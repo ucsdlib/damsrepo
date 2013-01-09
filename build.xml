@@ -93,8 +93,8 @@
       depends="prepare,version">
     <!-- compile -->
     <javac destdir="${webapp}/WEB-INF/classes" srcdir="${java}"
-        deprecation="on" debug="true" debuglevel="lines,source" target="1.5"
-        includeantruntime="false" source="1.5">
+        deprecation="on" debug="true" debuglevel="lines,source" target="1.7"
+        includeantruntime="false" source="1.7">
       <classpath refid="classpath"/>
       <!-- <compilerarg line="-Xlint:unchecked"/> -->
     </javac>
@@ -176,6 +176,6 @@
   </target>
   <target name="remote-undeploy" description="Remove webapp from remote tomcat">
     <undeploy url="http://${manager.host}:8080/manager/text" path="/${appName}"
-          username="${manager.user}" password="${manager.pass}" />
+          username="${manager.user}" password="${manager.pass}" failonerror="false"/>
   </target>
 </project>
