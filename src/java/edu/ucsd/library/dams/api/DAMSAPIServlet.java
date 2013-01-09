@@ -524,7 +524,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				fs = filestore(req);
 				info = fileCharacterize(
-					path[2], null, path[3], false, fs, null, null, null
+					path[2], null, path[3], false, fs, null, null, new HashMap<String, String[]>()
 				);
 			}
 			// GET /files/bb1234567x/1/1.tif/characterize
@@ -533,7 +533,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				fs = filestore(req);
 				info = fileCharacterize(
-					path[2], path[3], path[4], false, fs, null, null, null
+					path[2], path[3], path[4], false, fs, null, null, new HashMap<String, String[]>()
 				);
 			}
 			// GET /files/bb1234567x/1.tif/exists
