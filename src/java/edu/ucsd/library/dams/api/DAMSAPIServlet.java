@@ -2510,11 +2510,15 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			createEvent(
-				ts, es, ids[0], null, null, "Bulk Solr Indexing", false,
-				null, ex.toString()
-			);
 			log.warn( "Error updating Solr", ex );
+			try
+			{
+				createEvent(
+					ts, es, ids[0], null, null, "Bulk Solr Indexing", false,
+					null, ex.toString()
+				);
+			}
+			catch ( Exception ex2 ) { log.error("Error creating event",ex2); }
 			return error( "Error updating Solr: " + ex.toString() );
 		}
 	}
@@ -2619,11 +2623,15 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			createEvent(
-				ts, es, objid, cmpid, fileid, "transformation-metadata",
-				false, null, ex.toString()
-			);
 			log.warn( "Error transforming metadata", ex );
+			try
+			{
+				createEvent(
+					ts, es, objid, cmpid, fileid, "transformation-metadata",
+					false, null, ex.toString()
+				);
+			}
+			catch ( Exception ex2 ) { log.error("Error creating event",ex2); }
 			output(
 				error("Error transforming metadata"), params, pathInfo, res
 			);
