@@ -5,7 +5,7 @@
                         http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
     version="3.0"
     metadata-complete="true">
-  <display-name>DAMS</display-name>
+  <display-name>DAMS Repository</display-name>
   <description>
     UC San Diego Library Digital Asset Management System
   </description>

@@ -103,7 +103,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	**/
 	public void doGet( HttpServletRequest req, HttpServletResponse res )
 	{
-System.out.println("fedora GET " + req.getPathInfo());
 		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
@@ -131,7 +130,7 @@ System.out.println("fedora GET " + req.getPathInfo());
 				es = events(req);
 				outputTransform(
 					path[2], null, null, "fedora-object-profile.xsl", null,
-					"text/xml", ts, es, res
+					"text/xml", res.SC_OK, ts, es, res
 				);
 			}
 			// GET /objects/[oid]/datastreams
@@ -143,7 +142,7 @@ System.out.println("fedora GET " + req.getPathInfo());
 				es = events(req);
 				outputTransform(
 					path[2], null, null, "fedora-object-datastreams.xsl", null,
-					"text/xml", ts, es, res
+					"text/xml", res.SC_OK, ts, es, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fid]
@@ -158,7 +157,7 @@ System.out.println("fedora GET " + req.getPathInfo());
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
 					"fedora-datastream-profile.xsl", params, "text/xml",
-					ts, es, res
+					res.SC_OK, ts, es, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fedoraObjectDS]/content
@@ -191,7 +190,7 @@ System.out.println("fedora GET " + req.getPathInfo());
 				params.put("dsName",new String[]{fedoraRightsDS});
 				outputTransform(
 					path[2], null, null, "fedora-rightsMetadata.xsl", params,
-					"text/xml", ts, null, res
+					"text/xml", res.SC_OK, ts, null, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fedoraLinksDS]/content
@@ -205,7 +204,7 @@ System.out.println("fedora GET " + req.getPathInfo());
 				params.put("dsName",new String[]{fedoraLinksDS});
                 outputTransform(
                     path[2], null, null, "fedora-linksMetadata.xsl", params,
-                    "text/xml", ts, null, res
+                    "text/xml", res.SC_OK, ts, null, res
                 );
 			}
 			// GET /objects/[oid]/datastreams/[fedoraSystemDS]/content
@@ -219,7 +218,7 @@ System.out.println("fedora GET " + req.getPathInfo());
 				params.put("dsName",new String[]{fedoraSystemDS});
                 outputTransform(
                     path[2], null, null, "fedora-systemMetadata.xsl", params,
-                    "text/xml", ts, null, res
+                    "text/xml", res.SC_OK, ts, null, res
                 );
 			}
 			// GET /objects/[oid]/datastreams/[fid]/content
@@ -245,7 +244,6 @@ System.out.println("fedora GET " + req.getPathInfo());
 	**/
 	public void doPost( HttpServletRequest req, HttpServletResponse res )
 	{
-System.out.println("fedora PST " + req.getPathInfo());
 		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
@@ -273,9 +271,13 @@ System.out.println("fedora PST " + req.getPathInfo());
 			else if ( path.length == 3 && path[1].equals("objects") )
 			{
 				InputBundle bundle = input( req );
-				InputStream in = bundle.getInputStream();
+				InputStream in = null;
 				String adds = null;
-				if ( in == null )
+				if ( req.getContentLength() > 0 )
+				{
+					in = bundle.getInputStream();
+				}
+				else
 				{
 					adds = "[{\"subject\":\"" + path[2] + "\","
 					+ "\"predicate\":\"rdf:type\","
@@ -286,7 +288,7 @@ System.out.println("fedora PST " + req.getPathInfo());
 				Map info = objectCreate( path[2], in, adds, ts, es );
 
 				// output id plaintext
-				output( res.SC_OK, path[2], "text/plain", res );
+				output( res.SC_CREATED, path[2], "text/plain", res );
 			}
 			// POST /objects/[oid]/datastreams/[fid]
 			// STATUS: WORKING
@@ -295,7 +297,8 @@ System.out.println("fedora PST " + req.getPathInfo());
 			{
 				InputBundle bundle = input( req );
 				InputStream in = bundle.getInputStream();
-				Map<String,String[]> params = bundle.getParams();
+				Map<String,String[]> params = new HashMap<String,String[]>();
+				params.putAll( bundle.getParams() );
 				params.put("dsName",new String[]{path[4]});
 				fs = filestore(req);
 				ts = triplestore(req);
@@ -308,7 +311,7 @@ System.out.println("fedora PST " + req.getPathInfo());
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
 					"fedora-datastream-profile.xsl", params, "text/xml",
-					ts, es, res
+					res.SC_CREATED, ts, es, res
 				);
 			}
 		}
@@ -327,7 +330,6 @@ System.out.println("fedora PST " + req.getPathInfo());
 	**/
 	public void doPut( HttpServletRequest req, HttpServletResponse res )
 	{
-System.out.println("fedora PUT " + req.getPathInfo());
 		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
@@ -359,7 +361,7 @@ System.out.println("fedora PUT " + req.getPathInfo());
 				params.put("dsName",new String[]{fedoraObjectDS});
 				outputTransform(
 					path[2], null, null, "fedora-datastream-profile.xsl",
-					params, "text/xml", ts, es, res
+					params, "text/xml", res.SC_OK, ts, es, res
 				);
 			}
 			// PUT /objects/[oid]/datastreams/[fedoraRightsDS]
@@ -384,7 +386,8 @@ System.out.println("fedora PUT " + req.getPathInfo());
 				// upload other data files
 				InputBundle bundle = input(req);
 				InputStream in = bundle.getInputStream();
-				Map<String,String[]> params = bundle.getParams();
+				Map<String,String[]> params = new HashMap<String,String[]>();
+				params.putAll( bundle.getParams() );
 				params.put("dsName",new String[]{path[4]});
 				fs = filestore(req);
 				ts = triplestore(req);
@@ -397,7 +400,7 @@ System.out.println("fedora PUT " + req.getPathInfo());
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
 					"fedora-datastream-profile.xsl", params, "text/xml",
-					ts, es, res
+					res.SC_OK, ts, es, res
 				);
 			}
 			else
@@ -421,7 +424,6 @@ System.out.println("fedora PUT " + req.getPathInfo());
 	**/
 	public void doDelete( HttpServletRequest req, HttpServletResponse res )
 	{
-System.out.println("fedora DEL " + req.getPathInfo());
 		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
@@ -441,7 +443,7 @@ System.out.println("fedora DEL " + req.getPathInfo());
 
 				outputTransform(
 					path[2], null, null, "fedora-datastream-delete.xsl", null,
-					"text/plain", ts, es, res
+					"text/plain", res.SC_NO_CONTENT, ts, es, res
 				);
 			}
 			// DELETE /objects/[oid]/datastreams/[fid]
@@ -459,7 +461,8 @@ System.out.println("fedora DEL " + req.getPathInfo());
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					"fedora-datastream-delete.xsl", null, "text/plain", ts, es, res
+					"fedora-datastream-delete.xsl", null, "text/plain",
+					res.SC_NO_CONTENT, ts, es, res
 				);
 			}
 			else
@@ -482,7 +485,8 @@ System.out.println("fedora DEL " + req.getPathInfo());
 
 	private void outputTransform( String objid, String cmpid, String fileid,
 		String xsl, Map<String,String[]> params, String contentType,
-		TripleStore ts, TripleStore es, HttpServletResponse res )
+		int successCode, TripleStore ts, TripleStore es,
+		HttpServletResponse res )
 		throws TripleStoreException, TransformerException
 	{
 		// get object metadata
@@ -494,10 +498,10 @@ System.out.println("fedora DEL " + req.getPathInfo());
 			rdfxml = obj.getRDFXML(true);
 		}
 
-		// if rdfxml is null, throw an error
+		// if rdfxml is null, just output the object identifier
 		if ( rdfxml == null )
 		{
-			output( res.SC_OK, objid, "text/plain", res );
+			output( res.SC_NOT_FOUND, objid, "text/plain", res );
 			return;
 		}
 
@@ -525,7 +529,7 @@ System.out.println("fedora DEL " + req.getPathInfo());
 		try
 		{
 			String content =  xslt( rdfxml, xsl, params, null );
-			output( res.SC_OK, content, contentType, res );
+			output( successCode, content, contentType, res );
 		}
 		catch ( Exception ex )
 		{
@@ -564,7 +568,6 @@ System.out.println("fedora DEL " + req.getPathInfo());
 				aboutAttrib.setValue( objURI );
 			}
 			xml = doc.asXML();
-			System.out.println("pruned: " + xml);
 		}
 		catch ( Exception ex )
 		{

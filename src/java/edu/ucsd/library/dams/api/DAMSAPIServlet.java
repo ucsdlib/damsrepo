@@ -559,7 +559,7 @@ public class DAMSAPIServlet extends HttpServlet
 				es = events(req);
 				info = fileFixity( path[2], null, path[3], fs, ts, es );
 			}
-			// GET /files/bb1234567x/1/1.tif/fixity // XXX: POST b/c event?
+			// GET /files/bb1234567x/1/1.tif/fixity
 			else if ( path.length == 6 && path[1].equals("files")
 				&& path[5].equals("fixity") && isNumber(path[3]) )
 			{
@@ -701,10 +701,14 @@ public class DAMSAPIServlet extends HttpServlet
 				try
 				{
 					InputBundle bundle = input( req );
-					InputStream in = bundle.getInputStream();
 					params = bundle.getParams();
+					InputStream in = null;
+					if ( req.getContentLength() > 0 )
+					{
+						in = bundle.getInputStream();
+					}
 					String adds = getParamString(
-						bundle.getParams(), "ts", tsDefault
+						bundle.getParams(), "adds", tsDefault
 					);
 					ts = triplestore(req);
 					es = events(req);
@@ -2500,7 +2504,10 @@ public class DAMSAPIServlet extends HttpServlet
 			indexer.flush();
 			indexer.commit();
 
-			// XXX createEvent()
+			createEvent(
+				ts, es, ids[0], null, null, "Bulk Solr Indexing", true,
+				null, null
+			);
 
 			// output status message
 			return status( indexer.summary() );
@@ -2508,7 +2515,14 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			log.warn( "Error updating Solr", ex );
-			// XXX createEvent()
+			try
+			{
+				createEvent(
+					ts, es, ids[0], null, null, "Bulk Solr Indexing", false,
+					null, ex.toString()
+				);
+			}
+			catch ( Exception ex2 ) { log.error("Error creating event",ex2); }
 			return error( "Error updating Solr: " + ex.toString() );
 		}
 	}
@@ -2605,12 +2619,23 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( destid != null )
 			{
 				fs.write( objid, cmpid, destid, content.getBytes() );
-				// XXX createEvent() type="transformation--metadata"
+				createEvent(
+					ts, es, objid, cmpid, fileid, "transformation-metadata",
+					true, null, null
+				);
 			}
 		}
 		catch ( Exception ex )
 		{
 			log.warn( "Error transforming metadata", ex );
+			try
+			{
+				createEvent(
+					ts, es, objid, cmpid, fileid, "transformation-metadata",
+					false, null, ex.toString()
+				);
+			}
+			catch ( Exception ex2 ) { log.error("Error creating event",ex2); }
 			output(
 				error("Error transforming metadata"), params, pathInfo, res
 			);
