@@ -48,6 +48,7 @@ public class Event
 		ts.addStatement( subject, id("dams:event"), eventID, parent );
 
 		// insert event metadata
+		es.addStatement( eventID, id("rdf:type"), id("dams:DAMSEvent"), eventID );
 		es.addLiteralStatement( eventID, id("dams:type"), q(type), eventID );
 		es.addLiteralStatement( eventID, id("dams:detail"), q(detail), eventID );
 		es.addLiteralStatement(

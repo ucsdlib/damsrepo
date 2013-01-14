@@ -701,10 +701,14 @@ public class DAMSAPIServlet extends HttpServlet
 				try
 				{
 					InputBundle bundle = input( req );
-					InputStream in = bundle.getInputStream();
 					params = bundle.getParams();
+					InputStream in = null;
+					if ( req.getContentLength() > 0 )
+					{
+						in = bundle.getInputStream();
+					}
 					String adds = getParamString(
-						bundle.getParams(), "ts", tsDefault
+						bundle.getParams(), "adds", tsDefault
 					);
 					ts = triplestore(req);
 					es = events(req);

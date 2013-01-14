@@ -91,6 +91,17 @@ public class DAMSObject
 		try { process( it ); }
 		finally { it.close(); }
 
+		// get events from separate triplestore
+		if ( es != null && events.size() > 0 )
+		{
+			// look for outstanding subjects
+			StatementIterator it3 = es.sparqlDescribe(events);
+
+			// process the batch of statements
+			try { process( it3 ); }
+			finally { it3.close(); }
+		}
+
 		// recurse over children until no new identifiers are found
 		int MAX_RECURSION = 10;
 		for ( int i = 0; i < MAX_RECURSION && todo.size() > 0; i++ )
