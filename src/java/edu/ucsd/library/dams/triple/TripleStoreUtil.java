@@ -695,13 +695,14 @@ public class TripleStoreUtil
 	 *     for deleting file or component records, or one out of several
 	 *     blank node trees with the same predicate.
 	**/
-	public static void recursiveDelete( Identifier sub, Identifier pre,
-		Identifier obj, TripleStore ts ) throws TripleStoreException
+	public static void recursiveDelete( Identifier parent, Identifier sub,
+		Identifier pre, Identifier obj, TripleStore ts )
+		throws TripleStoreException
 	{
 		// iterate through all statements for the object & classify by subject
 		Map<String,List<Statement>> map
 			= new HashMap<String,List<Statement>>();
-		for ( StatementIterator st = ts.sparqlDescribe( sub ); st.hasNext(); )
+		for ( StatementIterator st = ts.sparqlDescribe(parent); st.hasNext(); )
 		{
 			Statement s = st.nextStatement();
 			List<Statement> children = map.get(s.getSubject().getId());
@@ -716,8 +717,8 @@ public class TripleStoreUtil
 		// recursively remove statements
 		recursiveDelete( sub, pre, obj, map, ts );
 
-		// if obj is public URI, also delete all children of it
-		if ( !obj.isBlankNode() )
+		// if obj is public URI, delete all children of it *within this object*
+		if ( obj != null && !obj.isBlankNode() )
 		{
 			recursiveDelete( obj, null, null, map, ts );
 		}
@@ -736,7 +737,7 @@ public class TripleStoreUtil
 			Statement s = list.get(i);
 			if ( pre == null || s.getPredicate().equals(pre) )
 			{
-				if ( obj == null || s.getObject().equals(pre) )
+				if ( obj == null || s.getObject().equals(obj) )
 				{
 					// remove the statement
 					removeStatement( ts, s );

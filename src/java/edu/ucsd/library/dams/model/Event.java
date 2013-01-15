@@ -50,10 +50,15 @@ public class Event
 		// insert event metadata
 		es.addStatement( eventID, id("rdf:type"), id("dams:DAMSEvent"), eventID );
 		es.addLiteralStatement( eventID, id("dams:type"), q(type), eventID );
-		es.addLiteralStatement( eventID, id("dams:detail"), q(detail), eventID );
 		es.addLiteralStatement(
 			eventID, id("dams:eventDate"), q(fmt.format(eventDate)), eventID
 		);
+		if ( detail != null && !detail.equals("") )
+		{
+			es.addLiteralStatement(
+				eventID, id("dams:detail"), q(detail), eventID
+			);
+		}
 		if ( outcomeNote != null && !outcomeNote.equals("") )
 		{
 			es.addLiteralStatement(
