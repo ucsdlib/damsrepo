@@ -700,16 +700,18 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				try
 				{
-					InputBundle bundle = input( req );
-					params = bundle.getParams();
 					InputStream in = null;
 					if ( req.getContentLength() > 0 )
 					{
+						InputBundle bundle = input( req );
 						in = bundle.getInputStream();
+						params = bundle.getParams();
 					}
-					String adds = getParamString(
-						bundle.getParams(), "adds", tsDefault
-					);
+					else
+					{
+						params = req.getParameterMap();
+					}
+					String adds = getParamString( params, "adds", null );
 					ts = triplestore(req);
 					es = events(req);
 					info = objectCreate( path[2], in, adds, ts, es );
@@ -1232,11 +1234,11 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public Map collectionCount( String colid, TripleStore ts )
 	{
-		return count( "collection", colid, ts );
+		return count( "dams:collection", colid, ts );
 	}
 	public Map repositoryCount( String repid, TripleStore ts )
 	{
-		return count( "repository", repid, ts );
+		return count( "dams:repository", repid, ts );
 	}
 	protected Map count( String pred, String obj, TripleStore ts )
 	{
@@ -1268,11 +1270,11 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public Map collectionListFiles( String colid, TripleStore ts )
 	{
-		return listFiles( "collection", colid, ts );
+		return listFiles( "dams:collection", colid, ts );
 	}
 	public Map repositoryListFiles( String repid, TripleStore ts )
 	{
-		return listFiles( "repository", repid, ts );
+		return listFiles( "dams:repository", repid, ts );
 	}
 	protected Map listFiles( String pred, String obj, TripleStore ts )
 	{
@@ -1443,18 +1445,18 @@ public class DAMSAPIServlet extends HttpServlet
 
 	public Map collectionListObjects( String colid, TripleStore ts  )
 	{
-		return listObjects( "collection", colid, ts );
+		return listObjects( "dams:collection", colid, ts );
 	}
 	public Map repositoryListObjects( String repid, TripleStore ts  )
 	{
-		return listObjects( "repository", repid, ts );
+		return listObjects( "dams:repository", repid, ts );
 	}
 	public Map listObjects( String pred, String obj, TripleStore ts  )
 	{
 		try
 		{
 			Identifier id = createID( obj, null, null );
-			Identifier pre = createID( pred, null, null );
+			Identifier pre = createPred( pred );
 			if ( !ts.exists(id) )
 			{
 				return error(
@@ -1464,16 +1466,18 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 
 			String sparql = "select ?obj where { "
-				+ "?obj <" + prNS + pre.getId() + "> "
+				+ "?obj <" + pre.getId() + "> "
 				+ "<" + id.getId() + "> }";
 			BindingIterator bind = ts.sparqlSelect(sparql);
 			List<Map<String,String>> objects = bindings(bind);
+
 			Map info = new HashMap();
 			info.put( "objects", objects );
 			return info;
 		}
 		catch ( Exception ex )
 		{
+			ex.printStackTrace();
 			return error( "Error listing " + pred + ": " + ex.toString() );
 		}
 	}
