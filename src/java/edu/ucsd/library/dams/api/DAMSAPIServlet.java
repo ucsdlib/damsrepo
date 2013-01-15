@@ -2493,30 +2493,23 @@ public class DAMSAPIServlet extends HttpServlet
 			ArkTranslator trans = new ArkTranslator( ts, nsmap );
 			for ( int i = 0; i < predicates.length; i++ )
 			{
-				Identifier pre = Identifier.publicURI( predicates[i] );
+				Identifier pre = createPred( predicates[i] );
 				TripleStoreUtil.recursiveDelete( id, sub, pre, null, ts );
 			}
 
-			if ( ! ts.exists(id) )
-			{
-				createEvent(
-					ts, es, objid, null, null, "object modification", true,
-					null, null
-				);
-				return status( "Predicate deleted successfully" );
-			}
-			else
-			{
-				createEvent(
-					ts, es, objid, null, null, "object modification", false,
-					null, null
-				);
-				return error( "Predicate deletion failed" );
-			}
+			createEvent(
+				ts, es, objid, null, null, "object modification", true,
+				null, null
+			);
+			return status( "Predicate deleted successfully" );
 		}
 		catch ( Exception ex )
 		{
 			log.warn( "Error deleting predicates", ex );
+			try {createEvent(
+				ts, es, objid, null, null, "object modification", false,
+				null, null
+			);} catch ( Exception ex2 ) {}
 			return error( "Error deleting predicates: " + ex.toString() );
 		}
 	}
@@ -3440,6 +3433,20 @@ public class DAMSAPIServlet extends HttpServlet
 	public static String fileString( String cmpid, String fileid )
 	{
 		return (cmpid != null) ? "/" + cmpid + "/" + fileid : "/" + fileid;
+	}
+	private Identifier createPred( String preid )
+	{
+		if ( preid == null ) { return null; }
+		else if ( preid.startsWith("http") )
+		{
+			return Identifier.publicURI( preid );
+		}
+		else
+		{
+			String[] parts = preid.split(":");
+			String ns = nsmap.get(parts[0]);
+			return Identifier.publicURI( ns + parts[1] );
+		}
 	}
 	private Identifier createID( String objid, String cmpid,
 		String fileid )
