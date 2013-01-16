@@ -700,16 +700,18 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				try
 				{
-					InputBundle bundle = input( req );
-					params = bundle.getParams();
 					InputStream in = null;
 					if ( req.getContentLength() > 0 )
 					{
+						InputBundle bundle = input( req );
 						in = bundle.getInputStream();
+						params = bundle.getParams();
 					}
-					String adds = getParamString(
-						bundle.getParams(), "adds", tsDefault
-					);
+					else
+					{
+						params = req.getParameterMap();
+					}
+					String adds = getParamString( params, "adds", null );
 					ts = triplestore(req);
 					es = events(req);
 					info = objectCreate( path[2], in, adds, ts, es );
@@ -999,6 +1001,28 @@ public class DAMSAPIServlet extends HttpServlet
 					info = error( "Error updating file" );
 				}
 			}
+			// PUT /files/bb1234567x/1.tif/characterize
+			else if ( path.length == 5 && path[1].equals("files")
+				&& path[4].equals("characterize") )
+			{
+				fs = filestore(req);
+				ts = triplestore(req);
+				es = events(req);
+				InputBundle bundle = input( req );
+				params = bundle.getParams();
+				info = fileCharacterize( path[2], null, path[3], true, fs, ts, es, params );
+			}
+			// PUT /files/bb1234567x/1/1.tif/characterize
+			else if ( path.length == 6 && path[1].equals("files")
+				&& path[4].equals("characterize") && isNumber(path[3]) )
+			{
+				fs = filestore(req);
+				ts = triplestore(req);
+				es = events(req);
+				InputBundle bundle = input( req );
+				params = bundle.getParams();
+				info = fileCharacterize( path[2], path[3], path[4], true, fs, ts, es, params );
+			}
 			// PUT /files/bb1234567x/1.tif/derivatives
 			else if ( path.length == 5 && path[1].equals("files")
 				&& path[4].equals("derivatives") )
@@ -1086,6 +1110,24 @@ public class DAMSAPIServlet extends HttpServlet
 				String[] ids = new String[]{ path[2] };
 				String tsName = getParamString(req,"ts",tsDefault);
 				info = indexDelete( ids, tsName );
+			}
+			// DELETE /objects/bb1234567x/selective
+			else if ( path.length == 4 && path[1].equals("objects")
+				&& path[3].equals("selective") )
+			{
+				String[] predicates = req.getParameterValues("predicate");
+				ts = triplestore(req);
+				es = events(req);
+				info = selectiveDelete( path[2], null, predicates, ts, es );
+			}
+			// DELETE /objects/bb1234567x/1/selective
+			else if ( path.length == 5 && path[1].equals("objects")
+				&& isNumber(path[3]) && path[4].equals("selective") )
+			{
+				String[] predicates = req.getParameterValues("predicate");
+				ts = triplestore(req);
+				es = events(req);
+				info = selectiveDelete( path[2], path[3], predicates, ts, es );
 			}
 			// DELETE /files/bb1234567x/1.tif
 			else if ( path.length == 4 && path[1].equals("files") )
@@ -1192,18 +1234,17 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public Map collectionCount( String colid, TripleStore ts )
 	{
-		return count( "collection", colid, ts );
+		return count( "dams:collection", colid, ts );
 	}
 	public Map repositoryCount( String repid, TripleStore ts )
 	{
-		return count( "repository", repid, ts );
+		return count( "dams:repository", repid, ts );
 	}
 	protected Map count( String pred, String obj, TripleStore ts )
 	{
 		try
 		{
-			String objuri = ( obj.startsWith(idNS) ) ? obj : idNS + obj;
-			Identifier objid = Identifier.publicURI( objuri );
+			Identifier objid = createID( obj, null, null );
 			if ( !ts.exists(objid) )
 			{
 				return error(
@@ -1212,8 +1253,9 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 			}
 
-			String sparql = "select ?id where { ?id <" + prNS + pred + "> "
-				+ "<" + objuri + "> }";
+			Identifier pre = createPred( pred );
+			String sparql = "select ?id where { ?id <" + pre.getId() + "> "
+				+ "<" + objid.getId() + "> }";
 
 			long count = ts.sparqlCount( sparql );
 			Map info = new LinkedHashMap();
@@ -1229,11 +1271,11 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public Map collectionListFiles( String colid, TripleStore ts )
 	{
-		return listFiles( "collection", colid, ts );
+		return listFiles( "dams:collection", colid, ts );
 	}
 	public Map repositoryListFiles( String repid, TripleStore ts )
 	{
-		return listFiles( "repository", repid, ts );
+		return listFiles( "dams:repository", repid, ts );
 	}
 	protected Map listFiles( String pred, String obj, TripleStore ts )
 	{
@@ -1278,8 +1320,7 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		try
 		{
-			String objuri = ( objid.startsWith(idNS) ) ? objid : idNS + objid;
-			Identifier obj = Identifier.publicURI( objuri );
+			Identifier obj = createID( objid, null, null );
 			if ( !ts.exists(obj) )
 			{
 				return error(
@@ -1294,7 +1335,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				Statement s = stmtit.nextStatement();
 				String id = s.getSubject().getId();
-				if ( !id.equals(objuri) && id.startsWith(objuri) )
+				if ( !id.equals(obj.getId()) && id.startsWith(obj.getId()) )
 				{
 					String p = s.getPredicate().getId();
 					p = p.replaceAll(prNS,"");
@@ -1405,18 +1446,18 @@ public class DAMSAPIServlet extends HttpServlet
 
 	public Map collectionListObjects( String colid, TripleStore ts  )
 	{
-		return listObjects( "collection", colid, ts );
+		return listObjects( "dams:collection", colid, ts );
 	}
 	public Map repositoryListObjects( String repid, TripleStore ts  )
 	{
-		return listObjects( "repository", repid, ts );
+		return listObjects( "dams:repository", repid, ts );
 	}
 	public Map listObjects( String pred, String obj, TripleStore ts  )
 	{
 		try
 		{
-			String uri = ( obj.startsWith(idNS) ) ? obj : idNS + obj;
-			Identifier id = Identifier.publicURI( uri );
+			Identifier id = createID( obj, null, null );
+			Identifier pre = createPred( pred );
 			if ( !ts.exists(id) )
 			{
 				return error(
@@ -1425,16 +1466,19 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 			}
 
-			String sparql = "select ?obj where { ?obj <" + prNS + pred + "> "
-				+ "<" + uri + "> }";
+			String sparql = "select ?obj where { "
+				+ "?obj <" + pre.getId() + "> "
+				+ "<" + id.getId() + "> }";
 			BindingIterator bind = ts.sparqlSelect(sparql);
 			List<Map<String,String>> objects = bindings(bind);
+
 			Map info = new HashMap();
 			info.put( "objects", objects );
 			return info;
 		}
 		catch ( Exception ex )
 		{
+			ex.printStackTrace();
 			return error( "Error listing " + pred + ": " + ex.toString() );
 		}
 	}
@@ -1464,18 +1508,12 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 			}
 	
-			String objuri = ( objid.startsWith(idNS) ) ? objid : idNS + objid;
-			Identifier oid = Identifier.publicURI( objuri );
+			Identifier oid = createID( objid, null, null );
+			Identifier fid = createID( objid, cmpid, fileid );
 			Identifier cid = null;
-			Identifier fid = null;
 			if ( cmpid != null )
 			{
-				cid = Identifier.publicURI(objuri + "/" + cmpid);
-				fid = Identifier.publicURI(objuri + "/" + cmpid + "/" + fileid);
-			}
-			else
-			{
-				fid = Identifier.publicURI( objuri + "/" + fileid );
+				cid = createID( objid, cmpid, null );
 			}
 	
 			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
@@ -1689,7 +1727,7 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					createEvent(
 						ts, es, objid, cmpid, fileid, "Jhove Extraction", true,
-						"Jhove extraction EVENT_DETAIL_SPEC", m.get("status")
+						null, m.get("status")
 					);
 				}
 				return status( "Jhove extracted and saved successfully" );
@@ -1726,24 +1764,21 @@ public class DAMSAPIServlet extends HttpServlet
 		Map<String,String> sums = new HashMap<String,String>();
 		try
 		{
-			String objuri = ( objid.startsWith(idNS) ) ? objid : idNS + objid;
-			Identifier obj = Identifier.publicURI( objuri );
-			if ( !ts.exists(obj) )
+			Identifier oid = createID( objid, null, null );
+			Identifier fid = createID( objid, cmpid, fileid );
+			if ( !ts.exists(oid) )
 			{
 				return error(
 					HttpServletResponse.SC_NOT_FOUND, "Object does not exist"
 				);
 			}
 
-			String suffix = (cmpid != null) ? cmpid + "/" + fileid : fileid;
-			String fileuri = objuri + "/" + suffix;
-
-			StatementIterator stmtit = ts.sparqlDescribe( obj );
+			StatementIterator stmtit = ts.sparqlDescribe( oid );
 			while ( stmtit.hasNext() )
 			{
 				Statement s = stmtit.nextStatement();
 				String sub = s.getSubject().getId();
-				if ( sub.equals(fileuri) )
+				if ( sub.equals(fid.getId()) )
 				{
 					String pre = s.getPredicate().getId();
 					if ( pre.endsWith("checksum") )
@@ -1834,7 +1869,6 @@ public class DAMSAPIServlet extends HttpServlet
 			in.close();
 	
 			String type = (overwrite) ? "file modification" : "file creation";
-			String detail = "EVENT_DETAIL_SPEC: " + type;
 			String message = null;
 			if ( successful )
 			{
@@ -1850,7 +1884,7 @@ public class DAMSAPIServlet extends HttpServlet
 					message = "File created successfully";
 				}
 				createEvent(
-					ts, es, objid, cmpid, fileid, type, true, detail, null
+					ts, es, objid, cmpid, fileid, type, true, null, null
 				);
 
 				Map info = status( status, message );
@@ -1889,7 +1923,7 @@ public class DAMSAPIServlet extends HttpServlet
 				if ( overwrite ) { message = "File update failed"; }
 				else { message = "File creation failed"; }
 				createEvent(
-					ts, es, objid, cmpid, fileid, type, false, detail,
+					ts, es, objid, cmpid, fileid, type, false, null,
 					"Failed to upload file"
 				);
 
@@ -1944,7 +1978,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				createEvent(
 					ts, es, objid, cmpid, fileid, "file deletion", true,
-					"Deleting file EVENT_DETAIL_SPEC", null
+					null, null
 				);
 
 				// FILE_META: update file metadata
@@ -1956,7 +1990,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				createEvent(
 					ts, es, objid, cmpid, fileid, "file deletion", false,
-					"Deleting file EVENT_DETAIL_SPEC", "outcome detail spec"
+					null, null
 				);
 				return error(
 					"Failed to delete file: " + objid + fileString(cmpid,fileid)
@@ -2000,11 +2034,8 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 			}
 			
-			String objuri = ( objid.startsWith(idNS) ) ? objid : idNS + objid;
-			String fpart = (cmpid != null) ? cmpid + "/" + fileid : fileid;
-			Identifier oid = Identifier.publicURI( objuri );
-			Identifier fid = Identifier.publicURI( objuri + "/" + fpart );
-	
+			Identifier oid = createID( objid, null, null );
+			Identifier fid = createID( objid, cmpid, fileid );
 			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
 			
 			String[] sizes = params.get("size");
@@ -2023,8 +2054,7 @@ public class DAMSAPIServlet extends HttpServlet
 								"Unknow derivative name: " + derName
 							);
 					}
-					String dfpart = fpart.replace( fileid, derName + ".jpg" );
-					Identifier dfid = Identifier.publicURI( objuri + "/" + dfpart );
+					Identifier dfid = createID( objid, cmpid, derName + ".jpg" );
 					if ( !overwrite )
 					{
 						sit = ts.listStatements(oid, hasFile, dfid);
@@ -2073,7 +2103,7 @@ public class DAMSAPIServlet extends HttpServlet
 				String[] uses = {"visual-thumbnail"};
 				params.put("use", uses);
 				fileCharacterize( objid, cmpid, derid, overwrite, fs, ts, es,  params);
-				createEvent( ts, es, objid, cmpid, derid, "Derivatives Creation", true, "Derivatives creation EVENT_DETAIL_SPEC", null );
+				createEvent( ts, es, objid, cmpid, derid, "Derivatives Creation", true, null, null );
 			}
 		}
 		catch ( Exception ex )
@@ -2258,11 +2288,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 
 	   		// make sure appropriate method is being used to create/update
-			if ( !objid.startsWith("http") )
-			{
-				objid = idNS + objid;
-			}
-			Identifier id = Identifier.publicURI(objid);
+			Identifier id = createID( objid, null, null );
 			if ( create && ts.exists(id) )
 			{
 		   		return error(
@@ -2308,7 +2334,6 @@ public class DAMSAPIServlet extends HttpServlet
 						String message = null;
 						String type = create ?
 							"object creation" : "object modification";
-						String detail = "EVENT_DETAIL_SPEC: " + type;
 						if ( create )
 						{
 							status = HttpServletResponse.SC_CREATED;
@@ -2320,7 +2345,7 @@ public class DAMSAPIServlet extends HttpServlet
 							message = "Object saved successfully";
 						}
 						createEvent(
-							ts, es, objid, null, null, type, true, detail, null
+							ts, es, objid, null, null, type, true, null, null
 						);
 						return status( status, message );
 					}
@@ -2343,7 +2368,6 @@ public class DAMSAPIServlet extends HttpServlet
 					edit.saveBackup();
 					String type = create ?
 						"object creation" : "object modification";
-					String detail = "EVENT_DETAIL_SPEC: " + type;
 					if ( edit.update() )
 					{
 						// success
@@ -2360,7 +2384,7 @@ public class DAMSAPIServlet extends HttpServlet
 							message = "Object saved successfully";
 						}
 						createEvent(
-							ts, es, objid, null, null, type, true, detail, null
+							ts, es, objid, null, null, type, true, null, null
 						);
 						edit.removeBackup();
 						return status( status, message );
@@ -2371,7 +2395,7 @@ public class DAMSAPIServlet extends HttpServlet
 						String msg = edit.getException().toString();
 						createEvent(
 							ts, es, objid, null, null, type, false,
-							"EVENT_DETAIL_SPEC", msg
+							null, msg
 						);
 						return error( msg );
 					}
@@ -2402,11 +2426,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 
 	   		// make sure appropriate method is being used to create/update
-			if ( !objid.startsWith("http") )
-			{
-				objid = idNS + objid;
-			}
-			Identifier id = Identifier.publicURI(objid);
+			Identifier id = createID( objid, null, null );
 			if ( !ts.exists(id) )
 			{
 		   		return error(
@@ -2418,14 +2438,14 @@ public class DAMSAPIServlet extends HttpServlet
 
 			if ( ! ts.exists(id) )
 			{
-				createEvent( ts, es, objid, null, null, "object deletion", true, "Deleting object EVENT_DETAIL_SPEC", null );
+				createEvent( ts, es, objid, null, null, "object deletion", true, null, null );
 				return status( "Object deleted successfully" );
 			}
 			else
 			{
 				createEvent(
 					ts, es, objid, null, null, "object deletion", false,
-					"Deleting object EVENT_DETAIL_SPEC", "outcome detail spec"
+					null, null
 				);
 				return error( "Object deletion failed" );
 			}
@@ -2440,6 +2460,62 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			log.warn( "Error deleting object", ex );
 			return error( "Error deleting object: " + ex.toString() );
+		}
+	}
+	public Map selectiveDelete( String objid, String cmpid, String[] predicates,
+		TripleStore ts, TripleStore es )
+	{
+		try
+		{
+			// make sure an identifier is specified
+			if ( objid == null || objid.trim().equals("") )
+			{
+				return error(
+					HttpServletResponse.SC_BAD_REQUEST, "No subject provided"
+				);
+			}
+
+	   		// make sure object exists
+			Identifier sub = createID( objid, cmpid, null );
+			Identifier id = createID( objid, null, null );
+			if ( !ts.exists(id) )
+			{
+		   		return error(
+			   		HttpServletResponse.SC_BAD_REQUEST,
+			   		"Object does not exist"
+		   		);
+			}
+
+			if ( predicates == null || predicates.length == 0 )
+			{
+		   		return error(
+			   		HttpServletResponse.SC_BAD_REQUEST,
+			   		"No predicates specified for deletion"
+		   		);
+			}
+
+			// remove each predicate...
+			ArkTranslator trans = new ArkTranslator( ts, nsmap );
+			for ( int i = 0; i < predicates.length; i++ )
+			{
+				Identifier pre = createPred( predicates[i] );
+				TripleStoreUtil.recursiveDelete( id, sub, pre, null, ts );
+			}
+
+			createEvent(
+				ts, es, objid, null, null, "object modification", true,
+				null, null
+			);
+			return status( "Predicate deleted successfully" );
+		}
+		catch ( Exception ex )
+		{
+			log.warn( "Error deleting predicates", ex );
+			try {createEvent(
+				ts, es, objid, null, null, "object modification", false,
+				null, null
+			);} catch ( Exception ex2 ) {}
+			return error( "Error deleting predicates: " + ex.toString() );
 		}
 	}
 	public Map indexDelete( String[] ids, String tsName )
@@ -2696,16 +2772,15 @@ public class DAMSAPIServlet extends HttpServlet
 		try
 		{
 			// identifier object for the file
-			Identifier objID = Identifier.publicURI( idNS + objid );
-			Identifier fileID = Identifier.publicURI(
-				idNS + objid + fileString(cmpid, fileid)
-			);
-			Identifier hasFilePred = Identifier.publicURI( prNS + "hasFile" );
+			Identifier parent = createID( objid, null, null );
+			Identifier sub = createID( objid, cmpid, null );
+			Identifier fileID = createID( objid, cmpid, fileid );
+			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
 
 			// delete file metadata (n.b. first arg is object identifer, not
 			// the subject of the triple, so this works for files attached
 			// to components, etc.)
-			TripleStoreUtil.recursiveDelete( objID, hasFilePred, fileID, ts );
+			TripleStoreUtil.recursiveDelete( parent, sub, hasFile, fileID, ts );
 
 			// delete links from object/components
 			ts.removeStatements( null, null, fileID );
@@ -3364,6 +3439,29 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		return (cmpid != null) ? "/" + cmpid + "/" + fileid : "/" + fileid;
 	}
+	private Identifier createPred( String preid )
+	{
+		if ( preid == null ) { return null; }
+		else if ( preid.startsWith("http") )
+		{
+			return Identifier.publicURI( preid );
+		}
+		else
+		{
+			String[] parts = preid.split(":");
+			String ns = nsmap.get(parts[0]);
+			return Identifier.publicURI( ns + parts[1] );
+		}
+	}
+	private Identifier createID( String objid, String cmpid,
+		String fileid )
+	{
+		String id = objid;
+		if ( cmpid != null ) { id += "/" + cmpid; }
+		if ( fileid != null ) { id += "/" + fileid; }
+		if ( !id.startsWith("http") ) { id = idNS + id; }
+		return Identifier.publicURI( id );
+	}
 	public List<String> list( Properties props, String prefix, String suffix )
 	{
 		List<String> values = new ArrayList<String>();
@@ -3681,10 +3779,11 @@ public class DAMSAPIServlet extends HttpServlet
 		List items = null;
 		try
 		{
-			upload.parseRequest( req );
+			items = upload.parseRequest( req );
 		}
 		catch ( Exception ex )
 		{
+			ex.printStackTrace();
 			in = req.getInputStream();
 			params = req.getParameterMap();
 		}
@@ -3706,10 +3805,12 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( item.getFieldName().equals("file") )
 			{
 				in = item.getInputStream();
-				log.debug("File: " + item.getFieldName() + ", " + item.getName());
+				log.debug(
+					"File: " + item.getFieldName() + ", " + item.getName()
+				);
 				params.put(
-						"sourceFileName", new String[]{item.getName()}
-					);
+					"sourceFileName", new String[]{item.getName()}
+				);
 			}
 			else
 			{
