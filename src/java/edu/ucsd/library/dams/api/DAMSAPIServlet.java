@@ -1253,7 +1253,8 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 			}
 
-			String sparql = "select ?id where { ?id <" + prNS + pred + "> "
+			Identifier pre = createPred( pred );
+			String sparql = "select ?id where { ?id <" + pre.getId() + "> "
 				+ "<" + objid.getId() + "> }";
 
 			long count = ts.sparqlCount( sparql );
@@ -3778,10 +3779,11 @@ public class DAMSAPIServlet extends HttpServlet
 		List items = null;
 		try
 		{
-			upload.parseRequest( req );
+			items = upload.parseRequest( req );
 		}
 		catch ( Exception ex )
 		{
+			ex.printStackTrace();
 			in = req.getInputStream();
 			params = req.getParameterMap();
 		}
@@ -3803,10 +3805,12 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( item.getFieldName().equals("file") )
 			{
 				in = item.getInputStream();
-				log.debug("File: " + item.getFieldName() + ", " + item.getName());
+				log.debug(
+					"File: " + item.getFieldName() + ", " + item.getName()
+				);
 				params.put(
-						"sourceFileName", new String[]{item.getName()}
-					);
+					"sourceFileName", new String[]{item.getName()}
+				);
 			}
 			else
 			{
