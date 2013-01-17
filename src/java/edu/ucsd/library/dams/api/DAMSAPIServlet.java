@@ -3816,7 +3816,7 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 			}
 			// file gets opened as an input stream
-			else if ( item.getFieldName().equals("file") )
+			else
 			{
 				in = item.getInputStream();
 				log.debug(
@@ -3824,13 +3824,6 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 				params.put(
 					"sourceFileName", new String[]{item.getName()}
-				);
-			}
-			else
-			{
-				log.info(
-					"Unprocessed parameter: " + item.getFieldName()
-						+ " = " + item.getString()
 				);
 			}
 		}
