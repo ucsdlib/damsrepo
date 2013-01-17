@@ -2966,7 +2966,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				if ( http != null )
 				{
-					http.releaseConnection();
+					http.shutdown();
 				}
 			}
 
