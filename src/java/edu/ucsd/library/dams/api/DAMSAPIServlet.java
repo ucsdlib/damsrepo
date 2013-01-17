@@ -2,6 +2,7 @@ package edu.ucsd.library.dams.api;
 
 // java core api
 import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -700,17 +701,9 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				try
 				{
-					InputStream in = null;
-					if ( req.getContentLength() > 0 )
-					{
-						InputBundle bundle = input( req );
-						in = bundle.getInputStream();
-						params = bundle.getParams();
-					}
-					else
-					{
-						params = req.getParameterMap();
-					}
+					InputBundle bundle = input( req );
+					InputStream in = bundle.getInputStream();
+					params = bundle.getParams();
 					String adds = getParamString( params, "adds", null );
 					ts = triplestore(req);
 					es = events(req);
@@ -2351,6 +2344,7 @@ public class DAMSAPIServlet extends HttpServlet
 					}
 					catch ( Exception ex )
 					{
+						log.warn("Error loading metadata", ex );
 						return error( "Error loading new metadata" );
 					}
 				}
@@ -3453,8 +3447,7 @@ public class DAMSAPIServlet extends HttpServlet
 			return Identifier.publicURI( ns + parts[1] );
 		}
 	}
-	private Identifier createID( String objid, String cmpid,
-		String fileid )
+	protected Identifier createID( String objid, String cmpid, String fileid )
 	{
 		String id = objid;
 		if ( cmpid != null ) { id += "/" + cmpid; }
@@ -3764,12 +3757,35 @@ public class DAMSAPIServlet extends HttpServlet
 	protected InputBundle input( HttpServletRequest req )
 		throws IOException, FileUploadException
 	{
-		// get parameters using vanilla api when there is not file upload
-		if ( ! ServletFileUpload.isMultipartContent(req) )
+		InputBundle input = null;
+		if ( ServletFileUpload.isMultipartContent(req) )
 		{
-			log.debug("Upload not multipart/form-data, proceding anyway");
+			// process multipart uploads
+			input = multipartInput(req);
 		}
-
+		else if ( req.getContentLength() > 0 )
+		{
+			// if there is a POST/PUT body, then use it
+			InputStream in = debugInputStream( req.getInputStream() );
+			input = new InputBundle( req.getParameterMap(), in );
+		}
+		else
+		{
+			// if not upload found, check for locally-staged file
+			Map<String,String[]> params = req.getParameterMap();
+			File f = getParamFile(params,"local",null);
+			InputStream in = null;
+			if ( f != null )
+			{
+				in = new FileInputStream(f);
+			}
+			input = new InputBundle( params, in );
+		}
+		return input;
+	}
+	private InputBundle multipartInput( HttpServletRequest req )
+		throws IOException
+	{
 		// process parts
 		Map<String,String[]> params = new HashMap<String,String[]>();
 		InputStream in = null;
@@ -3784,8 +3800,6 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			ex.printStackTrace();
-			in = req.getInputStream();
-			params = req.getParameterMap();
 		}
 		for ( int i = 0; items != null && i < items.size(); i++ )
 		{
@@ -3820,17 +3834,21 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 			}
 		}
-
-		// if not upload found, check for locally-staged file
-		if ( in == null )
-		{
-			File f = getParamFile(params,"local",null);
-			if ( f != null )
-			{
-				in = new FileInputStream(f);
-			}
-		}
 		return new InputBundle( params, in );
+	}
+	private InputStream debugInputStream( InputStream in )
+	{
+		StringBuffer buf = new StringBuffer();
+		try
+		{
+			for ( int i = -1; (i=in.read()) != -1; )
+			{
+				buf.append( (char)i );
+			}
+			in.close();
+		}
+		catch ( Exception ex ) { ex.printStackTrace(); }
+		return new ByteArrayInputStream( buf.toString().getBytes() );
 	}
 }
 class InputBundle

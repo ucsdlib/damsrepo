@@ -283,6 +283,7 @@ public class TripleStoreUtil
 			while ( it.hasNext() )
 			{
 				com.hp.hpl.jena.rdf.model.Statement s = it.nextStatement();
+System.out.println("s: " + s.toString());
 				Statement stmt = null;
 				Identifier sub = toIdentifier( s.getSubject(), bnodes, ts );
 				Identifier pre = toIdentifier( s.getPredicate() );
