@@ -19,6 +19,7 @@ import javax.xml.transform.TransformerException;
 // dom4j
 import org.dom4j.Attribute;
 import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Namespace;
@@ -140,9 +141,15 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			{
 				ts = triplestore(req);
 				es = events(req);
+				Map<String,String[]> params = new HashMap<String,String[]>();
+				params.put("objectDS",new String[]{fedoraObjectDS});
+				String baseURL = req.getScheme() + "://"
+					+ req.getServerName() + ":" + req.getServerPort()
+					+ req.getContextPath() + req.getServletPath() + "/";
+				params.put("baseURL",new String[]{baseURL});
 				outputTransform(
-					path[2], null, null, "fedora-object-datastreams.xsl", null,
-					"text/xml", res.SC_OK, ts, es, res
+					path[2], null, null, "fedora-object-datastreams.xsl",
+					params, "text/xml", res.SC_OK, ts, es, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fid]
@@ -167,7 +174,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[4].equals( fedoraObjectDS ) )
 			{
                 ts = triplestore(req);
-                Map info = objectShow( path[2], ts, null );
+                Map info = objectShow( stripPrefix(path[2]), ts, null );
                 if ( info.get("obj") != null )
                 {
                     DAMSObject obj = (DAMSObject)info.get("obj");
@@ -226,7 +233,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			else if ( path.length == 6 && path[1].equals("objects")
 				&& path[3].equals("datastreams") && path[5].equals("content") )
 			{
-				fileShow( path[2], cmpid(path[4]), fileid(path[4]), req, res );
+				fileShow(
+					stripPrefix(path[2]), cmpid(path[4]), fileid(path[4]),
+					req, res
+				);
 			}
 		}
 		catch ( Exception ex )
@@ -271,24 +281,107 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			else if ( path.length == 3 && path[1].equals("objects") )
 			{
 				InputBundle bundle = input( req );
-				InputStream in = null;
+				InputStream in = bundle.getInputStream();
 				String adds = null;
-				if ( req.getContentLength() > 0 )
+				if ( in == null )
 				{
-					in = bundle.getInputStream();
-				}
-				else
-				{
-					adds = "[{\"subject\":\"" + path[2] + "\","
-					+ "\"predicate\":\"rdf:type\","
-					+ "\"object\":\"<dams:Object>\"}]";
+					adds = "[]";
 				}
 				ts = triplestore(req);
 				es = events(req);
-				Map info = objectCreate( path[2], in, adds, ts, es );
+				Map info = objectCreate(stripPrefix(path[2]), in, adds, ts, es);
 
 				// output id plaintext
 				output( res.SC_CREATED, path[2], "text/plain", res );
+			}
+			// POST /objects/[oid]/datastreams/[fedoraObjectDS]
+			// STATUS: WORKING
+			if ( path.length == 5 && path[1].equals("objects")
+				&& path[3].equals("datastreams")
+				&& path[4].equals(fedoraObjectDS) )
+			{
+				// update metadata with record
+				InputBundle bundle = input(req);
+				InputStream in = bundle.getInputStream();
+				ts = triplestore(req);
+				es = events(req);
+				Identifier id = Identifier.publicURI(
+					idNS + stripPrefix(path[2])
+				);
+				boolean exists = ts.exists(id);
+				InputStream in2 = pruneInput( in, id.getId() );
+
+				objectEdit(
+					stripPrefix(path[2]), !exists, in2, "add",
+					null, null, null, ts, es
+				);
+
+				Map<String,String[]> params = new HashMap<String,String[]>();
+				params.put("dsName",new String[]{fedoraObjectDS});
+				outputTransform(
+					path[2], null, null, "fedora-datastream-profile.xsl",
+					params, "text/xml", res.SC_CREATED, ts, es, res
+				);
+			}
+			// POST /objects/[oid]/datastreams/[fedoraRightsDS]
+			else if ( path.length == 5 && path[1].equals("objects")
+				&& path[3].equals("datastreams")
+				&& path[4].equals(fedoraRightsDS) )
+			{
+				// ignore XXXX: get curator email address from this...
+			}
+			// POST /objects/[oid]/datastreams/[fedoraLinksDS]
+			else if ( path.length == 5 && path[1].equals("objects")
+				&& path[3].equals("datastreams")
+				&& path[4].equals(fedoraLinksDS) )
+			{
+				// XXXX: get model link
+				InputBundle bundle = input(req);
+				InputStream in = bundle.getInputStream();
+
+				Identifier id = createID( stripPrefix(path[2]), null, null );
+				String model = getModel( in );
+
+				/* <rdf:RDF>
+					<rdf:Description rdf:about="XXXsubXXX">
+						<dams:relatedResource>
+							<dams:RelatedResource>
+								<dams:uri>XXXmodelXXX</dams:uri>
+								<dams:type>afmodel</dams:type>
+							</dams:RelatedResource>
+						</dams:relatedResource>
+					</rdf:Description>
+				</rdf:RDF> */
+				Document doc = DocumentHelper.createDocument();
+				Element root = doc.addElement("RDF",rdfNS);
+				doc.setRootElement(root);
+				Element desc = root.addElement("Description",rdfNS);
+				QName rdfAbout = new QName("about",new Namespace("rdf",rdfNS));
+				desc.addAttribute( rdfAbout, id.getId() );
+				Element relPred = desc.addElement("relatedResource",prNS);
+				Element relElem = relPred.addElement("RelatedResource",prNS);
+				relElem.addElement("uri",prNS).setText( model );
+				relElem.addElement("type",prNS).setText( "hydra-afmodel" );
+
+				// post
+				ts = triplestore(req);
+				es = events(req);
+				boolean exists = ts.exists(id);
+				InputStream in2 = new ByteArrayInputStream(
+					doc.asXML().getBytes()
+				);
+
+				objectEdit(
+					stripPrefix(path[2]), !exists, in2, "add",
+					null, null, null, ts, es
+				);
+
+				Map<String,String[]> params = new HashMap<String,String[]>();
+				params.put("dsName",new String[]{fedoraLinksDS});
+				outputTransform(
+					path[2], null, null, "fedora-datastream-profile.xsl",
+					params, "text/xml", res.SC_CREATED, ts, es, res
+				);
 			}
 			// POST /objects/[oid]/datastreams/[fid]
 			// STATUS: WORKING
@@ -304,7 +397,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				ts = triplestore(req);
 				es = events(req);
 				Map info = fileUpload(
-					path[2], cmpid(path[4]), fileid(path[4]),
+					stripPrefix(path[2]), cmpid(path[4]), fileid(path[4]),
 					false, in, fs, ts, es, params
 				);
 
@@ -349,12 +442,13 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				ts = triplestore(req);
 				es = events(req);
-				Identifier id = Identifier.publicURI( idNS + path[2] );
+				Identifier id = createID( stripPrefix(path[2]), null, null );
 				boolean exists = ts.exists(id);
-				InputStream in2 = pruneInput( in, idNS + path[2] );
+				InputStream in2 = pruneInput( in, id.getId() );
 
 				objectEdit(
-					path[2], !exists, in2, "all", null, null, null, ts, es
+					stripPrefix(path[2]), !exists, in2, "all",
+					null, null, null, ts, es
 				);
 
 				Map<String,String[]> params = new HashMap<String,String[]>();
@@ -393,7 +487,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				ts = triplestore(req);
 				es = events(req);
 				fileUpload(
-					path[2], cmpid(path[4]), fileid(path[4]),
+					stripPrefix(path[2]), cmpid(path[4]), fileid(path[4]),
 					true, in, fs, ts, es, params
 				);
 
@@ -439,7 +533,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				// delete object
 				ts = triplestore(req);
 				es = events(req);
-				info = objectDelete( path[2], ts, es );
+				info = objectDelete( stripPrefix(path[2]), ts, es );
 
 				outputTransform(
 					path[2], null, null, "fedora-datastream-delete.xsl", null,
@@ -456,7 +550,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				es = events(req);
 				fs = filestore(req);
 				info = fileDelete(
-					path[2], cmpid(path[4]), fileid(path[4]), fs, ts, es
+					stripPrefix(path[2]), cmpid(path[4]), fileid(path[4]),
+					fs, ts, es
 				);
 
 				outputTransform(
@@ -491,7 +586,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	{
 		// get object metadata
 		String rdfxml = null;
-		Map info = objectShow( objid, ts, es );
+		Map info = objectShow( stripPrefix(objid), ts, es );
 		if ( info.get("obj") != null )
 		{
 			DAMSObject obj = (DAMSObject)info.get("obj");
@@ -539,6 +634,43 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			);
 		}
 	}
+	private String stripPrefix( String id )
+	{
+		if (id != null && id.indexOf(":") > 0 && id.indexOf(":") < id.length())
+		{
+			return id.substring( id.indexOf(":") + 1 );
+		}
+		else
+		{
+			return id;
+		}
+	}
+	private String getModel( InputStream in )
+	{
+		Document doc = null;
+		String model = null;
+		try
+		{
+			// parse doc
+			SAXReader parser = new SAXReader();
+			doc = parser.read(in);
+
+			// fix rdf:about
+			Element modelElem = (Element)doc.selectSingleNode(
+				"/rdf:RDF/rdf:Description/ns0:hasModel"
+			);
+			if ( modelElem != null )
+			{
+				QName rdfRes = new QName("resource",new Namespace("rdf",rdfNS));
+				model = modelElem.attributeValue( rdfRes );
+			}
+		}
+		catch ( Exception ex )
+		{
+			log.warn("Error extracting model from RELS-EXT", ex );
+		}
+		return model;
+	}
 	private InputStream pruneInput( InputStream in, String objURI )
 	{
 		Document doc = null;
@@ -568,6 +700,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				aboutAttrib.setValue( objURI );
 			}
 			xml = doc.asXML();
+			log.debug("pruned xml: " + xml);
 		}
 		catch ( Exception ex )
 		{
