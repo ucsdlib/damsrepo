@@ -546,7 +546,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			// GET /files/bb1234567x/1/1.tif/exists
 			else if ( path.length == 6 && path[1].equals("files")
-				&& path[4].equals("exists") && isNumber(path[3]) )
+				&& path[5].equals("exists") && isNumber(path[3]) )
 			{
 				fs = filestore(req);
 				info = fileExists( path[2], path[3], path[4], fs );
@@ -911,6 +911,14 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					InputBundle bundle = input( req );
 					InputStream in = bundle.getInputStream();
+StringBuffer buf = new StringBuffer();
+for ( int i = -1; (i=in.read()) != -1; )
+{
+	buf.append( (char)i );
+}
+in.close();
+System.out.println("in: " + buf.toString() );
+in = new ByteArrayInputStream( buf.toString().getBytes() );
 					params = bundle.getParams();
 					String adds    = getParamString(params,"adds",null);
 					String updates = getParamString(params,"updates",null);
@@ -933,26 +941,15 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				try
 				{
-					// make sure request is multipart with a file upload
-					if ( !ServletFileUpload.isMultipartContent(req) )
-					{
-						info = error(
-							HttpServletResponse.SC_BAD_REQUEST,
-							"Multipart required"
-						);
-					}
-					else
-					{
-						InputBundle bundle = input( req );
-						InputStream in = bundle.getInputStream();
-						params = bundle.getParams();
-						fs = filestore(req);
-						ts = triplestore(req);
-						es = events(req);
-						info = fileUpload(
-							path[2], null, path[3], true, in, fs, ts, es, params
-						);
-					}
+					InputBundle bundle = input( req );
+					InputStream in = bundle.getInputStream();
+					params = bundle.getParams();
+					fs = filestore(req);
+					ts = triplestore(req);
+					es = events(req);
+					info = fileUpload(
+						path[2], null, path[3], true, in, fs, ts, es, params
+					);
 				}
 				catch ( Exception ex )
 				{
@@ -966,27 +963,16 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				try
 				{
-					// make sure request is multipart with a file upload
-					if ( !ServletFileUpload.isMultipartContent(req) )
-					{
-						info = error(
-							HttpServletResponse.SC_BAD_REQUEST,
-							"Multipart required"
-						);
-					}
-					else
-					{
-						InputBundle bundle = input( req );
-						InputStream in = bundle.getInputStream();
-						params = bundle.getParams();
-						fs = filestore(req);
-						ts = triplestore(req);
-						es = events(req);
-						info = fileUpload(
-							path[2], path[3], path[4], true, in, fs, ts, es,
-							params
-						);
-					}
+					InputBundle bundle = input( req );
+					InputStream in = bundle.getInputStream();
+					params = bundle.getParams();
+					fs = filestore(req);
+					ts = triplestore(req);
+					es = events(req);
+					info = fileUpload(
+						path[2], path[3], path[4], true, in, fs, ts, es,
+						params
+					);
 				}
 				catch ( Exception ex )
 				{
@@ -1007,7 +993,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			// PUT /files/bb1234567x/1/1.tif/characterize
 			else if ( path.length == 6 && path[1].equals("files")
-				&& path[4].equals("characterize") && isNumber(path[3]) )
+				&& path[5].equals("characterize") && isNumber(path[3]) )
 			{
 				fs = filestore(req);
 				ts = triplestore(req);
@@ -3760,28 +3746,36 @@ public class DAMSAPIServlet extends HttpServlet
 		InputBundle input = null;
 		if ( ServletFileUpload.isMultipartContent(req) )
 		{
+System.out.println("mulipart");
 			// process multipart uploads
 			input = multipartInput(req);
 		}
 		else if ( req.getContentLength() > 0 )
 		{
+System.out.println("basic inputstream");
 			// if there is a POST/PUT body, then use it
-			InputStream in = debugInputStream( req.getInputStream() );
+			InputStream in = req.getInputStream();
 			input = new InputBundle( req.getParameterMap(), in );
 		}
 		else
 		{
-			// if not upload found, check for locally-staged file
+System.out.println("local fileinputstream");
+			// check for locally-staged file
 			Map<String,String[]> params = req.getParameterMap();
-			File f = getParamFile(params,"local",null);
-			InputStream in = null;
-			if ( f != null )
-			{
-				in = new FileInputStream(f);
-			}
-			input = new InputBundle( params, in );
+			input = new InputBundle( params, localFile(params) );
 		}
 		return input;
+	}
+	private InputStream localFile( Map<String,String[]> params )
+		throws IOException
+	{
+		File f = getParamFile(params,"local",null);
+		InputStream in = null;
+		if ( f != null )
+		{
+			in = new FileInputStream(f);
+		}
+		return in;
 	}
 	private InputBundle multipartInput( HttpServletRequest req )
 		throws IOException
@@ -3827,21 +3821,13 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 			}
 		}
-		return new InputBundle( params, in );
-	}
-	private InputStream debugInputStream( InputStream in )
-	{
-		StringBuffer buf = new StringBuffer();
-		try
+
+		// if no file upload found, check for locally-staged file
+		if ( in == null )
 		{
-			for ( int i = -1; (i=in.read()) != -1; )
-			{
-				buf.append( (char)i );
-			}
-			in.close();
+			in = localFile( params );
 		}
-		catch ( Exception ex ) { ex.printStackTrace(); }
-		return new ByteArrayInputStream( buf.toString().getBytes() );
+		return new InputBundle( params, in );
 	}
 }
 class InputBundle
