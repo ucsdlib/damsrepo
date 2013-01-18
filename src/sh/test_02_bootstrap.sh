@@ -30,40 +30,43 @@ if [ $? != 0 ]; then
 fi
 echo
 
-# create a sample object
-OBJ_ARK=`mintark`
-JSON=`echo "[{\"subject\":\"$OBJ_ARK\",\"predicate\":\"dams:title\",\"object\":\"node1\"},{\"subject\":\"node1\",\"predicate\":\"rdf:type\",\"object\":\"dams:Title\"},{\"subject\":\"node1\",\"predicate\":\"rdf:value\",\"object\":\"\\\\\"Test Object\\\\\"\"},{\"subject\":\"$OBJ_ARK\",\"predicate\":\"rdf:type\",\"object\":\"dams:Object\"},{\"subject\":\"$OBJ_ARK\",\"predicate\":\"dams:repository\",\"object\":\"$DAMSID$REP_ARK\"},{\"subject\":\"$OBJ_ARK\",\"predicate\":\"dams:collection\",\"object\":\"$DAMSID$COL_ARK\"}]" | urlencode`
-curl -f -X POST "http://localhost:8080/dams/api/objects/$OBJ_ARK?adds=$JSON"
-if [ $? != 0 ]; then
-	ERRORS=$(( $ERRORS + 1 ))
-fi
-echo
+# create two sample object
+for i in 1 2; do
+	OBJ_ARK=`mintark`
+	JSON=`echo "[{\"subject\":\"$OBJ_ARK\",\"predicate\":\"dams:title\",\"object\":\"node1\"},{\"subject\":\"node1\",\"predicate\":\"rdf:type\",\"object\":\"dams:Title\"},{\"subject\":\"node1\",\"predicate\":\"rdf:value\",\"object\":\"\\\\\"Test Object $i\\\\\"\"},{\"subject\":\"$OBJ_ARK\",\"predicate\":\"rdf:type\",\"object\":\"dams:Object\"},{\"subject\":\"$OBJ_ARK\",\"predicate\":\"dams:repository\",\"object\":\"$DAMSID$REP_ARK\"},{\"subject\":\"$OBJ_ARK\",\"predicate\":\"dams:collection\",\"object\":\"$DAMSID$COL_ARK\"}]" | urlencode`
+	curl -f -X POST "http://localhost:8080/dams/api/objects/$OBJ_ARK?adds=$JSON"
+	if [ $? != 0 ]; then
+		ERRORS=$(( $ERRORS + 1 ))
+	fi
+	echo
 
-# attach a file to the object (multipart upload)
-FILE=$HOME/src/dams/src/sample/files/20775-bb01010101-1-1.tif
-SRCPATH=`dirname $FILE`
-echo $FILE
-curl -f -i -X POST -F sourcePath="$SRCPATH" -F file=@$FILE http://localhost:8080/dams/api/files/$OBJ_ARK/1/1.tif
-if [ $? != 0 ]; then
-	ERRORS=$(( $ERRORS + 1 ))
-fi
-echo
+	# attach a file to the object (multipart upload)
+	FILE=$HOME/src/dams/src/sample/files/20775-bb01010101-1-1.tif
+	SRCPATH=`dirname $FILE`
+	echo $FILE
+	curl -f -i -X POST -F sourcePath="$SRCPATH" -F file=@$FILE http://localhost:8080/dams/api/files/$OBJ_ARK/1/1.tif
+	if [ $? != 0 ]; then
+		ERRORS=$(( $ERRORS + 1 ))
+	fi
+	echo
 
-# attach a file to the object (staged upload)
-FILE=batch1/test.jpg
-echo $FILE
-curl -f -i -X POST -F local=$FILE http://localhost:8080/dams/api/files/$OBJ_ARK/2/1.jpg
-if [ $? != 0 ]; then
-	ERRORS=$(( $ERRORS + 1 ))
-fi
-echo
+	# attach a file to the object (staged upload)
+	FILE=batch1/test.jpg
+	echo $FILE
+	curl -f -i -X POST -F local=$FILE http://localhost:8080/dams/api/files/$OBJ_ARK/2/1.jpg
+	if [ $? != 0 ]; then
+		ERRORS=$(( $ERRORS + 1 ))
+	fi
+	echo
 
-# generate derivatives
-SIZES="-F size=2 -F size=3 -F size=4 -F size=5"
-curl -f -i -L -X POST $SIZES http://localhost:8080/dams/api/files/$OBJ_ARK/1/1.tif/derivatives
-if [ $? != 0 ]; then
-	ERRORS=$(( $ERRORS + 1 ))
-fi
-echo
+	# generate derivatives
+	SIZES="-F size=2 -F size=3 -F size=4 -F size=5"
+	curl -f -i -L -X POST $SIZES http://localhost:8080/dams/api/files/$OBJ_ARK/1/1.tif/derivatives
+	if [ $? != 0 ]; then
+		ERRORS=$(( $ERRORS + 1 ))
+	fi
+	echo
+done
 
 echo ERRORS: $ERRORS
+exit $ERRORS

@@ -31,3 +31,4 @@ $BASE/ts-load.sh $ES src/sample/predicates/
 ERRORS=$(( $ERRORS + $? ))
 
 echo ERRORS: $ERRORS
+exit $ERRORS

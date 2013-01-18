@@ -34,3 +34,4 @@ fi
 echo
 
 echo "ERRORS: $ERRORS"
+exit $ERRORS

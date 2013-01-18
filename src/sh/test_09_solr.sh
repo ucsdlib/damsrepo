@@ -8,6 +8,7 @@ REPO_LIST=`curl -s -f http://localhost:8080/dams/api/repositories`
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
+echo
 
 # parse repository list
 REPO=`echo $REPO_LIST | perl -pe 's/></>\n</g' | grep "<repository>" | head -1 | perl -pe "s/<\/repository>//" | perl -pe "s/.*\///"`
@@ -19,53 +20,60 @@ OBJ_LIST=`curl -s -f http://localhost:8080/dams/api/repositories/$REPO`
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
+echo
 
 # parse object list
 OBJ=`echo $OBJ_LIST | perl -pe 's/></>\n</g' | grep "<obj>" | head -1 | perl -pe "s/<\/obj>//" | perl -pe "s/.*\///"`
-echo "Object: $OBJ"
+OBJS=`echo $OBJ_LIST | perl -pe 's/></>\n</g' | grep "<obj>" | perl -pe "s/<\/obj>//" | perl -pe "s/.*\///"`
+for i in $OBJS; do
+	echo Object: $i
+done
+echo
 
-# get basic object metadata
-echo "Basic object metadata"
-OBJ_RDF=`curl -s -f http://localhost:8080/dams/api/objects/$OBJ`
+echo "Index a record in solr"
+curl -f -X POST http://localhost:8080/dams/api/objects/$OBJ/index
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
+echo
+echo
 
-# parse file list
-FILE=`echo $OBJ_RDF | perl -pe 's/>/>\n/g' | grep "\.jpg\">" | head -1 | perl -pe "s/\">.*//" | perl -pe "s/.*$OBJ\///"`
-echo "File: $FILE"
+echo "Bulk index multiple records in solr"
+IDS=
+for i in $OBJS; do
+	IDS="${IDS}id=$i&"
+done
+echo $IDS
+curl -f -X POST http://localhost:8080/dams/api/index?$IDS
+if [ $? != 0 ]; then
+	ERRORS=$(( $ERRORS + 1 ))
+fi
+echo
+echo
 
-# retrieve a file
-echo "Retrieve a file"
-curl -s -f -o /dev/null http://localhost:8080/dams/api/files/$OBJ/$FILE
+echo "Search solr"
+curl -f -X GET http://localhost:8080/dams/api/index?q=test
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
 echo
 
-# test whether a file exists
-echo "Test whether a file exists"
-curl -f http://localhost:8080/dams/api/files/$OBJ/$FILE/exists
+echo "Remove a record from solr"
+curl -f -X DELETE http://localhost:8080/dams/api/objects/$OBJ/index
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
+echo
 echo
 
-# fixity check
-echo "Fixity check"
-curl -f http://localhost:8080/dams/api/files/$OBJ/$FILE/fixity
+echo "Bulk delete records from solr index"
+curl -f -X DELETE http://localhost:8080/dams/api/index?$IDS
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
+echo
 echo
 
-# characterization
-echo "Characterize"
-curl -f http://localhost:8080/dams/api/files/$OBJ/$FILE/characterize
-if [ $? != 0 ]; then
-	ERRORS=$(( $ERRORS + 1 ))
-fi
-echo
 
 echo ERRORS: $ERRORS
 exit $ERRORS
