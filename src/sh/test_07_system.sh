@@ -45,3 +45,4 @@ if [ $? != 0 ]; then
 fi
 
 echo ERRORS: $ERRORS
+exit $ERRORS
