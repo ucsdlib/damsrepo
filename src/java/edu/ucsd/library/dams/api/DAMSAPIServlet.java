@@ -911,14 +911,6 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					InputBundle bundle = input( req );
 					InputStream in = bundle.getInputStream();
-StringBuffer buf = new StringBuffer();
-for ( int i = -1; (i=in.read()) != -1; )
-{
-	buf.append( (char)i );
-}
-in.close();
-System.out.println("in: " + buf.toString() );
-in = new ByteArrayInputStream( buf.toString().getBytes() );
 					params = bundle.getParams();
 					String adds    = getParamString(params,"adds",null);
 					String updates = getParamString(params,"updates",null);
@@ -3744,22 +3736,19 @@ in = new ByteArrayInputStream( buf.toString().getBytes() );
 		throws IOException, FileUploadException
 	{
 		InputBundle input = null;
-		if ( ServletFileUpload.isMultipartContent(req) )
+		if ( ServletFileUpload.isMultipartContent(req) || (req.getContentType() != null && req.getContentType().startsWith("multipart/form-data")) )
 		{
-System.out.println("mulipart");
 			// process multipart uploads
 			input = multipartInput(req);
 		}
 		else if ( req.getContentLength() > 0 )
 		{
-System.out.println("basic inputstream");
 			// if there is a POST/PUT body, then use it
 			InputStream in = req.getInputStream();
 			input = new InputBundle( req.getParameterMap(), in );
 		}
 		else
 		{
-System.out.println("local fileinputstream");
 			// check for locally-staged file
 			Map<String,String[]> params = req.getParameterMap();
 			input = new InputBundle( params, localFile(params) );
