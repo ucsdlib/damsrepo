@@ -55,7 +55,7 @@ echo
 echo "Replace a file"
 FILE_SRC=src/sample/test/test2.jpg
 FILE_ID=2/1.jpg
-curl -f -X PUT  @$FILE_SRC http://localhost:8080/dams/api/files/$OBJ/$FILE_ID
+curl -f -X PUT -F file=@$FILE_SRC http://localhost:8080/dams/api/files/$OBJ/$FILE_ID
 if [ $? != 0 ]; then
     ERRORS=$(( $ERRORS + 1 ))
 fi
