@@ -28,6 +28,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 import java.net.URLEncoder;
 
+// naming
 import javax.activation.FileDataSource;
 import javax.activation.MimetypesFileTypeMap;
 import javax.naming.InitialContext;
@@ -42,6 +43,17 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+// jms queue
+import org.apache.activemq.ActiveMQConnectionFactory;
+import javax.jms.Connection;
+import javax.jms.DeliveryMode;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 
 // logging
 import org.apache.log4j.Logger;
@@ -176,6 +188,14 @@ public class DAMSAPIServlet extends HttpServlet
 	// ldap for group lookup
 	private LDAPUtil ldaputil;
 
+	// activemq for solrizer
+	private String queueUrl;
+	private String queueName;
+	private ActiveMQConnectionFactory queueConnectionFactory;
+	private Connection queueConnection;
+	private Session queueSession;
+	MessageProducer queueProducer;
+
 	// initialize servlet parameters
 	public void init( ServletConfig config ) throws ServletException
 	{
@@ -286,6 +306,22 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// ldap for group lookup
 			ldaputil = new LDAPUtil( props );
+
+			// queue
+			queueUrl = props.getProperty("queue.url");
+			queueName = props.getProperty("queue.name");
+			queueConnectionFactory = new ActiveMQConnectionFactory(
+				queueUrl
+			);
+			queueConnection = queueConnectionFactory.createConnection();
+			queueConnection.start();
+			queueSession = queueConnection.createSession(
+				false, Session.AUTO_ACKNOWLEDGE
+			);
+			queueProducer= queueSession.createProducer(
+				queueSession.createQueue(queueName)
+			);
+			queueProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 		}
 		catch ( Exception ex )
 		{
@@ -1696,6 +1732,7 @@ public class DAMSAPIServlet extends HttpServlet
 				// Create event when required with es
 				if(es != null)
 				{
+					indexQueue(objid,"objectModify");
 					createEvent(
 						ts, es, objid, cmpid, fileid, "Jhove Extraction", true,
 						null, m.get("status")
@@ -1854,6 +1891,7 @@ public class DAMSAPIServlet extends HttpServlet
 					status = HttpServletResponse.SC_CREATED;
 					message = "File created successfully";
 				}
+				indexQueue(objid,"objectModify");
 				createEvent(
 					ts, es, objid, cmpid, fileid, type, true, null, null
 				);
@@ -1947,6 +1985,7 @@ public class DAMSAPIServlet extends HttpServlet
 	
 			if ( successful )
 			{
+				indexQueue(objid,"objectModify");
 				createEvent(
 					ts, es, objid, cmpid, fileid, "file deletion", true,
 					null, null
@@ -2074,6 +2113,7 @@ public class DAMSAPIServlet extends HttpServlet
 				String[] uses = {"visual-thumbnail"};
 				params.put("use", uses);
 				fileCharacterize( objid, cmpid, derid, overwrite, fs, ts, es,  params);
+				indexQueue(objid,"objectModify");
 				createEvent( ts, es, objid, cmpid, derid, "Derivatives Creation", true, null, null );
 			}
 		}
@@ -2315,6 +2355,7 @@ public class DAMSAPIServlet extends HttpServlet
 							status = HttpServletResponse.SC_OK;
 							message = "Object saved successfully";
 						}
+						indexQueue(objid,"objectModify");
 						createEvent(
 							ts, es, objid, null, null, type, true, null, null
 						);
@@ -2355,6 +2396,7 @@ public class DAMSAPIServlet extends HttpServlet
 							status = HttpServletResponse.SC_OK;
 							message = "Object saved successfully";
 						}
+						indexQueue(objid,"objectModify");
 						createEvent(
 							ts, es, objid, null, null, type, true, null, null
 						);
@@ -2410,6 +2452,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 			if ( ! ts.exists(id) )
 			{
+				indexQueue(objid,"objectPurge");
 				createEvent( ts, es, objid, null, null, "object deletion", true, null, null );
 				return status( "Object deleted successfully" );
 			}
@@ -2474,6 +2517,7 @@ public class DAMSAPIServlet extends HttpServlet
 				TripleStoreUtil.recursiveDelete( id, sub, pre, null, ts );
 			}
 
+			indexQueue(objid,"objectModify");
 			createEvent(
 				ts, es, objid, null, null, "object modification", true,
 				null, null
@@ -2667,6 +2711,7 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( destid != null )
 			{
 				fs.write( objid, cmpid, destid, content.getBytes() );
+				indexQueue(objid,"objectModify");
 				createEvent(
 					ts, es, objid, cmpid, fileid, "transformation-metadata",
 					true, null, null
@@ -2763,6 +2808,29 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			log.error( "Error deleting file metadata", ex );
 			return error("Error deleting file metadata: " + ex.toString());
+		}
+	}
+
+	/**
+	 * Send object to solrizer indexing queue.
+	 * @param objid Object id
+	 * @param type 'purgeObject' for deletes, 'modifyObject' for other
+	 *   operations.
+	**/
+	private void indexQueue( String objid, String type )
+	{
+		try
+		{
+			TextMessage msg = queueSession.createTextMessage(
+				"DAMS Queue Message: " + objid + " (" + type + ")"
+			);
+			msg.setStringProperty("pid","damsid:" + objid);
+			msg.setStringProperty("methodName",type);
+			queueProducer.send(msg);
+		}
+		catch ( Exception ex )
+		{
+			log.warn("Error sending event to queue", ex );
 		}
 	}
 	private void createEvent( TripleStore ts, TripleStore es, String objid,
