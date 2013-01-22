@@ -3,3 +3,6 @@ catalog-v001.xml
 build.properties
 tmp
 dist
+
+# vi
+.*swp

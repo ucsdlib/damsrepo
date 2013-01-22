@@ -14,13 +14,17 @@ _:bn01n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd
 _:bn01n02 <http://library.ucsd.edu/ontology/dams#beginDate> "2012-03-01" .
 _:bn01n02 <http://library.ucsd.edu/ontology/dams#endDate> "2012-03-31" .
 _:bn01n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "March 2012" .
-_:bn01n02 <http://library.ucsd.edu/ontology/dams#type> "created" .
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#date> _:bn01n06 .
 _:bn01n06 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Date> .
 _:bn01n06 <http://library.ucsd.edu/ontology/dams#beginDate> "2012-06-01" .
 _:bn01n06 <http://library.ucsd.edu/ontology/dams#endDate> "2012-06-30" .
 _:bn01n06 <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "June 2012" .
 _:bn01n06 <http://library.ucsd.edu/ontology/dams#type> "destroyed" .
+<http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#date> _:bn01n07 .
+_:bn01n07 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Date> .
+_:bn01n07 <http://library.ucsd.edu/ontology/dams#beginDate> "2012-09-01" .
+_:bn01n07 <http://library.ucsd.edu/ontology/dams#endDate> "2012-09-30" .
+_:bn01n07 <http://library.ucsd.edu/ontology/dams#type> "recreated" .
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#title> _:bn01n03 .
 _:bn01n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Title> .
 _:bn01n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "The real thing" .
