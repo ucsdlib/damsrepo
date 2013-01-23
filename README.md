@@ -3,6 +3,12 @@ The UC San Diego Library DAMS repository
 Setup
 
 1. Setup MySQL, create a new database, and add a new user.
+```
+$ mysqladmin -u root password ABC
+$ mysql -uroot -pABC
+mysql> create database dams;
+mysql> grant all privileges on *.* to 'dams'@'localhost' identified by 'XYZ';
+```
 
 2. Clone private_config repo from stash for config file:
 
@@ -16,8 +22,7 @@ Setup
 
 5. Edit Tomcat conf/server.xml and add to the GlobalNamingResources:
 ```
-    <Environment name="dams/home" value="/pub/data1/dams"
-      type="java.lang.String"/>
+    <Environment name="dams/home" value="/pub/dams" type="java.lang.String"/>
     <Resource name="jdbc/dams" auth="Container" type="javax.sql.DataSource"
       username="dams" password="XXXX" driverClassName="com.mysql.jdbc.Driver"
       url="jdbc:mysql://localhost:3306/dams" maxActive="10" maxIdle="3"
@@ -27,11 +32,25 @@ Setup
 ```
 6. Start Tomcat.
 
+7. Create solr home directory with solr.war file, solr.xml and a core with
+   Hydra's config.  These can be copied from hydra-jetty:
+```
+cp -a jetty/solr /pub/solr
+cp jetty/webapps/solr/war /pub/solr/solr.war
+```
+
+8. Deploy solr deployment descriptor to tomcat/conf/Catalina/localhost/solr.xml:
+```
+<Context docBase="/pub/solr/solr.war" debug="0" crossContext="true" >
+   <Environment name="solr/home" type="java.lang.String" value="/pub/solr" override="true" />
+</Context>
+```
+
 7. Setup Ant build.properties
 ```
-catalina.home=/usr/local/tomcat
+catalina.home=/pub/tomcat
 deploy.home=${catalina.home}/webapps
-xsl.home=/home/escowles/tmp/dams/xsl
+xsl.home=/pub/dams/xsl
 ```
 
 8. Clone this repo:
