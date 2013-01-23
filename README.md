@@ -67,6 +67,7 @@ open( FILE, ">", "minter.dat" );
 print FILE $num;
 close FILE;
 ```
+
 Create the minter data file:
 ```
 touch minter.dat
