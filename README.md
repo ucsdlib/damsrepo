@@ -26,16 +26,20 @@ Setup
       removeAbandonedTimeout="60" removeAbandoned="true" testOnReturn="true"
       testOnBorrow="true"/>
 ```
-   Start Tomcat.
-6. Setup Ant build.properties
+6. Start Tomcat.
+
+7. Setup Ant build.properties
 ```
 catalina.home=/usr/local/tomcat
 deploy.home=${catalina.home}/webapps
 xsl.home=/home/escowles/tmp/dams/xsl
 ```
-7. Clone this repo:
+
+8. Clone this repo:
+
     git@github.com:ucsdlib/damsprivate.git
-8. Build dams.war and deploy to tomcat
+
+9. Build dams.war and deploy to tomcat
 ```
 ant clean webapp local-deploy
 ```
