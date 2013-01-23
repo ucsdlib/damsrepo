@@ -42,3 +42,9 @@ xsl.home=/home/escowles/tmp/dams/xsl
 ```
 ant clean webapp local-deploy
 ```
+
+10. Initialize events and object triplestores.
+```
+tmp/commands/ts-init.sh events
+tmp/commands/ts-init.sh dams
+```
