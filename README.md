@@ -36,7 +36,8 @@ mysql> grant all privileges on *.* to 'dams'@'localhost' identified by 'XYZ';
 
 7. Create solr home directory with solr.war file, solr.xml and a core with
    Hydra's config.  These can be copied from hydra-jetty:
-```
+
+``` sh
 cp -a jetty/solr /pub/solr
 cp jetty/webapps/solr.war /pub/solr/solr.war
 ```
@@ -73,13 +74,15 @@ close FILE;
 ```
 
 Create the minter data file:
-```
+
+``` sh
 touch minter.dat
 chmod a+w minter.dat
 ```
 
 7. Setup Ant build.properties
-```
+
+``` sh
 catalina.home=/pub/tomcat
 deploy.home=${catalina.home}/webapps
 xsl.home=/pub/dams/xsl
@@ -90,12 +93,14 @@ xsl.home=/pub/dams/xsl
     git@github.com:ucsdlib/damsprivate.git
 
 9. Build dams.war and deploy to tomcat
-```
+
+``` sh
 ant clean webapp local-deploy
 ```
 
 10. Initialize events and object triplestores.
-```
+
+``` sh
 tmp/commands/ts-init.sh events
 tmp/commands/ts-init.sh dams
 ```
