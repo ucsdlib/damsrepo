@@ -2,13 +2,13 @@ The UC San Diego Library DAMS repository
 
 Setup
 
-1. Clone private_config repo from stash for config file:
+1. Setup MySQL, create a new database, and add a new user.
+
+2. Clone private_config repo from stash for config file:
 
     ssh://git@lib-stash.ucsd.edu:7999/ND/private_config.git
 
-2. Create a directory to hold DAMS Repo config and files.  Copy private_config/gimili/dams.properties to this directory and edit to match your local settings.
-
-3. Setup MySQL, create a new database, and add a new user.
+3. Create a directory to hold DAMS Repo config and files.  Copy private_config/gimili/dams.properties to this directory and edit to match your local settings.
 
 4. Download Tomcat 7:
 
@@ -26,7 +26,6 @@ Setup
       removeAbandonedTimeout="60" removeAbandoned="true" testOnReturn="true"
       testOnBorrow="true"/>
 ```
-
    Start Tomcat.
 
 6. Setup Ant build.properties
@@ -43,4 +42,6 @@ xsl.home=/home/escowles/tmp/dams/xsl
 
 8. Build dams.war and deploy to tomcat
 
-``` ant clean webapp local-deploy
+```
+ant clean webapp local-deploy
+```
