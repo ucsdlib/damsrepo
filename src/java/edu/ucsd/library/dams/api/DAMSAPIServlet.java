@@ -3803,6 +3803,9 @@ public class DAMSAPIServlet extends HttpServlet
 	protected InputBundle input( HttpServletRequest req )
 		throws IOException, FileUploadException
 	{
+		log.info( req.getMethod() + " " + req.getScheme() + "://"
+			+ req.getServerName() + ":" + req.getServerPort()
+			+ req.getContextPath() + req.getPathInfo() );
 		InputBundle input = null;
 		if ( ServletFileUpload.isMultipartContent(req) || (req.getContentType() != null && req.getContentType().startsWith("multipart/form-data")) )
 		{
@@ -3894,8 +3897,22 @@ class InputBundle
 	InputBundle( Map<String,String[]> params, InputStream in )
 	{
 		this.params = params;
-		this.in = in;
+		this.in = debugInputStream(in);
 	}
 	Map<String,String[]> getParams() { return params; }
 	InputStream getInputStream() { return in; }
+	private InputStream debugInputStream( InputStream in )
+	{
+		StringBuffer buf = new StringBuffer();
+		try
+		{
+			for ( int i = 0; (i=in.read()) != -1; )
+			{
+				buf.append( (char)i );
+			}
+		}
+		catch ( Exception ex ) { ex.printStackTrace(); }
+		System.out.println( buf.toString() );
+		return new ByteArrayInputStream( buf.toString().getBytes() );
+	}
 }

@@ -329,6 +329,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[4].equals(fedoraRightsDS) )
 			{
 				// ignore XXXX: get curator email address from this...
+				InputBundle bundle = input(req);
 			}
 			// POST /objects/[oid]/datastreams/[fedoraLinksDS]
 			else if ( path.length == 5 && path[1].equals("objects")
@@ -464,6 +465,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[4].equals(fedoraRightsDS) )
 			{
 				// ignore
+				InputBundle bundle = input(req);
 			}
 			// PUT /objects/[oid]/datastreams/[fedoraLinksDS]
 			else if ( path.length == 5 && path[1].equals("objects")
@@ -471,6 +473,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[4].equals(fedoraLinksDS) )
 			{
 				// ignore
+				InputBundle bundle = input(req);
 			}
 			// PUT /objects/[oid]/datastreams/[fid]
 			// STATUS: WORKING
