@@ -27,21 +27,15 @@ Setup
       testOnBorrow="true"/>
 ```
    Start Tomcat.
-
 6. Setup Ant build.properties
-
 ```
 catalina.home=/usr/local/tomcat
 deploy.home=${catalina.home}/webapps
 xsl.home=/home/escowles/tmp/dams/xsl
 ```
-
 7. Clone this repo:
-
     git@github.com:ucsdlib/damsprivate.git
-
 8. Build dams.war and deploy to tomcat
-
 ```
 ant clean webapp local-deploy
 ```
