@@ -15,7 +15,6 @@ Setup
     http://tomcat.apache.org/download-70.cgi
 
 5. Edit Tomcat conf/server.xml and add to the GlobalNamingResources:
-
 ```
     <Environment name="dams/home" value="/pub/data1/dams"
       type="java.lang.String"/>
