@@ -6,6 +6,7 @@
 <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bb52572546">
 
 <!-- admin -->
+<dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb07070707"/>
 <dams:collection rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX3"/>
 <dams:repository rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX2"/>
 <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX1"/>
