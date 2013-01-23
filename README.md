@@ -8,7 +8,7 @@ Setup
    DAMS_HOME=/pub/dams
    ```
 
-Close any open terminal windows or run ". ~/.bash_profile"
+   Close any open terminal windows or run ". ~/.bash_profile"
 
 1. Setup MySQL, create a new database, and add a new user.
 
@@ -32,8 +32,8 @@ Close any open terminal windows or run ". ~/.bash_profile"
 5. Edit Tomcat conf/server.xml and add to the GlobalNamingResources:
 
    ``` xml
-    <Environment name="dams/home" value="/pub/dams" type="java.lang.String"/>
-    <Resource name="jdbc/dams" auth="Container" type="javax.sql.DataSource"
+   <Environment name="dams/home" value="/pub/dams" type="java.lang.String"/>
+   <Resource name="jdbc/dams" auth="Container" type="javax.sql.DataSource"
       username="dams" password="XXXX" driverClassName="com.mysql.jdbc.Driver"
       url="jdbc:mysql://localhost:3306/dams" maxActive="10" maxIdle="3"
       maxWait="5000" validationQuery="select 1" logAbandoned="true"
@@ -71,15 +71,15 @@ Close any open terminal windows or run ". ~/.bash_profile"
    unless ( $n ) { $n = 1; }
    for ( $i = 0; $i < $n; $i++ )
    {
-       $num++;
-       print "id: 20775/zz" . sprintf("%08d",$num) . "\n";
+      $num++;
+      print "id: 20775/zz" . sprintf("%08d",$num) . "\n";
    }
    open( FILE, ">", "minter.dat" );
    print FILE $num;
    close FILE;
    ```
 
-Create the minter data file:
+   Create the minter data file:
 
    ``` sh
    touch minter.dat
