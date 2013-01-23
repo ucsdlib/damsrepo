@@ -7,7 +7,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.fedora.info/definitions/1/0/management/ http://www.fedora.info/definitions/1/0/getNextPIDInfo.xsd">
       <xsl:for-each select="/response/ids/value">
-        <pid>damsid:<xsl:value-of select="."/></pid>
+        <pid><xsl:value-of select="."/></pid>
       </xsl:for-each>
     </pidList>
   </xsl:template>

@@ -478,6 +478,18 @@ public class DAMSAPIServlet extends HttpServlet
 					outputRequired = false;
 				}
 			}
+			// GET /events
+			else if ( path.length == 2 && path[1].equals("events") )
+			{
+				es = events(req);
+				info = eventsListAll( es );
+			}
+			// GET /objects
+			else if ( path.length == 2 && path[1].equals("objects") )
+			{
+				ts = triplestore(req);
+				info = objectsListAll( ts );
+			}
 			// GET /objects/bb1234567x
 			else if ( path.length == 3 && path[1].equals("objects") )
 			{
@@ -1412,6 +1424,38 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			return error( "Error listing repositories: " + ex.toString() );
+		}
+	}
+	public Map eventsListAll( TripleStore ts )
+	{
+		try
+		{
+			String sparql = "select ?obj where { ?obj <" + rdfNS + "type> <" + prNS + "DAMSEvent> }";
+			BindingIterator evs = ts.sparqlSelect(sparql);
+			List<Map<String,String>> events = bindings(evs);
+			Map info = new HashMap();
+			info.put( "events", events );
+			return info;
+		}
+		catch ( Exception ex )
+		{
+			return error( "Error listing events: " + ex.toString() );
+		}
+	}
+	public Map objectsListAll( TripleStore ts )
+	{
+		try
+		{
+			String sparql = "select ?obj where { ?obj <" + rdfNS + "type> <" + prNS + "Object> }";
+			BindingIterator objs = ts.sparqlSelect(sparql);
+			List<Map<String,String>> objects = bindings(objs);
+			Map info = new HashMap();
+			info.put( "objects", objects );
+			return info;
+		}
+		catch ( Exception ex )
+		{
+			return error( "Error listing objects: " + ex.toString() );
 		}
 	}
 	public Map collectionListAll( TripleStore ts )
