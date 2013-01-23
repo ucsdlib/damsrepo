@@ -47,7 +47,8 @@ cp jetty/webapps/solr.war /pub/solr/solr.war
 ```
 
 9. Setup an ARK minter.  In your CGI directory (in MacOSX: /Library/WebServer/CGI-Executables/, in RHEL: /var/www/cgi-bin/), create a Perl script:
-```
+
+```perl
 #!/usr/bin/perl
 
 open( FILE, "<", "minter.dat" );
