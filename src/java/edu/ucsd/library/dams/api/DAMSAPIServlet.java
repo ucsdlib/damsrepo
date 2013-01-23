@@ -310,18 +310,21 @@ public class DAMSAPIServlet extends HttpServlet
 			// queue
 			queueUrl = props.getProperty("queue.url");
 			queueName = props.getProperty("queue.name");
-			queueConnectionFactory = new ActiveMQConnectionFactory(
-				queueUrl
-			);
-			queueConnection = queueConnectionFactory.createConnection();
-			queueConnection.start();
-			queueSession = queueConnection.createSession(
-				false, Session.AUTO_ACKNOWLEDGE
-			);
-			queueProducer= queueSession.createProducer(
-				queueSession.createQueue(queueName)
-			);
-			queueProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+			if ( queueUrl != null )
+			{
+				queueConnectionFactory = new ActiveMQConnectionFactory(
+					queueUrl
+				);
+				queueConnection = queueConnectionFactory.createConnection();
+				queueConnection.start();
+				queueSession = queueConnection.createSession(
+					false, Session.AUTO_ACKNOWLEDGE
+				);
+				queueProducer= queueSession.createProducer(
+					queueSession.createQueue(queueName)
+				);
+				queueProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+			}
 		}
 		catch ( Exception ex )
 		{
@@ -2284,12 +2287,29 @@ public class DAMSAPIServlet extends HttpServlet
 			objid, false, in, mode, adds, updates, deletes, ts, es
 		);
 	}
+	private InputStream debugInputStream( InputStream in )
+		throws IOException
+	{
+		if ( in == null ) { return in; }
+		StringBuffer buf = new StringBuffer();
+		for ( int i = 0; (i=in.read()) != -1; )
+		{
+			char c = (char)i;
+			buf.append( c );
+		}
+		String xml = buf.toString();
+		System.out.println("xml: " + xml);
+		return new ByteArrayInputStream( xml.getBytes() );
+	}
+		
 	protected Map objectEdit( String objid, boolean create, InputStream in,
 		String mode, String adds, String updates, String deletes,
 		TripleStore ts, TripleStore es )
 	{
 		try
 		{
+			in = debugInputStream(in);
+
 			// make sure an identifier is specified
 			if ( objid == null || objid.trim().equals("") )
 			{
@@ -2819,18 +2839,21 @@ public class DAMSAPIServlet extends HttpServlet
 	**/
 	private void indexQueue( String objid, String type )
 	{
-		try
+		if ( queueSession != null )
 		{
-			TextMessage msg = queueSession.createTextMessage(
-				"DAMS Queue Message: " + objid + " (" + type + ")"
-			);
-			msg.setStringProperty("pid","damsid:" + objid);
-			msg.setStringProperty("methodName",type);
-			queueProducer.send(msg);
-		}
-		catch ( Exception ex )
-		{
-			log.warn("Error sending event to queue", ex );
+			try
+			{
+				TextMessage msg = queueSession.createTextMessage(
+					"DAMS Queue Message: " + objid + " (" + type + ")"
+				);
+				msg.setStringProperty("pid","damsid:" + objid);
+				msg.setStringProperty("methodName",type);
+				queueProducer.send(msg);
+			}
+			catch ( Exception ex )
+			{
+				log.warn("Error sending event to queue", ex );
+			}
 		}
 	}
 	private void createEvent( TripleStore ts, TripleStore es, String objid,
@@ -3803,9 +3826,7 @@ public class DAMSAPIServlet extends HttpServlet
 	protected InputBundle input( HttpServletRequest req )
 		throws IOException, FileUploadException
 	{
-		log.info( req.getMethod() + " " + req.getScheme() + "://"
-			+ req.getServerName() + ":" + req.getServerPort()
-			+ req.getContextPath() + req.getPathInfo() );
+		log.info( req.getMethod() + " " + req.getRequestURL() );
 		InputBundle input = null;
 		if ( ServletFileUpload.isMultipartContent(req) || (req.getContentType() != null && req.getContentType().startsWith("multipart/form-data")) )
 		{
@@ -3897,22 +3918,8 @@ class InputBundle
 	InputBundle( Map<String,String[]> params, InputStream in )
 	{
 		this.params = params;
-		this.in = debugInputStream(in);
+		this.in = in;
 	}
 	Map<String,String[]> getParams() { return params; }
 	InputStream getInputStream() { return in; }
-	private InputStream debugInputStream( InputStream in )
-	{
-		StringBuffer buf = new StringBuffer();
-		try
-		{
-			for ( int i = 0; (i=in.read()) != -1; )
-			{
-				buf.append( (char)i );
-			}
-		}
-		catch ( Exception ex ) { ex.printStackTrace(); }
-		System.out.println( buf.toString() );
-		return new ByteArrayInputStream( buf.toString().getBytes() );
-	}
 }
