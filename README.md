@@ -36,7 +36,7 @@ mysql> grant all privileges on *.* to 'dams'@'localhost' identified by 'XYZ';
    Hydra's config.  These can be copied from hydra-jetty:
 ```
 cp -a jetty/solr /pub/solr
-cp jetty/webapps/solr/war /pub/solr/solr.war
+cp jetty/webapps/solr.war /pub/solr/solr.war
 ```
 
 8. Deploy solr deployment descriptor to tomcat/conf/Catalina/localhost/solr.xml:
