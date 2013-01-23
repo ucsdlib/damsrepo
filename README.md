@@ -92,13 +92,19 @@ xsl.home=/pub/dams/xsl
 
     git@github.com:ucsdlib/damsprivate.git
 
-9. Build dams.war and deploy to tomcat
+9. Copy the MySQL JAR file to the Tomcat lib directory:
+
+``` sh
+cp srb/lib2/mysql-connector-java-5.0.4-bin.jar /pub/tomcat/lib/
+```
+
+10. Build dams.war and deploy to tomcat
 
 ``` sh
 ant clean webapp local-deploy
 ```
 
-10. Initialize events and object triplestores.
+11. Initialize events and object triplestores.
 
 ``` sh
 tmp/commands/ts-init.sh events
