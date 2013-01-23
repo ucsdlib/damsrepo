@@ -2,6 +2,14 @@ The UC San Diego Library DAMS repository
 
 Setup
 
+1. Add DAMS_HOME envronment variable to your shell environment (e.g., ~/.bash_profile):
+
+``` sh
+DAMS_HOME=/pub/dams
+```
+
+Close any open terminal windows or run ". ~/.bash_profile"
+
 1. Setup MySQL, create a new database, and add a new user.
 
 ``` sh
@@ -107,6 +115,5 @@ ant clean webapp local-deploy
 11. Initialize events and object triplestores.
 
 ``` sh
-tmp/commands/ts-init.sh events
-tmp/commands/ts-init.sh dams
+tmp/commands/ts-reload.sh
 ```
