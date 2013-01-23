@@ -46,6 +46,33 @@ cp jetty/webapps/solr.war /pub/solr/solr.war
 </Context>
 ```
 
+9. Setup an ARK minter.  In your CGI directory (in MacOSX: /Library/WebServer/CGI-Executables/, in RHEL: /var/www/cgi-bin/), create a Perl script:
+```
+#!/usr/bin/perl
+
+open( FILE, "<", "minter.dat" );
+$num = <FILE>;
+close FILE;
+
+print "Content-Type: text/plain\n\n";
+$n = $ENV{'QUERY_STRING'};
+unless ( $n ) { $n = 1; }
+for ( $i = 0; $i < $n; $i++ )
+{
+    $num++;
+    print "id: 20775/zz" . sprintf("%08d",$num) . "\n";
+}
+
+open( FILE, ">", "minter.dat" );
+print FILE $num;
+close FILE;
+```
+Create the minter data file:
+```
+touch minter.dat
+chmod a+w minter.dat
+```
+
 7. Setup Ant build.properties
 ```
 catalina.home=/pub/tomcat
