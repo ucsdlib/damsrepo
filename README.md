@@ -3,7 +3,8 @@ The UC San Diego Library DAMS repository
 Setup
 
 1. Setup MySQL, create a new database, and add a new user.
-```
+
+``` sh
 $ mysqladmin -u root password ABC
 $ mysql -uroot -pABC
 mysql> create database dams;
@@ -21,7 +22,8 @@ mysql> grant all privileges on *.* to 'dams'@'localhost' identified by 'XYZ';
     http://tomcat.apache.org/download-70.cgi
 
 5. Edit Tomcat conf/server.xml and add to the GlobalNamingResources:
-```
+
+``` xml
     <Environment name="dams/home" value="/pub/dams" type="java.lang.String"/>
     <Resource name="jdbc/dams" auth="Container" type="javax.sql.DataSource"
       username="dams" password="XXXX" driverClassName="com.mysql.jdbc.Driver"
@@ -40,7 +42,8 @@ cp jetty/webapps/solr.war /pub/solr/solr.war
 ```
 
 8. Deploy solr deployment descriptor to tomcat/conf/Catalina/localhost/solr.xml:
-```
+
+```xml
 <Context docBase="/pub/solr/solr.war" debug="0" crossContext="true" >
    <Environment name="solr/home" type="java.lang.String" value="/pub/solr" override="true" />
 </Context>
