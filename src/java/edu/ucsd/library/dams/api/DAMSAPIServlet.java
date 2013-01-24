@@ -73,6 +73,8 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.XPath;
+import org.dom4j.xpath.DefaultXPath;
 
 // xsl
 import javax.xml.transform.Transformer;
@@ -142,7 +144,7 @@ public class DAMSAPIServlet extends HttpServlet
 	// identifiers and namespaces
 	protected String minterDefault;	      // ID series when not specified
 	private Map<String,String> idMinters; // ID series name=>url map
-	private Map<String,String> nsmap;     // URI/name to URI map
+	protected Map<String,String> nsmap;   // URI/name to URI map
 	protected String idNS;                // Prefix for unqualified identifiers
 	protected String prNS;                // Prefix for unqualified predicates
 	protected String rdfNS;               // Prefix for RDF predicates

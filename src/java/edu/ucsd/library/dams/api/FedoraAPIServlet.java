@@ -25,7 +25,9 @@ import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.Node;
 import org.dom4j.QName;
+import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
+import org.dom4j.xpath.DefaultXPath;
 
 // logging
 import org.apache.log4j.Logger;
@@ -685,8 +687,13 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			doc = parser.read(in);
 
 			// remove empty rdf:resource links
-			List remove = doc.selectNodes("//dams:relationship[dams:Relationship/dams:name/@rdf:resource='' and dams:Relationship/dams:role/@rdf:resource='']");
-			List emptyRefs = doc.selectNodes("//*[@rdf:resource='']");
+			XPath xpath1 = new DefaultXPath("//dams:relationship[dams:Relationship/dams:name/@rdf:resource='' and dams:Relationship/dams:role/@rdf:resource='']");
+			xpath1.setNamespaceURIs(nsmap);
+			XPath xpath2 = new DefaultXPath("//*[@rdf:resource='']");
+			xpath2.setNamespaceURIs(nsmap);
+
+			List remove = xpath1.selectNodes(doc);
+			List emptyRefs = xpath2.selectNodes(doc);
 			remove.addAll( emptyRefs );
 			for ( int i = 0; i < remove.size(); i++ )
 			{
