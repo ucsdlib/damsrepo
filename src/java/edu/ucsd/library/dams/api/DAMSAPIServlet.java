@@ -1576,6 +1576,7 @@ public class DAMSAPIServlet extends HttpServlet
 			Identifier hasComp = Identifier.publicURI( prNS + "hasComponent" );
 			Identifier cmpType = Identifier.publicURI( prNS + "Component" );
 			Identifier rdfType = Identifier.publicURI( rdfNS + "type" );
+			Identifier damsFile = Identifier.publicURI( prNS + "File" );
 	
 			if ( ts != null && !overwrite )
 			{	
@@ -1777,6 +1778,7 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					ts.addStatement( oid, hasFile, fid, oid );
 				}
+				ts.addStatement( fid, rdfType, damsFile, oid );
 				
 				// Create event when required with es
 				if(es != null)
