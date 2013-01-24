@@ -72,7 +72,10 @@
             <xsl:when test="//dams:Object/dams:event/dams:DAMSEvent[dams:type='object creation']">
               <dsCreateDate><xsl:value-of select="//dams:Object/dams:event/dams:DAMSEvent[dams:type='object creation']/dams:eventDate"/></dsCreateDate>
             </xsl:when>
-            <xsl:otherwise><dsCreateDate><xsl:value-of select="//dams:eventDate"/></dsCreateDate></xsl:otherwise>
+            <xsl:when test="//dams:eventDate">
+              <dsCreateDate><xsl:value-of select="//dams:eventDate"/></dsCreateDate>
+            </xsl:when>
+            <xsl:otherwise><dsCreateDate>1999-12-31T23:59:59-0800</dsCreateDate></xsl:otherwise>
           </xsl:choose>
         </xsl:otherwise>
       </xsl:choose>
