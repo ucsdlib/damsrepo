@@ -323,7 +323,7 @@ public class DAMSAPIServlet extends HttpServlet
 					false, Session.AUTO_ACKNOWLEDGE
 				);
 				queueProducer= queueSession.createProducer(
-					queueSession.createQueue(queueName)
+					queueSession.createTopic(queueName)
 				);
 				queueProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 			}
@@ -1781,7 +1781,7 @@ public class DAMSAPIServlet extends HttpServlet
 				// Create event when required with es
 				if(es != null)
 				{
-					indexQueue(objid,"objectModify");
+					indexQueue(objid,"modifyObject");
 					createEvent(
 						ts, es, objid, cmpid, fileid, "Jhove Extraction", true,
 						null, m.get("status")
@@ -1940,7 +1940,7 @@ public class DAMSAPIServlet extends HttpServlet
 					status = HttpServletResponse.SC_CREATED;
 					message = "File created successfully";
 				}
-				indexQueue(objid,"objectModify");
+				indexQueue(objid,"modifyObject");
 				createEvent(
 					ts, es, objid, cmpid, fileid, type, true, null, null
 				);
@@ -2034,7 +2034,7 @@ public class DAMSAPIServlet extends HttpServlet
 	
 			if ( successful )
 			{
-				indexQueue(objid,"objectModify");
+				indexQueue(objid,"modifyObject");
 				createEvent(
 					ts, es, objid, cmpid, fileid, "file deletion", true,
 					null, null
@@ -2162,7 +2162,7 @@ public class DAMSAPIServlet extends HttpServlet
 				String[] uses = {"visual-thumbnail"};
 				params.put("use", uses);
 				fileCharacterize( objid, cmpid, derid, overwrite, fs, ts, es,  params);
-				indexQueue(objid,"objectModify");
+				indexQueue(objid,"modifyObject");
 				createEvent( ts, es, objid, cmpid, derid, "Derivatives Creation", true, null, null );
 			}
 		}
@@ -2421,7 +2421,7 @@ public class DAMSAPIServlet extends HttpServlet
 							status = HttpServletResponse.SC_OK;
 							message = "Object saved successfully";
 						}
-						indexQueue(objid,"objectModify");
+						indexQueue(objid,"modifyObject");
 						createEvent(
 							ts, es, objid, null, null, type, true, null, null
 						);
@@ -2462,7 +2462,7 @@ public class DAMSAPIServlet extends HttpServlet
 							status = HttpServletResponse.SC_OK;
 							message = "Object saved successfully";
 						}
-						indexQueue(objid,"objectModify");
+						indexQueue(objid,"modifyObject");
 						createEvent(
 							ts, es, objid, null, null, type, true, null, null
 						);
@@ -2518,7 +2518,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 			if ( ! ts.exists(id) )
 			{
-				indexQueue(objid,"objectPurge");
+				indexQueue(objid,"purgeObject");
 				createEvent( ts, es, objid, null, null, "object deletion", true, null, null );
 				return status( "Object deleted successfully" );
 			}
@@ -2583,7 +2583,7 @@ public class DAMSAPIServlet extends HttpServlet
 				TripleStoreUtil.recursiveDelete( id, sub, pre, null, ts );
 			}
 
-			indexQueue(objid,"objectModify");
+			indexQueue(objid,"modifyObject");
 			createEvent(
 				ts, es, objid, null, null, "object modification", true,
 				null, null
@@ -2777,7 +2777,7 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( destid != null )
 			{
 				fs.write( objid, cmpid, destid, content.getBytes() );
-				indexQueue(objid,"objectModify");
+				indexQueue(objid,"modifyObject");
 				createEvent(
 					ts, es, objid, cmpid, fileid, "transformation-metadata",
 					true, null, null
