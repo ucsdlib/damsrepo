@@ -23,7 +23,7 @@
           <xsl:value-of select="//dams:DAMSEvent/dams:eventDate"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:text>ERROR</xsl:text>
+          <xsl:text>1999-12-31T23:59:59-0800</xsl:text>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>

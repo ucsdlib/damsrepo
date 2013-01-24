@@ -1199,7 +1199,7 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	protected TripleStore events( HttpServletRequest req ) throws Exception
 	{
-		String tsName = getParamString(req,"ts",tsEvents);
+		String tsName = getParamString(req,"es",tsEvents);
 		return TripleStoreUtil.getTripleStore(props,tsName);
 	}
 	protected static void cleanup(FileStore fs, TripleStore ts, TripleStore es)

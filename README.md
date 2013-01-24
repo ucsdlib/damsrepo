@@ -144,3 +144,37 @@
     ``` sh
     tmp/commands/ts-reload.sh
     ```
+
+7. ActiveMQ (Optional)
+
+    Download ActiveMQ
+
+    ```
+    http://activemq.apache.org/download.html
+    ```
+
+    Copy the activemq.xml config file from private_repository
+
+    ``` sh
+    cp private_config/gimili/activemq.xml activemq/conf/
+    ```
+
+    Add ACTIVEMQ_HOME to your environment (.profile, etc.)
+
+    ``` sh
+    export ACTIVEMQ_HOME=/pub/activemq
+    ```
+
+    Start the ActiveMQ daemon
+
+    ``` sh
+    $ activemq/bin/activemq start
+    ```
+
+    Uncomment the queue.url and queue.name properties in dams.properties and redeploy DAMS Repo.
+
+    Start the solrizerd daemon
+
+    ```sh
+    solrizerd start --hydra_home /pub/damspas --host gimili.ucsd.edu --destination activemq:queue.Consumer.hydra.VirtualTopic.dams
+    ```

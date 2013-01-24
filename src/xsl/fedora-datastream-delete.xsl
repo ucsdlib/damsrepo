@@ -20,7 +20,7 @@
         <xsl:value-of select="//dams:Object/dams:event/dams:Event[dams:type='object creation']/dams:endDate"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:text>ERROR</xsl:text>
+        <xsl:text>1999-12-31T23:59:59-0800</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
