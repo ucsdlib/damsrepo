@@ -2951,7 +2951,7 @@ public class DAMSAPIServlet extends HttpServlet
 				TextMessage msg = queueSession.createTextMessage(
 					"DAMS Queue Message: " + objid + " (" + type + ")"
 				);
-				msg.setStringProperty("pid","damsid:" + objid);
+				msg.setStringProperty("pid",objid);
 				msg.setStringProperty("methodName",type);
 				queueProducer.send(msg);
 			}
