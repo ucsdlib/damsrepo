@@ -606,6 +606,17 @@ System.out.println("fileid: " + fileid(path[4]));
 		HttpServletResponse res )
 		throws TripleStoreException, TransformerException
 	{
+/*
+		// don't allow empty component or file identifiers
+		if (   (cmpid  != null && cmpid.equals(""))
+			|| (fileid != null && fileid.equals("")) )
+		{
+			Map err = error( res.SC_BAD_REQUEST, "Invalid identifier" );
+			output( err, params, "", res );
+			return;
+		}
+*/
+
 		// get object metadata
 		String rdfxml = null;
 		Map info = objectShow( stripPrefix(objid), ts, es );

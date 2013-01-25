@@ -31,7 +31,7 @@
       <dsState>A</dsState>
       <xsl:choose>
         <xsl:when test="$fileid != ''">
-          <xsl:for-each select="//dams:File[contains(@rdf:about,$fileid)][1]">
+          <xsl:for-each select="//dams:File[contains(@rdf:about,$fileid) and substring-after(@rdf:about,$fileid) = ''][1]">
             <dsCreateDate><xsl:value-of select="dams:dateCreated"/></dsCreateDate>
             <dsMIME><xsl:value-of select="dams:mimeType"/></dsMIME>
             <dsSize><xsl:value-of select="dams:size"/></dsSize>
