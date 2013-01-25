@@ -12,6 +12,8 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 
 // xslt
 import javax.xml.transform.TransformerException;
@@ -100,6 +102,17 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 	// logging
 	private static Logger log = Logger.getLogger(FedoraAPIServlet.class);
+
+    // initialize servlet parameters
+    public void init( ServletConfig config ) throws ServletException
+    {
+		// suppress activemq (hydra will do its own indexing)
+		queueEnabled = false;
+
+        // call parent init
+        ServletContext ctx = config.getServletContext();
+        super.init(config);
+    }
 
 	/**
 	 * HTTP GET methods to retrieve data without changing state.

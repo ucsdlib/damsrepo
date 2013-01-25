@@ -191,6 +191,7 @@ public class DAMSAPIServlet extends HttpServlet
 	private LDAPUtil ldaputil;
 
 	// activemq for solrizer
+	boolean queueEnabled = true;
 	private String queueUrl;
 	private String queueName;
 	private ActiveMQConnectionFactory queueConnectionFactory;
@@ -312,7 +313,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// queue
 			queueUrl = props.getProperty("queue.url");
 			queueName = props.getProperty("queue.name");
-			if ( queueUrl != null )
+			if ( queueEnabled && queueUrl != null )
 			{
 				queueConnectionFactory = new ActiveMQConnectionFactory(
 					queueUrl
@@ -742,6 +743,16 @@ public class DAMSAPIServlet extends HttpServlet
 				es = events(req);
 				info = indexUpdate( ids, ts, es );
 			}
+			// POST /queue
+			if ( path.length == 2 && path[1].equals("queue") )
+			{
+				InputBundle input = input(req);
+				String[] ids = input.getParams().get("id");
+				ts = triplestore(req);
+				es = events(req);
+
+				info = indexQueue( ids, "modifyObject" );
+			}
 			// POST /next_id
 			else if ( path.length == 2 && path[1].equals("next_id") )
 			{
@@ -1119,6 +1130,16 @@ public class DAMSAPIServlet extends HttpServlet
 				String[] ids = input.getParams().get("id");
 				String tsName = getParamString(req,"ts",tsDefault);
 				info = indexDelete( ids, tsName );
+			}
+			// DELETE /queue
+			if ( path.length == 2 && path[1].equals("queue") )
+			{
+				InputBundle input = input(req);
+				String[] ids = input.getParams().get("id");
+				ts = triplestore(req);
+				es = events(req);
+
+				info = indexQueue( ids, "purgeObject" );
 			}
 			// DELETE /objects/bb1234567x
 			else if ( path.length == 3 && path[1].equals("objects") )
@@ -2880,14 +2901,50 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 
 	/**
+	 * Bulk indexing queue.
+	**/
+	private Map indexQueue( String[] ids, String type )
+	{
+		Map info = null;
+
+		// return error if no ids provided
+		if ( ids == null || ids.length == 0 )
+		{
+			info = error(
+				HttpServletResponse.SC_BAD_REQUEST,
+				"No identifier specified"
+			);
+		}
+
+		// send each id to the queue
+		List<String> errors = new ArrayList<String>();
+		int queueTotal = ids.length;
+		int queueSuccess = 0;
+		for ( int i = 0; i < ids.length; i++ )
+		{
+			String error = indexQueue(ids[i],type);
+			if ( error != null ) { errors.add( error ); }
+			else { queueSuccess++; }
+		}
+
+		// return error/success info
+		info = new LinkedHashMap();
+		info.put( "queueTotal", queueTotal );
+		info.put( "queueSuccess", queueTotal );
+		info.put( "errors", errors );
+		return info;
+	}
+
+	/**
 	 * Send object to solrizer indexing queue.
 	 * @param objid Object id
 	 * @param type 'purgeObject' for deletes, 'modifyObject' for other
 	 *   operations.
 	**/
-	private void indexQueue( String objid, String type )
+	private String indexQueue( String objid, String type )
 	{
-		if ( queueSession != null )
+		String error = null;
+		if ( queueEnabled && queueSession != null )
 		{
 			try
 			{
@@ -2901,8 +2958,10 @@ public class DAMSAPIServlet extends HttpServlet
 			catch ( Exception ex )
 			{
 				log.warn("Error sending event to queue", ex );
+				error = "Error sending object to queue: " + ex.toString();
 			}
 		}
+		return error;
 	}
 	private void createEvent( TripleStore ts, TripleStore es, String objid,
 		String cmpid, String fileid, String type, boolean success,
