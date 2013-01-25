@@ -113,7 +113,7 @@
 <!-- subjects -->
 <dams:subject rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX5"/>
 <dams:subject>
-<mads:ComplexSubject>
+<mads:ComplexSubject rdf:about="http://library.ucsd.edu/ark:/20775/bbXXXXXX10">
 <mads:authoritativeLabel>African Americans--Relations with Mexican Americans--History--20th Century</mads:authoritativeLabel>
 <mads:elementList rdf:parseType="Collection">
 <mads:TopicElement rdf:about="http://library.ucsd.edu/ark:/20775/bbXXXXXXX6"/>
