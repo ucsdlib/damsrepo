@@ -138,6 +138,7 @@ public class DAMSAPIServlet extends HttpServlet
 	// default data stores
 	protected String fsDefault;	// FileStore to be used when not specified
 	protected String fsStaging; // local staging directory
+	protected Map<String,String> fsUseMap; // default use values
 	protected String tsDefault;	// TripleStore to be used when not specified
 	protected String tsEvents;	// TripleStore to be used for events
 
@@ -273,6 +274,20 @@ public class DAMSAPIServlet extends HttpServlet
 			fsStaging = props.getProperty( "fs.staging" );
 			maxUploadCount = getPropInt(props, "fs.maxUploadCount", -1 );
 			maxUploadSize  = getPropLong(props, "fs.maxUploadSize", -1L );
+			fsUseMap = new HashMap<String,String>();
+			for ( Enumeration e = props.propertyNames(); e.hasMoreElements(); )
+			{
+				String key = (String)e.nextElement();
+				if ( key != null && key.startsWith("fs.usemap.") )
+				{
+					String ext = key.substring(10);
+					String use = props.getProperty(key);
+					if ( use != null )
+					{
+						fsUseMap.put( ext, use );
+					}
+				}
+			}
 
 			// fedora compat
 			fedoraObjectDS = props.getProperty("fedora.objectDS");
@@ -3773,9 +3788,14 @@ public class DAMSAPIServlet extends HttpServlet
 	 * Default file use
 	 * @param filename
 	 */
-	public static String getFileUse( String filename )
+	public String getFileUse( String filename )
 	{
-		String use = "";
+		// check in fsUseMap
+		String ext = filename.substring(filename.lastIndexOf(".")+1);
+		String use = fsUseMap.get(ext);
+		if ( use != null ) { return fsUseMap.get(ext); }
+
+		// fallback on mime type
 		MimetypesFileTypeMap mimeTypes = new MimetypesFileTypeMap();
 		String mimeType = mimeTypes.getContentType(filename);
 		if(!filename.startsWith("1.") && filename.endsWith(".jpg"))
