@@ -30,5 +30,12 @@ ERRORS=$(( $ERRORS + $? ))
 $BASE/ts-load.sh $ES src/sample/predicates/
 ERRORS=$(( $ERRORS + $? ))
 
+# clear solr index
+curl http://localhost:8080/solr/blacklight/update?commit=true -H "Content-Type: text/xml" --data-binary "<delete><query>*:*</query></delete>"
+if [ $? != 0 ]; then
+	ERRORS=$(( $ERRORS + $1 ))
+fi
+
+
 echo ERRORS: $ERRORS
 exit $ERRORS

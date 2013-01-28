@@ -590,3 +590,5 @@
 <http://library.ucsd.edu/ark:/20775/bd65196169> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ontology/dams#restriction> .
 <http://library.ucsd.edu/ark:/20775/bd5256804m> <http://library.ucsd.edu/ark:/20775/bd4608335b> "dams:otherResource" .
 <http://library.ucsd.edu/ark:/20775/bd5256804m> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ontology/dams#otherResource> .
+<http://library.ucsd.edu/ark:/20775/bd0000000x> <http://library.ucsd.edu/ark:/20775/bd4608335b> "dams:repositoryDescription" .
+<http://library.ucsd.edu/ark:/20775/bd0000000x> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ontology/dams#repositoryDescription> .
