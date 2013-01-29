@@ -315,25 +315,11 @@ public class TripleStoreUtil
 				{
 					// parent in cache
 
-					// strip file and component parts of parents to keep
-					// them in the same graph as main object
-					String objectSubj = parent;
-					if ( idNS != null && objectSubj.startsWith(idNS) )
-					{
-						String id = objectSubj.substring(idNS.length());
-						if ( id.indexOf("/") > 0 )
-						{
-							id = id.substring(0,id.indexOf("/"));
-						}
-						else if ( id.indexOf("-") > 0 )
-						{
-							id = id.substring(0,id.indexOf("-"));
-						}
-						objectSubj = idNS + id;
-					}
+					// strip file/component part to keep in same graph as object
+					Identifier objectSubj = objectSubject(parent,idNS);
 
 					// add triple
-					ts.addStatement( stmt, toIdentifier(objectSubj) );
+					ts.addStatement( stmt, objectSubj );
 				}
 				else
 				{
@@ -359,7 +345,7 @@ public class TripleStoreUtil
 			}
 
 			// process orphans
-			processOrphans( parents, orphans, ts );
+			processOrphans( parents, orphans, idNS, ts );
 
 			// warn about unclaimed orphans?
 			for ( int i = 0; i < orphans.size(); i++ )
@@ -376,6 +362,29 @@ public class TripleStoreUtil
 		{
 			throw new TripleStoreException( "Error processing triples", ex );
 		}
+	}
+
+	/**
+	 * Strip any component or file parts from the parent URI to keep component
+	 * and file metadata in the same named graph as the object record.
+	**/
+	private static Identifier objectSubject( String parent, String idNS )
+	{
+		String objectSubj = parent;
+		if ( idNS != null && objectSubj.startsWith(idNS) )
+		{
+			String id = objectSubj.substring(idNS.length());
+			if ( id.indexOf("/") > 0 )
+			{
+				id = id.substring(0,id.indexOf("/"));
+			}
+			else if ( id.indexOf("-") > 0 )
+			{
+				id = id.substring(0,id.indexOf("-"));
+			}
+			objectSubj = idNS + id;
+		}
+		return Identifier.publicURI( objectSubj );
 	}
 
 	/**
@@ -401,7 +410,8 @@ public class TripleStoreUtil
 	 * @param orphans List of statements with unknown parents
 	**/
 	private static void processOrphans( Map<String,String> parents,
-		List<Statement> orphans, TripleStore ts ) throws TripleStoreException
+		List<Statement> orphans, String idNS, TripleStore ts )
+		throws TripleStoreException
 	{
 		for ( int i = 0; i < orphans.size(); i++ )
 		{
@@ -410,7 +420,11 @@ public class TripleStoreUtil
 			String parent = findParent(parents, orphan.getSubject().toString());
 			if ( parent != null && !parent.startsWith("_:") )
 			{
-				ts.addStatement( orphan, toIdentifier(parent) );
+				// strip file/component parts to keep in same graph as object
+				Identifier objectSubj = objectSubject(parent,idNS);
+
+				// add statement and remove from orphans list
+				ts.addStatement( orphan, objectSubj );
 				orphans.remove( orphan );
 				i--;
 			}

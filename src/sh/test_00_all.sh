@@ -58,12 +58,17 @@ if [ $? != 0 ]; then
 fi
 echo $DIVIDER
 
-$DIR/test_10_deletes.sh
+$DIR/test_10_selective.sh
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + $? ))
 fi
 echo $DIVIDER
 
+$DIR/test_11_deletes.sh
+if [ $? != 0 ]; then
+	ERRORS=$(( $ERRORS + $? ))
+fi
+echo $DIVIDER
 
 
 echo TOTAL ERRORS: $ERRORS

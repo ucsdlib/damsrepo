@@ -43,13 +43,6 @@ if [ $? != 0 ]; then
 fi
 echo
 
-echo "Selective delete"
-curl -f -X DELETE "http://localhost:8080/dams/api/objects/$OBJ?predicate=dams%3Adate"
-if [ $? != 0 ]; then
-	ERRORS=$(( $ERRORS + 1 ))
-fi
-echo
-
 echo "Delete an object
 curl -f -X DELETE http://localhost:8080/dams/api/objects/$OBJ"
 if [ $? != 0 ]; then
