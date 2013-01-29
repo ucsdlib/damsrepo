@@ -176,10 +176,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				es = events(req);
 				Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("dsName",new String[]{path[4]});
-System.out.println("pathInfo: " + req.getPathInfo());
-System.out.println("objid: " + path[2]);
-System.out.println("cmpid: " + cmpid(path[4]));
-System.out.println("fileid: " + fileid(path[4]));
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
 					"fedora-datastream-profile.xsl", params, "text/xml",
