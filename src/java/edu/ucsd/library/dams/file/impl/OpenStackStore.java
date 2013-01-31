@@ -161,7 +161,7 @@ public class OpenStackStore implements FileStore
 		boolean exists = false;
 		try
 		{
-			exists = client.exists( cn(orgCode,objectID), fn(orgCode,componentID,objectID,fileID) );
+			exists = client.exists( cn(orgCode,objectID), fn(orgCode,objectID,componentID,fileID) );
 		}
 		catch ( IOException ex )
 		{
