@@ -36,6 +36,14 @@ public class SegmentedInputStream extends FilterInputStream
 	{
 		log.debug("SegmentedInputStream.close() called, ignoring...");
 	}
+	public void close(boolean force) throws IOException
+	{
+		if ( force )
+		{
+			log.debug("SegmentedInputStream.close(true) called, closing...");
+			super.close();
+		}
+	}
 
 	/**
 	 * Report whether the stream has read as all of the allowed bytes.
