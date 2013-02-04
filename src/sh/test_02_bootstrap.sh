@@ -2,6 +2,7 @@
 
 DAMSID="http://library.ucsd.edu/ark:/20775/"
 ERRORS=0
+FS=openStack
 
 function mintark
 {
@@ -51,7 +52,7 @@ for i in 1 2; do
 	SRCPATH=`dirname $FILE`
 	echo $FILE
 	echo "http://localhost:8080/dams/api/files/$OBJ_ARK/1/1.tif"
-	curl -f -i -X POST -F sourcePath="$SRCPATH" -F file=@$FILE http://localhost:8080/dams/api/files/$OBJ_ARK/1/1.tif
+	curl -f -i -X POST -F sourcePath="$SRCPATH" -F file=@$FILE http://localhost:8080/dams/api/files/$OBJ_ARK/1/1.tif?fs=$FS
 	if [ $? != 0 ]; then
 		ERRORS=$(( $ERRORS + 1 ))
 	fi
@@ -61,7 +62,7 @@ for i in 1 2; do
 	FILE=darry/fiji_jpg/20775-bb1400540n-1-3.jpg
 	echo $FILE
 	echo "http://localhost:8080/dams/api/files/$OBJ_ARK/2/1.jpg"
-	curl -f -i -X POST -F local=$FILE http://localhost:8080/dams/api/files/$OBJ_ARK/2/1.jpg
+	curl -f -i -X POST -F local=$FILE http://localhost:8080/dams/api/files/$OBJ_ARK/2/1.jpg?fs=$FS
 	if [ $? != 0 ]; then
 		ERRORS=$(( $ERRORS + 1 ))
 	fi
@@ -70,7 +71,7 @@ for i in 1 2; do
 	# generate derivatives
 	SIZES="-F size=2 -F size=3 -F size=4 -F size=5"
 	echo "http://localhost:8080/dams/api/files/$OBJ_ARK/1/1.tif/derivatives"
-	curl -f -i -L -X POST $SIZES http://localhost:8080/dams/api/files/$OBJ_ARK/1/1.tif/derivatives
+	curl -f -i -L -X POST $SIZES http://localhost:8080/dams/api/files/$OBJ_ARK/1/1.tif/derivatives?fs=$FS
 	if [ $? != 0 ]; then
 		ERRORS=$(( $ERRORS + 1 ))
 	fi

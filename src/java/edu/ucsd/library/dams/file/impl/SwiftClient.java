@@ -90,7 +90,7 @@ public class SwiftClient
 		client.setHttpRequestRetryHandler( x );
 
 		String user = props.getProperty("username");
-		String pass = props.getProperty("plaintextPassword");
+		String pass = props.getProperty("password");
 		String authURL = props.getProperty("authURL");
 
 		HttpGet get = new HttpGet( authURL );
