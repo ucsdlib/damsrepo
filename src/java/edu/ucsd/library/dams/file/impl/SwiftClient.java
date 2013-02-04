@@ -24,6 +24,7 @@ import javax.activation.FileDataSource;
 import javax.security.auth.login.LoginException;
 
 // http client 4.x
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -434,18 +435,27 @@ public class SwiftClient
 		int status = -1;
 		try
 		{
-			HttpUtil http = new HttpUtil( client, put );
-			status = http.exec();
+			//HttpUtil http = new HttpUtil( client, put );
+			//status = http.exec();
+			HttpClient client = new DefaultHttpClient();
+			HttpResponse response = client.execute(put);
+			status = response.getStatusLine().getStatusCode();
 			if ( status == 201 )
 			{
 				message( "uploaded " + container + "/" + object );
 			}
+			else if ( status == 401 || status == 403 )
+			{
+				throw new FileStoreAuthException(
+					new LoginException("HTTP Status: " + status)
+				);
+			}
 			else
 			{
-				http.debug(out);
+				//http.debug(out);
+				out.println("Error uploading file");
 			}
 		}
-		catch ( LoginException ex ) { throw new FileStoreAuthException(ex); }
 		finally
 		{
 			put.reset();

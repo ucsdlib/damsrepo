@@ -3947,6 +3947,10 @@ public class DAMSAPIServlet extends HttpServlet
 	protected static String[] path( HttpServletRequest req )
 	{
 		String pathstr = req.getPathInfo();
+		log.info(
+			req.getMethod() + " " + req.getContextPath()
+			+ req.getServletPath() + pathstr
+		);
 		if ( pathstr == null ) { return new String[]{}; }
 		else { return pathstr.split("/"); }
 	}
