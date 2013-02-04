@@ -3,6 +3,7 @@ package edu.ucsd.library.dams.file.impl;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.FilterInputStream;
+import org.apache.log4j.Logger;
 
 /**
  * InputStream implementation that limits the number of bytes read to a
@@ -11,6 +12,8 @@ import java.io.FilterInputStream;
 **/
 public class SegmentedInputStream extends FilterInputStream
 {
+    private static Logger log = Logger.getLogger(SegmentedInputStream.class);
+
 	long segmentSize;
 	long bytesRead;
 
@@ -28,6 +31,10 @@ public class SegmentedInputStream extends FilterInputStream
 	public void clear()
 	{
 		bytesRead = 0L;
+	}
+	public void close()
+	{
+		log.debug("SegmentedInputStream.close() called, ignoring...");
 	}
 
 	/**
