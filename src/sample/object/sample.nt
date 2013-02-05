@@ -1,5 +1,5 @@
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Object> .
-<http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#repository> <http://library.ucsd.edu/ark:/20775/bb02020202> .
+<http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#unit> <http://library.ucsd.edu/ark:/20775/bb02020202> .
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#assembledCollection> <http://library.ucsd.edu/ark:/20775/bb03030303> .
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#subject> <http://library.ucsd.edu/ark:/20775/bb04040404> .
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#copyright> <http://library.ucsd.edu/ark:/20775/bb05050505> .
@@ -78,10 +78,17 @@ _:bn01n05 <http://library.ucsd.edu/ontology/dams#uri> "http://library.ucsd.edu/t
 <http://library.ucsd.edu/ark:/20775/bb01010101/2/1.jpg> <http://library.ucsd.edu/ontology/dams#sourcePath> "/pub/data1/staging/test" .
 <http://library.ucsd.edu/ark:/20775/bb01010101/2/1.jpg> <http://library.ucsd.edu/ontology/dams#sourceFileName> "000112123132.jpeg" .
 
-<http://library.ucsd.edu/ark:/20775/bb02020202> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Repository> .
-<http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#repositoryName> "Test Repository" .
-<http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#repositoryURI> "http://library.ucsd.edu/test/" .
-<http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#repositoryGroup> "TEST-Staff" .
+<http://library.ucsd.edu/ark:/20775/bb02020202> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Unit> .
+<http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#unitName> "Library Collections" .
+<http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#unitDescription> "Search over 56,690 images, documents and video files from the UCSD Libraries." .
+<http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#unitURI> "http://libraries.ucsd.edu/digital/" .
+<http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#unitGroup> "dams-curator" .
+
+<http://library.ucsd.edu/ark:/20775/bb48484848> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Unit> .
+<http://library.ucsd.edu/ark:/20775/bb48484848> <http://library.ucsd.edu/ontology/dams#unitName> "RCI" .
+<http://library.ucsd.edu/ark:/20775/bb48484848> <http://library.ucsd.edu/ontology/dams#unitDescription> "Research Cyberinfrastructure: the hardware, software, and people that support scientific research." .
+<http://library.ucsd.edu/ark:/20775/bb48484848> <http://library.ucsd.edu/ontology/dams#unitURI> "http://rci.ucsd.edu/" .
+<http://library.ucsd.edu/ark:/20775/bb48484848> <http://library.ucsd.edu/ontology/dams#unitGroup> "dams-rci" .
 
 <http://library.ucsd.edu/ark:/20775/bb05050505> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Copyright> .
 <http://library.ucsd.edu/ark:/20775/bb05050505> <http://library.ucsd.edu/ontology/dams#copyrightStatus> "Under copyright -- 3rd Party" .

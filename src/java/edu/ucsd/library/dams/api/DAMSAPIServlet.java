@@ -449,38 +449,38 @@ public class DAMSAPIServlet extends HttpServlet
 				ts = triplestore(req);
 				info = collectionListFiles( path[2], ts );
 			}
-			// GET /repositories
-			else if ( path.length == 2 && path[1].equals("repositories") )
+			// GET /units
+			else if ( path.length == 2 && path[1].equals("units") )
 			{
 				ts = triplestore(req);
-				info = repositoryListAll( ts );
+				info = unitListAll( ts );
 			}
-			// GET /repositories/bb1234567x
-			else if ( path.length == 3 && path[1].equals("repositories") )
+			// GET /units/bb1234567x
+			else if ( path.length == 3 && path[1].equals("units") )
 			{
 				ts = triplestore(req);
-				info = repositoryListObjects( path[2], ts );
+				info = unitListObjects( path[2], ts );
 			}
-			// GET /repositories/bb1234567x/count
-			else if ( path.length == 4 && path[1].equals("repositories")
+			// GET /units/bb1234567x/count
+			else if ( path.length == 4 && path[1].equals("units")
 				&& path[3].equals("count") )
 			{
 				ts = triplestore(req);
-				info = repositoryCount( path[2], ts );
+				info = unitCount( path[2], ts );
 			}
-			// GET /repositories/bb1234567x/embargo
-			else if ( path.length == 4 && path[1].equals("repositories")
+			// GET /units/bb1234567x/embargo
+			else if ( path.length == 4 && path[1].equals("units")
 				&& path[3].equals("embargo") )
 			{
 				ts = triplestore(req);
-				info = repositoryEmbargo( path[2], ts );
+				info = unitEmbargo( path[2], ts );
 			}
-			// GET /repositories/bb1234567x/files
-			else if ( path.length == 4 && path[1].equals("repositories")
+			// GET /units/bb1234567x/files
+			else if ( path.length == 4 && path[1].equals("units")
 				&& path[3].equals("files") )
 			{
 				ts = triplestore(req);
-				info = repositoryListFiles( path[2], ts );
+				info = unitListFiles( path[2], ts );
 			}
 			// GET /events/bb1234567x
 			else if ( path.length == 3  && path[1].equals("events") )
@@ -759,7 +759,7 @@ public class DAMSAPIServlet extends HttpServlet
 				info = indexUpdate( ids, ts, es );
 			}
 			// POST /queue
-			if ( path.length == 2 && path[1].equals("queue") )
+			else if ( path.length == 2 && path[1].equals("queue") )
 			{
 				InputBundle input = input(req);
 				String[] ids = input.getParams().get("id");
@@ -1147,7 +1147,7 @@ public class DAMSAPIServlet extends HttpServlet
 				info = indexDelete( ids, tsName );
 			}
 			// DELETE /queue
-			if ( path.length == 2 && path[1].equals("queue") )
+			else if ( path.length == 2 && path[1].equals("queue") )
 			{
 				InputBundle input = input(req);
 				String[] ids = input.getParams().get("id");
@@ -1296,9 +1296,9 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		return count( "dams:collection", colid, ts );
 	}
-	public Map repositoryCount( String repid, TripleStore ts )
+	public Map unitCount( String repid, TripleStore ts )
 	{
-		return count( "dams:repository", repid, ts );
+		return count( "dams:unit", repid, ts );
 	}
 	protected Map count( String pred, String obj, TripleStore ts )
 	{
@@ -1333,9 +1333,9 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		return listFiles( "dams:collection", colid, ts );
 	}
-	public Map repositoryListFiles( String repid, TripleStore ts )
+	public Map unitListFiles( String repid, TripleStore ts )
 	{
-		return listFiles( "dams:repository", repid, ts );
+		return listFiles( "dams:unit", repid, ts );
 	}
 	protected Map listFiles( String pred, String obj, TripleStore ts )
 	{
@@ -1438,7 +1438,7 @@ public class DAMSAPIServlet extends HttpServlet
 			return error(msg);
 		}
 	}
-	public Map repositoryEmbargo( String colid, TripleStore ts )
+	public Map unitEmbargo( String colid, TripleStore ts )
 	{
 		return null; // DAMS_MGR
 		// output = metadata: list of objects (??)
@@ -1448,20 +1448,20 @@ public class DAMSAPIServlet extends HttpServlet
 		return null; // DAMS_MGR
 		// output = metadata: list of objects (??)
 	}
-	public Map repositoryListAll( TripleStore ts )
+	public Map unitListAll( TripleStore ts )
 	{
 		try
 		{
-			String sparql = "select ?repository ?name where { ?repository <" + prNS + "repositoryName> ?name }";
-			BindingIterator repos = ts.sparqlSelect(sparql);
-			List<Map<String,String>> repoList = bindings(repos);
+			String sparql = "select ?unit ?name where { ?unit <" + prNS + "unitName> ?name }";
+			BindingIterator units = ts.sparqlSelect(sparql);
+			List<Map<String,String>> unitList = bindings(units);
 			Map info = new HashMap();
-			info.put( "repositories", repoList );
+			info.put( "units", unitList );
 			return info;
 		}
 		catch ( Exception ex )
 		{
-			return error( "Error listing repositories: " + ex.toString() );
+			return error( "Error listing units: " + ex.toString() );
 		}
 	}
 	public Map eventsListAll( TripleStore ts )
@@ -1540,9 +1540,9 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		return listObjects( "dams:collection", colid, ts );
 	}
-	public Map repositoryListObjects( String repid, TripleStore ts  )
+	public Map unitListObjects( String repid, TripleStore ts  )
 	{
-		return listObjects( "dams:repository", repid, ts );
+		return listObjects( "dams:unit", repid, ts );
 	}
 	public Map listObjects( String pred, String obj, TripleStore ts  )
 	{
