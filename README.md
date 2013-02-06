@@ -1,3 +1,3 @@
 The UC San Diego Library DAMS repository
 
-[Setup Instructions](wiki/Setup) are in the wiki.
+[Setup Instructions](https://github.com/ucsdlib/damsprivate/wiki/Setup) are in the wiki.
