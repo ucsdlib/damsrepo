@@ -8,7 +8,7 @@
 <!-- admin -->
 <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb07070707"/>
 <dams:collection rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX3"/>
-<dams:repository rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX2"/>
+<dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb02020202"/>
 <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX1"/>
 <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX9"/>
 <dams:license rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX8"/>
@@ -163,11 +163,6 @@
 </mads:FamilyNameElement>
 </mads:elementList>
 </mads:PersonalName>
-<dams:Repository rdf:about="http://library.ucsd.edu/ark:/20775/bbXXXXXXX2">
-<dams:repositoryName>Mandeville Special Collections Library</dams:repositoryName>
-<dams:repositoryURI rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://libraries.ucsd.edu/locations/mscl/</dams:repositoryURI>
-<dams:repositoryGroup>MSCL-Staff</dams:repositoryGroup>
-</dams:Repository>
 <dams:AssembledCollection rdf:about="http://library.ucsd.edu/ark:/20775/bbXXXXXXX3">
 <dams:scopeContentNote>
 <dams:ScopeContentNote>

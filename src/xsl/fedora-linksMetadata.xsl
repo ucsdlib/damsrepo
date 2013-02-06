@@ -12,7 +12,9 @@
             <ns0:hasModel rdf:resource="{//dams:RelatedResource[dams:type='hydra-afmodel']/dams:uri}"/>
           </xsl:when>
           <xsl:otherwise>
-            <ns0:hasModel rdf:resource="info:fedora/afmodel:DamsObject"/>
+            <xsl:for-each select="/rdf:RDF/*">
+              <ns0:hasModel rdf:resource="info:fedora/afmodel:Dams{local-name()}"/>
+            </xsl:for-each>
           </xsl:otherwise>
         </xsl:choose>
       </rdf:Description>

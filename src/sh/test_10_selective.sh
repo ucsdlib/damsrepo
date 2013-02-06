@@ -14,10 +14,10 @@ function mintark
     echo $XML | sed -e's/.*<response><ids><value>//' -e 's/<\/value><\/ids>.*//'
 }
 
-# create a sample repository
+# create a sample unit
 REP_ARK=`mintark`
 echo "ARK: $REP_ARK"
-JSON=`echo "[{\"subject\":\"$REP_ARK\",\"predicate\":\"dams:repositoryName\",\"object\":\"\\\\\"Test Repository 2\\\\\"\"},{\"subject\":\"$REP_ARK\",\"predicate\":\"rdf:type\",\"object\":\"dams:Repository\"},{\"subject\":\"$REP_ARK\",\"predicate\":\"dams:repositoryURI\",\"object\":\"http://test.com\"}]" | urlencode`
+JSON=`echo "[{\"subject\":\"$REP_ARK\",\"predicate\":\"dams:unitName\",\"object\":\"\\\\\"Test Unit 2\\\\\"\"},{\"subject\":\"$REP_ARK\",\"predicate\":\"rdf:type\",\"object\":\"dams:Unit\"},{\"subject\":\"$REP_ARK\",\"predicate\":\"dams:unitURI\",\"object\":\"http://test.com\"}]" | urlencode`
 echo "http://localhost:8080/dams/api/objects/$REP_ARK?adds=XXX"
 curl -f -X POST "http://localhost:8080/dams/api/objects/$REP_ARK?adds=$JSON"
 if [ $? != 0 ]; then
@@ -38,7 +38,7 @@ echo
 
 OBJ=`mintark`
 echo "ARK: $OBJ"
-JSON=`echo "[{\"subject\":\"$OBJ\",\"predicate\":\"dams:title\",\"object\":\"node1\"},{\"subject\":\"node1\",\"predicate\":\"rdf:type\",\"object\":\"dams:Title\"},{\"subject\":\"node1\",\"predicate\":\"rdf:value\",\"object\":\"\\\\\"Test Object $i\\\\\"\"},{\"subject\":\"$OBJ\",\"predicate\":\"rdf:type\",\"object\":\"dams:Object\"},{\"subject\":\"$OBJ\",\"predicate\":\"dams:repository\",\"object\":\"$DAMSID$REP_ARK\"},{\"subject\":\"$OBJ\",\"predicate\":\"dams:collection\",\"object\":\"$DAMSID$COL_ARK\"}]" | urlencode`
+JSON=`echo "[{\"subject\":\"$OBJ\",\"predicate\":\"dams:title\",\"object\":\"node1\"},{\"subject\":\"node1\",\"predicate\":\"rdf:type\",\"object\":\"dams:Title\"},{\"subject\":\"node1\",\"predicate\":\"rdf:value\",\"object\":\"\\\\\"Test Object $i\\\\\"\"},{\"subject\":\"$OBJ\",\"predicate\":\"rdf:type\",\"object\":\"dams:Object\"},{\"subject\":\"$OBJ\",\"predicate\":\"dams:unit\",\"object\":\"$DAMSID$REP_ARK\"},{\"subject\":\"$OBJ\",\"predicate\":\"dams:collection\",\"object\":\"$DAMSID$COL_ARK\"}]" | urlencode`
 echo "http://localhost:8080/dams/api/objects/$OBJ?adds=XXX"
 curl -f -X POST "http://localhost:8080/dams/api/objects/$OBJ?adds=$JSON"
 if [ $? != 0 ]; then
