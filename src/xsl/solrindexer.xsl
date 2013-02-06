@@ -102,13 +102,13 @@
         </field>
       </xsl:for-each>
 
-      <!-- repository -->
-      <xsl:for-each select="dams:repository/dams:Repository">
-        <field name="repository">
-          <xsl:value-of select="dams:repositoryName"/>
+      <!-- organizational unit -->
+      <xsl:for-each select="dams:unit/dams:Unit">
+        <field name="unit">
+          <xsl:value-of select="dams:unitName"/>
         </field>
-        <field name="repository_uri">
-          <xsl:value-of select="dams:repositoryURI"/>
+        <field name="unit_uri">
+          <xsl:value-of select="dams:unitURI"/>
         </field>
       </xsl:for-each>
 

@@ -16,7 +16,7 @@ if [ $? != 0 ]; then
 fi
 echo $DIVIDER
 
-$DIR/test_03_repositories.sh
+$DIR/test_03_units.sh
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + $? ))
 fi

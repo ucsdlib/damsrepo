@@ -37,7 +37,7 @@
         <group><xsl:value-of select="$adminGroup"/></group>
       </access>
       <access type="edit">
-        <xsl:for-each select="//dams:Repository/dams:repositoryGroup">
+        <xsl:for-each select="//dams:Unit/dams:unitGroup">
           <group><xsl:value-of select="."/></group>
         </xsl:for-each>
         <group><xsl:value-of select="$adminGroup"/></group>

@@ -2,21 +2,21 @@
 
 ERRORS=0
 
-# list repositories
-echo "Listing repositories"
-REPO_LIST=`curl -s -f http://localhost:8080/dams/api/repositories`
+# list units
+echo "Listing units"
+UNIT_LIST=`curl -s -f http://localhost:8080/dams/api/units`
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
 echo
 
-# parse repository list
-REPO=`echo $REPO_LIST | perl -pe 's/></>\n</g' | grep "<repository>" | head -1 | perl -pe "s/<\/repository>//" | perl -pe "s/.*\///"`
-echo "Repo: $REPO"
+# parse unit list
+UNIT=`echo $UNIT_LIST | perl -pe 's/></>\n</g' | grep "<unit>" | head -1 | perl -pe "s/<\/unit>//" | perl -pe "s/.*\///"`
+echo "Unit: $UNIT"
 
-# list objects in the repository
-echo "Listing objects in repository $REPO"
-OBJ_LIST=`curl -s -f http://localhost:8080/dams/api/repositories/$REPO`
+# list objects in the unit
+echo "Listing objects in unit $UNIT"
+OBJ_LIST=`curl -s -f http://localhost:8080/dams/api/units/$UNIT`
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
@@ -43,10 +43,11 @@ IDS=
 for i in $OBJS; do
 	IDS="${IDS}id=$i&"
 done
-echo $IDS
-curl -f -X POST http://localhost:8080/dams/api/index?$IDS
+echo http://localhost:8080/dams/api/index?$IDS
+curl -f -X POST "http://localhost:8080/dams/api/index?$IDS"
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
+    exit 1
 fi
 echo
 echo
@@ -67,7 +68,7 @@ echo
 echo
 
 echo "Bulk delete records from solr index"
-curl -f -X DELETE http://localhost:8080/dams/api/index?$IDS
+curl -f -X DELETE "http://localhost:8080/dams/api/index?$IDS"
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
