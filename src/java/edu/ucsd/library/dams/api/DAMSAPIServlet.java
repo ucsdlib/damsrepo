@@ -158,7 +158,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 	// solr
 	private String solrBase;		// base URL for solr webapp
-	private String xslBase;		    // base dir for server-side XSL stylesheets
+	protected String xslBase;	    // base dir for server-side XSL stylesheets
 	private String encodingDefault; // default character encoding
 	private String mimeDefault;     // default output mime type
 	private File solrXslFile;       // default solr xsl stylesheet
@@ -210,7 +210,7 @@ public class DAMSAPIServlet extends HttpServlet
 		buildTimestamp = ctx.getInitParameter("build-timestamp");
 		super.init(config);
 	}
-	private String config()
+	protected String config()
 	{
 		String error = null;
 		try
@@ -3544,22 +3544,30 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		return doc.asXML();
 	}
-    public String xslt( String xml, String xslName,
-        Map<String,String[]> params, String queryString )
-		throws TransformerException
+	
+    public String xslt( String xml, String xslName, Map<String,String[]> params,
+		String queryString ) throws TransformerException
+	{
+        // setup the transformer
+		String xsl = xslName.startsWith("http") ? xslName : xslBase + xslName;
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer t = tf.newTransformer( new StreamSource(xsl) );
+		return xslt( xml, t, params, queryString);
+	}
+    public String xslt( String xml, Transformer t, Map<String,String[]> params,
+		String queryString ) throws TransformerException
     {
 		if ( xml == null )
 		{
 			throw new TransformerException("No input document provided");
 		}
+		if ( t == null )
+		{
+			throw new TransformerException("Null transform");
+		}
 
         // params
         String casGroupTest = getParamString(params,"casGroupTest",null);
-
-        // setup the transformer
-		String xsl = xslName.startsWith("http") ? xslName : xslBase + xslName;
-        TransformerFactory tf = TransformerFactory.newInstance();
-        Transformer t = tf.newTransformer( new StreamSource(xsl) );
 
         // add request params to xsl
         if ( params != null )
