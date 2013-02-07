@@ -16,7 +16,10 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
 // xslt
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamSource;
 
 // dom4j
 import org.dom4j.Attribute;
@@ -103,6 +106,16 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	// logging
 	private static Logger log = Logger.getLogger(FedoraAPIServlet.class);
 
+	// xslt
+	Transformer objectProfileTransform;
+	Transformer objectDatastreamsTransform;
+	Transformer nextPIDTransform;
+	Transformer datastreamProfileTransform;
+	Transformer datastreamDeleteTransform;
+	Transformer systemMetadataTransform;
+	Transformer rightsMetadataTransform;
+	Transformer linksMetadataTransform;
+
     // initialize servlet parameters
     public void init( ServletConfig config ) throws ServletException
     {
@@ -110,8 +123,59 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		queueEnabled = false;
 
         // call parent init
-        ServletContext ctx = config.getServletContext();
         super.init(config);
+
+        String err = config( false );
+        if ( err != null )
+        {
+            log.error( err );
+        }
+    }
+    private String config( boolean reload )
+    {
+        String err = null;
+
+        // reload parent config
+        if ( reload )
+        {
+            err = super.config();
+            if ( err != null ) { return err; }
+        }
+
+        // local config
+        try
+        {
+            TransformerFactory tf = TransformerFactory.newInstance();
+            objectProfileTransform = tf.newTransformer(
+                new StreamSource( xslBase + "fedora-object-profile.xsl" )
+            );
+            objectDatastreamsTransform = tf.newTransformer(
+                new StreamSource( xslBase + "fedora-object-datastreams.xsl" )
+            );
+            nextPIDTransform = tf.newTransformer(
+                new StreamSource( xslBase + "fedora-nextPID.xsl" )
+            );
+            datastreamProfileTransform = tf.newTransformer(
+                new StreamSource( xslBase + "fedora-datastream-profile.xsl" )
+            );
+            datastreamDeleteTransform = tf.newTransformer(
+                new StreamSource( xslBase + "fedora-datastream-delete.xsl" )
+            );
+			systemMetadataTransform = tf.newTransformer(
+				new StreamSource( xslBase + "fedora-systemMetadata.xsl" )
+			);
+			linksMetadataTransform = tf.newTransformer(
+				new StreamSource( xslBase + "fedora-linksMetadata.xsl" )
+			);
+			rightsMetadataTransform = tf.newTransformer(
+				new StreamSource( xslBase + "fedora-rightsMetadata.xsl" )
+			);
+        }
+        catch ( Exception ex )
+        {
+            err = "Error loading stylesheets: " + ex.toString();
+        }
+        return err;
     }
 
 	/**
@@ -145,7 +209,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				ts = triplestore(req);
 				es = events(req);
 				outputTransform(
-					path[2], null, null, "fedora-object-profile.xsl", null,
+					path[2], null, null, objectProfileTransform, null,
 					"text/xml", res.SC_OK, ts, es, res
 				);
 			}
@@ -163,7 +227,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					+ req.getContextPath() + req.getServletPath() + "/";
 				params.put("baseURL",new String[]{baseURL});
 				outputTransform(
-					path[2], null, null, "fedora-object-datastreams.xsl",
+					path[2], null, null, objectDatastreamsTransform,
 					params, "text/xml", res.SC_OK, ts, es, res
 				);
 			}
@@ -178,7 +242,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				params.put("dsName",new String[]{path[4]});
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					"fedora-datastream-profile.xsl", params, "text/xml",
+					datastreamProfileTransform, params, "text/xml",
 					res.SC_OK, ts, es, res
 				);
 			}
@@ -211,7 +275,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				params.put("adminGroup", new String[]{roleAdmin} );
 				params.put("dsName",new String[]{fedoraRightsDS});
 				outputTransform(
-					path[2], null, null, "fedora-rightsMetadata.xsl", params,
+					path[2], null, null, rightsMetadataTransform, params,
 					"text/xml", res.SC_OK, ts, null, res
 				);
 			}
@@ -225,7 +289,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
                 Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("dsName",new String[]{fedoraLinksDS});
                 outputTransform(
-                    path[2], null, null, "fedora-linksMetadata.xsl", params,
+                    path[2], null, null, linksMetadataTransform, params,
                     "text/xml", res.SC_OK, ts, null, res
                 );
 			}
@@ -239,7 +303,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
                 Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("dsName",new String[]{fedoraSystemDS});
                 outputTransform(
-                    path[2], null, null, "fedora-systemMetadata.xsl", params,
+                    path[2], null, null, systemMetadataTransform, params,
                     "text/xml", res.SC_OK, ts, null, res
                 );
 			}
@@ -334,7 +398,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("dsName",new String[]{fedoraObjectDS});
 				outputTransform(
-					path[2], null, null, "fedora-datastream-profile.xsl",
+					path[2], null, null, datastreamProfileTransform,
 					params, "text/xml", res.SC_CREATED, ts, es, res
 				);
 			}
@@ -395,7 +459,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("dsName",new String[]{fedoraLinksDS});
 				outputTransform(
-					path[2], null, null, "fedora-datastream-profile.xsl",
+					path[2], null, null, datastreamProfileTransform,
 					params, "text/xml", res.SC_CREATED, ts, es, res
 				);
 			}
@@ -419,7 +483,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					"fedora-datastream-profile.xsl", params, "text/xml",
+					datastreamProfileTransform, params, "text/xml",
 					res.SC_CREATED, ts, es, res
 				);
 			}
@@ -470,7 +534,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("dsName",new String[]{fedoraObjectDS});
 				outputTransform(
-					path[2], null, null, "fedora-datastream-profile.xsl",
+					path[2], null, null, datastreamProfileTransform,
 					params, "text/xml", res.SC_OK, ts, es, res
 				);
 			}
@@ -511,7 +575,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					"fedora-datastream-profile.xsl", params, "text/xml",
+					datastreamProfileTransform, params, "text/xml",
 					res.SC_OK, ts, es, res
 				);
 			}
@@ -554,7 +618,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				info = objectDelete( stripPrefix(path[2]), ts, es );
 
 				outputTransform(
-					path[2], null, null, "fedora-datastream-delete.xsl", null,
+					path[2], null, null, datastreamDeleteTransform, null,
 					"text/plain", res.SC_NO_CONTENT, ts, es, res
 				);
 			}
@@ -574,7 +638,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					"fedora-datastream-delete.xsl", null, "text/plain",
+					datastreamDeleteTransform, null, "text/plain",
 					res.SC_NO_CONTENT, ts, es, res
 				);
 			}
@@ -597,7 +661,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	}
 
 	private void outputTransform( String objid, String cmpid, String fileid,
-		String xsl, Map<String,String[]> params, String contentType,
+		Transformer xsl, Map<String,String[]> params, String contentType,
 		int successCode, TripleStore ts, TripleStore es,
 		HttpServletResponse res )
 		throws TripleStoreException, TransformerException
