@@ -397,7 +397,7 @@ public class SwiftClient
 				// check whether we've reached the end of the stream
 				if ( ! sis.exhausted() || (i+1)*SEGMENT_SIZE == len )
 				{
-					sis.close(); sis = null;
+					sis.close(true); sis = null;
 				}
 				else
 				{
