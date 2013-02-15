@@ -178,8 +178,11 @@ public class DAMSAPIServlet extends HttpServlet
 	protected String fedoraCompat;    // fedora version emulated
 
 	// derivatives creation
-	private Map<String, String> derivativesMap; // derivatives map
+	private Map<String, String> derivativesRes; // derivatives resolution map
+	private Map<String, String> derivativesUse; // derivatives use value map
+	private String derivativesExt;              // extension for derivs
 	private String magickCommand; 				// ImageMagick command
+	private String ffmpegCommand; 				// ffmpeg command
 	private long jhoveMaxSize;                  // local file cache size limit
 	
 	// number detection
@@ -299,15 +302,23 @@ public class DAMSAPIServlet extends HttpServlet
 			fedoraCompat = props.getProperty("fedora.compatVersion");
 			
 			// derivative list
+			derivativesExt  = props.getProperty("derivatives.ext");
 			String derList = props.getProperty("derivatives.list");
-			derivativesMap = new HashMap<String, String>();
+			derivativesRes = new HashMap<String, String>();
+			derivativesUse = new HashMap<String, String>();
 			if(derList != null)
 			{
-				String[] derivatives = derList.split(",");
-				for ( int i=0; i<derivatives.length; i++ )
+				String[] d = derList.split(",");
+				for ( int i = 0; i < d.length; i++ )
 				{
-					String[] pair = derivatives[i].split(":");
-					derivativesMap.put(pair[0].trim(), pair[1].trim());
+					String res = props.getProperty(
+						"derivatives." + d[i] + ".resolution"
+					);
+					String use = props.getProperty(
+						"derivatives." + d[i] + ".use"
+					);
+					derivativesRes.put( d[i], res );
+					derivativesUse.put( d[i], use );
 				}
 			}
 			
@@ -919,6 +930,7 @@ public class DAMSAPIServlet extends HttpServlet
 				
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
+System.out.println("size: " + listToString(req.getParameterValues("size")));
 				params.put("frame", req.getParameterValues("frame"));
 				info = fileDerivatives( path[2], null, path[3], false, fs, ts, es, params );
 			}
@@ -932,6 +944,7 @@ public class DAMSAPIServlet extends HttpServlet
 				
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
+System.out.println("size: " + listToString(req.getParameterValues("size")));
 				params.put("frame", req.getParameterValues("frame"));
 				info = fileDerivatives( path[2], path[3], path[4], false, fs, ts, es, params );
 			}
@@ -1084,6 +1097,7 @@ public class DAMSAPIServlet extends HttpServlet
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
 				params.put("frame", req.getParameterValues("frame"));
+System.out.println("size: " + listToString(req.getParameterValues("size")));
 				info = fileDerivatives( path[2], null, path[3], true, fs, ts, es, params );
 			}
 			// PUT /files/bb1234567x/1/1.tif/derivatives
@@ -1097,6 +1111,7 @@ public class DAMSAPIServlet extends HttpServlet
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
 				params.put("frame", req.getParameterValues("frame"));
+System.out.println("size: " + listToString(req.getParameterValues("size")));
 				info = fileDerivatives( path[2], path[3], path[4], true, fs, ts, es, params );
 			}
 			else
@@ -2100,6 +2115,16 @@ public class DAMSAPIServlet extends HttpServlet
 			return error( "Error deleting file: " + ex.toString() );
 		}
 	}
+private static String listToString(String[] arr)
+{
+	String val = "";
+	for ( int i = 0; arr != null && i < arr.length; i++ )
+	{
+		if ( !val.equals("") ) { val += ", "; }
+		val += arr[i];
+	}
+	return val;
+}
 	public Map fileDerivatives( String objid, String cmpid, String fileid,
 		boolean overwrite, FileStore fs, TripleStore ts, TripleStore es,
 		Map<String, String[]> params )
@@ -2124,7 +2149,7 @@ public class DAMSAPIServlet extends HttpServlet
 					"File identifier required"
 				);
 			}
-			if ( derivativesMap == null || derivativesMap.size() == 0 )
+			if ( derivativesRes == null || derivativesRes.size() == 0 )
 			{
 				return error(
 					"Derivative dimensions not configured."
@@ -2136,22 +2161,31 @@ public class DAMSAPIServlet extends HttpServlet
 			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
 			
 			String[] sizes = params.get("size");
-			if( sizes != null && sizes.length > 0)
+for ( int i = 0; sizes != null && i < sizes.length; i++ )
+{
+	System.out.println("XXXXXXXXXXXXXXXXX size " + i + ": " + sizes[i]);
+}
+
+			// check for comma-separate size list
+			if ( sizes != null && sizes.length == 1
+				&& sizes[0].indexOf(",") != -1 )
+			{
 				sizes = sizes[0].split(",");
+			}
 			if ( sizes != null)
 			{
 				int len = sizes.length;
 				for ( int i=0; i<len; i++ )
 				{
 					derName = sizes[i] = sizes[i].trim();
-					if ( !derivativesMap.containsKey( derName ) )
+					if ( !derivativesRes.containsKey( derName ) )
 					{
 						return error(
 								HttpServletResponse.SC_BAD_REQUEST,
 								"Unknow derivative name: " + derName
 							);
 					}
-					Identifier dfid = createID( objid, cmpid, derName + ".jpg" );
+					Identifier dfid = createID( objid, cmpid, derName + derivativesExt );
 					if ( !overwrite )
 					{
 						sit = ts.listStatements(oid, hasFile, dfid);
@@ -2169,9 +2203,8 @@ public class DAMSAPIServlet extends HttpServlet
 			else
 			{
 				int i = 0;
-				int len = derivativesMap.size();
-				sizes = new String[len];
-				for ( Iterator it=derivativesMap.keySet().iterator(); it.hasNext(); )
+				sizes = new String[derivativesRes.size()];
+				for ( Iterator it=derivativesRes.keySet().iterator(); it.hasNext(); )
 				{
 					sizes[i++] = (String)it.next();
 				}
@@ -2190,18 +2223,30 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				boolean successful = false;
 				derName = sizes[i];
-				sizewh = derivativesMap.get(derName).split("x");
-				derid = derName + ".jpg";
+				sizewh = derivativesRes.get(derName).split("x");
+				derid = derName + derivativesExt;
 
-				successful = magick.makeDerivative(fs, objid, cmpid, fileid, derid, Integer.parseInt(sizewh[0]), Integer.parseInt(sizewh[1]), frame );
+				successful = magick.makeDerivative(
+					fs, objid, cmpid, fileid, derid,
+					Integer.parseInt(sizewh[0]),
+					Integer.parseInt(sizewh[1]), frame
+				);
 				if(! successful )
-					errorMessage += "Error derivatives creation: " + objid + "/" + fid + "\n";
+				{
+					errorMessage += "Error derivatives creation: "
+						+ objid + "/" + fid + "\n";
+				}
 
-				String[] uses = {"visual-thumbnail"};
+				String[] uses = {derivativesUse.get(derName)};
 				params.put("use", uses);
-				fileCharacterize( objid, cmpid, derid, overwrite, fs, ts, es,  params);
+				fileCharacterize(
+					objid, cmpid, derid, overwrite, fs, ts, es, params
+				);
 				indexQueue(objid,"modifyObject");
-				createEvent( ts, es, objid, cmpid, derid, "Derivatives Creation", true, null, null );
+				createEvent(
+					ts, es, objid, cmpid, derid, "Derivatives Creation",
+					true, null, null
+				);
 			}
 		}
 		catch ( Exception ex )
@@ -3798,22 +3843,37 @@ public class DAMSAPIServlet extends HttpServlet
 	 */
 	public String getFileUse( String filename )
 	{
-		// check in fsUseMap
-		String ext = filename.substring(filename.lastIndexOf(".")+1);
-		String use = fsUseMap.get(ext);
-		if ( use != null ) { return fsUseMap.get(ext); }
+		String use = null;
 
-		// fallback on mime type
-		MimetypesFileTypeMap mimeTypes = new MimetypesFileTypeMap();
-		String mimeType = mimeTypes.getContentType(filename);
-		if(!filename.startsWith("1.") && filename.endsWith(".jpg"))
+		// check for generated derivatives
+		if ( filename.endsWith(derivativesExt) )
 		{
-			// Derivative type
-			use = mimeType.substring(0, mimeType.indexOf('/')) + "-thumbnail";
+			String fid = filename.substring(0,filename.indexOf(derivativesExt) );
+			use = props.getProperty("derivatives." + fid + ".use");
 		}
-		else
+
+		if ( use == null )
 		{
-			use = mimeType.substring(0, mimeType.indexOf('/')) + "-service";
+			// check in fsUseMap
+			String ext = filename.substring(filename.lastIndexOf(".")+1);
+			use = fsUseMap.get(ext);
+		}
+
+		if ( use == null )
+		{
+			// fallback on mime type
+			MimetypesFileTypeMap mimeTypes = new MimetypesFileTypeMap();
+			String mimeType = mimeTypes.getContentType(filename);
+			String format = mimeType.substring(0, mimeType.indexOf('/'));
+			if(!filename.startsWith("1.") && filename.endsWith(derivativesExt))
+			{
+				// Derivative type
+				use = format + "-thumbnail";
+			}
+			else
+			{
+				use = format + "-service";
+			}
 		}
 		return use;
 	}
@@ -3823,10 +3883,15 @@ public class DAMSAPIServlet extends HttpServlet
 		String compositionLevel = "0";
 		if ( srcFileName != null )
 		{
-			if ( srcFileName.endsWith(".tar.gz") || srcFileName.endsWith(".tgz") )
+			if (srcFileName.endsWith(".tar.gz") || srcFileName.endsWith(".tgz"))
+			{
 				compositionLevel = "2";
-			else if ( srcFileName.endsWith(".gz") || srcFileName.endsWith(".tar") || srcFileName.endsWith(".zip"))
+			}
+			else if (srcFileName.endsWith(".gz") || srcFileName.endsWith(".tar")
+				|| srcFileName.endsWith(".zip"))
+			{
 				compositionLevel = "1";
+			}
 		}
 		return compositionLevel;
 	}
