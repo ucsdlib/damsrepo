@@ -1,0 +1,136 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dams="http://library.ucsd.edu/ontology/dams#"
+    xmlns:mads="http://www.loc.gov/mads/rdf/v1#">
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bb81818181">
+    <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb02020202"/>
+    <dams:language rdf:resource="http://library.ucsd.edu/ark:/20775/bd0410344f"/>
+    <dams:collection rdf:resource="http://library.ucsd.edu/ark:/20775/bb03030303"/>
+    <dams:license rdf:resource="http://library.ucsd.edu/ark:/20775/bb22222222"/>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bb09090909"/>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
+    <dams:otherRights rdf:resource="http://library.ucsd.edu/ark:/20775/bb06060606"/>
+    <dams:statute rdf:resource="http://library.ucsd.edu/ark:/20775/bb21212121"/>
+    <dams:typeOfResource>mixed material</dams:typeOfResource>
+    <dams:otherResource>
+      <dams:RelatedResource>
+        <dams:type>online exhibit</dams:type>
+        <dams:uri>http://foo.com/1234</dams:uri>
+        <dams:description>Sample Complex Object Record #2: The Exhibit!</dams:description>
+      </dams:RelatedResource>
+    </dams:otherResource>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:name rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX1"/>
+        <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bd55639754"/>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:note>
+      <dams:Note>
+        <dams:displayLabel>Local ID</dams:displayLabel>
+        <rdf:value>b6700311</rdf:value>
+        <dams:type>identifier</dams:type>
+      </dams:Note>
+    </dams:note>
+    <dams:note>
+      <dams:Note>
+        <dams:displayLabel>ARK ID</dams:displayLabel>
+        <rdf:value>http://libraries.ucsd.edu/ark:/20775/bb81818181</rdf:value>
+        <dams:type>identifier</dams:type>
+      </dams:Note>
+    </dams:note>
+    <dams:subject>
+      <mads:ComplexSubject>
+        <mads:authoritativeLabel>Black Panther Party--History</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <rdf:Description rdf:about="http://library.ucsd.edu/ark:/20775/bbXXXXXXX7"/>
+          <rdf:Description rdf:about="http://library.ucsd.edu/ark:/20775/bbXXXXXXX4"/>
+        </mads:elementList>
+      </mads:ComplexSubject>
+    </dams:subject>
+    <dams:subject rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX5"/>
+    <dams:note>
+      <dams:Note>
+        <rdf:value>Dissertation is in English.</rdf:value>
+        <dams:displayLabel>language</dams:displayLabel>
+        <dams:type>language_of_materials</dams:type>
+      </dams:Note>
+    </dams:note>
+    <dams:title>
+      <dams:Title>
+        <rdf:value>Sample Complex Object Record #2 (Hierarchy)</rdf:value>
+        <dams:subtitle>a PDF with two attached images</dams:subtitle>
+        <dams:type>main</dams:type>
+      </dams:Title>
+    </dams:title>
+    <dams:hasComponent>
+      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb81818181/1">
+        <dams:typeOfResource>text</dams:typeOfResource>
+        <dams:note>
+          <dams:Note>
+            <rdf:value>1 PDF (8 p.)</rdf:value>
+            <dams:displayLabel>Extent</dams:displayLabel>
+            <dams:type>dimensions</dams:type>
+          </dams:Note>
+        </dams:note>
+        <dams:title>
+          <dams:Title>
+            <rdf:value>The Daily Guardian</rdf:value>
+            <dams:subtitle>Volume 40, Number 37</dams:subtitle>
+            <dams:type>main</dams:type>
+          </dams:Title>
+        </dams:title>
+        <dams:date>
+          <dams:Date>
+            <rdf:value>Tuesday, May 20, 1980</rdf:value>
+            <dams:beginDate>1980-05-20</dams:beginDate>
+            <dams:endDate>1980-05-20</dams:endDate>
+          </dams:Date>
+        </dams:date>
+      </dams:Component>
+    </dams:hasComponent>
+    <dams:hasComponent>
+      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb81818181/2">
+        <dams:title>
+          <dams:Title>
+            <rdf:value>Supplementary Images</rdf:value>
+          </dams:Title>
+        </dams:title>
+        <dams:hasComponent>
+          <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb81818181/3">
+            <dams:title>
+              <dams:Title>
+                <rdf:value>Image #1: Before</rdf:value>
+                <dams:type>main</dams:type>
+              </dams:Title>
+            </dams:title>
+            <dams:date>
+              <dams:Date>
+                <rdf:value>Tuesday, May 01, 1980</rdf:value>
+                <dams:beginDate>1980-05-01</dams:beginDate>
+                <dams:endDate>1980-05-01</dams:endDate>
+              </dams:Date>
+            </dams:date>
+          </dams:Component>
+        </dams:hasComponent>
+        <dams:hasComponent>
+          <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb81818181/4">
+            <dams:title>
+              <dams:Title>
+                <rdf:value>Image #2: After</rdf:value>
+                <dams:type>main</dams:type>
+              </dams:Title>
+            </dams:title>
+            <dams:date>
+              <dams:Date>
+                <rdf:value>Tuesday, May 03, 1980</rdf:value>
+                <dams:beginDate>1980-05-03</dams:beginDate>
+                <dams:endDate>1980-05-03</dams:endDate>
+              </dams:Date>
+            </dams:date>
+          </dams:Component>
+        </dams:hasComponent>
+      </dams:Component>
+    </dams:hasComponent>
+  </dams:Object>
+</rdf:RDF>
