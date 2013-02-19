@@ -65,6 +65,7 @@
     </dams:title>
     <dams:hasComponent>
       <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb81818181/1">
+        <dams:order>1</dams:order>
         <dams:typeOfResource>text</dams:typeOfResource>
         <dams:note>
           <dams:Note>
@@ -91,6 +92,7 @@
     </dams:hasComponent>
     <dams:hasComponent>
       <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb81818181/2">
+        <dams:order>2</dams:order>
         <dams:title>
           <dams:Title>
             <rdf:value>Supplementary Images</rdf:value>
@@ -98,6 +100,7 @@
         </dams:title>
         <dams:hasComponent>
           <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb81818181/3">
+            <dams:order>1</dams:order>
             <dams:title>
               <dams:Title>
                 <rdf:value>Image #1: Before</rdf:value>
@@ -115,6 +118,7 @@
         </dams:hasComponent>
         <dams:hasComponent>
           <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb81818181/4">
+            <dams:order>2</dams:order>
             <dams:title>
               <dams:Title>
                 <rdf:value>Image #2: After</rdf:value>
@@ -128,6 +132,76 @@
                 <dams:endDate>1980-05-03</dams:endDate>
               </dams:Date>
             </dams:date>
+          </dams:Component>
+        </dams:hasComponent>
+      </dams:Component>
+    </dams:hasComponent>
+    <dams:hasComponent>
+      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb81818181/5">
+        <dams:order>3</dams:order>
+        <dams:title>
+          <dams:Title>
+            <rdf:value>Dataset</rdf:value>
+          </dams:Title>
+        </dams:title>
+        <dams:hasComponent>
+          <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb81818181/6">
+            <dams:order>1</dams:order>
+            <dams:title>
+              <dams:Title>
+                <rdf:value>Raw Data</rdf:value>
+              </dams:Title>
+            </dams:title>
+          </dams:Component>
+        </dams:hasComponent>
+        <dams:hasComponent>
+          <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb81818181/7">
+            <dams:order>2</dams:order>
+            <dams:title>
+              <dams:Title>
+                <rdf:value>Analysis</rdf:value>
+              </dams:Title>
+            </dams:title>
+            <dams:hasComponent>
+              <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb81818181/8">
+                <dams:order>1</dams:order>
+                <dams:title>
+                  <dams:Title>
+                    <rdf:value>Spreadsheet</rdf:value>
+                  </dams:Title>
+                </dams:title>
+              </dams:Component>
+            </dams:hasComponent>
+            <dams:hasComponent>
+              <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb81818181/9">
+                <dams:order>2</dams:order>
+                <dams:title>
+                  <dams:Title>
+                    <rdf:value>Graphs</rdf:value>
+                  </dams:Title>
+                </dams:title>
+                <dams:hasComponent>
+                  <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb81818181/10">
+                    <dams:order>1</dams:order>
+                    <dams:title>
+                      <dams:Title>
+                        <rdf:value>Graph 1 - Distribution</rdf:value>
+                      </dams:Title>
+                    </dams:title>
+                  </dams:Component>
+                </dams:hasComponent>
+                <dams:hasComponent>
+                  <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb81818181/11">
+                    <dams:order>2</dams:order>
+                    <dams:title>
+                      <dams:Title>
+                        <rdf:value>Graph 2 - Blue</rdf:value>
+                      </dams:Title>
+                    </dams:title>
+                  </dams:Component>
+                </dams:hasComponent>
+              </dams:Component>
+            </dams:hasComponent>
           </dams:Component>
         </dams:hasComponent>
       </dams:Component>
