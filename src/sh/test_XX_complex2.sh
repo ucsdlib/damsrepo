@@ -28,20 +28,13 @@ for i in 1 3 4; do
 	done
 done
 
-# check whether object exists
-EXIST=`curl http://localhost:8080/dams/api/objects/$ARK/exists | grep -c "<statusCode>200</statusCode>"`
-if [ $EXIST ]; then
-	# object exists in some form, use PUT to update with fresh metadata
-	echo "Updating object..."
-	$BASE/ts-put.sh $ARK src/sample/object/damsComplexObject2.rdf.xml
-else
-	# first time loading object, use POST
-	echo "Creating object..."
-	$BASE/ts-post.sh $ARK src/sample/object/damsComplexObject2.rdf.xml
-fi
-
-# post files
+# post first files
 $BASE/fs-post-cmp.sh $ARK 1 1.pdf src/sample/files/20775-bb01034796-1-1.pdf
+
+# update metadata (PUT required even for new obj b/c files create object)
+$BASE/ts-put.sh $ARK src/sample/object/damsComplexObject2.rdf.xml
+
+# post subcomponent files after metadata scaffold in place
 $BASE/fs-post-cmp.sh $ARK 3 1.jpg src/sample/files/20775-bb75097630-1-1.jpg
 $BASE/fs-post-cmp.sh $ARK 4 1.jpg src/sample/files/20775-bb01010101-2-1.jpg
 
@@ -49,3 +42,4 @@ $BASE/fs-post-cmp.sh $ARK 4 1.jpg src/sample/files/20775-bb01010101-2-1.jpg
 $BASE/fs-derivatives-cmp.sh $ARK 1 1.pdf
 $BASE/fs-derivatives-cmp.sh $ARK 3 1.jpg
 $BASE/fs-derivatives-cmp.sh $ARK 4 1.jpg
+
