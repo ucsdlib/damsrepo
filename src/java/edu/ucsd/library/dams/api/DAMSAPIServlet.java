@@ -2427,7 +2427,7 @@ for ( int i = 0; sizes != null && i < sizes.length; i++ )
 			buf.append( c );
 		}
 		String xml = buf.toString();
-		System.out.println("xml: " + xml);
+		//System.out.println("xml: " + xml);
 		return new ByteArrayInputStream( xml.getBytes() );
 	}
 		
@@ -2437,7 +2437,7 @@ for ( int i = 0; sizes != null && i < sizes.length; i++ )
 	{
 		try
 		{
-			in = debugInputStream(in);
+			//in = debugInputStream(in);
 
 			// make sure an identifier is specified
 			if ( objid == null || objid.trim().equals("") )
@@ -3865,6 +3865,7 @@ for ( int i = 0; sizes != null && i < sizes.length; i++ )
 			MimetypesFileTypeMap mimeTypes = new MimetypesFileTypeMap();
 			String mimeType = mimeTypes.getContentType(filename);
 			String format = mimeType.substring(0, mimeType.indexOf('/'));
+			if ( format.equals("application") ) { format = "data"; }
 			if(!filename.startsWith("1.") && filename.endsWith(derivativesExt))
 			{
 				// Derivative type

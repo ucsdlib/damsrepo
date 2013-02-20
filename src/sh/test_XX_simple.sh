@@ -5,15 +5,6 @@
 BASE=`dirname $0`
 ARK=bb90909090
 
-TS=$1
-ES=$2
-if [ ! "$TS" ]; then
-	TS=dams
-fi
-if [ ! "$ES" ]; then
-	ES=events
-fi
-
 # delete object
 $BASE/ts-delete.sh $ARK
 
