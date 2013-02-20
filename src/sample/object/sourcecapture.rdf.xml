@@ -5,7 +5,7 @@
     <dams:imageProducer>Luna Imaging, Inc.</dams:imageProducer>
     <dams:captureSource>B&amp;W negative , 2 1/2 x 2 1/2</dams:captureSource>
     <dams:scannerManufacturer>Epson</dams:scannerManufacturer>
-    <dams:scannerModel>Expression 1600</dams:scannerModel>
+    <dams:scannerModelName>Expression 1600</dams:scannerModelName>
     <dams:scanningSoftware>Epson Twain Pro</dams:scanningSoftware>
     <dams:scanningSoftwareVersion>2.10E</dams:scanningSoftwareVersion>
   </dams:SourceCapture>
