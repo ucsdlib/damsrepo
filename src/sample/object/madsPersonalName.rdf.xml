@@ -6,9 +6,13 @@
     <mads:authoritativeLabel>Burns, Jack O.</mads:authoritativeLabel>
     <dams:authority>naf</dams:authority>
     <owl:sameAs rdf:resource="http://lccn.loc.gov/n90694888"/>
-    <mads:elementList>
-      <mads:FamilyNameElement>Burns</mads:FamilyNameElement>
-      <mads:GivenNameElement>Jack O.</mads:GivenNameElement>
+    <mads:elementList rdf:parseType="Collection">
+      <mads:FamilyNameElement>
+        <mads:elementValue>Burns</mads:elementValue>
+      </mads:FamilyNameElement>
+      <mads:GivenNameElement>
+        <mads:elementValue>Jack O.</mads:elementValue>
+      </mads:GivenNameElement>
     </mads:elementList>
   </mads:PersonalName>
 </rdf:RDF>

@@ -6,10 +6,10 @@
     <dams:authority>lcsh</dams:authority>
     <owl:sameAs rdf:resource="http://id.loc.gov/authorities/subjects/sh85052764"/>
     <mads:authoritativeLabel>Galaxies--Clusters</mads:authoritativeLabel>
-    <mads:componentList>
+    <mads:componentList rdf:parseType="Collection">
       <mads:Topic>
         <mads:authoritativeLabel>Galaxies</mads:authoritativeLabel>
-        <mads:elementList>
+        <mads:elementList rdf:parseType="Collection">
           <mads:TopicElement>
             <mads:elementValue>Galaxies</mads:elementValue>
           </mads:TopicElement>
@@ -17,7 +17,7 @@
       </mads:Topic>
       <mads:Topic>
         <mads:authoritativeLabel>Clusters</mads:authoritativeLabel>
-        <mads:elementList>
+        <mads:elementList rdf:parseType="Collection">
           <mads:TopicElement>
             <mads:elementValue>Clusters</mads:elementValue>
           </mads:TopicElement>
