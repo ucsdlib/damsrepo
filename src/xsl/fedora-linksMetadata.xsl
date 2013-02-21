@@ -4,11 +4,12 @@
     xmlns:dams="http://library.ucsd.edu/ontology/dams#"
     xmlns:ns0="info:fedora/fedora-system:def/model#">
   <xsl:param name="objid"/>
+  <xsl:output method="xml" indent="yes"/>
   <xsl:template match="/">
     <rdf:RDF>
       <rdf:Description rdf:about="info:fedora/{$objid}">
         <xsl:choose>
-          <xsl:when test="//dams:RelatedResource[dams:type='hydra-afmodel']">
+          <xsl:when test="//*[contains(@rdf:about,$objid)]/dams:RelatedResource[dams:type='hydra-afmodel']">
             <ns0:hasModel rdf:resource="{//dams:RelatedResource[dams:type='hydra-afmodel']/dams:uri}"/>
           </xsl:when>
           <xsl:otherwise>

@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -2416,20 +2417,6 @@ for ( int i = 0; sizes != null && i < sizes.length; i++ )
 			objid, false, in, mode, adds, updates, deletes, ts, es
 		);
 	}
-	private InputStream debugInputStream( InputStream in )
-		throws IOException
-	{
-		if ( in == null ) { return in; }
-		StringBuffer buf = new StringBuffer();
-		for ( int i = 0; (i=in.read()) != -1; )
-		{
-			char c = (char)i;
-			buf.append( c );
-		}
-		String xml = buf.toString();
-		//System.out.println("xml: " + xml);
-		return new ByteArrayInputStream( xml.getBytes() );
-	}
 		
 	protected Map objectEdit( String objid, boolean create, InputStream in,
 		String mode, String adds, String updates, String deletes,
@@ -3442,7 +3429,7 @@ for ( int i = 0; sizes != null && i < sizes.length; i++ )
 		else if ( format.equals("xml") )
 		{
 			content = toXMLString(info);
-			contentType = "text/xml";
+			contentType = "text/xml; charset=utf-8";
 		}
 		output( statusCode, content, contentType, res );
 	}
@@ -3458,7 +3445,9 @@ for ( int i = 0; sizes != null && i < sizes.length; i++ )
 				res.setStatus( status );
 			}
 			if ( contentType != null ) { res.setContentType( contentType ); }
-			PrintWriter out = res.getWriter();
+			PrintWriter out = new PrintWriter(
+				new OutputStreamWriter(res.getOutputStream(), "UTF-8")
+			);
 			out.print( content );
 			out.close();
 		}

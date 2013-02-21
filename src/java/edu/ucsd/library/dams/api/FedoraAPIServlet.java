@@ -798,7 +798,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				aboutAttrib.setValue( objURI );
 			}
 			xml = doc.asXML();
-			log.debug("pruned xml: " + xml);
+			log.info("pruned xml: " + xml);
 		}
 		catch ( Exception ex )
 		{
