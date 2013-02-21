@@ -2841,7 +2841,7 @@ for ( int i = 0; sizes != null && i < sizes.length; i++ )
 			if ( fileid != null ) { params.put("fileid",new String[]{fileid}); }
 			if ( cmpid != null ) { params.put("cmpid",new String[]{cmpid}); }
 			String content = xslt( xml, xslName, params, queryString(params) );
-			output( res.SC_OK, content, "text/xml", res );
+			output( res.SC_OK, content, "application/xml", res );
 
 			// if destid specified, then also save output
 			if ( destid != null )
@@ -3194,7 +3194,7 @@ for ( int i = 0; sizes != null && i < sizes.length; i++ )
 				try
 				{
 					output = xslt( output, xsl, null, queryString(params) );
-					contentType = "text/xml";
+					contentType = "application/xml";
 				}
 				catch ( Exception ex )
 				{
@@ -3345,7 +3345,7 @@ for ( int i = 0; sizes != null && i < sizes.length; i++ )
 			else if ( format.equals("xml") )
 			{
 				content = obj.getRDFXML(export);
-				contentType = "text/xml";
+				contentType = "application/xml";
 			}
 			else
 			{
@@ -3429,7 +3429,7 @@ for ( int i = 0; sizes != null && i < sizes.length; i++ )
 		else if ( format.equals("xml") )
 		{
 			content = toXMLString(info);
-			contentType = "text/xml; charset=utf-8";
+			contentType = "application/xml; charset=utf-8";
 		}
 		output( statusCode, content, contentType, res );
 	}

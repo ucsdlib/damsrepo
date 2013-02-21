@@ -6,7 +6,7 @@
     <mads:authoritativeLabel>Lawrence Livermore Laboratory</mads:authoritativeLabel>
     <dams:authority>naf</dams:authority>
     <owl:sameAs rdf:resource="http://lccn.loc.gov/n50000352"/>
-    <mads:elementList rdf:parseType="Collection">
+    <mads:elementList>
       <mads:NameElement>Lawrence Livermore Laboratory</mads:NameElement>
     </mads:elementList>
   </mads:CorporateName>

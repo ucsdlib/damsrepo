@@ -200,7 +200,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				// transform output to fedora format
 				String xml = toXMLString( info );
 				String content = xslt( xml, "fedora-describe.xsl", null, null );
-				output( res.SC_OK, content, "text/xml", res );
+				output( res.SC_OK, content, "application/xml", res );
 			}
 			// GET /objects/[oid]
 			// STATUS: WORKING
@@ -210,7 +210,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				es = events(req);
 				outputTransform(
 					path[2], null, null, objectProfileTransform, null,
-					"text/xml", res.SC_OK, ts, es, res
+					"application/xml", res.SC_OK, ts, es, res
 				);
 			}
 			// GET /objects/[oid]/datastreams
@@ -228,7 +228,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				params.put("baseURL",new String[]{baseURL});
 				outputTransform(
 					path[2], null, null, objectDatastreamsTransform,
-					params, "text/xml", res.SC_OK, ts, es, res
+					params, "application/xml", res.SC_OK, ts, es, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fid]
@@ -242,7 +242,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				params.put("dsName",new String[]{path[4]});
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					datastreamProfileTransform, params, "text/xml",
+					datastreamProfileTransform, params, "application/xml",
 					res.SC_OK, ts, es, res
 				);
 			}
@@ -276,7 +276,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				params.put("dsName",new String[]{fedoraRightsDS});
 				outputTransform(
 					path[2], null, null, rightsMetadataTransform, params,
-					"text/xml", res.SC_OK, ts, null, res
+					"application/xml", res.SC_OK, ts, null, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fedoraLinksDS]/content
@@ -290,7 +290,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				params.put("dsName",new String[]{fedoraLinksDS});
                 outputTransform(
                     path[2], null, null, linksMetadataTransform, params,
-                    "text/xml", res.SC_OK, ts, null, res
+                    "application/xml", res.SC_OK, ts, null, res
                 );
 			}
 			// GET /objects/[oid]/datastreams/[fedoraSystemDS]/content
@@ -304,7 +304,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				params.put("dsName",new String[]{fedoraSystemDS});
                 outputTransform(
                     path[2], null, null, systemMetadataTransform, params,
-                    "text/xml", res.SC_OK, ts, null, res
+                    "application/xml", res.SC_OK, ts, null, res
                 );
 			}
 			// GET /objects/[oid]/datastreams/[fid]/content
@@ -353,7 +353,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				// transform output to fedora format
 				String xml = toXMLString( info );
 				String content = xslt( xml, "fedora-nextPID.xsl", null, null );
-				output( res.SC_OK, content, "text/xml", res );
+				output( res.SC_OK, content, "application/xml", res );
 			}
 			// POST /objects/[oid]
 			// STATUS: empty: WORKING, file: WORKING
@@ -399,7 +399,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				params.put("dsName",new String[]{fedoraObjectDS});
 				outputTransform(
 					path[2], null, null, datastreamProfileTransform,
-					params, "text/xml", res.SC_CREATED, ts, es, res
+					params, "application/xml", res.SC_CREATED, ts, es, res
 				);
 			}
 			// POST /objects/[oid]/datastreams/[fedoraRightsDS]
@@ -460,7 +460,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				params.put("dsName",new String[]{fedoraLinksDS});
 				outputTransform(
 					path[2], null, null, datastreamProfileTransform,
-					params, "text/xml", res.SC_CREATED, ts, es, res
+					params, "application/xml", res.SC_CREATED, ts, es, res
 				);
 			}
 			// POST /objects/[oid]/datastreams/[fid]
@@ -483,7 +483,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					datastreamProfileTransform, params, "text/xml",
+					datastreamProfileTransform, params, "application/xml",
 					res.SC_CREATED, ts, es, res
 				);
 			}
@@ -535,7 +535,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				params.put("dsName",new String[]{fedoraObjectDS});
 				outputTransform(
 					path[2], null, null, datastreamProfileTransform,
-					params, "text/xml", res.SC_OK, ts, es, res
+					params, "application/xml", res.SC_OK, ts, es, res
 				);
 			}
 			// PUT /objects/[oid]/datastreams/[fedoraRightsDS]
@@ -575,7 +575,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					datastreamProfileTransform, params, "text/xml",
+					datastreamProfileTransform, params, "application/xml",
 					res.SC_OK, ts, es, res
 				);
 			}
