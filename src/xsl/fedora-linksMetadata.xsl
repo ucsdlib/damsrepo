@@ -14,7 +14,17 @@
           </xsl:when>
           <xsl:otherwise>
             <xsl:for-each select="//*[contains(@rdf:about,$objid)]">
-              <ns0:hasModel rdf:resource="info:fedora/afmodel:Dams{local-name()}"/>
+              <xsl:if test="position() = 1">
+                <xsl:variable name="prefix">
+                  <xsl:choose>
+                    <xsl:when test="namespace-uri() = 'http://www.loc.gov/mads/rdf/v1#'">
+                      <xsl:text>Mads</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>Dams</xsl:otherwise>
+                  </xsl:choose>
+                </xsl:variable>
+                <ns0:hasModel rdf:resource="info:fedora/afmodel:{$prefix}{local-name()}"/>
+              </xsl:if>
             </xsl:for-each>
           </xsl:otherwise>
         </xsl:choose>
