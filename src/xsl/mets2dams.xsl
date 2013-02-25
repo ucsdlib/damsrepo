@@ -247,7 +247,8 @@
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="mads:{$elementName}">
-      <xsl:attribute name="rdf:about"><xsl:value-of select="generate-id()"/>
+      <xsl:attribute name="rdf:about">
+        <xsl:value-of select="generate-id()"/>
       </xsl:attribute>
       <mads:authoritativeLabel>
         <xsl:choose>
@@ -338,6 +339,9 @@
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="mads:{$elemName}">
+      <xsl:attribute name="rdf:about">
+        <xsl:value-of select="generate-id()"/>
+      </xsl:attribute>
       <xsl:call-template name="authority"/>
       <mads:authoritativeLabel>
         <xsl:value-of select="."/>
