@@ -13,7 +13,7 @@
 
   <!-- handle modsCollection records as ProvenanceCollections -->
   <xsl:template match="mods:modsCollection">
-    <dams:ProvenanceCollection rdf:about="">
+    <dams:ProvenanceCollection rdf:about="{generate-id()}">
       <xsl:apply-templates/>
     </dams:ProvenanceCollection>
   </xsl:template>
@@ -37,7 +37,7 @@
       <xsl:when test="@LABEL != ''">
         <xsl:variable name="dmdid" select="@DMDID"/>
         <dams:hasComponent>
-          <dams:Component rdf:about="">
+          <dams:Component rdf:about="{/mets:mets/@OBJID}/CID">
             <dams:label><xsl:value-of select="@LABEL"/></dams:label>
             <dams:order><xsl:value-of select="@ORDER"/></dams:order>
             <xsl:call-template name="mods">
@@ -60,7 +60,7 @@
   <xsl:template name="file">
     <xsl:variable name="fid" select="mets:fptr/@FILEID"/>
     <dams:hasFile>
-      <dams:File rdf:about="">
+      <dams:File rdf:about="{/mets:mets/@OBJID}/FID">
         <xsl:for-each select="//mets:file[@ID=$fid]">
           <dams:use><xsl:value-of select="@USE"/></dams:use>
           <dams:sourceFilename>
@@ -86,7 +86,7 @@
   </xsl:template>
   <xsl:template match="mods:mods/mods:language">
     <dams:language>
-      <dams:Language rdf:about="">
+      <dams:Language rdf:about="{generate-id()}">
         <xsl:for-each select="mods:languageTerm">
           <xsl:choose>
             <xsl:when test="@type='code'">
@@ -151,7 +151,7 @@
     <xsl:choose>
       <xsl:when test="@displayLabel = 'Rights'">
         <dams:copyright>
-          <dams:Copyright rdf:about="">
+          <dams:Copyright rdf:about="{generate-id()}">
             <dams:copyrightStatus>XXX</dams:copyrightStatus>
             <dams:copyrightJurisdiction>XXX</dams:copyrightJurisdiction>
             <dams:copyrightNote><xsl:value-of select="."/></dams:copyrightNote>
@@ -165,7 +165,7 @@
       </xsl:when>
       <xsl:when test="@displayLabel = 'License'">
         <dams:license>
-          <dams:License rdf:about="">
+          <dams:License rdf:about="{generate-id()}">
             <dams:licenseNote><xsl:value-of select="."/></dams:licenseNote>
           </dams:License>
         </dams:license>
@@ -210,7 +210,7 @@
   <xsl:template match="mods:mods/mods:name">
     <dams:relationship>
       <dams:role>
-        <dams:Role rdf:about="">
+        <dams:Role rdf:about="{generate-id()}">
           <dams:code>
             <xsl:value-of select="mods:role/mods:roleTerm[@type='code']"/>
           </dams:code>
@@ -247,7 +247,8 @@
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="mads:{$elementName}">
-      <xsl:attribute name="rdf:about"/>
+      <xsl:attribute name="rdf:about"><xsl:value-of select="generate-id()"/>
+      </xsl:attribute>
       <mads:authoritativeLabel>
         <xsl:choose>
           <xsl:when test="mods:displayForm != ''">
@@ -267,12 +268,16 @@
           <xsl:when test="count(mods:namePart) = 1
                 and $elementName = 'PersonalName'">
             <mads:FullNameElement>
-              <xsl:value-of select="mods:namePart"/>
+              <mads:elementValue>
+                <xsl:value-of select="mods:namePart"/>
+              </mads:elementValue>
             </mads:FullNameElement>
           </xsl:when>
           <xsl:when test="count(mods:namePart) = 1">
             <mads:NameElement>
-              <xsl:value-of select="mods:namePart"/>
+              <mads:elementValue>
+                <xsl:value-of select="mods:namePart"/>
+              </mads:elementValue>
             </mads:NameElement>
           </xsl:when>
           <xsl:when test="count(mods:namePart) &gt; 1">
@@ -286,7 +291,9 @@
                 </xsl:choose>
               </xsl:variable>
               <xsl:element name="mads:{$subelement}" namespace="{$madsNS}">
-                <xsl:value-of select="."/>
+                <mads:elementValue>
+                  <xsl:value-of select="."/>
+                </mads:elementValue>
               </xsl:element>
             </xsl:for-each>
           </xsl:when>
@@ -298,7 +305,7 @@
     <dams:subject>
       <xsl:choose>
         <xsl:when test="count(*) &gt; 1">
-          <mads:ComplexSubject rdf:about="">
+          <mads:ComplexSubject rdf:about="{generate-id()}">
             <xsl:call-template name="authority"/>
             <mads:authoritativeLabel>
               <xsl:for-each select="*">
@@ -306,7 +313,7 @@
                 <xsl:value-of select="."/>
               </xsl:for-each>
             </mads:authoritativeLabel>
-            <mads:componentList>
+            <mads:componentList rdf:parseType="Collection">
               <xsl:apply-templates/>
             </mads:componentList>
           </mads:ComplexSubject>
@@ -339,7 +346,7 @@
                 namePart? This just repeats the display form, and in some cases
                 includes subject strings that aren't broken into components
            -->
-      <mads:elementList>
+      <mads:elementList rdf:parseType="Collection">
         <xsl:element name="mads:{$elemName}Element">
           <mads:elementValue>
             <xsl:value-of select="."/>

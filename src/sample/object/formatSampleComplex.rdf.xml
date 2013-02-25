@@ -1,0 +1,94 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dams="http://library.ucsd.edu/ontology/dams#"
+    xmlns:mads="http://www.loc.gov/mads/rdf/v1#">
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555">
+    <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb02020202"/>
+    <dams:language rdf:resource="http://library.ucsd.edu/ark:/20775/bd0410344f"/>
+    <dams:collection rdf:resource="http://library.ucsd.edu/ark:/20775/bb03030303"/>
+    <dams:license rdf:resource="http://library.ucsd.edu/ark:/20775/bb22222222"/>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bb09090909"/>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
+    <dams:otherRights rdf:resource="http://library.ucsd.edu/ark:/20775/bb06060606"/>
+    <dams:statute rdf:resource="http://library.ucsd.edu/ark:/20775/bb21212121"/>
+    <dams:typeOfResource>mixed material</dams:typeOfResource>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:name rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX1"/>
+        <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bd55639754"/>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:note>
+      <dams:Note>
+        <dams:displayLabel>Local ID</dams:displayLabel>
+        <rdf:value>b6700311</rdf:value>
+        <dams:type>identifier</dams:type>
+      </dams:Note>
+    </dams:note>
+    <dams:note>
+      <dams:Note>
+        <dams:displayLabel>ARK ID</dams:displayLabel>
+        <rdf:value>http://libraries.ucsd.edu/ark:/20775/bb55555555</rdf:value>
+        <dams:type>identifier</dams:type>
+      </dams:Note>
+    </dams:note>
+    <dams:title>
+      <dams:Title>
+        <rdf:value>Sample Complex Object Record #3</rdf:value>
+        <dams:subtitle>Format Sampler</dams:subtitle>
+        <dams:type>main</dams:type>
+      </dams:Title>
+    </dams:title>
+    <dams:hasComponent>
+      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555/1">
+        <dams:typeOfResource>audio</dams:typeOfResource>
+        <dams:title>
+          <dams:Title>
+            <rdf:value>Sample Audio Component</rdf:value>
+            <dams:subtitle>I need another green form</dams:subtitle>
+          </dams:Title>
+        </dams:title>
+      </dams:Component>
+    </dams:hasComponent>
+    <dams:hasComponent>
+      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555/2">
+        <dams:typeOfResource>software, multimedia</dams:typeOfResource>
+        <dams:title>
+          <dams:Title>
+            <rdf:value>Sample Data Component</rdf:value>
+          </dams:Title>
+        </dams:title>
+      </dams:Component>
+    </dams:hasComponent>
+    <dams:hasComponent>
+      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555/3">
+        <dams:typeOfResource>text</dams:typeOfResource>
+        <dams:title>
+          <dams:Title>
+            <rdf:value>Sample Document Component</rdf:value>
+          </dams:Title>
+        </dams:title>
+      </dams:Component>
+    </dams:hasComponent>
+    <dams:hasComponent>
+      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555/4">
+        <dams:typeOfResource>still image</dams:typeOfResource>
+        <dams:title>
+          <dams:Title>
+            <rdf:value>Sample Image Component</rdf:value>
+          </dams:Title>
+        </dams:title>
+      </dams:Component>
+    </dams:hasComponent>
+    <dams:hasComponent>
+      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555/5">
+        <dams:typeOfResource>moving image</dams:typeOfResource>
+        <dams:title>
+          <dams:Title>
+            <rdf:value>Sample Video Component</rdf:value>
+          </dams:Title>
+        </dams:title>
+      </dams:Component>
+    </dams:hasComponent>
+  </dams:Object>
+</rdf:RDF>
