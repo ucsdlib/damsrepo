@@ -10,6 +10,9 @@
       xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:output method="xml" indent="yes"/>
   <xsl:variable name="madsNS">http://www.loc.gov/mads/rdf/v1#</xsl:variable>
+  <xsl:variable name="damsid">http://library.ucsd.edu/ark:/20775/</xsl:variable>
+  <xsl:param name="unit"/>
+  <xsl:param name="col"/>
 
   <!-- handle modsCollection records as ProvenanceCollections -->
   <xsl:template match="mods:modsCollection">
@@ -24,6 +27,12 @@
   <xsl:template match="/mets:mets/mets:structMap[@TYPE='logical']/mets:div">
     <xsl:variable name="dmdid" select="@DMDID"/>
     <dams:Object rdf:about="{/mets:mets/@OBJID}">
+      <xsl:if test="$col != ''">
+        <dams:collection rdf:resource="{$damsid}{$col}"/>
+      </xsl:if>
+      <xsl:if test="$unit != ''">
+        <dams:unit rdf:resource="{$damsid}{$unit}"/>
+      </xsl:if>
       <xsl:call-template name="mods">
         <xsl:with-param name="dmdid" select="$dmdid"/>
       </xsl:call-template>
