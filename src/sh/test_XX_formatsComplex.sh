@@ -21,9 +21,6 @@ done
 # delete object metadata
 $BASE/ts-delete.sh bb55555555
 
-# post object metadata
-$BASE/ts-put.sh bb55555555 src/sample/object/formatSampleComplex.rdf.xml
-
 # post master files
 $BASE/fs-post-cmp.sh bb55555555 1 1.wav src/sample/files/audio.wav
 $BASE/fs-post-cmp.sh bb55555555 2 1.tar.gz src/sample/files/data.tar.gz
@@ -39,3 +36,6 @@ $BASE/fs-post-cmp.sh bb55555555 5 2.mp4 src/sample/files/video.mp4
 $BASE/fs-post-cmp.sh bb55555555 5 3.jpg src/sample/files/video-preview.jpg
 $BASE/fs-post-cmp.sh bb55555555 5 4.jpg src/sample/files/video-thumbnail.jpg
 $BASE/fs-post-cmp.sh bb55555555 5 5.jpg src/sample/files/video-icon.jpg
+
+# post object metadata
+$BASE/ts-put.sh bb55555555 src/sample/object/formatSampleComplex.rdf.xml
