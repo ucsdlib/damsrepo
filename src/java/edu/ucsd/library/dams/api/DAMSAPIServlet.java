@@ -1662,6 +1662,12 @@ System.out.println("size: " + listToString(req.getParameterValues("size")));
 				m.put("crc32checksum",getParamString(params,"crc32checksum",null) );
 				m.put("md5checksum",getParamString(params,"md5checksum",null) );
 				m.put("sha1checksum",getParamString(params,"sha1checksum",null) );
+				String duration = getParamString(params,"duration",null);
+				if(duration != null && duration.length() > 0)
+					m.put("duration", duration );
+				String quality = getParamString(params,"quality",null);
+				if(quality != null && quality.length() > 0)
+					m.put("quality", quality );
 			}
 			else
 			{
