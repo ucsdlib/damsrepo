@@ -931,7 +931,6 @@ public class DAMSAPIServlet extends HttpServlet
 				
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
-System.out.println("size: " + listToString(req.getParameterValues("size")));
 				params.put("frame", req.getParameterValues("frame"));
 				info = fileDerivatives( path[2], null, path[3], false, fs, ts, es, params );
 			}
@@ -945,7 +944,6 @@ System.out.println("size: " + listToString(req.getParameterValues("size")));
 				
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
-System.out.println("size: " + listToString(req.getParameterValues("size")));
 				params.put("frame", req.getParameterValues("frame"));
 				info = fileDerivatives( path[2], path[3], path[4], false, fs, ts, es, params );
 			}
@@ -1098,7 +1096,6 @@ System.out.println("size: " + listToString(req.getParameterValues("size")));
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
 				params.put("frame", req.getParameterValues("frame"));
-System.out.println("size: " + listToString(req.getParameterValues("size")));
 				info = fileDerivatives( path[2], null, path[3], true, fs, ts, es, params );
 			}
 			// PUT /files/bb1234567x/1/1.tif/derivatives
@@ -1112,7 +1109,6 @@ System.out.println("size: " + listToString(req.getParameterValues("size")));
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
 				params.put("frame", req.getParameterValues("frame"));
-System.out.println("size: " + listToString(req.getParameterValues("size")));
 				info = fileDerivatives( path[2], path[3], path[4], true, fs, ts, es, params );
 			}
 			else
@@ -2168,10 +2164,6 @@ private static String listToString(String[] arr)
 			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
 			
 			String[] sizes = params.get("size");
-for ( int i = 0; sizes != null && i < sizes.length; i++ )
-{
-	System.out.println("XXXXXXXXXXXXXXXXX size " + i + ": " + sizes[i]);
-}
 
 			// check for comma-separate size list
 			if ( sizes != null && sizes.length == 1
@@ -3609,6 +3601,9 @@ for ( int i = 0; sizes != null && i < sizes.length; i++ )
         // params
         String casGroupTest = getParamString(params,"casGroupTest",null);
 
+		// clear stale parameters
+		t.clearParameters();
+
         // add request params to xsl
         if ( params != null )
         {
@@ -3634,7 +3629,8 @@ for ( int i = 0; sizes != null && i < sizes.length; i++ )
                 }
                 if ( key != null && val != null )
                 {
-                    t.setParameter( key, StringEscapeUtils.escapeJava(val) );
+                    String escaped = StringEscapeUtils.escapeJava(val);
+                    t.setParameter( key, escaped );
                 }
             }
         }

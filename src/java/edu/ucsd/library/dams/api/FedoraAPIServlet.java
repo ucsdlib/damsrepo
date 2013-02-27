@@ -317,6 +317,24 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					req, res
 				);
 			}
+            // GET /system/config
+            else if ( path.length == 3 && path[1].equals("system" )
+                && path[2].equals("config") )
+            {
+                String err = config(true);
+				if ( err == null )
+				{
+					output(
+						res.SC_OK, "Configuration reloaded", "text/plain", res
+					);
+				}
+				else
+				{
+					output(
+						res.SC_INTERNAL_SERVER_ERROR, err, "text/plain", res
+					);
+				}
+            }
 		}
 		catch ( Exception ex )
 		{
