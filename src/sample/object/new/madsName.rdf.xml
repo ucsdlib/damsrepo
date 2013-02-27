@@ -1,0 +1,15 @@
+<rdf:RDF xmlns:dams="http://library.ucsd.edu/ontology/dams#"
+         xmlns:mads="http://www.loc.gov/mads/rdf/v1#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <mads:Name rdf:about="http://library.ucsd.edu/ark:/20775/bd7509406v">
+    <mads:authoritativeLabel>Generic Name</mads:authoritativeLabel>
+    <dams:authority>naf</dams:authority>
+    <dams:valueURI rdf:resource="http://id.loc.gov/n9999999999"/>
+    <mads:elementList rdf:parseType="Collection">
+      <mads:NameElement>
+        <mads:elementValue>Generic Name</mads:elementValue>
+      </mads:NameElement>
+    </mads:elementList>
+  </mads:Name>
+</rdf:RDF>

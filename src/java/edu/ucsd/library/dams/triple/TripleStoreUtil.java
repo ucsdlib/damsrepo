@@ -102,7 +102,14 @@ public class TripleStoreUtil
 		}
 
 		// load the filestore
-		return TripleStoreUtil.getTripleStore( fprops );
+		if ( fprops.getProperty("className") != null )
+		{
+			return TripleStoreUtil.getTripleStore( fprops );
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	/**

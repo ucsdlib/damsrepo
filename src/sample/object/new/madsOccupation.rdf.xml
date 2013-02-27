@@ -5,7 +5,7 @@
   <mads:Occupation rdf:about="http://library.ucsd.edu/ark:/20775/bd72363644">
     <mads:authoritativeLabel>Pharmacist</mads:authoritativeLabel>
     <dams:authority>tgm</dams:authority>
-    <owl:sameAs rdf:resource="http://id.loc.gov/vocabulary/graphicMaterials/tgm007681"/>
+    <dams:valueURI rdf:resource="http://id.loc.gov/vocabulary/graphicMaterials/tgm007681"/>
     <mads:elementList rdf:parseType="Collection">
       <mads:OccupationElement>
         <mads:elementValue>Pharmacist</mads:elementValue>
