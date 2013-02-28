@@ -48,8 +48,8 @@ public class MyJhoveBase extends JhoveBase {
 	"the President and Fellows of Harvard College. " +
 	"Released under the GNU Lesser General Public License.";
 	
-	private static final String _moduleNames[] = {"PDF-hul","ASCII-hul","GIF-hul","TIFF-hul","WAVE-hul","XML-hul","HTML-hul","BYTESTREAM"};
-	private static final String _fileExten[]   = {".pdf",".txt",".gif",".tif",".wav",".xml",".html",".mov"};
+	private static final String _moduleNames[] = {"PDF-hul","ASCII-hul","GIF-hul","TIFF-hul","WAVE-hul","XML-hul","HTML-hul","BYTESTREAM","BYTESTREAM"};
+	private static final String _fileExten[]   = {".pdf",".txt",".gif",".tif",".wav",".xml",".html",".mov",".hierarchy"};
 	private static HashMap _moduleMap;
 	private static String ffmpegCommand = "ffmpeg";
 	public static final String MEDIA_FILES = ".wav .mp3 .mov .mp4 .avi";
