@@ -43,8 +43,8 @@
       <mads:ComplexSubject>
         <mads:authoritativeLabel>Black Panther Party--History</mads:authoritativeLabel>
         <mads:componentList rdf:parseType="Collection">
-          <rdf:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bbXXXXXXX7"/>
-          <rdf:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bbXXXXXXX4"/>
+          <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bbXXXXXXX7"/>
+          <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bbXXXXXXX4"/>
         </mads:componentList>
       </mads:ComplexSubject>
     </dams:subject>
