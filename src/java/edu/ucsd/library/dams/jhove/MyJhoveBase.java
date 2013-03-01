@@ -345,10 +345,12 @@ public class MyJhoveBase extends JhoveBase {
 		if (!dataObj.getValid())
 			throw new Exception("Unable to extract file: " + srcFileName);
 
-		String fileExt = srcFileName.substring(srcFileName.lastIndexOf('.'));
-		if(MEDIA_FILES.indexOf(fileExt.toLowerCase()) >= 0){
-			String duration = FfmpegUtil.getDuration(srcFileName, ffmpegCommand);
-			dataObj.setDuration(duration);
+		if(indx > 0){
+			String fileExt = srcFileName.substring(indx);
+			if(MEDIA_FILES.indexOf(fileExt.toLowerCase()) >= 0){
+				String duration = FfmpegUtil.getDuration(srcFileName, ffmpegCommand);
+				dataObj.setDuration(duration);
+			}
 		}
 		return dataObj;
 	}
