@@ -4,6 +4,7 @@ package edu.ucsd.library.dams.api;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,10 +16,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
-// xslt
+// xml/xslt
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 // dom4j
@@ -33,6 +38,9 @@ import org.dom4j.QName;
 import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
 import org.dom4j.xpath.DefaultXPath;
+
+// w3c
+import org.w3c.dom.NodeList;
 
 // logging
 import org.apache.log4j.Logger;
@@ -756,6 +764,34 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			return id;
 		}
 	}
+	private String getModelJAXP( InputStream in )
+	{
+		// JAXP impl.
+		String model = null;
+		try
+		{
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder parser = dbf.newDocumentBuilder();
+			org.w3c.dom.Document doc = parser.parse(in);
+
+			// find model
+			NodeList models = doc.getElementsByTagName("ns0:hasModel");
+			for ( int i = 0; i < models.getLength() && model == null; i++ )
+			{
+				org.w3c.dom.Node n = models.item(i);
+				if ( n.getNodeType() == n.ELEMENT_NODE )
+				{
+					org.w3c.dom.Element e = (org.w3c.dom.Element)n;
+					model = e.getAttribute("rdf:resource");
+				}
+			}
+		}
+		catch ( Exception ex )
+		{
+			log.warn("Error extracting model from RELS-EXT", ex );
+		}
+		return model;
+	}
 	private String getModel( InputStream in )
 	{
 		Document doc = null;
@@ -782,16 +818,61 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		return model;
 	}
+	private InputStream pruneInputJAXP( InputStream in, String objURI )
+	{
+		// JAXP impl.
+		String xml = null;
+
+		try
+		{
+			// parse xml
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder parser = dbf.newDocumentBuilder();
+			org.w3c.dom.Document doc = parser.parse(in);
+
+			// fix rdf:about
+			org.w3c.dom.Element root = doc.getDocumentElement();
+			NodeList children = root.getChildNodes();
+			for ( int i = 0; i < children.getLength(); i++ )
+			{
+				org.w3c.dom.Node n = children.item(i);
+				if ( n.getNodeType() == n.ELEMENT_NODE )
+				{
+					org.w3c.dom.Element e = (org.w3c.dom.Element)n;
+					if ( !e.getAttribute("rdf:about").equals(objURI) )
+					{
+						e.setAttribute("rdf:about",objURI);
+					}
+				}
+			}
+
+			// convert doc to string
+			TransformerFactory tf = TransformerFactory.newInstance();
+			Transformer transformer = tf.newTransformer();
+			StringWriter writer = new StringWriter();
+			transformer.transform(new DOMSource(doc), new StreamResult(writer));
+			xml = writer.toString();
+		}
+		catch ( Exception ex )
+		{
+			ex.printStackTrace();
+		}
+
+		return new ByteArrayInputStream(xml.getBytes());
+	}
 	private InputStream pruneInput( InputStream in, String objURI )
 	{
 		Document doc = null;
 		String xml = null;
+		int pruned = 0;
 		try
 		{
 			// parse doc
 			SAXReader parser = new SAXReader();
+// XXX: xslt? PITA
 			doc = parser.read(in);
 
+/*
 			// remove empty rdf:resource links
 			XPath xpath1 = new DefaultXPath("//dams:relationship[dams:Relationship/dams:name/@rdf:resource='' and dams:Relationship/dams:role/@rdf:resource='']");
 			xpath1.setNamespaceURIs(nsmap);
@@ -801,11 +882,13 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			List remove = xpath1.selectNodes(doc);
 			List emptyRefs = xpath2.selectNodes(doc);
 			remove.addAll( emptyRefs );
+			pruned += remove.size();
 			for ( int i = 0; i < remove.size(); i++ )
 			{
 				Node n = (Node)remove.get(i);
 				n.detach();
 			}
+*/
 	
 			// fix rdf:about
 			Element objElem = (Element)doc.selectSingleNode("/rdf:RDF/*");
@@ -813,10 +896,12 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			{
 				QName rdfAbout = new QName("about",new Namespace("rdf",rdfNS));
 				Attribute aboutAttrib = objElem.attribute( rdfAbout );
-				aboutAttrib.setValue( objURI );
+				if ( !aboutAttrib.getValue().equals("objURI") )
+				{
+					aboutAttrib.setValue( objURI );
+				}
 			}
 			xml = doc.asXML();
-			log.info("pruned xml: " + xml);
 		}
 		catch ( Exception ex )
 		{
@@ -825,11 +910,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 
 		return new ByteArrayInputStream(xml.getBytes());
-	}
-	
-	private static void prune( Document doc, String xpath )
-	{
-		List matches = doc.selectNodes( xpath );
 	}
 	private static String cmpid( String s )
 	{

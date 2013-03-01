@@ -251,7 +251,6 @@
       <xsl:choose>
         <xsl:when test="@type='personal'">PersonalName</xsl:when>
         <xsl:when test="@type='corporate'">CorporateName</xsl:when>
-        <xsl:when test="@type='corporate'">CorporateName</xsl:when>
         <xsl:otherwise>Name</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
@@ -312,9 +311,9 @@
     </xsl:element>
   </xsl:template>
   <xsl:template match="mods:mods/mods:subject">
-    <dams:subject>
-      <xsl:choose>
-        <xsl:when test="count(*) &gt; 1">
+    <xsl:choose>
+      <xsl:when test="count(*) &gt; 1">
+        <dams:complexSubject>
           <mads:ComplexSubject rdf:about="{generate-id()}">
             <xsl:call-template name="authority"/>
             <mads:authoritativeLabel>
@@ -327,17 +326,29 @@
               <xsl:apply-templates/>
             </mads:componentList>
           </mads:ComplexSubject>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:apply-templates/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </dams:subject>
+        </dams:complexSubject>
+      </xsl:when>
+      <xsl:when test="mods:name[@type='personal']">
+        <dams:personalName><xsl:apply-templates/></dams:personalName>
+      </xsl:when>
+      <xsl:when test="mods:name[@type='corporate']">
+        <dams:corporateName><xsl:apply-templates/></dams:corporateName>
+      </xsl:when>
+      <xsl:when test="mods:name">
+        <dams:name><xsl:apply-templates/></dams:name>
+      </xsl:when>
+      <xsl:when test="mods:topic">
+        <dams:topic><xsl:apply-templates/></dams:topic>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   <xsl:template match="mods:genre">
-    <dams:subject>
+    <dams:genreForm>
       <xsl:call-template name="simplesubject"/>
-    </dams:subject>
+    </dams:genreForm>
   </xsl:template>
   <xsl:template name="simplesubject" match="mods:topic">
     <xsl:variable name="elemName">
