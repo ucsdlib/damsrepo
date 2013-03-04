@@ -27,9 +27,11 @@
   <xsl:template match="/mets:mets/mets:structMap[@TYPE='logical']/mets:div">
     <xsl:variable name="dmdid" select="@DMDID"/>
     <dams:Object rdf:about="{/mets:mets/@OBJID}">
+<!--
       <xsl:if test="$col != ''">
         <dams:collection rdf:resource="{$damsid}{$col}"/>
       </xsl:if>
+-->
       <xsl:if test="$unit != ''">
         <dams:unit rdf:resource="{$damsid}{$unit}"/>
       </xsl:if>
@@ -72,9 +74,9 @@
       <dams:File rdf:about="{/mets:mets/@OBJID}/FID">
         <xsl:for-each select="//mets:file[@ID=$fid]">
           <dams:use><xsl:value-of select="@USE"/></dams:use>
-          <dams:sourceFilename>
+          <dams:sourceFileName>
             <xsl:value-of select="mets:FLocat/@xlink:href"/>
-          </dams:sourceFilename>
+          </dams:sourceFileName>
         </xsl:for-each>
       </dams:File>
     </dams:hasFile>
@@ -182,11 +184,11 @@
     </xsl:choose>
   </xsl:template>
   <xsl:template match="mods:relatedItem[@type='host']">
-    <dams:collection>
-      <dams:Collection>
+    <dams:provenanceCollection>
+      <dams:ProvenanceCollection rdf:about="{$damsid}{$col}">
         <xsl:apply-templates/>
-      </dams:Collection>
-    </dams:collection>
+      </dams:ProvenanceCollection>
+    </dams:provenanceCollection>
   </xsl:template>
   <xsl:template match="mods:identifier">
     <dams:note>
@@ -218,24 +220,26 @@
   </xsl:template>
   <xsl:template match="mods:mods/mods:name">
     <dams:relationship>
-      <dams:role>
-        <dams:Role rdf:about="{generate-id()}">
-          <dams:code>
-            <xsl:value-of select="mods:role/mods:roleTerm[@type='code']"/>
-          </dams:code>
-          <rdf:value>
-            <xsl:value-of select="mods:role/mods:roleTerm[@type='text']"/>
-          </rdf:value>
-          <xsl:if test="mods:role/mods:roleTerm/@authority != ''">
-            <dams:authority>
-              <xsl:value-of select="mods:role/mods:roleTerm/@authority"/>
-            </dams:authority>
-          </xsl:if>
-        </dams:Role>
-      </dams:role>
-      <dams:name>
-        <xsl:call-template name="name"/>
-      </dams:name>
+      <dams:Relationship>
+        <dams:role>
+          <dams:Role rdf:about="{generate-id()}">
+            <dams:code>
+              <xsl:value-of select="mods:role/mods:roleTerm[@type='code']"/>
+            </dams:code>
+            <rdf:value>
+              <xsl:value-of select="mods:role/mods:roleTerm[@type='text']"/>
+            </rdf:value>
+            <xsl:if test="mods:role/mods:roleTerm/@authority != ''">
+              <dams:authority>
+                <xsl:value-of select="mods:role/mods:roleTerm/@authority"/>
+              </dams:authority>
+            </xsl:if>
+          </dams:Role>
+        </dams:role>
+        <dams:name>
+          <xsl:call-template name="name"/>
+        </dams:name>
+      </dams:Relationship>
     </dams:relationship>
   </xsl:template>
   <xsl:template name="authority">
@@ -270,7 +274,7 @@
       </mads:authoritativeLabel>
       <xsl:call-template name="authority"/>
       <xsl:if test="mods:description != ''">
-        <owl:sameAs rdf:resource="{mods:description}"/>
+        <owl:sameAs rdf:resource="{normalize-space(mods:description)}"/>
       </xsl:if>
       <mads:elementList rdf:parseType="Collection">
         <xsl:choose>

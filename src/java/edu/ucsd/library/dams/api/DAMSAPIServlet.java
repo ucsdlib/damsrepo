@@ -1823,7 +1823,8 @@ public class DAMSAPIServlet extends HttpServlet
 					{
 						ts.addStatement( oid, hasComp, cid, oid );
 						ts.addStatement( cid, rdfType, cmpType, oid );
-					}
+					} // XXX: not valid for multi-level component hierarchy
+					// XXX: replace with searching for null,hasComp,cid???
 					ts.addStatement( cid, hasFile, fid, oid );
 				}
 				else
