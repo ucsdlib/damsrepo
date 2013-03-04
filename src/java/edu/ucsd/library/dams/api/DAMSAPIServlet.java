@@ -1817,14 +1817,13 @@ public class DAMSAPIServlet extends HttpServlet
 				// link from object/component to file record
 				if ( cmpid != null )
 				{
-					// if component record doesn't exist, create stub
-					sit = ts.listStatements(oid, hasComp, cid);
+					// make sure something links to this component
+					sit = ts.listStatements(null, hasComp, cid);
 					if(!sit.hasNext())
 					{
 						ts.addStatement( oid, hasComp, cid, oid );
 						ts.addStatement( cid, rdfType, cmpType, oid );
-					} // XXX: not valid for multi-level component hierarchy
-					// XXX: replace with searching for null,hasComp,cid???
+					}
 					ts.addStatement( cid, hasFile, fid, oid );
 				}
 				else
