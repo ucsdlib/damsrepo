@@ -13,6 +13,7 @@
       <xsl:otherwise><xsl:value-of select="$dsName"/></xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
+  <xsl:variable name="unknownDate">1999-12-31T23:59:59-0800</xsl:variable>
 
   <xsl:template match="/">
     <datastreamProfile pid="{$objid}" dsID="{$dsid}"
@@ -32,7 +33,14 @@
       <xsl:choose>
         <xsl:when test="$fileid != ''">
           <xsl:for-each select="//dams:File[contains(@rdf:about,$fileid) and substring-after(@rdf:about,$fileid) = ''][1]">
-            <dsCreateDate><xsl:value-of select="dams:dateCreated"/></dsCreateDate>
+            <xsl:choose>
+              <xsl:when test="dams:dateCreated">
+                <dsCreateDate><xsl:value-of select="dams:dateCreated"/></dsCreateDate>
+              </xsl:when>
+              <xsl:otherwise>
+                <dsCreateDate><xsl:value-of select="$unknownDate"/></dsCreateDate>
+              </xsl:otherwise>
+            </xsl:choose>
             <dsMIME><xsl:value-of select="dams:mimeType"/></dsMIME>
             <dsSize><xsl:value-of select="dams:size"/></dsSize>
             <xsl:choose>
@@ -75,7 +83,7 @@
             <xsl:when test="//dams:eventDate">
               <dsCreateDate><xsl:value-of select="//dams:eventDate"/></dsCreateDate>
             </xsl:when>
-            <xsl:otherwise><dsCreateDate>1999-12-31T23:59:59-0800</dsCreateDate></xsl:otherwise>
+            <xsl:otherwise><dsCreateDate><xsl:value-of select="$unknownDate"/></dsCreateDate></xsl:otherwise>
           </xsl:choose>
         </xsl:otherwise>
       </xsl:choose>
