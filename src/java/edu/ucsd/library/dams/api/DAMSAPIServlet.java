@@ -1612,10 +1612,12 @@ public class DAMSAPIServlet extends HttpServlet
 	
 			Identifier oid = createID( objid, null, null );
 			Identifier fid = createID( objid, cmpid, fileid );
+			Identifier parent = oid;
 			Identifier cid = null;
 			if ( cmpid != null )
 			{
 				cid = createID( objid, cmpid, null );
+				parent = cid;
 			}
 	
 			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
@@ -1626,7 +1628,7 @@ public class DAMSAPIServlet extends HttpServlet
 	
 			if ( ts != null && !overwrite )
 			{	
-				sit = ts.listStatements(oid, hasFile, fid);
+				sit = ts.listStatements(parent, hasFile, fid);
 				if(sit.hasNext()){
 					// there is no PUT for characterization, what is the use
 					// case for tech md redo?  when a new file is uploaded,
@@ -2017,7 +2019,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 				// perform characterization and pass along any error messages
 				Map charInfo = fileCharacterize(
-					objid, cmpid, fileid, overwrite, fs, ts, es, params
+					objid, cmpid, fileid, true, fs, ts, es, params
 				);
 				int charStat = getParamInt(charInfo,"statusCode",200);
 				if ( charStat > 299 )
