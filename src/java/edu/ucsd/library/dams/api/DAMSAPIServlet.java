@@ -764,9 +764,6 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				InputBundle input = input(req);
 				String[] ids = input.getParams().get("id");
-				//ts = triplestore(req);
-				//es = events(req);
-				//info = indexUpdate( ids, ts, es );
 				info = indexQueue( ids, "modifyObject" );
 			}
 			// POST /queue
@@ -829,9 +826,6 @@ public class DAMSAPIServlet extends HttpServlet
 				&& path[3].equals("index") )
 			{
 				String[] ids = new String[]{ path[2] };
-				//ts = triplestore(req);
-				//es = events(req);
-				//info = indexUpdate( ids, ts, es );
 				info = indexQueue( ids, "modifyObject" );
 			}
 			// POST /files/bb1234567x/1.tif
@@ -1155,8 +1149,6 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				InputBundle input = input(req);
 				String[] ids = input.getParams().get("id");
-				//String tsName = getParamString(req,"ts",tsDefault);
-				//info = indexDelete( ids, tsName );
 				info = indexQueue( ids, "purgeObject" );
 			}
 			// DELETE /queue
@@ -1164,9 +1156,6 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				InputBundle input = input(req);
 				String[] ids = input.getParams().get("id");
-				//ts = triplestore(req);
-				//es = events(req);
-
 				info = indexQueue( ids, "purgeObject" );
 			}
 			// DELETE /objects/bb1234567x
@@ -1181,8 +1170,6 @@ public class DAMSAPIServlet extends HttpServlet
 				&& path[3].equals("index") )
 			{
 				String[] ids = new String[]{ path[2] };
-				//String tsName = getParamString(req,"ts",tsDefault);
-				//info = indexDelete( ids, tsName );
 				info = indexQueue( ids, "purgeObject" );
 			}
 			// DELETE /objects/bb1234567x/selective
@@ -2672,90 +2659,6 @@ private static String listToString(String[] arr)
 			return error( "Error deleting predicates: " + ex.toString() );
 		}
 	}
-	public Map indexDelete( String[] ids, String tsName )
-	{
-		// make sure we have some ids to index
-		if ( ids == null || ids.length == 0 )
-		{
-			return error(
-				HttpServletResponse.SC_BAD_REQUEST, "No identifier specified"
-			);
-		}
-
-		// connect to solr
-		SolrHelper solr = new SolrHelper( solrBase );
-
-		int recordsDeleted = 0;
-		try
-		{
-			// delete individual records
-			for ( int i = 0; i < ids.length; i++ )
-			{
-				if ( solr.delete( tsName, ids[i] ) )
-				{
-					recordsDeleted++;
-				}
-			}
-
-			// commit changes
-			solr.commit( tsName );
-			solr.optimize( tsName );
-
-			// report status
-			return status( "Solr: deleted " + recordsDeleted + " records" );
-		}
-		catch ( Exception ex )
-		{
-			log.warn( "Error deleting records", ex );
-			return error( "Error deleting records: " + ex.toString() );
-		}
-	}
-	public Map indexUpdate( String[] ids, TripleStore ts, TripleStore es )
-	{
-		// make sure we have some ids to index
-		if ( ids == null || ids.length == 0 )
-		{
-			return error( HttpServletResponse.SC_BAD_REQUEST, "No identifier specified" );
-		}
-
-		try
-		{
-			// connect to solr
-			SolrIndexer indexer = new SolrIndexer( ts, solrBase, nsmap );
-			indexer.addXslFile( solrXslFile );
-
-			// index each record
-			for ( int i = 0; i < ids.length; i++ )
-			{
-				indexer.indexSubject( ids[i] );
-			}
-
-			// commit changes
-			indexer.flush();
-			indexer.commit();
-
-			createEvent(
-				ts, es, ids[0], null, null, "Bulk Solr Indexing", true,
-				null, null
-			);
-
-			// output status message
-			return status( indexer.summary() );
-		}
-		catch ( Exception ex )
-		{
-			log.warn( "Error updating Solr", ex );
-			try
-			{
-				createEvent(
-					ts, es, ids[0], null, null, "Bulk Solr Indexing", false,
-					null, ex.toString()
-				);
-			}
-			catch ( Exception ex2 ) { log.error("Error creating event",ex2); }
-			return error( "Error updating Solr: " + ex.toString() );
-		}
-	}
 	public Map objectShow( String objid, TripleStore ts, TripleStore es )
 	{
 		// output = metadata: object
@@ -3138,7 +3041,7 @@ private static String listToString(String[] arr)
 		}
 		catch ( Exception ex ) { log.error("Unsupported encoding", ex); }
 		
-		String url = solrBase + "/" + ds + "/" + name + "?" + queryString;
+		String url = solrBase + "/" + name + "?" + queryString;
 		if ( xsl != null && !xsl.equals("") )
 		{
 			url += "&wt=xml";
