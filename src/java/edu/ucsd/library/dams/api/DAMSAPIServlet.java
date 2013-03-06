@@ -764,17 +764,18 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				InputBundle input = input(req);
 				String[] ids = input.getParams().get("id");
-				ts = triplestore(req);
-				es = events(req);
-				info = indexUpdate( ids, ts, es );
+				//ts = triplestore(req);
+				//es = events(req);
+				//info = indexUpdate( ids, ts, es );
+				info = indexQueue( ids, "modifyObject" );
 			}
 			// POST /queue
 			else if ( path.length == 2 && path[1].equals("queue") )
 			{
 				InputBundle input = input(req);
 				String[] ids = input.getParams().get("id");
-				ts = triplestore(req);
-				es = events(req);
+				//ts = triplestore(req);
+				//es = events(req);
 
 				info = indexQueue( ids, "modifyObject" );
 			}
@@ -828,9 +829,10 @@ public class DAMSAPIServlet extends HttpServlet
 				&& path[3].equals("index") )
 			{
 				String[] ids = new String[]{ path[2] };
-				ts = triplestore(req);
-				es = events(req);
-				info = indexUpdate( ids, ts, es );
+				//ts = triplestore(req);
+				//es = events(req);
+				//info = indexUpdate( ids, ts, es );
+				info = indexQueue( ids, "modifyObject" );
 			}
 			// POST /files/bb1234567x/1.tif
 			else if ( path.length == 4 && path[1].equals("files") )
@@ -1153,16 +1155,17 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				InputBundle input = input(req);
 				String[] ids = input.getParams().get("id");
-				String tsName = getParamString(req,"ts",tsDefault);
-				info = indexDelete( ids, tsName );
+				//String tsName = getParamString(req,"ts",tsDefault);
+				//info = indexDelete( ids, tsName );
+				info = indexQueue( ids, "purgeObject" );
 			}
 			// DELETE /queue
 			else if ( path.length == 2 && path[1].equals("queue") )
 			{
 				InputBundle input = input(req);
 				String[] ids = input.getParams().get("id");
-				ts = triplestore(req);
-				es = events(req);
+				//ts = triplestore(req);
+				//es = events(req);
 
 				info = indexQueue( ids, "purgeObject" );
 			}
@@ -1178,8 +1181,9 @@ public class DAMSAPIServlet extends HttpServlet
 				&& path[3].equals("index") )
 			{
 				String[] ids = new String[]{ path[2] };
-				String tsName = getParamString(req,"ts",tsDefault);
-				info = indexDelete( ids, tsName );
+				//String tsName = getParamString(req,"ts",tsDefault);
+				//info = indexDelete( ids, tsName );
+				info = indexQueue( ids, "purgeObject" );
 			}
 			// DELETE /objects/bb1234567x/selective
 			else if ( path.length == 4 && path[1].equals("objects")
@@ -1837,7 +1841,7 @@ public class DAMSAPIServlet extends HttpServlet
 				// Create event when required with es
 				if(es != null)
 				{
-					indexQueue(objid,"modifyObject");
+					//indexQueue(objid,"modifyObject");
 					createEvent(
 						ts, es, objid, cmpid, fileid, "Jhove Extraction", true,
 						null, m.get("status")
@@ -1996,7 +2000,7 @@ public class DAMSAPIServlet extends HttpServlet
 					status = HttpServletResponse.SC_CREATED;
 					message = "File created successfully";
 				}
-				indexQueue(objid,"modifyObject");
+				//indexQueue(objid,"modifyObject");
 				createEvent(
 					ts, es, objid, cmpid, fileid, type, true, null, null
 				);
@@ -2090,7 +2094,7 @@ public class DAMSAPIServlet extends HttpServlet
 	
 			if ( successful )
 			{
-				indexQueue(objid,"modifyObject");
+				//indexQueue(objid,"modifyObject");
 				createEvent(
 					ts, es, objid, cmpid, fileid, "file deletion", true,
 					null, null
@@ -2241,7 +2245,7 @@ private static String listToString(String[] arr)
 				fileCharacterize(
 					objid, cmpid, derid, overwrite, fs, ts, es, params
 				);
-				indexQueue(objid,"modifyObject");
+				//indexQueue(objid,"modifyObject");
 				createEvent(
 					ts, es, objid, cmpid, derid, "Derivatives Creation",
 					true, null, null
@@ -2489,7 +2493,7 @@ private static String listToString(String[] arr)
 							status = HttpServletResponse.SC_OK;
 							message = "Object saved successfully";
 						}
-						indexQueue(objid,"modifyObject");
+						//indexQueue(objid,"modifyObject");
 						createEvent(
 							ts, es, objid, null, null, type, true, null, null
 						);
@@ -2530,7 +2534,7 @@ private static String listToString(String[] arr)
 							status = HttpServletResponse.SC_OK;
 							message = "Object saved successfully";
 						}
-						indexQueue(objid,"modifyObject");
+						//indexQueue(objid,"modifyObject");
 						createEvent(
 							ts, es, objid, null, null, type, true, null, null
 						);
@@ -2586,7 +2590,7 @@ private static String listToString(String[] arr)
 
 			if ( ! ts.exists(id) )
 			{
-				indexQueue(objid,"purgeObject");
+				//indexQueue(objid,"purgeObject");
 				createEvent( ts, es, objid, null, null, "object deletion", true, null, null );
 				return status( "Object deleted successfully" );
 			}
@@ -2651,7 +2655,7 @@ private static String listToString(String[] arr)
 				TripleStoreUtil.recursiveDelete( id, sub, pre, null, ts );
 			}
 
-			indexQueue(objid,"modifyObject");
+			//indexQueue(objid,"modifyObject");
 			createEvent(
 				ts, es, objid, null, null, "object modification", true,
 				null, null
@@ -2845,7 +2849,7 @@ private static String listToString(String[] arr)
 			if ( destid != null )
 			{
 				fs.write( objid, cmpid, destid, content.getBytes() );
-				indexQueue(objid,"modifyObject");
+				//indexQueue(objid,"modifyObject");
 				createEvent(
 					ts, es, objid, cmpid, fileid, "transformation-metadata",
 					true, null, null
