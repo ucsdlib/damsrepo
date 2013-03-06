@@ -5,7 +5,12 @@
 OBJID=$1
 FILEID=$2
 FILE=$3
-curl -i -X PUT -d @$FILE http://localhost:8080/dams/api/files/$OBJID/$FILEID
+USE=$4
+if [ "$USE" ]; then
+    OPT="?use=$USE"
+	ARG="-F use=$USE"
+fi
+curl -i -X PUT -d @$FILE http://localhost:8080/dams/api/files/$OBJID/$FILEID$OPT
 if [ $? != 0 ]; then
     exit 1
 fi
