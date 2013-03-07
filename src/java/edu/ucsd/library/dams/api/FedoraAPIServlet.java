@@ -115,6 +115,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	private static Logger log = Logger.getLogger(FedoraAPIServlet.class);
 
 	// xslt
+	Transformer objectContentTransform;
 	Transformer objectProfileTransform;
 	Transformer objectDatastreamsTransform;
 	Transformer nextPIDTransform;
@@ -154,6 +155,9 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
         try
         {
             TransformerFactory tf = TransformerFactory.newInstance();
+            objectContentTransform = tf.newTransformer(
+                new StreamSource( xslBase + "fedora-object-content.xsl" )
+            );
             objectProfileTransform = tf.newTransformer(
                 new StreamSource( xslBase + "fedora-object-profile.xsl" )
             );
@@ -217,7 +221,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				ts = triplestore(req);
 				es = events(req);
 				outputTransform(
-					path[2], null, null, objectProfileTransform, null,
+					path[2], null, null, true, objectProfileTransform, null,
 					"application/xml", res.SC_OK, ts, es, res
 				);
 			}
@@ -235,7 +239,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					+ req.getContextPath() + req.getServletPath() + "/";
 				params.put("baseURL",new String[]{baseURL});
 				outputTransform(
-					path[2], null, null, objectDatastreamsTransform,
+					path[2], null, null, true, objectDatastreamsTransform,
 					params, "application/xml", res.SC_OK, ts, es, res
 				);
 			}
@@ -250,7 +254,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				params.put("dsName",new String[]{path[4]});
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					datastreamProfileTransform, params, "application/xml",
+					true, datastreamProfileTransform, params, "application/xml",
 					res.SC_OK, ts, es, res
 				);
 			}
@@ -261,15 +265,11 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[4].equals( fedoraObjectDS ) )
 			{
                 ts = triplestore(req);
-                Map info = objectShow( stripPrefix(path[2]), ts, null );
-                if ( info.get("obj") != null )
-                {
-                    DAMSObject obj = (DAMSObject)info.get("obj");
-                    output(
-                        obj, false, req.getParameterMap(),
-                        req.getPathInfo(), res
-                    );
-                }
+				outputTransform(
+					stripPrefix(path[2]), null, null, false,
+					objectContentTransform, null, "application/xml",
+					res.SC_OK, ts, null, res
+				);
 			}
 			// GET /objects/[oid]/datastreams/[fedoraRightsDS]/content
 			// STATUS: TEST
@@ -283,7 +283,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				params.put("adminGroup", new String[]{roleAdmin} );
 				params.put("dsName",new String[]{fedoraRightsDS});
 				outputTransform(
-					path[2], null, null, rightsMetadataTransform, params,
+					path[2], null, null, true, rightsMetadataTransform, params,
 					"application/xml", res.SC_OK, ts, null, res
 				);
 			}
@@ -297,7 +297,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
                 Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("dsName",new String[]{fedoraLinksDS});
                 outputTransform(
-                    path[2], null, null, linksMetadataTransform, params,
+                    path[2], null, null, true, linksMetadataTransform, params,
                     "application/xml", res.SC_OK, ts, null, res
                 );
 			}
@@ -311,7 +311,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
                 Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("dsName",new String[]{fedoraSystemDS});
                 outputTransform(
-                    path[2], null, null, systemMetadataTransform, params,
+                    path[2], null, null, true, systemMetadataTransform, params,
                     "application/xml", res.SC_OK, ts, null, res
                 );
 			}
@@ -394,7 +394,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				}
 				ts = triplestore(req);
 				es = events(req);
-				Map info = objectCreate(stripPrefix(path[2]), in, adds, ts, es);
+				String id = stripPrefix(path[2]);
+				cacheRemove(id);
+
+				Map info = objectCreate(id, in, adds, ts, es);
 
 				// output id plaintext
 				output( res.SC_CREATED, path[2], "text/plain", res );
@@ -410,21 +413,20 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				ts = triplestore(req);
 				es = events(req);
-				Identifier id = Identifier.publicURI(
-					idNS + stripPrefix(path[2])
-				);
-				boolean exists = ts.exists(id);
-				InputStream in2 = pruneInput( in, id.getId() );
+				String id = stripPrefix(path[2]);
+				cacheRemove(id);
+				Identifier id2 = Identifier.publicURI(idNS+id);
+				boolean exists = ts.exists(id2);
+				InputStream in2 = pruneInput( in, id2.getId() );
 
 				objectEdit(
-					stripPrefix(path[2]), !exists, in2, "add",
-					null, null, null, ts, es
+					id, !exists, in2, "add", null, null, null, ts, es
 				);
 
 				Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("dsName",new String[]{fedoraObjectDS});
 				outputTransform(
-					path[2], null, null, datastreamProfileTransform,
+					path[2], null, null, true, datastreamProfileTransform,
 					params, "application/xml", res.SC_CREATED, ts, es, res
 				);
 			}
@@ -434,7 +436,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[4].equals(fedoraRightsDS) )
 			{
 				// ignore XXXX: get curator email address from this...
-				InputBundle bundle = input(req);
+				//InputBundle bundle = input(req);
 			}
 			// POST /objects/[oid]/datastreams/[fedoraLinksDS]
 			else if ( path.length == 5 && path[1].equals("objects")
@@ -445,7 +447,9 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputBundle bundle = input(req);
 				InputStream in = bundle.getInputStream();
 
-				Identifier id = createID( stripPrefix(path[2]), null, null );
+				String id = stripPrefix(path[2]);
+				cacheRemove(id);
+				Identifier id2 = createID( id, null, null );
 				String model = getModel( in );
 
 				/* <rdf:RDF>
@@ -463,7 +467,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				doc.setRootElement(root);
 				Element desc = root.addElement("Description",rdfNS);
 				QName rdfAbout = new QName("about",new Namespace("rdf",rdfNS));
-				desc.addAttribute( rdfAbout, id.getId() );
+				desc.addAttribute( rdfAbout, id2.getId() );
 				Element relPred = desc.addElement("relatedResource",prNS);
 				Element relElem = relPred.addElement("RelatedResource",prNS);
 				relElem.addElement("uri",prNS).setText( model );
@@ -472,20 +476,19 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				// post
 				ts = triplestore(req);
 				es = events(req);
-				boolean exists = ts.exists(id);
+				boolean exists = ts.exists(id2);
 				InputStream in2 = new ByteArrayInputStream(
 					doc.asXML().getBytes()
 				);
 
 				objectEdit(
-					stripPrefix(path[2]), !exists, in2, "add",
-					null, null, null, ts, es
+					id, !exists, in2, "add", null, null, null, ts, es
 				);
 
 				Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("dsName",new String[]{fedoraLinksDS});
 				outputTransform(
-					path[2], null, null, datastreamProfileTransform,
+					path[2], null, null, true, datastreamProfileTransform,
 					params, "application/xml", res.SC_CREATED, ts, es, res
 				);
 			}
@@ -502,14 +505,17 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				fs = filestore(req);
 				ts = triplestore(req);
 				es = events(req);
+				String id = stripPrefix(path[2]);
+				cacheRemove(id);
+
 				Map info = fileUpload(
-					stripPrefix(path[2]), cmpid(path[4]), fileid(path[4]),
+					id, cmpid(path[4]), fileid(path[4]),
 					false, in, fs, ts, es, params
 				);
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					datastreamProfileTransform, params, "application/xml",
+					true, datastreamProfileTransform, params, "application/xml",
 					res.SC_CREATED, ts, es, res
 				);
 			}
@@ -548,19 +554,20 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				ts = triplestore(req);
 				es = events(req);
-				Identifier id = createID( stripPrefix(path[2]), null, null );
-				boolean exists = ts.exists(id);
-				InputStream in2 = pruneInput( in, id.getId() );
+				String id = stripPrefix(path[2]);
+				cacheRemove(id);
+				Identifier id2 = createID( id, null, null );
+				boolean exists = ts.exists( id2 );
+				InputStream in2 = pruneInput( in, id2.getId() );
 
 				objectEdit(
-					stripPrefix(path[2]), !exists, in2, "all",
-					null, null, null, ts, es
+					id, !exists, in2, "all", null, null, null, ts, es
 				);
 
 				Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("dsName",new String[]{fedoraObjectDS});
 				outputTransform(
-					path[2], null, null, datastreamProfileTransform,
+					path[2], null, null, true, datastreamProfileTransform,
 					params, "application/xml", res.SC_OK, ts, es, res
 				);
 			}
@@ -570,7 +577,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[4].equals(fedoraRightsDS) )
 			{
 				// ignore
-				InputBundle bundle = input(req);
+				//InputBundle bundle = input(req);
 			}
 			// PUT /objects/[oid]/datastreams/[fedoraLinksDS]
 			else if ( path.length == 5 && path[1].equals("objects")
@@ -578,7 +585,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[4].equals(fedoraLinksDS) )
 			{
 				// ignore
-				InputBundle bundle = input(req);
+				//InputBundle bundle = input(req);
 			}
 			// PUT /objects/[oid]/datastreams/[fid]
 			// STATUS: WORKING
@@ -594,14 +601,17 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				fs = filestore(req);
 				ts = triplestore(req);
 				es = events(req);
+
+				String id = stripPrefix(path[2]);
+				cacheRemove(id);
 				fileUpload(
-					stripPrefix(path[2]), cmpid(path[4]), fileid(path[4]),
+					id, cmpid(path[4]), fileid(path[4]),
 					true, in, fs, ts, es, params
 				);
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					datastreamProfileTransform, params, "application/xml",
+					true, datastreamProfileTransform, params, "application/xml",
 					res.SC_OK, ts, es, res
 				);
 			}
@@ -641,10 +651,13 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				// delete object
 				ts = triplestore(req);
 				es = events(req);
-				info = objectDelete( stripPrefix(path[2]), ts, es );
+				String id = stripPrefix(path[2]);
+				cacheRemove(id);
+
+				info = objectDelete( id, ts, es );
 
 				outputTransform(
-					path[2], null, null, datastreamDeleteTransform, null,
+					path[2], null, null, true, datastreamDeleteTransform, null,
 					"text/plain", res.SC_NO_CONTENT, ts, es, res
 				);
 			}
@@ -657,14 +670,15 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				ts = triplestore(req);
 				es = events(req);
 				fs = filestore(req);
+				String id = stripPrefix(path[2]);
+				cacheRemove(id);
 				info = fileDelete(
-					stripPrefix(path[2]), cmpid(path[4]), fileid(path[4]),
-					fs, ts, es
+					id, cmpid(path[4]), fileid(path[4]), fs, ts, es
 				);
 
 				outputTransform(
 					path[2], cmpid(path[4]), fileid(path[4]),
-					datastreamDeleteTransform, null, "text/plain",
+					true, datastreamDeleteTransform, null, "text/plain",
 					res.SC_NO_CONTENT, ts, es, res
 				);
 			}
@@ -687,8 +701,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	}
 
 	private void outputTransform( String objid, String cmpid, String fileid,
-		Transformer xsl, Map<String,String[]> params, String contentType,
-		int successCode, TripleStore ts, TripleStore es,
+		boolean export, Transformer xsl, Map<String,String[]> params,
+		String contentType, int successCode, TripleStore ts, TripleStore es,
 		HttpServletResponse res )
 		throws TripleStoreException, TransformerException
 	{
@@ -705,11 +719,19 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 		// get object metadata
 		String rdfxml = null;
-		Map info = objectShow( stripPrefix(objid), ts, es );
-		if ( info.get("obj") != null )
+		if ( export ) { rdfxml = cacheGet( stripPrefix(objid) ); }
+		if ( rdfxml == null )
 		{
-			DAMSObject obj = (DAMSObject)info.get("obj");
-			rdfxml = obj.getRDFXML(true);
+			Map info = objectShow( stripPrefix(objid), ts, es );
+			if ( info.get("obj") != null )
+			{
+				DAMSObject obj = (DAMSObject)info.get("obj");
+				rdfxml = obj.getRDFXML(export);
+			}
+			if ( rdfxml != null && export )
+			{
+				cacheAdd( stripPrefix(objid), rdfxml );
+			}
 		}
 
 		// if rdfxml is null, just output the object identifier
