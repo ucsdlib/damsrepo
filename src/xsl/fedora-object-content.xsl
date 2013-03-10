@@ -5,11 +5,15 @@
     xmlns:owl="http://www.w3.org/2002/07/owl#"
     xmlns:mads="http://www.loc.gov/mads/rdf/v1#"
     xmlns:damsid="http://library.ucsd.edu/ark:/20775/">
-  <xsl:output method="xml" indent="yes"/>
+  <xsl:output method="xml" indent="no"/>
   <xsl:template match="/">
     <rdf:RDF>
-      <xsl:for-each select="/rdf:RDF/dams:Object">
-        <dams:Object rdf:about="{@rdf:about}">
+      <xsl:for-each select="/rdf:RDF/*">
+        <xsl:variable name="sub" select="@rdf:about"/>
+        <xsl:element name="{name()}">
+          <xsl:attribute name="rdf:about">
+            <xsl:value-of select="$sub"/>
+          </xsl:attribute>
           <!-- copy original content -->
           <xsl:for-each select="*">
             <xsl:copy-of select="."/>
@@ -22,7 +26,7 @@
               <dams:hasComponent rdf:resource="{$about}"/>
             </xsl:if>
           </xsl:for-each>
-        </dams:Object>
+        </xsl:element>
       </xsl:for-each>
     </rdf:RDF>
   </xsl:template>
