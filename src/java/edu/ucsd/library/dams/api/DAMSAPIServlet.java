@@ -21,6 +21,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
@@ -201,6 +202,40 @@ public class DAMSAPIServlet extends HttpServlet
 	private Connection queueConnection;
 	private Session queueSession;
 	MessageProducer queueProducer;
+
+	// object rdf/xml caching
+	private static HashMap<String,String> cacheContent = new HashMap<String,String>();
+	private static LinkedList<String> cacheAccess = new LinkedList<String>();
+	private static int cacheSize = 10; // XXX: config
+
+	protected static void cacheAdd( String key, String content )
+	{
+		if ( !cacheContent.containsKey(key) )
+		{
+			while ( cacheContent.size() >= cacheSize )
+			{
+				cacheContent.remove(cacheAccess.pop());
+			}
+		}
+		cacheContent.put(key,content);
+		cacheAccess.add(key);
+	}
+	protected static String cacheGet( String key )
+	{
+		cacheAccess.remove(key);
+		cacheAccess.add(key);
+		return cacheContent.get(key);
+	}
+	protected static void cacheRemove( String key )
+	{
+		cacheContent.remove(key);
+		cacheAccess.remove(key);
+	}
+	protected static void cacheClear()
+	{
+		cacheContent.clear();
+		cacheAccess.clear();
+	}
 
 	// initialize servlet parameters
 	public void init( ServletConfig config ) throws ServletException
@@ -794,6 +829,7 @@ public class DAMSAPIServlet extends HttpServlet
 					String adds = getParamString( params, "adds", null );
 					ts = triplestore(req);
 					es = events(req);
+					cacheRemove(path[2]);
 					info = objectCreate( path[2], in, adds, ts, es );
 				}
 				catch ( Exception ex )
@@ -814,6 +850,7 @@ public class DAMSAPIServlet extends HttpServlet
 				if ( dest != null )
 				{
 					fs = filestore(req);
+					cacheRemove(path[2]);
 				}
 				objectTransform(
 					path[2], null, null, export, ts, es, xsl, fs, dest,
@@ -849,6 +886,7 @@ public class DAMSAPIServlet extends HttpServlet
 						fs = filestore(req);
 						ts = triplestore(req);
 						es = events(req);
+						cacheRemove(path[2]);
 						info = fileUpload(
 							path[2], null, path[3], false, in, fs, ts, es, params
 						);
@@ -882,6 +920,7 @@ public class DAMSAPIServlet extends HttpServlet
 						fs = filestore(req);
 						ts = triplestore(req);
 						es = events(req);
+						cacheRemove(path[2]);
 						info = fileUpload(
 							path[2], path[3], path[4], false, in, fs, ts, es, params
 						);
@@ -902,6 +941,7 @@ public class DAMSAPIServlet extends HttpServlet
 				es = events(req);
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
+				cacheRemove(path[2]);
 				info = fileCharacterize( path[2], null, path[3], false, fs, ts, es, params );
 			}
 			// POST /files/bb1234567x/1/1.tif/characterize
@@ -913,6 +953,7 @@ public class DAMSAPIServlet extends HttpServlet
 				es = events(req);
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
+				cacheRemove(path[2]);
 				info = fileCharacterize( path[2], path[3], path[4], false, fs, ts, es, params );
 			}
 			// POST /files/bb1234567x/1.tif/derivatives
@@ -926,6 +967,7 @@ public class DAMSAPIServlet extends HttpServlet
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
 				params.put("frame", req.getParameterValues("frame"));
+				cacheRemove(path[2]);
 				info = fileDerivatives( path[2], null, path[3], false, fs, ts, es, params );
 			}
 			// POST /files/bb1234567x/1/1.tif/derivatives
@@ -939,6 +981,7 @@ public class DAMSAPIServlet extends HttpServlet
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
 				params.put("frame", req.getParameterValues("frame"));
+				cacheRemove(path[2]);
 				info = fileDerivatives( path[2], path[3], path[4], false, fs, ts, es, params );
 			}
 			else
@@ -1003,6 +1046,7 @@ public class DAMSAPIServlet extends HttpServlet
 					String mode    = getParamString(params,"mode",null);
 					ts = triplestore(req);
 					es = events(req);
+					cacheRemove(path[2]);
 					info = objectUpdate(
 						path[2], in, mode, adds, updates, deletes, ts, es
 					);
@@ -1024,6 +1068,7 @@ public class DAMSAPIServlet extends HttpServlet
 					fs = filestore(req);
 					ts = triplestore(req);
 					es = events(req);
+					cacheRemove(path[2]);
 					info = fileUpload(
 						path[2], null, path[3], true, in, fs, ts, es, params
 					);
@@ -1046,6 +1091,7 @@ public class DAMSAPIServlet extends HttpServlet
 					fs = filestore(req);
 					ts = triplestore(req);
 					es = events(req);
+					cacheRemove(path[2]);
 					info = fileUpload(
 						path[2], path[3], path[4], true, in, fs, ts, es,
 						params
@@ -1066,6 +1112,7 @@ public class DAMSAPIServlet extends HttpServlet
 				es = events(req);
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
+				cacheRemove(path[2]);
 				info = fileCharacterize( path[2], null, path[3], true, fs, ts, es, params );
 			}
 			// PUT /files/bb1234567x/1/1.tif/characterize
@@ -1077,6 +1124,7 @@ public class DAMSAPIServlet extends HttpServlet
 				es = events(req);
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
+				cacheRemove(path[2]);
 				info = fileCharacterize( path[2], path[3], path[4], true, fs, ts, es, params );
 			}
 			// PUT /files/bb1234567x/1.tif/derivatives
@@ -1090,6 +1138,7 @@ public class DAMSAPIServlet extends HttpServlet
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
 				params.put("frame", req.getParameterValues("frame"));
+				cacheRemove(path[2]);
 				info = fileDerivatives( path[2], null, path[3], true, fs, ts, es, params );
 			}
 			// PUT /files/bb1234567x/1/1.tif/derivatives
@@ -1103,6 +1152,7 @@ public class DAMSAPIServlet extends HttpServlet
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
 				params.put("frame", req.getParameterValues("frame"));
+				cacheRemove(path[2]);
 				info = fileDerivatives( path[2], path[3], path[4], true, fs, ts, es, params );
 			}
 			else
@@ -1163,6 +1213,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				ts = triplestore(req);
 				es = events(req);
+				cacheRemove(path[2]);
 				info = objectDelete( path[2], ts, es );
 			}
 			// DELETE /objects/bb1234567x/index
@@ -1179,6 +1230,7 @@ public class DAMSAPIServlet extends HttpServlet
 				String[] predicates = req.getParameterValues("predicate");
 				ts = triplestore(req);
 				es = events(req);
+				cacheRemove(path[2]);
 				info = selectiveDelete( path[2], null, predicates, ts, es );
 			}
 			// DELETE /objects/bb1234567x/1/selective
@@ -1188,6 +1240,7 @@ public class DAMSAPIServlet extends HttpServlet
 				String[] predicates = req.getParameterValues("predicate");
 				ts = triplestore(req);
 				es = events(req);
+				cacheRemove(path[2]);
 				info = selectiveDelete( path[2], path[3], predicates, ts, es );
 			}
 			// DELETE /files/bb1234567x/1.tif
@@ -1196,6 +1249,7 @@ public class DAMSAPIServlet extends HttpServlet
 				fs = filestore(req);
 				ts = triplestore(req);
 				es = events(req);
+				cacheRemove(path[2]);
 				info = fileDelete( path[2], null, path[3], fs, ts, es );
 			}
 			// DELETE /files/bb1234567x/1/1.tif
@@ -1205,6 +1259,7 @@ public class DAMSAPIServlet extends HttpServlet
 				fs = filestore(req);
 				ts = triplestore(req);
 				es = events(req);
+				cacheRemove(path[2]);
 				info = fileDelete( path[2], path[3], path[4], fs, ts, es );
 			}
 			else
