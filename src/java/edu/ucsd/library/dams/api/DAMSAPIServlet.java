@@ -896,9 +896,9 @@ public class DAMSAPIServlet extends HttpServlet
 						InputBundle bundle = input( req );
 						InputStream in = bundle.getInputStream();
 						params = bundle.getParams();
-						fs = filestore(req);
-						ts = triplestore(req);
-						es = events(req);
+						fs = filestore(params);
+						ts = triplestore(params);
+						es = events(params);
 						cacheRemove(path[2]);
 						info = fileUpload(
 							path[2], null, path[3], false, in, fs, ts, es, params
@@ -930,9 +930,9 @@ public class DAMSAPIServlet extends HttpServlet
 						InputBundle bundle = input( req );
 						InputStream in = bundle.getInputStream();
 						params = bundle.getParams();
-						fs = filestore(req);
-						ts = triplestore(req);
-						es = events(req);
+						fs = filestore(params);
+						ts = triplestore(params);
+						es = events(params);
 						cacheRemove(path[2]);
 						info = fileUpload(
 							path[2], path[3], path[4], false, in, fs, ts, es, params
@@ -1078,9 +1078,9 @@ public class DAMSAPIServlet extends HttpServlet
 					InputBundle bundle = input( req );
 					InputStream in = bundle.getInputStream();
 					params = bundle.getParams();
-					fs = filestore(req);
-					ts = triplestore(req);
-					es = events(req);
+					fs = filestore(params);
+					ts = triplestore(params);
+					es = events(params);
 					cacheRemove(path[2]);
 					info = fileUpload(
 						path[2], null, path[3], true, in, fs, ts, es, params
@@ -1101,9 +1101,9 @@ public class DAMSAPIServlet extends HttpServlet
 					InputBundle bundle = input( req );
 					InputStream in = bundle.getInputStream();
 					params = bundle.getParams();
-					fs = filestore(req);
-					ts = triplestore(req);
-					es = events(req);
+					fs = filestore(params);
+					ts = triplestore(params);
+					es = events(params);
 					cacheRemove(path[2]);
 					info = fileUpload(
 						path[2], path[3], path[4], true, in, fs, ts, es,
@@ -1297,6 +1297,14 @@ public class DAMSAPIServlet extends HttpServlet
 	protected FileStore filestore( HttpServletRequest req ) throws Exception
 	{
 		String fsName = getParamString(req,"fs",fsDefault);
+System.out.println("fs: " + fsName + " XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+		return FileStoreUtil.getFileStore(props,fsName);
+	}
+	protected FileStore filestore( Map<String,String[]> params )
+		throws Exception
+	{
+		String fsName = getParamString(params,"fs",fsDefault);
+System.out.println("fs: " + fsName + " ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
 		return FileStoreUtil.getFileStore(props,fsName);
 	}
 	protected TripleStore triplestore( HttpServletRequest req ) throws Exception
@@ -1304,9 +1312,20 @@ public class DAMSAPIServlet extends HttpServlet
 		String tsName = getParamString(req,"ts",tsDefault);
 		return TripleStoreUtil.getTripleStore(props,tsName);
 	}
+	protected TripleStore triplestore( Map<String,String[]> params )
+		throws Exception
+	{
+		String tsName = getParamString(params,"ts",tsDefault);
+		return TripleStoreUtil.getTripleStore(props,tsName);
+	}
 	protected TripleStore events( HttpServletRequest req ) throws Exception
 	{
 		String tsName = getParamString(req,"es",tsEvents);
+		return TripleStoreUtil.getTripleStore(props,tsName);
+	}
+	protected TripleStore events( Map<String,String[]> params ) throws Exception
+	{
+		String tsName = getParamString(params,"es",tsEvents);
 		return TripleStoreUtil.getTripleStore(props,tsName);
 	}
 	protected static void cleanup(FileStore fs, TripleStore ts, TripleStore es)
@@ -1855,6 +1874,8 @@ public class DAMSAPIServlet extends HttpServlet
 			String sourceFilename = input!=null?input[0]:null;
 			input = params.get("sourcePath");
 			String sourcePath = input!=null?input[0]:null;
+			input = params.get("fs");
+			String fsName = input!=null?input[0]:null;
 			
 			// Output is saved to the triplestore.
 			if ( ts != null && es != null )
@@ -1905,6 +1926,10 @@ public class DAMSAPIServlet extends HttpServlet
 				if ( sourcePath != null && sourcePath.length() > 0 )
 				{
 					m.put( "sourcePath", sourcePath );
+				}
+				if ( fsName != null && fsName.length() > 0 )
+				{
+					m.put( "filestore", fsName );
 				}
 				
 				// Add constant properties
