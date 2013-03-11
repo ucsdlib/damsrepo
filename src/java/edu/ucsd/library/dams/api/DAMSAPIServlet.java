@@ -1297,14 +1297,12 @@ public class DAMSAPIServlet extends HttpServlet
 	protected FileStore filestore( HttpServletRequest req ) throws Exception
 	{
 		String fsName = getParamString(req,"fs",fsDefault);
-System.out.println("fs: " + fsName + " XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 		return FileStoreUtil.getFileStore(props,fsName);
 	}
 	protected FileStore filestore( Map<String,String[]> params )
 		throws Exception
 	{
 		String fsName = getParamString(params,"fs",fsDefault);
-System.out.println("fs: " + fsName + " ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
 		return FileStoreUtil.getFileStore(props,fsName);
 	}
 	protected TripleStore triplestore( HttpServletRequest req ) throws Exception
@@ -1419,13 +1417,15 @@ System.out.println("fs: " + fsName + " ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
 	}
 	public Map collectionListFiles( String colid, TripleStore ts )
 	{
-		return listFiles( "dams:collection", colid, ts );
+		String[] pred = new String[]{ "dams:collection", "dams:assembledCollection", "dams:provenanceCollection", "dams:provenanceCollectionPart" };
+		Map m = listFiles( pred, colid, ts);
+		return m;
 	}
 	public Map unitListFiles( String repid, TripleStore ts )
 	{
-		return listFiles( "dams:unit", repid, ts );
+		return listFiles( new String[]{"dams:unit"}, repid, ts );
 	}
-	protected Map listFiles( String pred, String obj, TripleStore ts )
+	protected Map listFiles( String[] pred, String obj, TripleStore ts )
 	{
 		try
 		{
@@ -1690,18 +1690,20 @@ System.out.println("fs: " + fsName + " ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
 
 	public Map collectionListObjects( String colid, TripleStore ts  )
 	{
-		return listObjects( "dams:collection", colid, ts );
+		String[] pred = new String[]{ "dams:collection", "dams:assembledCollection", "dams:provenanceCollection", "dams:provenanceCollectionPart" };
+		Map m = listObjects( pred, colid, ts );
+		return m;
 	}
 	public Map unitListObjects( String repid, TripleStore ts  )
 	{
-		return listObjects( "dams:unit", repid, ts );
+		return listObjects( new String[]{"dams:unit"}, repid, ts );
 	}
-	public Map listObjects( String pred, String obj, TripleStore ts  )
+	public Map listObjects( String[] pred, String col, TripleStore ts  )
 	{
 		try
 		{
-			Identifier id = createID( obj, null, null );
-			Identifier pre = createPred( pred );
+			// make sure collection exists
+			Identifier id = createID( col, null, null );
 			if ( !ts.exists(id) )
 			{
 				return error(
@@ -1710,14 +1712,15 @@ System.out.println("fs: " + fsName + " ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
 				);
 			}
 
-			String sparql = "select ?obj where { "
-				+ "?obj <" + pre.getId() + "> "
-				+ "<" + id.getId() + "> }";
-			BindingIterator bind = ts.sparqlSelect(sparql);
-			List<Map<String,String>> objects = bindings(bind);
+			// list objects related to the col by each predicate
+			List<Map<String,String>> objs = new ArrayList<Map<String,String>>();
+			for ( int i = 0; i < pred.length; i++ )
+			{
+				objs.addAll( listObjects(pred[i],id,ts) );
+			}
 
 			Map info = new HashMap();
-			info.put( "objects", objects );
+			info.put( "objects", objs );
 			return info;
 		}
 		catch ( Exception ex )
@@ -1725,6 +1728,18 @@ System.out.println("fs: " + fsName + " ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
 			ex.printStackTrace();
 			return error( "Error listing " + pred + ": " + ex.toString() );
 		}
+	}
+	public List listObjects( String pred, Identifier id, TripleStore ts  )
+		throws Exception
+	{
+		Identifier pre = createPred( pred );
+		String sparql = "select ?obj where { "
+			+ "?obj <" + pre.getId() + "> "
+			+ "<" + id.getId() + "> }";
+		BindingIterator bind = ts.sparqlSelect(sparql);
+		List<Map<String,String>> objects = bindings(bind);
+
+		return objects;
 	}
 	public Map fileCharacterize( String objid, String cmpid, String fileid,
 		boolean overwrite, FileStore fs, TripleStore ts, TripleStore es,
@@ -2828,8 +2843,8 @@ private static String listToString(String[] arr)
 					"Object id must be specified"
 				);
 			}
-            if ( !objid.startsWith("http") ) { objid = idNS + objid; }
-            Identifier id = Identifier.publicURI(objid);
+			if ( !objid.startsWith("http") ) { objid = idNS + objid; }
+			Identifier id = Identifier.publicURI(objid);
 			if ( !ts.exists(id) )
 			{
 				return error(
@@ -3641,18 +3656,18 @@ private static String listToString(String[] arr)
 		return doc.asXML();
 	}
 	
-    public String xslt( String xml, String xslName, Map<String,String[]> params,
+	public String xslt( String xml, String xslName, Map<String,String[]> params,
 		String queryString ) throws TransformerException
 	{
-        // setup the transformer
+	    // setup the transformer
 		String xsl = xslName.startsWith("http") ? xslName : xslBase + xslName;
-        TransformerFactory tf = TransformerFactory.newInstance();
-        Transformer t = tf.newTransformer( new StreamSource(xsl) );
+	    TransformerFactory tf = TransformerFactory.newInstance();
+	    Transformer t = tf.newTransformer( new StreamSource(xsl) );
 		return xslt( xml, t, params, queryString);
 	}
-    public String xslt( String xml, Transformer t, Map<String,String[]> params,
+	public String xslt( String xml, Transformer t, Map<String,String[]> params,
 		String queryString ) throws TransformerException
-    {
+	{
 		if ( xml == null )
 		{
 			throw new TransformerException("No input document provided");
@@ -3662,40 +3677,40 @@ private static String listToString(String[] arr)
 			throw new TransformerException("Null transform");
 		}
 
-        // params
-        String casGroupTest = getParamString(params,"casGroupTest",null);
+	    // params
+	    String casGroupTest = getParamString(params,"casGroupTest",null);
 
 		// clear stale parameters
 		t.clearParameters();
 
-        // add request params to xsl
-        if ( params != null )
-        {
-            Iterator<String> it = params.keySet().iterator();
-            while (it.hasNext() )
-            {
-                String key = it.next();
-                String val = null;
-                String[] vals = (String[])params.get(key);
-                for ( int i = 0; i < vals.length; i++ )
-                {
-                    if ( vals[i] != null && !vals[i].equals("") )
-                    {
-                        if ( val == null )
-                        {
-                            val = vals[i];
-                        }
-                        else
-                        {
-                            val += "; " + vals[i];
-                        }
-                    }
-                }
-                if ( key != null && val != null )
-                {
-                    String escaped = StringEscapeUtils.escapeJava(val);
-                    t.setParameter( key, escaped );
-                }
+		// add request params to xsl
+		if ( params != null )
+		{
+			Iterator<String> it = params.keySet().iterator();
+			while (it.hasNext() )
+			{
+				String key = it.next();
+				String val = null;
+				String[] vals = (String[])params.get(key);
+				for ( int i = 0; i < vals.length; i++ )
+				{
+					if ( vals[i] != null && !vals[i].equals("") )
+					{
+						if ( val == null )
+						{
+							val = vals[i];
+						}
+						else
+						{
+							val += "; " + vals[i];
+						}
+					}
+				}
+				if ( key != null && val != null )
+				{
+					String escaped = StringEscapeUtils.escapeJava(val);
+					t.setParameter( key, escaped );
+	            }
             }
         }
 		if ( queryString != null )
