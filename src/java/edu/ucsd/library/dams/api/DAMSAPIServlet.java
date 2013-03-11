@@ -1615,17 +1615,35 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		try
 		{
-			String sparql = "select ?collection ?title where { ?collection <" + prNS + "title> ?bn . ?bn <" + rdfNS + "value> ?title . ?collection <" + rdfNS + "type> <" + prNS + "Collection> }";
-			BindingIterator cols = ts.sparqlSelect(sparql);
-			List<Map<String,String>> collections = bindings(cols);
+			List<Map<String,String>> cols = new ArrayList<Map<String,String>>();
+			cols.addAll( collectionListAll(ts, "Collection") );
+			cols.addAll( collectionListAll(ts, "AssembledCollection") );
+			cols.addAll( collectionListAll(ts, "ProvenanceCollection") );
+			cols.addAll( collectionListAll(ts, "ProvenanceCollectionPart") );
+
 			Map info = new HashMap();
-			info.put( "collections", collections );
+			info.put( "collections", cols );
 			return info;
 		}
 		catch ( Exception ex )
 		{
 			return error( "Error listing collections: " + ex.toString() );
 		}
+	}
+	public List<Map<String,String>> collectionListAll( TripleStore ts, String type ) throws Exception
+	{
+		String sparql = "select ?collection ?title where { ?collection <" + prNS + "title> ?bn . ?bn <" + rdfNS + "value> ?title . ?collection <" + rdfNS + "type> <" + prNS + type + "> }";
+		BindingIterator bit = ts.sparqlSelect(sparql);
+		List<Map<String,String>> cols = bindings(bit);
+
+		// add type value
+		for ( int i = 0; i < cols.size(); i++ )
+		{
+			Map<String,String> m = cols.get(i);
+			m.put("type",type);
+		}
+
+		return cols;
 	}
 
 	private List<Map<String,String>> bindings( BindingIterator bit )
