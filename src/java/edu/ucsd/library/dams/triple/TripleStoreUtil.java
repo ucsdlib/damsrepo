@@ -16,8 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -40,6 +38,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.datatypes.BaseDatatype;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import edu.ucsd.library.dams.solr.SolrHelper;
@@ -225,6 +224,7 @@ public class TripleStoreUtil
 			int idx = s.lastIndexOf("\"@");
 			String val = s.substring(1,idx);
 			String lng = s.substring(idx+2);
+			val = StringEscapeUtils.unescapeJava(val);
 			return m.createLiteral( val, lng );
 		}
 		// literal with datatype
@@ -233,6 +233,7 @@ public class TripleStoreUtil
 			int idx = s.lastIndexOf("\"^^");
 			String val = s.substring(1,idx);
 			String typ = s.substring(idx+4,s.length()-1);
+			val = StringEscapeUtils.unescapeJava(val);
 			try
 			{
 				return m.createTypedLiteral( val, new BaseDatatype(typ) );
@@ -246,6 +247,7 @@ public class TripleStoreUtil
 		else if ( s != null )
 		{
 			String val = s.substring(1,s.length()-1);
+			val = StringEscapeUtils.unescapeJava(val);
 			return m.createLiteral( val );
 		}
 		else
