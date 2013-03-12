@@ -3424,10 +3424,10 @@ private static String listToString(String[] arr)
 			if ( http.status() == 200 )
 			{
 				solrxml = http.contentBodyAsString();
-				//component_3_file_1.xml_filestore_tesim
-				String fieldname = "";
-				if ( cmpid != null ) { fieldname += "component_" + cmpid + "_";}
-				fieldname += "file_" + fileid + "_filestore_tesim";
+				//file_3_1.xml_filestore_tesim
+				String fieldname = "file_";
+				if ( cmpid != null ) { fieldname += cmpid + "_";}
+				fieldname += fileid + "_filestore_tesim";
 				Document doc = DocumentHelper.parseText(solrxml);
 				fs = doc.valueOf("//arr[@name='" + fieldname + "']/str");
 			}
