@@ -830,25 +830,26 @@ public class DAMSAPIServlet extends HttpServlet
 			// POST /index
 			if ( path.length == 2 && path[1].equals("index") )
 			{
-				InputBundle input = input(req);
-				String[] ids = input.getParams().get("id");
+				InputBundle bundle = input(req);
+				params = bundle.getParams();
+				String[] ids = getParamArray(params,"id",null);
 				info = indexQueue( ids, "modifyObject" );
 			}
 			// POST /queue
 			else if ( path.length == 2 && path[1].equals("queue") )
 			{
-				InputBundle input = input(req);
-				String[] ids = input.getParams().get("id");
-				//ts = triplestore(req);
-				//es = events(req);
-
+				InputBundle bundle = input(req);
+				params = bundle.getParams();
+				String[] ids = getParamArray( params,"id",null);
 				info = indexQueue( ids, "modifyObject" );
 			}
 			// POST /next_id
 			else if ( path.length == 2 && path[1].equals("next_id") )
 			{
-				String idMinter = getParamString( req, "name", minterDefault );
-				int count = getParamInt( req, "count", 1 );
+				InputBundle bundle = input( req );
+				params = bundle.getParams();
+				String idMinter = getParamString(params,"name",minterDefault);
+				int count = getParamInt( params, "count", 1 );
 				info = identifierCreate( idMinter, count );
 			}
 			// POST /objects/bb1234567x
@@ -860,8 +861,8 @@ public class DAMSAPIServlet extends HttpServlet
 					InputStream in = bundle.getInputStream();
 					params = bundle.getParams();
 					String adds = getParamString( params, "adds", null );
-					ts = triplestore(req);
-					es = events(req);
+					ts = triplestore(params);
+					es = events(params);
 					cacheRemove(path[2]);
 					info = objectCreate( path[2], in, adds, ts, es );
 				}
@@ -875,14 +876,16 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 4 && path[1].equals("objects")
 				&& path[3].equals("transform") )
 			{
-				ts = triplestore(req);
-				es = events(req);
-				String xsl = getParamString(req,"xsl",null);
-				String dest = getParamString(req,"dest",null);
-				boolean export = getParamBool(req,"recursive",false);
+				InputBundle bundle = input( req );
+				params = bundle.getParams();
+				ts = triplestore(params);
+				es = events(params);
+				String xsl = getParamString(params,"xsl",null);
+				String dest = getParamString(params,"dest",null);
+				boolean export = getParamBool(params,"recursive",false);
 				if ( dest != null )
 				{
-					fs = filestore(req);
+					fs = filestore(params);
 					cacheRemove(path[2]);
 				}
 				objectTransform(
@@ -969,11 +972,11 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 5 && path[1].equals("files")
 				&& path[4].equals("characterize") )
 			{
-				fs = filestore(req);
-				ts = triplestore(req);
-				es = events(req);
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
+				fs = filestore(params);
+				ts = triplestore(params);
+				es = events(params);
 				cacheRemove(path[2]);
 				info = fileCharacterize( path[2], null, path[3], false, fs, ts, es, params );
 			}
@@ -981,11 +984,11 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 6 && path[1].equals("files")
 				&& path[4].equals("characterize") && isNumber(path[3]) )
 			{
-				fs = filestore(req);
-				ts = triplestore(req);
-				es = events(req);
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
+				fs = filestore(params);
+				ts = triplestore(params);
+				es = events(params);
 				cacheRemove(path[2]);
 				info = fileCharacterize( path[2], path[3], path[4], false, fs, ts, es, params );
 			}
@@ -993,9 +996,11 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 5 && path[1].equals("files")
 				&& path[4].equals("derivatives") )
 			{
-				fs = filestore(req);
-				ts = triplestore(req);
-				es = events(req);
+				InputBundle bundle = input( req );
+				params = bundle.getParams();
+				fs = filestore(params);
+				ts = triplestore(params);
+				es = events(params);
 				
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
@@ -1007,9 +1012,11 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 6 && path[1].equals("files")
 				&& isNumber(path[3]) && path[5].equals("derivatives") )
 			{
-				fs = filestore(req);
-				ts = triplestore(req);
-				es = events(req);
+				InputBundle bundle = input( req );
+				params = bundle.getParams();
+				fs = filestore(params);
+				ts = triplestore(params);
+				es = events(params);
 				
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
@@ -1140,11 +1147,11 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 5 && path[1].equals("files")
 				&& path[4].equals("characterize") )
 			{
-				fs = filestore(req);
-				ts = triplestore(req);
-				es = events(req);
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
+				fs = filestore(params);
+				ts = triplestore(params);
+				es = events(params);
 				cacheRemove(path[2]);
 				info = fileCharacterize( path[2], null, path[3], true, fs, ts, es, params );
 			}
@@ -1152,11 +1159,11 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 6 && path[1].equals("files")
 				&& path[5].equals("characterize") && isNumber(path[3]) )
 			{
-				fs = filestore(req);
-				ts = triplestore(req);
-				es = events(req);
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
+				fs = filestore(params);
+				ts = triplestore(params);
+				es = events(params);
 				cacheRemove(path[2]);
 				info = fileCharacterize( path[2], path[3], path[4], true, fs, ts, es, params );
 			}
@@ -1164,9 +1171,11 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 5 && path[1].equals("files")
 				&& path[4].equals("derivatives") )
 			{
-				fs = filestore(req);
-				ts = triplestore(req);
-				es = events(req);
+				InputBundle bundle = input( req );
+				params = bundle.getParams();
+				fs = filestore(params);
+				ts = triplestore(params);
+				es = events(params);
 				
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
@@ -1178,9 +1187,11 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 6 && path[1].equals("files")
 				&& isNumber(path[3]) && path[5].equals("derivatives") )
 			{
-				fs = filestore(req);
-				ts = triplestore(req);
-				es = events(req);
+				InputBundle bundle = input( req );
+				params = bundle.getParams();
+				fs = filestore(params);
+				ts = triplestore(params);
+				es = events(params);
 				
 				params = new HashMap<String, String[]>();
 				params.put("size", req.getParameterValues("size"));
@@ -1316,8 +1327,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 	protected FileStore filestore( HttpServletRequest req ) throws Exception
 	{
-		String fsName = getParamString(req,"fs",fsDefault);
-		return FileStoreUtil.getFileStore(props,fsName);
+		return filestore( req.getParameterMap() );
 	}
 	protected FileStore filestore( Map<String,String[]> params )
 		throws Exception
@@ -1327,8 +1337,7 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	protected TripleStore triplestore( HttpServletRequest req ) throws Exception
 	{
-		String tsName = getParamString(req,"ts",tsDefault);
-		return TripleStoreUtil.getTripleStore(props,tsName);
+		return triplestore( req.getParameterMap() );
 	}
 	protected TripleStore triplestore( Map<String,String[]> params )
 		throws Exception
@@ -1338,8 +1347,7 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	protected TripleStore events( HttpServletRequest req ) throws Exception
 	{
-		String tsName = getParamString(req,"es",tsEvents);
-		return TripleStoreUtil.getTripleStore(props,tsName);
+		return events( req.getParameterMap() );
 	}
 	protected TripleStore events( Map<String,String[]> params ) throws Exception
 	{
@@ -3315,7 +3323,7 @@ private static String listToString(String[] arr)
 				try
 				{
 					output = SolrFormat.jsonFormatText(
-						output, ds, null, getParamString(params,"q",null)
+						output, ds, null, getParamString( params,"q",null)
 					);
 					contentType = "application/json";
 				}
@@ -3903,23 +3911,6 @@ private static String listToString(String[] arr)
 			return defaultFile;
 		}
 	}
-	protected static String getParamString( Map<String,String[]> params,
-		String key, String defaultValue )
-	{
-		if ( params == null ) { return defaultValue; }
-
-		String value = null;
-		String[] arr = params.get(key);
-		if ( arr != null && arr.length > 0 && arr[0] != null
-			&& !arr[0].trim().equals("") )
-		{
-			return arr[0];
-		}
-		else
-		{
-			return defaultValue;
-		}
-	}
 	/**
 	 * Extract technical metadata with Jhove
 	 * @param srcFilename
@@ -4065,27 +4056,70 @@ private static String listToString(String[] arr)
 		}
 		return value;
 	}
-	protected static String getParamString( HttpServletRequest req, String key,
+	protected static String[] getParamArray( Map<String,String[]> params,
+		String key, String[] defaultValues )
+	{
+		if ( params == null ) { return defaultValues; }
+
+		String[] values = null;
+
+		if ( params != null )
+		{
+			String[] arr = params.get(key);
+			if ( arr != null && arr.length > 0 )
+			{
+				return arr;
+			}
+		}
+
+		return defaultValues;
+	}
+	protected static String getParamString( Map params, String key,
 		String defaultValue )
 	{
-		if ( req == null ) { return defaultValue; }
-
-		String value = req.getParameter( key );
-		if ( value == null || value.trim().equals("") )
+		String value = null;
+		if ( params == null )
 		{
 			return defaultValue;
 		}
 		else
 		{
+			Object o = params.get(key);
+			if ( o != null && o instanceof String[] )
+			{
+				String[] arr = (String[])o;
+				if ( arr != null && arr.length > 0 && arr[0] != null
+					&& !arr[0].trim().equals("") )
+				{
+					return arr[0];
+				}
+			}
+			else if ( o != null )
+			{
+				value = o.toString();
+			}
+		}
+
+		if ( value != null )
+		{
 			return value;
 		}
+		else
+		{
+			return defaultValue;
+		}
 	}
-	protected static boolean getParamBool( HttpServletRequest req, String key,
+	protected static String getParamString( HttpServletRequest req, String key,
+		String defaultValue )
+	{
+		return getParamString(req.getParameterMap(),key,defaultValue);
+	}
+	protected static boolean getParamBool( Map params, String key,
 		boolean defaultValue )
 	{
-		if ( req == null ) { return defaultValue; }
+		if ( params == null ) { return defaultValue; }
 
-		String value = req.getParameter( key );
+		String value = getParamString(params,key,null);
 		if ( value == null || value.trim().equals("") )
 		{
 			return defaultValue;
@@ -4095,56 +4129,35 @@ private static String listToString(String[] arr)
 			return value.trim().equalsIgnoreCase("true");
 		}
 	}
+	protected static boolean getParamBool( HttpServletRequest req, String key,
+		boolean defaultValue )
+	{
+		return getParamBool(req.getParameterMap(),key,defaultValue);
+	}
 	protected static int getParamInt( HttpServletRequest req, String key,
 		int defaultValue )
 	{
-		if ( req == null ) { return defaultValue; }
-
-		String value = req.getParameter( key );
-		if ( value != null && !value.trim().equals("") )
-		{
-			try
-			{
-				int i = Integer.parseInt(value);
-				return i;
-			}
-			catch ( Exception ex )
-			{
-				log.debug("Error parsing integer parameter: " + ex.toString());
-			}
-		}
-		return defaultValue;
+		return getParamInt( req.getParameterMap(), key, defaultValue );
 	}
 	protected static int getParamInt( Map params, String key, int defaultValue )
 	{
 		if ( params == null ) { return defaultValue; }
 
+		String s = getParamString(params,key,null);
 		int value = defaultValue;
-		String s = null;
 
-		Object o = params.get(key);
-		if ( o instanceof String[] )
+		if ( s != null )
 		{
-			String[] arr = (String[])o;
-			if ( arr != null && arr.length > 0 && arr[0] != null )
+			try
 			{
-				s = arr[0];
+				int i = Integer.parseInt(s);
+				value = i;
 			}
-		}
-		else if ( o instanceof String )
-		{
-			s = (String)o;
-		}
-
-		try
-		{
-			int i = Integer.parseInt(s);
-			value = i;
-		}
-		catch ( Exception ex )
-		{
-			log.debug("Error parsing integer parameter: " + ex.toString());
-			value = defaultValue;
+			catch ( Exception ex )
+			{
+				log.debug("Error parsing integer parameter: " + ex.toString());
+				value = defaultValue;
+			}
 		}
 		return value;
 	}
@@ -4198,6 +4211,7 @@ private static String listToString(String[] arr)
 	{
 		// process parts
 		Map<String,String[]> params = new HashMap<String,String[]>();
+		params.putAll( req.getParameterMap() );
 		InputStream in = null;
 		FileItemFactory factory = new DiskFileItemFactory();
 		ServletFileUpload upload = new ServletFileUpload( factory );
