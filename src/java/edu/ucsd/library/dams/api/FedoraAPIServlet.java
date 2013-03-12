@@ -435,7 +435,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[3].equals("datastreams")
 				&& path[4].equals(fedoraRightsDS) )
 			{
-				// ignore XXXX: get curator email address from this...
+				// ignore XXX: get curator email address from this...
 				//InputBundle bundle = input(req);
 			}
 			// POST /objects/[oid]/datastreams/[fedoraLinksDS]
@@ -443,25 +443,16 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[3].equals("datastreams")
 				&& path[4].equals(fedoraLinksDS) )
 			{
-				// XXXX: get model link
 				InputBundle bundle = input(req);
 				InputStream in = bundle.getInputStream();
 
 				String id = stripPrefix(path[2]);
 				cacheRemove(id);
 				Identifier id2 = createID( id, null, null );
+
+				// get model link
 				String model = getModel( in );
 
-				/* <rdf:RDF>
-					<rdf:Description rdf:about="XXXsubXXX">
-						<dams:relatedResource>
-							<dams:RelatedResource>
-								<dams:uri>XXXmodelXXX</dams:uri>
-								<dams:type>afmodel</dams:type>
-							</dams:RelatedResource>
-						</dams:relatedResource>
-					</rdf:Description>
-				</rdf:RDF> */
 				Document doc = DocumentHelper.createDocument();
 				Element root = doc.addElement("RDF",rdfNS);
 				doc.setRootElement(root);
@@ -891,27 +882,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			// parse doc
 			SAXReader parser = new SAXReader();
-// XXX: xslt? PITA
 			doc = parser.read(in);
 
-/*
-			// remove empty rdf:resource links
-			XPath xpath1 = new DefaultXPath("//dams:relationship[dams:Relationship/dams:name/@rdf:resource='' and dams:Relationship/dams:role/@rdf:resource='']");
-			xpath1.setNamespaceURIs(nsmap);
-			XPath xpath2 = new DefaultXPath("//*[@rdf:resource='']");
-			xpath2.setNamespaceURIs(nsmap);
-
-			List remove = xpath1.selectNodes(doc);
-			List emptyRefs = xpath2.selectNodes(doc);
-			remove.addAll( emptyRefs );
-			pruned += remove.size();
-			for ( int i = 0; i < remove.size(); i++ )
-			{
-				Node n = (Node)remove.get(i);
-				n.detach();
-			}
-*/
-	
 			// fix rdf:about
 			Element objElem = (Element)doc.selectSingleNode("/rdf:RDF/*");
 			if ( objElem != null )
@@ -928,7 +900,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		catch ( Exception ex )
 		{
 			ex.printStackTrace();
-			if ( doc != null ) { System.err.println("doc: " + doc.asXML());}
+			if ( doc != null ) { log.info("doc: " + doc.asXML());}
 		}
 
 		return new ByteArrayInputStream(xml.getBytes());

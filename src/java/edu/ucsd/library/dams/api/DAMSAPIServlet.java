@@ -206,35 +206,51 @@ public class DAMSAPIServlet extends HttpServlet
 	// object rdf/xml caching
 	private static HashMap<String,String> cacheContent = new HashMap<String,String>();
 	private static LinkedList<String> cacheAccess = new LinkedList<String>();
-	private static int cacheSize = 10; // XXX: config
+	private static int cacheSize = 10; // max objects in cache, 0 = disabled
 
 	protected static void cacheAdd( String key, String content )
 	{
-		if ( !cacheContent.containsKey(key) )
+		if ( cacheSize > 0 )
 		{
-			while ( cacheContent.size() >= cacheSize )
+			if ( !cacheContent.containsKey(key) )
 			{
-				cacheContent.remove(cacheAccess.pop());
+				while ( cacheContent.size() >= cacheSize )
+				{
+					cacheContent.remove(cacheAccess.pop());
+				}
 			}
+			cacheContent.put(key,content);
+			cacheAccess.add(key);
 		}
-		cacheContent.put(key,content);
-		cacheAccess.add(key);
 	}
 	protected static String cacheGet( String key )
 	{
-		cacheAccess.remove(key);
-		cacheAccess.add(key);
-		return cacheContent.get(key);
+		if ( cacheSize > 0 )
+		{
+			cacheAccess.remove(key);
+			cacheAccess.add(key);
+			return cacheContent.get(key);
+		}
+		else
+		{
+			return null;
+		}
 	}
 	protected static void cacheRemove( String key )
 	{
-		cacheContent.remove(key);
-		cacheAccess.remove(key);
+		if ( cacheSize > 0 )
+		{
+			cacheContent.remove(key);
+			cacheAccess.remove(key);
+		}
 	}
 	protected static void cacheClear()
 	{
-		cacheContent.clear();
-		cacheAccess.clear();
+		if ( cacheSize > 0 )
+		{
+			cacheContent.clear();
+			cacheAccess.clear();
+		}
 	}
 
 	// initialize servlet parameters
@@ -369,6 +385,10 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// ldap for group lookup
 			ldaputil = new LDAPUtil( props );
+
+			// cache size
+			cacheSize = getPropInt(props, "ts.cacheSize", 0 );
+			cacheClear(); // clear cache
 
 			// queue
 			queueUrl = props.getProperty("queue.url");
@@ -2474,7 +2494,7 @@ private static String listToString(String[] arr)
 
 			// calculate current checksums from file
 			in = fs.getInputStream( objid, cmpid, fileid );
-			// XXX: uses same core checksuming code as JHove, do we need this
+			// uses same core checksuming code as JHove, do we need this
 			// duplication?? only benefit is not having to pull data to local
 			// filesystem
 			Map<String,String> actual = Checksum.checksums(
@@ -2615,15 +2635,14 @@ private static String listToString(String[] arr)
 			// process uploaded file if present
 			if ( in != null )
 			{
-				// XXX: impl other modes
 				if ( mode == null || mode.equals("") || mode.equals("all")
 					|| mode.equals("add") )
 				{
 					if ( !create && mode != null && mode.equals("all") )
 					{
+						// mode=all: delete object and replace
 						try
 						{
-							// delete object
 							ts.removeObject(id);
 						}
 						catch ( Exception ex )
@@ -3136,6 +3155,17 @@ private static String listToString(String[] arr)
 		{
 			url += "?" + req.getQueryString();
 		}
+		String fs = req.getParameter("fs");
+		if ( fs == null || fs.trim().equals("") )
+		{
+			fs = lookupFileStore(objid, cmpid, fileid);
+			if ( fs != null )
+			{
+				url += ( url.indexOf("?") > -1 ) ? "&" : "?";
+				url += "fs=" + fs;
+				log.info("added filestore=" + fs);
+			}
+		}
 		try
 		{
 			req.getRequestDispatcher(url).forward( req, res );
@@ -3377,6 +3407,36 @@ private static String listToString(String[] arr)
 			}
 		}
 		return buf.toString();
+	}
+
+	/**
+	 * Load object record from solr and find which filestore contains a file
+	**/
+	private String lookupFileStore(String objid, String cmpid, String fileid)
+	{
+		String url = solrBase + "/select?q=id:" + objid + "&wt=xml";
+		HttpUtil http = new HttpUtil(url);
+		String solrxml = null;
+		try
+		{
+			String fs = null;
+			http.exec();
+			if ( http.status() == 200 )
+			{
+				solrxml = http.contentBodyAsString();
+				//component_3_file_1.xml_filestore_tesim
+				String fieldname = "";
+				if ( cmpid != null ) { fieldname += "component_" + cmpid + "_";}
+				fieldname += "file_" + fileid + "_filestore_tesim";
+				Document doc = DocumentHelper.parseText(solrxml);
+				fs = doc.valueOf("//arr[@name='" + fieldname + "']/str");
+			}
+			return fs;
+		}
+		catch ( Exception ex )
+		{
+			return null;
+		}
 	}
 
 	//========================================================================
