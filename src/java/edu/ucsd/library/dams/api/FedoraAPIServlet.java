@@ -760,6 +760,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		catch ( Exception ex )
 		{
+			log.warn("Error transforming object", ex );
 			output(
 				res.SC_INTERNAL_SERVER_ERROR, "Error: " + ex.toString(),
 				"text/plain", res
@@ -868,7 +869,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		catch ( Exception ex )
 		{
-			ex.printStackTrace();
+			log.warn( "Error pruning input (JAXP)", ex );
 		}
 
 		return new ByteArrayInputStream(xml.getBytes());
@@ -899,7 +900,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		catch ( Exception ex )
 		{
-			ex.printStackTrace();
+			log.warn( "Error pruning input (DOM4J)", ex );
 			if ( doc != null ) { log.info("doc: " + doc.asXML());}
 		}
 
