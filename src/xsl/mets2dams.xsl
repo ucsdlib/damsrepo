@@ -148,7 +148,7 @@
       <dams:Note>
         <xsl:if test="@displayLabel != ''">
           <dams:displayLabel>
-            <xsl:value-of select="@displayLabel"/>
+            <xsl:value-of select="@displayLabel" disable-output-escaping="yes"/>
           </dams:displayLabel>
         </xsl:if>
         <xsl:if test="@type != ''">

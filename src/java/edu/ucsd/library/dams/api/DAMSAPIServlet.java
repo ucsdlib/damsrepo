@@ -184,7 +184,7 @@ public class DAMSAPIServlet extends HttpServlet
 	private String magickCommand; 				// ImageMagick command
 	private String ffmpegCommand; 				// ffmpeg command
 	private long jhoveMaxSize;                  // local file cache size limit
-	
+
 	// number detection
 	private static Pattern numberPattern = null;
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat(
@@ -350,7 +350,7 @@ public class DAMSAPIServlet extends HttpServlet
 			sampleObject = props.getProperty("fedora.samplePID");
 			adminEmail = props.getProperty("fedora.adminEmail");
 			fedoraCompat = props.getProperty("fedora.compatVersion");
-			
+
 			// derivative list
 			derivativesExt  = props.getProperty("derivatives.ext");
 			String derList = props.getProperty("derivatives.list");
@@ -371,12 +371,12 @@ public class DAMSAPIServlet extends HttpServlet
 					derivativesUse.put( d[i], use );
 				}
 			}
-			
+
 			// ImageMagick convert command
 			magickCommand = props.getProperty("magick.convert");
 			if ( magickCommand == null )
 				magickCommand = "convert";
-					
+
 			// Jhove configuration
 			String jhoveConf = props.getProperty("jhove.conf");
 			if ( jhoveConf != null )
@@ -451,7 +451,7 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			// parse request URI
 			String[] path = path( req );
-	
+
 			// GET /index
 			if ( path.length == 2 && path[1].equals("index") )
 			{
@@ -777,7 +777,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				info = error( res.SC_BAD_REQUEST, "Invalid request" );
 			}
-	
+
 			// output
 			if ( outputRequired )
 			{
@@ -826,7 +826,7 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			// parse request URI
 			String[] path = path( req );
-	
+
 			// POST /index
 			if ( path.length == 2 && path[1].equals("index") )
 			{
@@ -894,7 +894,7 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 				outputRequired = false;
 			}
-			// POST /objects/bb1234567x/index	
+			// POST /objects/bb1234567x/index
 			else if ( path.length == 4 && path[1].equals("objects")
 				&& path[3].equals("index") )
 			{
@@ -1001,10 +1001,11 @@ public class DAMSAPIServlet extends HttpServlet
 				fs = filestore(params);
 				ts = triplestore(params);
 				es = events(params);
-				
-				params = new HashMap<String, String[]>();
-				params.put("size", req.getParameterValues("size"));
-				params.put("frame", req.getParameterValues("frame"));
+
+                Map<String,String[]> params2 = new HashMap<String, String[]>();
+                params2.put( "fs", new String[]{getParamString(params,"fs",fsDefault)} );
+                params2.put( "size", getParamArray(params,"size",null) );
+                params2.put( "frame", getParamArray(params,"frame",null) );
 				cacheRemove(path[2]);
 				info = fileDerivatives( path[2], null, path[3], false, fs, ts, es, params );
 			}
@@ -1017,10 +1018,11 @@ public class DAMSAPIServlet extends HttpServlet
 				fs = filestore(params);
 				ts = triplestore(params);
 				es = events(params);
-				
-				params = new HashMap<String, String[]>();
-				params.put("size", req.getParameterValues("size"));
-				params.put("frame", req.getParameterValues("frame"));
+
+				Map<String,String[]> params2 = new HashMap<String, String[]>();
+				params2.put( "fs", new String[]{getParamString(params,"fs",fsDefault)} );
+				params2.put( "size", getParamArray(params,"size",null) );
+				params2.put( "frame", getParamArray(params,"frame",null) );
 				cacheRemove(path[2]);
 				info = fileDerivatives( path[2], path[3], path[4], false, fs, ts, es, params );
 			}
@@ -1071,7 +1073,7 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			// parse request URI
 			String[] path = path( req );
-	
+
 			// PUT /objects/bb1234567x
 			if ( path.length == 3 && path[1].equals("objects") )
 			{
@@ -1176,12 +1178,13 @@ public class DAMSAPIServlet extends HttpServlet
 				fs = filestore(params);
 				ts = triplestore(params);
 				es = events(params);
-				
-				params = new HashMap<String, String[]>();
-				params.put("size", req.getParameterValues("size"));
-				params.put("frame", req.getParameterValues("frame"));
+
+				Map<String,String[]> params2 = new HashMap<String, String[]>();
+				params2.put( "fs", new String[]{getParamString(params,"fs",fsDefault)} );
+				params2.put( "size", getParamArray(params,"size",null) );
+				params2.put( "frame", getParamArray(params,"frame",null) );
 				cacheRemove(path[2]);
-				info = fileDerivatives( path[2], null, path[3], true, fs, ts, es, params );
+				info = fileDerivatives( path[2], null, path[3], true, fs, ts, es, params2 );
 			}
 			// PUT /files/bb1234567x/1/1.tif/derivatives
 			else if ( path.length == 6 && path[1].equals("files")
@@ -1192,10 +1195,11 @@ public class DAMSAPIServlet extends HttpServlet
 				fs = filestore(params);
 				ts = triplestore(params);
 				es = events(params);
-				
-				params = new HashMap<String, String[]>();
-				params.put("size", req.getParameterValues("size"));
-				params.put("frame", req.getParameterValues("frame"));
+
+				Map<String,String[]> params2 = new HashMap<String, String[]>();
+				params2.put( "fs", new String[]{getParamString(params,"fs",fsDefault)} );
+				params2.put( "size", getParamArray(params,"size",null) );
+				params2.put( "frame", getParamArray(params,"frame",null) );
 				cacheRemove(path[2]);
 				info = fileDerivatives( path[2], path[3], path[4], true, fs, ts, es, params );
 			}
@@ -1310,7 +1314,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				info = error( res.SC_BAD_REQUEST, "Invalid request" );
 			}
-	
+
 			// output
 			output( info, req.getParameterMap(), req.getPathInfo(), res );
 		}
@@ -1401,7 +1405,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 		}
 
-		String role = getRole( ip ); 
+		String role = getRole( ip );
 		info.put( "role", role );
 
 		return info;
@@ -1504,7 +1508,7 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 			}
 
-			Map<String,Map<String,String>> fm 
+			Map<String,Map<String,String>> fm
 				= new HashMap<String,Map<String,String>>();
 			StatementIterator stmtit = ts.sparqlDescribe( obj );
 			while ( stmtit.hasNext() )
@@ -1620,7 +1624,7 @@ public class DAMSAPIServlet extends HttpServlet
 					objects.remove(i);
 					i--;
 				}
-				else if ( type == null && 
+				else if ( type == null &&
 					(  rec.get("type").equals("dams:File")
 					|| rec.get("type").equals("dams:Component")
 					|| rec.get("type").equals("dams:DAMSEvent")) )
@@ -1778,7 +1782,7 @@ public class DAMSAPIServlet extends HttpServlet
 		boolean srcDelete = false;
 		StatementIterator sit = null;
 		try{
-			
+
 			// both objid and fileid are required
 			if ( objid == null || objid.trim().equals("") )
 			{
@@ -1794,7 +1798,7 @@ public class DAMSAPIServlet extends HttpServlet
 					"File identifier required"
 				);
 			}
-	
+
 			Identifier oid = createID( objid, null, null );
 			Identifier fid = createID( objid, cmpid, fileid );
 			Identifier parent = oid;
@@ -1804,15 +1808,15 @@ public class DAMSAPIServlet extends HttpServlet
 				cid = createID( objid, cmpid, null );
 				parent = cid;
 			}
-	
+
 			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
 			Identifier hasComp = Identifier.publicURI( prNS + "hasComponent" );
 			Identifier cmpType = Identifier.publicURI( prNS + "Component" );
 			Identifier rdfType = Identifier.publicURI( rdfNS + "type" );
 			Identifier damsFile = Identifier.publicURI( prNS + "File" );
-	
+
 			if ( ts != null && !overwrite )
-			{	
+			{
 				sit = ts.listStatements(parent, hasFile, fid);
 				if(sit.hasNext()){
 					// there is no PUT for characterization, what is the use
@@ -1873,7 +1877,7 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 				else
 				{
-					// if file not available locally, copy to local disk 
+					// if file not available locally, copy to local disk
 					File srcFile = File.createTempFile( "jhovetmp", null );
 					long fileSize = fs.length(objid, cmpid, fileid);
 
@@ -1903,7 +1907,7 @@ public class DAMSAPIServlet extends HttpServlet
 						"Jhove extraction, source=cached file: " + sourceFile
 					);
 				}
-		
+
 				m = jhoveExtraction( sourceFile );
 			}
 
@@ -1919,10 +1923,10 @@ public class DAMSAPIServlet extends HttpServlet
 			String sourcePath = input!=null?input[0]:null;
 			input = params.get("fs");
 			String fsName = input!=null?input[0]:null;
-			
+
 			// Output is saved to the triplestore.
 			if ( ts != null && es != null )
-			{	
+			{
 				if ( overwrite )
 				{
 					// delete existing metadata
@@ -1948,16 +1952,16 @@ public class DAMSAPIServlet extends HttpServlet
 						);
 					}
 				}
-	
+
 				// Add/Replace properties submitted from user
-				
+
 				// Required use property
 				if ( use == null || use.length() == 0)
 				{
 					 use =  getFileUse( fileid );
 				}
 				m.put("use", use);
-				
+
 				if ( dateCreated != null && dateCreated.length() > 0 )
 				{
 					m.put( "dateCreated", dateCreated );
@@ -1974,7 +1978,7 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					m.put( "filestore", fsName );
 				}
-				
+
 				// Add constant properties
 
 				String compositionLevel = m.get("compositionLevel");
@@ -1988,7 +1992,7 @@ public class DAMSAPIServlet extends HttpServlet
 				m.put( "objectCategory", "file" );
 				// # of decoding/extraction steps to get usable file
 				m.put( "compositionLevel", compositionLevel );
-				
+
 				String key = null;
 				String value = null;
 				for ( Iterator it=m.keySet().iterator(); it.hasNext(); )
@@ -2024,7 +2028,7 @@ public class DAMSAPIServlet extends HttpServlet
 					ts.addStatement( oid, hasFile, fid, oid );
 				}
 				ts.addStatement( fid, rdfType, damsFile, oid );
-				
+
 				// Create event when required with es
 				if(es != null)
 				{
@@ -2035,7 +2039,7 @@ public class DAMSAPIServlet extends HttpServlet
 					);
 				}
 				return status( "Jhove extracted and saved successfully" );
-			} 
+			}
 			else
 			{
 				// Output is displayed but not saved to the triplestore.
@@ -2126,7 +2130,7 @@ public class DAMSAPIServlet extends HttpServlet
 					HttpServletResponse.SC_BAD_REQUEST,
 					"File identifier required"				);
 			}
-	
+
 			if ( in == null )
 			{
 				return error(
@@ -2149,7 +2153,7 @@ public class DAMSAPIServlet extends HttpServlet
 				uploadCount++;
 				log.info("Upload: start: " + uploadCount);
 			}
-	
+
 			// make sure appropriate method is being used to create/update
 			if ( !overwrite && fs.exists( objid, cmpid, fileid ) )
 			{
@@ -2165,13 +2169,13 @@ public class DAMSAPIServlet extends HttpServlet
 					"File does not exist, use POST to create"
 				);
 			}
-	
+
 			// upload file
 			fs.write( objid, cmpid, fileid, in );
 			boolean successful = fs.exists(objid,cmpid,fileid)
 				&& fs.length(objid,cmpid,fileid) > 0;
 			in.close();
-	
+
 			String type = (overwrite) ? "file modification" : "file creation";
 			String message = null;
 			if ( successful )
@@ -2265,7 +2269,7 @@ public class DAMSAPIServlet extends HttpServlet
 					"File identifier required"
 				);
 			}
-	
+
 			// make sure the file exists
 			if ( !fs.exists( objid, cmpid, fileid ) )
 			{
@@ -2274,11 +2278,11 @@ public class DAMSAPIServlet extends HttpServlet
 					"File does not exist"
 				);
 			}
-	
+
 			// delete the file
 			fs.trash( objid, cmpid, fileid );
 			boolean successful = !fs.exists(objid,cmpid,fileid);
-	
+
 			if ( successful )
 			{
 				//indexQueue(objid,"modifyObject");
@@ -2349,11 +2353,11 @@ private static String listToString(String[] arr)
 					"Derivative dimensions not configured."
 				);
 			}
-			
+
 			Identifier oid = createID( objid, null, null );
 			Identifier fid = createID( objid, cmpid, fileid );
 			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
-			
+
 			String[] sizes = params.get("size");
 
 			// check for comma-separate size list
@@ -2399,7 +2403,7 @@ private static String listToString(String[] arr)
 					sizes[i++] = (String)it.next();
 				}
 			}
-			
+
 			int frame = 0;
 			String[] frameNo = params.get("frame");
 			if ( frameNo != null && frameNo.length > 0 )
@@ -2458,7 +2462,7 @@ private static String listToString(String[] arr)
 		else
 		{
 			return status (HttpServletResponse.SC_CREATED, "Derivatives created successfully");  // DAMS_MGR
-			
+
 		}
 	}
 	public Map fileExists( String objid, String cmpid, String fileid,
@@ -2506,7 +2510,7 @@ private static String listToString(String[] arr)
 			// duplication?? only benefit is not having to pull data to local
 			// filesystem
 			Map<String,String> actual = Checksum.checksums(
-				in, null, crcB, md5B, sha1B, sha256B, sha512B 
+				in, null, crcB, md5B, sha1B, sha256B, sha512B
 			);
 
 			// compare and build response
@@ -2606,7 +2610,7 @@ private static String listToString(String[] arr)
 			objid, false, in, mode, adds, updates, deletes, ts, es
 		);
 	}
-		
+
 	protected Map objectEdit( String objid, boolean create, InputStream in,
 		String mode, String adds, String updates, String deletes,
 		TripleStore ts, TripleStore es )
@@ -2663,7 +2667,7 @@ private static String listToString(String[] arr)
 					{
 						// ingest RDF/XML from inputstream
 						TripleStoreUtil.loadRDFXML( in, ts, idNS );
-						
+
 						// success
 						int status = -1;
 						String message = null;
@@ -3125,7 +3129,7 @@ private static String listToString(String[] arr)
 			String eventARK = HttpUtil.get(minterURL);
 			eventARK = eventARK.replaceAll(".*/","").trim();
 			Identifier eventID = Identifier.publicURI( idNS + eventARK );
-	
+
 			// lookup user identifier
 			// ZZZ: AUTH: who is making the request? hydra or end-user?
 			Identifier userID = null;
@@ -3250,7 +3254,7 @@ private static String listToString(String[] arr)
 			queryString = queryString(params);
 		}
 		catch ( Exception ex ) { log.error("Unsupported encoding", ex); }
-		
+
 		String url = solrBase + "/" + name + "?" + queryString;
 		if ( xsl != null && !xsl.equals("") )
 		{
@@ -3723,14 +3727,14 @@ private static String listToString(String[] arr)
 		}
 		return doc.asXML();
 	}
-	
+
 	public String xslt( String xml, String xslName, Map<String,String[]> params,
 		String queryString ) throws TransformerException
 	{
-	    // setup the transformer
+		// setup the transformer
 		String xsl = xslName.startsWith("http") ? xslName : xslBase + xslName;
-	    TransformerFactory tf = TransformerFactory.newInstance();
-	    Transformer t = tf.newTransformer( new StreamSource(xsl) );
+		TransformerFactory tf = TransformerFactory.newInstance();
+		Transformer t = tf.newTransformer( new StreamSource(xsl) );
 		return xslt( xml, t, params, queryString);
 	}
 	public String xslt( String xml, Transformer t, Map<String,String[]> params,
@@ -3745,7 +3749,7 @@ private static String listToString(String[] arr)
 			throw new TransformerException("Null transform");
 		}
 
-	    // params
+		// params
 	    String casGroupTest = getParamString(params,"casGroupTest",null);
 
 		// clear stale parameters
@@ -3778,26 +3782,26 @@ private static String listToString(String[] arr)
 				{
 					String escaped = StringEscapeUtils.escapeJava(val);
 					t.setParameter( key, escaped );
-	            }
-            }
-        }
+				}
+			}
+		}
 		if ( queryString != null )
 		{
-        	t.setParameter(
+			t.setParameter(
 				"queryString",StringEscapeUtils.escapeJava(queryString)
 			);
 		}
-        if(casGroupTest != null)
+		if(casGroupTest != null)
 		{
-            t.setParameter("casTest",casGroupTest);
+			t.setParameter("casTest",casGroupTest);
 		}
-        StringWriter sw = new StringWriter();
-        t.transform(
-            new StreamSource( new StringReader(xml) ),
-            new StreamResult( sw )
-        );
-        return sw.toString();
-    }
+		StringWriter sw = new StringWriter();
+		t.transform(
+			new StreamSource( new StringReader(xml) ),
+			new StreamResult( sw )
+		);
+		return sw.toString();
+	}
 
 
 	//========================================================================
@@ -3937,7 +3941,7 @@ private static String listToString(String[] arr)
 			sourceFilename		jhove tmp file/initial upload/automatic
 			sourcePath			jhove tmp file/initial upload/user-specified
 			use                	user-specified/type from mime, role=service?
-			
+
 	*/
 		MyJhoveBase jhove = MyJhoveBase.getMyJhoveBase();
 		JhoveInfo data = jhove.getJhoveMetaData(srcFilename);
@@ -3957,7 +3961,7 @@ private static String listToString(String[] arr)
 		props.put("status", data.getStatus());
 		return props;
 	}
-	
+
 	/**
 	 * Default file use
 	 * @param filename
@@ -3999,8 +4003,8 @@ private static String listToString(String[] arr)
 		}
 		return use;
 	}
-	
-	public static String getDefaultCompositionLevel (String srcFileName) 
+
+	public static String getDefaultCompositionLevel (String srcFileName)
 	{
 		String compositionLevel = "0";
 		if ( srcFileName != null )
