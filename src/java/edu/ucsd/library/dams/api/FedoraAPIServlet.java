@@ -265,10 +265,11 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[4].equals( fedoraObjectDS ) )
 			{
                 ts = triplestore(req);
+                es = events(req);
 				outputTransform(
 					stripPrefix(path[2]), null, null, false,
 					objectContentTransform, null, "application/xml",
-					res.SC_OK, ts, null, res
+					res.SC_OK, ts, es, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fedoraRightsDS]/content

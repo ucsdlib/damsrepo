@@ -590,7 +590,8 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 3 && path[1].equals("objects") )
 			{
 				ts = triplestore(req);
-				info = objectShow( path[2], ts, null );
+				es = events(req);
+				info = objectShow( path[2], ts, es );
 				if ( info.get("obj") != null )
 				{
 					DAMSObject obj = (DAMSObject)info.get("obj");
@@ -2865,6 +2866,7 @@ private static String listToString(String[] arr)
 	public Map objectShow( String objid, TripleStore ts, TripleStore es )
 	{
 		// output = metadata: object
+		DAMSObject obj = null;
 		try
 		{
 			if ( objid == null || objid.equals("") )
@@ -2874,22 +2876,23 @@ private static String listToString(String[] arr)
 					"Object id must be specified"
 				);
 			}
-			if ( !objid.startsWith("http") ) { objid = idNS + objid; }
-			Identifier id = Identifier.publicURI(objid);
-			if ( !ts.exists(id) )
+			Identifier id = createID( objid, null, null );
+			if ( ts.exists(id) )
 			{
-				cleanup(null,ts,null);
-				ts = events( new HashMap<String,String[]>() );
-				if ( !ts.exists(id) )
-				{
-					return error(
-						HttpServletResponse.SC_NOT_FOUND,
-						"Object does not exist"
-					);
-				}
+				obj = new DAMSObject( ts, es, objid, nsmap );
+			}
+			else if ( es != null && es.exists(id) )
+			{
+				obj = new DAMSObject( es, null, objid, nsmap );
+			}
+			else
+			{
+				return error(
+					HttpServletResponse.SC_NOT_FOUND,
+					"Object does not exist"
+				);
 			}
 
-			DAMSObject obj = new DAMSObject( ts, es, objid, nsmap );
 			Map info = new HashMap();
 			info.put("obj",obj);
 			return info;

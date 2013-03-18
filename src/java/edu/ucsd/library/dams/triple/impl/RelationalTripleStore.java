@@ -122,12 +122,12 @@ public class RelationalTripleStore implements TripleStore
 				if ( dsURL == null || dsUser == null || dsPass == null )
 				{
 					// log exception if not enough info for direct connection
-					log.error("Unable to get datasource connection", ex);
+					log.error("Unable to get direct connection", ex);
 				}
 				else
 				{
 					// just log status if we can make direct connection
-					log.info("Unable to get datasource connection");
+					log.info("Unable to get datasource connection: " + dsName,ex);
 				}
 				con = null;
 			}
