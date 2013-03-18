@@ -2878,9 +2878,15 @@ private static String listToString(String[] arr)
 			Identifier id = Identifier.publicURI(objid);
 			if ( !ts.exists(id) )
 			{
-				return error(
-					HttpServletResponse.SC_NOT_FOUND, "Object does not exist"
-				);
+				cleanup(null,ts,null);
+				ts = events( new HashMap<String,String[]>() );
+				if ( !ts.exists(id) )
+				{
+					return error(
+						HttpServletResponse.SC_NOT_FOUND,
+						"Object does not exist"
+					);
+				}
 			}
 
 			DAMSObject obj = new DAMSObject( ts, es, objid, nsmap );
