@@ -2433,9 +2433,11 @@ private static String listToString(String[] arr)
 				}
 
 				String[] uses = {derivativesUse.get(derName)};
-				params.put("use", uses);
+				Map<String,String[]> params2 = new HashMap<String,String[]>();
+				params2.putAll( params );
+				params2.put("use", uses);
 				fileCharacterize(
-					objid, cmpid, derid, overwrite, fs, ts, es, params
+					objid, cmpid, derid, overwrite, fs, ts, es, params2
 				);
 				//indexQueue(objid,"modifyObject");
 				createEvent(
