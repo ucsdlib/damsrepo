@@ -1,0 +1,425 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dams="http://library.ucsd.edu/ontology/dams#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:mads="http://www.loc.gov/mads/rdf/v1#"
+    xmlns:damsid="http://library.ucsd.edu/ark:/20775/">
+  <dams:ProvenanceCollection rdf:about="http://library.ucsd.edu/ark:/20775/bd5905304g">
+    <dams:corporateName rdf:resource="http://library.ucsd.edu/ark:/20775/bd69633288"/>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:role>
+          <dams:Role rdf:about="http://library.ucsd.edu/ark:/20775/bd55639754">
+            <dams:vocabulary>
+              <dams:Vocabulary rdf:about="http://library.ucsd.edu/ark:/20775/bb14141414">
+                <dams:description>Role</dams:description>
+              </dams:Vocabulary>
+            </dams:vocabulary>
+            <dams:code>cre</dams:code>
+            <rdf:value>Creator</rdf:value>
+            <dams:valueURI rdf:resource="http://id.loc.gov/vocabulary/relators/cre"/>
+          </dams:Role>
+        </dams:role>
+        <dams:name>
+          <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd94548235">
+            <mads:authoritativeLabel>O'Shea, Brian W.,  (Brian William), 1978-</mads:authoritativeLabel>
+            <dams:authority>naf</dams:authority>
+            <mads:elementList rdf:parseType="Collection">
+              <mads:FamilyNameElement>
+                <mads:elementValue>O'Shea</mads:elementValue>
+              </mads:FamilyNameElement>
+              <mads:GivenNameElement>
+                <mads:elementValue>Brian W.</mads:elementValue>
+              </mads:GivenNameElement>
+              <mads:DateNameElement>
+                <mads:elementValue>1978-</mads:elementValue>
+              </mads:DateNameElement>
+            </mads:elementList>
+          </mads:PersonalName>
+        </dams:name>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:corporateName>
+      <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bd6246602m">
+        <mads:elementList rdf:parseType="Collection">
+          <mads:NameElement>
+            <mads:elementValue>University of Colorado (System)</mads:elementValue>
+          </mads:NameElement>
+          <mads:NameElement>
+            <mads:elementValue>Dept. of Astrophysics and Planetary Sciences</mads:elementValue>
+          </mads:NameElement>
+          <mads:NameElement>
+            <mads:elementValue>Center for Astrophysics and Space Astronomy</mads:elementValue>
+          </mads:NameElement>
+        </mads:elementList>
+        <mads:authoritativeLabel>University of Colorado (System). Dept. of Astrophysics and Planetary Sciences. Center for Astrophysics and Space Astronomy.</mads:authoritativeLabel>
+      </mads:CorporateName>
+    </dams:corporateName>
+    <dams:personalName>
+      <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd6860945s">
+        <mads:authoritativeLabel>Wagner, Rick, 1972-</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:FamilyNameElement>
+            <mads:elementValue>Wagner</mads:elementValue>
+          </mads:FamilyNameElement>
+          <mads:GivenNameElement>
+            <mads:elementValue>Rick</mads:elementValue>
+          </mads:GivenNameElement>
+          <mads:DateNameElement>
+            <mads:elementValue>1972-</mads:elementValue>
+          </mads:DateNameElement>
+        </mads:elementList>
+      </mads:PersonalName>
+    </dams:personalName>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:name rdf:resource="http://library.ucsd.edu/ark:/20775/bd6860945s"/>
+        <dams:role>
+          <dams:Role rdf:about="http://library.ucsd.edu/ark:/20775/bd0785823z">
+            <rdf:value>donor</rdf:value>
+            <dams:code></dams:code>
+          </dams:Role>
+        </dams:role>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd6860945s"/>
+    <dams:rightsHolder>
+      <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd07175448">
+        <mads:authoritativeLabel>Norman, Michael L.</mads:authoritativeLabel>
+        <dams:authority>naf</dams:authority>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:FamilyNameElement>
+            <mads:elementValue>Norman</mads:elementValue>
+          </mads:FamilyNameElement>
+          <mads:GivenNameElement>
+            <mads:elementValue>Michael L.  </mads:elementValue>
+          </mads:GivenNameElement>
+        </mads:elementList>
+      </mads:PersonalName>
+    </dams:rightsHolder>
+    <dams:corporateName>
+      <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bd8806354w">
+        <dams:authority>naf</dams:authority>
+        <mads:authoritativeLabel>San Diego Supercomputer Center.</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:NameElement>
+            <mads:elementValue>San Diego Supercomputer Center</mads:elementValue>
+          </mads:NameElement>
+        </mads:elementList>
+      </mads:CorporateName>
+    </dams:corporateName>
+    <dams:topic>
+      <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bd7202243d">
+        <mads:authoritativeLabel>Research-Data processing</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:TopicElement>
+            <mads:elementValue>Research-Data processing</mads:elementValue>
+          </mads:TopicElement>
+        </mads:elementList>
+      </mads:Topic>
+    </dams:topic>
+    <dams:note>
+      <dams:Note>
+        <dams:type>arrangement</dams:type>
+        <rdf:value>The data set is arranged into 31 components:  1: Data processing tools; 2: Initital conditions for simulation; 3-30: Data at redshift=3.0 to Data at redshift=0.0, and 31: Historical documents.</rdf:value>
+      </dams:Note>
+    </dams:note>
+    <dams:note>
+      <dams:Note>
+        <rdf:value rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral"
+        >Finding Aid Available Online:  http://oac.cdlib.org/findaid/ark:/13030/c8r78fzq</rdf:value>
+      </dams:Note>
+    </dams:note>
+    <dams:date>
+      <dams:Date>
+        <dams:type>issue</dams:type>
+        <rdf:value>2005-2012</rdf:value>
+        <dams:beginDate>2005</dams:beginDate>
+        <dams:endDate>2012</dams:endDate>
+      </dams:Date>
+    </dams:date>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bd55639754"/>
+        <dams:name>
+          <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd3311426z">
+            <mads:authoritativeLabel>Hallman, Eric J.</mads:authoritativeLabel>
+            <mads:elementList rdf:parseType="Collection">
+              <mads:FamilyNameElement>
+                <mads:elementValue>Hallman</mads:elementValue>
+              </mads:FamilyNameElement>
+              <mads:GivenNameElement>
+                <mads:elementValue>Eric J.</mads:elementValue>
+              </mads:GivenNameElement>
+            </mads:elementList>
+          </mads:PersonalName>
+        </dams:name>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:name rdf:resource="http://library.ucsd.edu/ark:/20775/bd6860945s"/>
+        <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bd55639754"/>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:name>
+          <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd2014484q">
+            <mads:authoritativeLabel>Harkness, Robert</mads:authoritativeLabel>
+            <mads:elementList rdf:parseType="Collection">
+              <mads:FullNameElement>
+                <mads:elementValue>Harkness, Robert</mads:elementValue>
+              </mads:FullNameElement>
+            </mads:elementList>
+          </mads:PersonalName>
+        </dams:name>
+        <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bd55639754"/>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:note>
+      <dams:Note>
+        <dams:type>extent</dams:type>
+        <rdf:value>683.0 Gigabyte(s) 39 digital objects collectively containing 1,797 digital files of various types.</rdf:value>
+      </dams:Note>
+    </dams:note>
+    <dams:topic>
+      <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bd1058843x">
+        <mads:elementList rdf:parseType="Collection">
+          <mads:TopicElement>
+            <mads:elementValue>Galaxies--Clusters</mads:elementValue>
+          </mads:TopicElement>
+        </mads:elementList>
+        <mads:authoritativeLabel>Galaxies--Clusters</mads:authoritativeLabel>
+      </mads:Topic>
+    </dams:topic>
+    <dams:genreForm>
+      <mads:GenreForm rdf:about="http://library.ucsd.edu/ark:/20775/bd84650541">
+        <mads:authoritativeLabel>Research data</mads:authoritativeLabel>
+        <dams:authority>local</dams:authority>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:GenreFormElement>
+            <mads:elementValue>Research data</mads:elementValue>
+          </mads:GenreFormElement>
+        </mads:elementList>
+      </mads:GenreForm>
+    </dams:genreForm>
+    <dams:note>
+      <dams:Note>
+        <rdf:value rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral"
+        >Processing Information: The project lead collected, on the Triton Resource at the San Diego Supercomputer Center, all data generated by the Santa Fe Light Cone Simulation project deemed essential to representing the simulation project and facilitating re-use of the data.  Data files were categorized and arranged to represent each snapshot (Data at redshift) comprising the simulation.  The files for each snapshot include files specifying the parameters for each snapshot, binary data files constituting the results of applying the parameters, and derived data products generated from processing of the results.   Files deemed irrelevant to representation of the project and / or use of the data were removed from the data set.  In addition to data files, scripts necessary for processing the data were added to the collection, as were products generated using the scripts.  The former are included in the component labeled "Data Processing Tools, " whereas the latter are typically included in a sub-component labeled "Derived Products" for each of the primary "Data at redshift" components. Finally, a variety of project files, primarily proposals and project status reports, have been incorporated and are listed in the component labeled "Historical documents."  The Santa Fe Light Cone simulation files were then transferred from the SDSC server to the Research Data Curation data storage space.  The transfer of all files were monitored for accuracy.
+The entire collection was arranged into thirty-one components and described completely using the Archivists' Toolkit application.  Component and sub-component descriptions were linked to digital object records composed in the AT and containing links to the files constituting the data set, or snapshot.    The AT description was used to generate an Encoded Archival Description (EAD) document for the complete set of files for the Santa Fe Light Cone Simulation project data set and a METS document for each primary component.  The EAD is to be uploaded to the Online Archive of California (OAC), whereas the METS records and the digital content files they reference are to be uploaded to the UC San Diego Digital Asset Management System (DAMS).  A researcher will thus be enabled to access the data files either through the OAC or the UCSD DAMS.  Finally, all files and descriptive records for the simulation project are to be deposted in the Chronopolis digital preservation network for long-term preservation management.</rdf:value>
+      </dams:Note>
+    </dams:note>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bd55639754"/>
+        <dams:name>
+          <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd8157884g">
+            <mads:authoritativeLabel>So, Geoffrey</mads:authoritativeLabel>
+            <mads:elementList rdf:parseType="Collection">
+              <mads:FamilyNameElement>
+                <mads:elementValue>So</mads:elementValue>
+              </mads:FamilyNameElement>
+              <mads:GivenNameElement>
+                <mads:elementValue>Geoffrey</mads:elementValue>
+              </mads:GivenNameElement>
+            </mads:elementList>
+          </mads:PersonalName>
+        </dams:name>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:rightsHolder>
+      <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd93182924">
+        <dams:valueURI rdf:resource="http://lccn.loc.gov/n90694888"/>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:FamilyNameElement>
+            <mads:elementValue>Burns</mads:elementValue>
+          </mads:FamilyNameElement>
+          <mads:GivenNameElement>
+            <mads:elementValue>Jack O.</mads:elementValue>
+          </mads:GivenNameElement>
+        </mads:elementList>
+        <mads:authoritativeLabel>Burns, Jack O.</mads:authoritativeLabel>
+        <dams:authority>naf</dams:authority>
+      </mads:PersonalName>
+    </dams:rightsHolder>
+    <dams:language>
+      <dams:Language rdf:about="http://library.ucsd.edu/ark:/20775/bd2082762w">
+        <rdf:value>English</rdf:value>
+        <dams:authority>iso639-2b</dams:authority>
+        <dams:code>eng</dams:code>
+      </dams:Language>
+    </dams:language>
+    <dams:topic>
+      <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bd2355785j">
+        <mads:elementList rdf:parseType="Collection">
+          <mads:TopicElement>
+            <mads:elementValue>Cosmology--Observations</mads:elementValue>
+          </mads:TopicElement>
+        </mads:elementList>
+        <mads:authoritativeLabel>Cosmology--Observations</mads:authoritativeLabel>
+      </mads:Topic>
+    </dams:topic>
+    <dams:topic>
+      <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bd97619935">
+        <mads:authoritativeLabel>Hydrodynamics</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:TopicElement>
+            <mads:elementValue>Hydrodynamics</mads:elementValue>
+          </mads:TopicElement>
+        </mads:elementList>
+      </mads:Topic>
+    </dams:topic>
+    <dams:corporateName>
+      <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bd46083716">
+        <mads:elementList rdf:parseType="Collection">
+          <mads:NameElement>
+            <mads:elementValue>Los Alamos National Laboratory</mads:elementValue>
+          </mads:NameElement>
+          <mads:NameElement>
+            <mads:elementValue>Theoretical Astrophysics Group T-6.</mads:elementValue>
+          </mads:NameElement>
+        </mads:elementList>
+        <mads:authoritativeLabel>Los Alamos National Laboratory. Theoretical Astrophysics Group T-6..</mads:authoritativeLabel>
+      </mads:CorporateName>
+    </dams:corporateName>
+    <dams:note>
+      <dams:Note>
+        <dams:type>acquisition</dams:type>
+        <rdf:value>Rick Wagner, 2012.</rdf:value>
+      </dams:Note>
+    </dams:note>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd94548235"/>
+    <dams:title>
+      <dams:Title>
+        <rdf:value>Santa Fe Light Cone Simulation research project files 2005-2012, Bulk 2005-2007</rdf:value>
+      </dams:Title>
+    </dams:title>
+    <dams:note>
+      <dams:Note>
+        <rdf:value rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral"
+        >The Santa Fe Light Cone Simulation project was the result of several converging efforts in computational astrophysics, namely:
+
+
+         --L7 simulation designed as the final tile; a demonstration of "AMR everywhere"
+         --Hallman computed the necessary size to use only the L7 by staking slabs
+
+
+         LUScID
+
+
+         During the 1990s, observational cosmology became “big science” involving expensive instruments (e.g., the Hubble Space Telescope) and large teams (e.g., the Sloan Digital Sky Survey [SDSS]) attacking fundamental questions about the origin and evolution of the universe. Progress was astonishing and included the discovery of the accelerating universe (Riess et al. 1998, Perlmutter et al. 1999); precision measurements of the global geometry, age, and composition of the universe (de Bernardis et al. 2000); and deep images of galaxies at the dawn of time (Beckwith et al. 2004). These and other observations have narrowed the range of acceptable theoretical models for cosmological structure formation to a single model called the concordance model (Bahcall et al. 1999), for which free parameters are now known to high precision (Spergel et al. 2003). Cosmology thus finds itself in a place not unlike particle physics, where the goal going forward is to refine and test the standard model with yet higher precision measurements. Fundamental science questions driving the field include the nature of dark energy and dark matter, the formation and evolution of galaxies and quasars, and how and when the intergalactic medium was re-ionized.
+
+
+         Future progress requires ambitious observational surveys of the universe of unprecedented depth and breadth. The SDSS is collecting megabytes of data per galaxy on nearly 1 million galaxies distributed throughout a volume of space many billions of light years on a side. Currently over 2 TB of data has been collected and archived, and this number is expected to grow to 5 TB by project's end. Several similarly sized surveys are underway, and much larger ones are planned. In particular, the Large aperture Synoptic Survey Telescope [LSST] will collect 15 TB of image data every night for a year, amassing a collection of tens of petabytes over several years. The LSST will produce an object catalog of a billion galaxies—a thousand-fold increase over the SDSS. Coping with this “data flood” requires advanced scientific data management technologies.
+
+
+         In order to maximize the science return, results from massive surveys need to be compared to the detailed predictions of the concordance model. These take the form of massive cosmological simulations of the formation of galaxies and large scale structure. Just as Moore's Law is the force behind the data explosion in astronomy, it has also enabled numerical simulations of unprecedented size and complexity on massively parallel supercomputers.
+
+
+         ENZO is a parallel cosmology application developed at the Laboratory for Computational Astrophysics (LCA) at UCSD directed by Michael Norman. ENZO solves the equations of dark matter dynamics, multi-species hydrodynamics, non-equilibrium chemical and ionization kinetics, and self-gravity in an expanding universe dominated by dark energy. Parameterized models of star formation and feedback effects allow the simulation of the formation and evolution of galaxies on cosmic length scales and time scales. The state-of-the art is shown in Fig. 1. The simulation shown in the left panel evolves a concordance model with 1 billion Lagrangian dark matter particles and the equations of Eulerian hydrodynamics and self-gravity on a uniform grid of 1 billion (1024^3) cells. The calculation was done on 512 processors of SDSC's IBM Blue Horizon computer, and produced 10TB of raw data and 6 TB of derived data. This calculation serves as a survey volume for follow-on adaptive mesh refinement (AMR) simulations which resolve the galaxies' internal structure. At right is shown an old AMR simulation of galaxy formation done at NCSA in 1998. Due to computer power and data handling limitations at the time, only 1/64 of the survey volume (2563 base grid) could be simulated at high resolution. Now, with more powerful parallel computers and data management technologies, we can in principle simulate the entire volume at high spatial resolution. Making that a practical reality is the overarching goal of the cosmology simulation data grid project, which we shall henceforth refer to as the Cosmic Simulator.
+
+
+         The specific goals of the Cosmic Simulator project are threefold: 1-use the LLNL-SDSC-UCSD data grid to be deployed to enable
+         cosmological simulations of unprecedented size and physical realism; 2-improve the physical realism of cosmological modeling through the
+         inclusion of radiation transfer on adaptive meshes;and 3-generate simulated sky maps and galaxy catalogs using automated processing pipelines for LSST applications. </rdf:value>
+        <dams:displayLabel>Project Background</dams:displayLabel>
+        <dams:type>biographyHistory</dams:type>
+      </dams:Note>
+    </dams:note>
+    <dams:note>
+      <dams:Note>
+        <dams:type>preferred citation</dams:type>
+        <rdf:value>Rick Wagner, Eric J. Hallman, Brian W. O'Shea, Jack O. Burns, Michael L. Norman, Robert Harkness, and Geoffrey So.  "The Santa Fe Light Cone Simulation research project files."  UC San Diego Research Cyberinfrastructure Data Curation. (Data version 1.0, published 2013; http://dx.doi.org/10.6075/W7154F0Q)</rdf:value>
+      </dams:Note>
+    </dams:note>
+    <dams:typeOfResource>mixed material</dams:typeOfResource>
+    <dams:note>
+      <dams:Note>
+        <rdf:value rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral"
+        >The project files consists of data in three broad categories: the simulation data ("Data at Redshift" components); analysis tools and example scripts (Data Processing Tools) for processing the data; and project administration and background documents (Historical Documents) related to the project. All these materials were created between 2005 and 2012, beginning with a proposal for the LUSciD Project, continuing on to the simulation data, and ending with the recent analysis tools. The historical documents are proposals and progress reports that were part of grants or requests for computational resources supporting the research. The component for analysis tools and example scripts contains the source code to yt (http://yt-project.org/), which was used to produce the example data analysis results. The results are a combination of structured text, binary files, and images. The historical documents and analysis tools are described in greater detail in their component descriptions.
+
+
+The scientific motivations for the light cone simulation are described in the Project Background.  Here we describe how the simulation data was generated. The simulation was the final in a group of simulations, with each one designed to meet certain requirements, such as resolution. Earlier simulations tied to the LUsciD Project were performed on Thunder, a  Lawrence Livermore National Laboratory cluster. This calculation for the Santa Fe Light Cone Simulation was a demonstration of the software's ability to perform adaptive refinement throughout the volume, and as a result, was run on the San Diego Supercomputer Center's DataStar system and the National Center for Supercomputing Applications Altix, Cobalt.
+
+
+The simulation was initialized at high redshift, assuming a standard cosmological model incorporating dark energy and cold dark matter. The physical volume represented was a periodic cube 512 comoving megaparsecs on a side. The simulation was evolved to the present day, using models for gravity and adiabatic gas dynamics. At specific points, snapshots of the simulation were saved, and a representative subset of those are contained in this collection.
+
+
+These snapshots are organized by time (or, equivalently, redshift) at the top level, and named from RD0009 to RD0036; lower numbers (e.g., RD0009) represent earlier times in the universe's evolution, while higher numbers are later times and ones closer to the present day. Each snapshot has an archive (tar) file of the original data, a checksum of the archive, and text files of the parameters, grid hierarchy, and boundary conditions. The parameter, hierarchy, and boundary files are also in the archive file, but are available separately for convenience in a component named "Parameters."
+
+
+The archive files are in the tar file format, and are named according to their containing snapshot, e.g. RD0009.tar. A text file in the same compoment contains an MD5 checksum of the archive file, with a name ending in "md5", e.g., RD0009.tar.md5. The archive files include the original simulation outputs, consisting of plain ASCII files, or binary files in the HDF5 format.
+
+
+The contents of each project component labeled RD00## are the same:
+
+
+ * RD00## (parameters, ASCII): All of the simulation parameters are listed in these files as key-value pairs, using a "key = value" format. The input parameter are identical across all parameter files, while variables such as the current time, or redshift, change.
+
+
+ * RD00##.hierarchy (grid metadata, ASCII): A list of the grid data structures, their spatial position, file names, and numerical size.
+
+
+ * RD00##.cpu0XXX (physical data, HDF5): These files hold the physical fields (density, velocity, etc.) for each grid.
+
+
+ * RD00##.boundary (boundary conditions, ASCII): Boundary metadata.
+
+
+ * RD00##.boundary.hdf  (boundary conditions, HDF5): Boundary data for necessary fields</rdf:value>
+        <dams:type>scopeAndContent</dams:type>
+        <dams:displayLabel>Scope and Contents</dams:displayLabel>
+      </dams:Note>
+    </dams:note>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd8157884g"/>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bd55639754"/>
+        <dams:name rdf:resource="http://library.ucsd.edu/ark:/20775/bd93182924"/>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bd55639754"/>
+        <dams:name rdf:resource="http://library.ucsd.edu/ark:/20775/bd07175448"/>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:topic>
+      <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bd36527247">
+        <mads:authoritativeLabel>Cosmology</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:TopicElement>
+            <mads:elementValue>Cosmology</mads:elementValue>
+          </mads:TopicElement>
+        </mads:elementList>
+      </mads:Topic>
+    </dams:topic>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd2014484q"/>
+    <dams:topic>
+      <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bd49496632">
+        <mads:authoritativeLabel>Cosmic background radiation</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:TopicElement>
+            <mads:elementValue>Cosmic background radiation</mads:elementValue>
+          </mads:TopicElement>
+        </mads:elementList>
+      </mads:Topic>
+    </dams:topic>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd3311426z"/>
+  </dams:ProvenanceCollection>
+  <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bd60418237">
+    <mads:authoritativeLabel>University of California, San Diego.. Center for Astrophysics and Space Sciences.</mads:authoritativeLabel>
+    <dams:authority>naf</dams:authority>
+    <owl:sameAs rdf:resource="http://library.ucsd.edu/ark:/20775/bd69633288"/>
+    <mads:elementList rdf:parseType="Collection">
+      <mads:NameElement>
+        <mads:elementValue>University of California, San Diego</mads:elementValue>
+      </mads:NameElement>
+      <mads:NameElement>
+        <mads:elementValue>Center for Astrophysics and Space Sciences</mads:elementValue>
+      </mads:NameElement>
+    </mads:elementList>
+  </mads:CorporateName>
+</rdf:RDF>
