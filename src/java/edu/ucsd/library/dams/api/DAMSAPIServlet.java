@@ -63,6 +63,7 @@ import org.apache.log4j.Logger;
 // post/put file attachments
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -928,6 +929,11 @@ public class DAMSAPIServlet extends HttpServlet
 							path[2], null, path[3], false, in, fs, ts, es, params
 						);
 					}
+				}
+				catch ( SizeLimitExceededException ex )
+				{
+					log.warn("File too large for upload: " + ex.getMessage() );
+					info = error("File too large for upload (max upload size: " + maxUploadSize + "), stage locally instead");
 				}
 				catch ( Exception ex )
 				{
@@ -4222,7 +4228,7 @@ private static String listToString(String[] arr)
 		return in;
 	}
 	private InputBundle multipartInput( HttpServletRequest req )
-		throws IOException
+		throws IOException, SizeLimitExceededException
 	{
 		// process parts
 		Map<String,String[]> params = new HashMap<String,String[]>();
@@ -4235,6 +4241,10 @@ private static String listToString(String[] arr)
 		try
 		{
 			items = upload.parseRequest( req );
+		}
+		catch ( SizeLimitExceededException ex )
+		{
+			throw ex;
 		}
 		catch ( Exception ex )
 		{
