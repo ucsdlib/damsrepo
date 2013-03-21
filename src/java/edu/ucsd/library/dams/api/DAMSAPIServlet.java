@@ -1406,9 +1406,13 @@ public class DAMSAPIServlet extends HttpServlet
 					info.putAll( ldapInfo );
 				}
 			}
+			catch ( NameNotFoundException ex )
+			{
+				log.info( "Error looking up groups, name not found: " + user );
+			}
 			catch ( Exception ex )
 			{
-				log.warn( "Error looking up groups", ex );
+				log.warn( "Error looking up groups: " + user, ex );
 			}
 		}
 
