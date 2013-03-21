@@ -421,7 +421,7 @@ public class FileStoreServlet extends HttpServlet
 			}
 			catch ( Exception ex )
 			{
-				log.info("Error reading " + fullFilename );
+				log.info("Error reading " + fullFilename, ex );
 			}
 			finally
 			{
