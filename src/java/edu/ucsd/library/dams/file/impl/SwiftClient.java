@@ -23,6 +23,18 @@ import java.util.Properties;
 import javax.activation.FileDataSource;
 import javax.security.auth.login.LoginException;
 
+// ssl
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 // http client 4.x
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -32,6 +44,10 @@ import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
@@ -77,15 +93,43 @@ public class SwiftClient
 	{
 		this.props = props;
 		this.out = out;
-		// disable retries and timeouts
+
+
+		// accept all SSL certs
+        ClientConnectionManager ccm = new PoolingClientConnectionManager();
+		try
+		{
+        	X509TrustManager tm = new X509TrustManager() {
+            	public void checkClientTrusted(X509Certificate[] xcs, String string) throws CertificateException { }
+            	public void checkServerTrusted(X509Certificate[] xcs, String string) throws CertificateException { }
+            	public X509Certificate[] getAcceptedIssuers() { return null; }
+        	};
+
+			SSLContext ctx = SSLContext.getInstance("TLS");
+        	ctx.init(null, new TrustManager[]{tm}, null);
+
+        	SSLSocketFactory ssf = new SSLSocketFactory(ctx,SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        	SchemeRegistry sr = ccm.getSchemeRegistry();
+        	sr.register(new Scheme("https", 443, ssf));
+
+			//ctx.init(new KeyManager[0], new TrustManager[] {tm}, new SecureRandom());
+			SSLContext.setDefault(ctx);
+		}
+		catch ( Exception ex )
+		{
+			ex.printStackTrace();
+		}
+
+		// disable timeouts
 		BasicHttpParams params = new BasicHttpParams();
 		params.setParameter( "http.socket.timeout",     new Integer(0) );
 		params.setParameter( "http.connection.timeout", new Integer(0) );
+      
+		client = new DefaultHttpClient( ccm, params );
+
+		// disable retries
 		DefaultHttpRequestRetryHandler x = new DefaultHttpRequestRetryHandler(
 			0, false
-		);
-		client = new DefaultHttpClient(
-			new PoolingClientConnectionManager(), params
 		);
 		client.setHttpRequestRetryHandler( x );
 

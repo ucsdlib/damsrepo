@@ -267,7 +267,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
                 ts = triplestore(req);
                 es = events(req);
 				outputTransform(
-					stripPrefix(path[2]), null, null, false,
+					stripPrefix(path[2]), null, null, true,
 					objectContentTransform, null, "application/xml",
 					res.SC_OK, ts, es, res
 				);
