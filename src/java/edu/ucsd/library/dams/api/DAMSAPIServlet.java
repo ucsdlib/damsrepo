@@ -165,8 +165,9 @@ public class DAMSAPIServlet extends HttpServlet
 	private File solrXslFile;       // default solr xsl stylesheet
 
 	// ip address mapping
+	protected String roleSuper;           // superuser role
+	protected String roleLocal;           // local-user role
 	protected String roleDefault;         // default role if not matching
-	protected String roleAdmin;           // special role for administrators
 	private Map<String,String[]> roleMap; // map of roles to IP addresses
 
 	// fedora compat
@@ -306,7 +307,8 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// access control/filters
 			roleDefault = props.getProperty("role.default");
-			roleAdmin = props.getProperty("role.admin");
+			roleLocal = props.getProperty("role.local");
+			roleSuper = props.getProperty("role.super");
 			String roleList = props.getProperty("role.list");
 			String[] roles = roleList.split(",");
 			roleMap = new HashMap<String,String[]>();
@@ -3803,6 +3805,7 @@ private static String listToString(String[] arr)
 				{
 					String escaped = StringEscapeUtils.escapeJava(val);
 					t.setParameter( key, escaped );
+System.out.println("xsl.param " + key + " = " + escaped);
 				}
 			}
 		}

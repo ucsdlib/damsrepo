@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
   xmlns:dams="http://library.ucsd.edu/ontology/dams#">
   <xsl:output method="xml" indent="yes"/>
   <xsl:param name="objid"/>
-  <xsl:param name="defaultGroup"/>
+  <xsl:param name="accessGroup"/>
   <xsl:param name="adminGroup"/>
+  <xsl:param name="superGroup"/>
   <xsl:template match="/">
     <rightsMetadata>
       <copyright>
@@ -29,18 +30,24 @@
         </machine>
       </copyright>
       <access type="discover">
-        <group><xsl:value-of select="$defaultGroup"/></group>
+        <xsl:if test="$accessGroup != '' and $accessGroup != $adminGroup">
+          <group><xsl:value-of select="$accessGroup"/></group>
+        </xsl:if>
         <group><xsl:value-of select="$adminGroup"/></group>
+        <group><xsl:value-of select="$superGroup"/></group>
       </access>
       <access type="read">
-        <group><xsl:value-of select="$defaultGroup"/></group>
+        <xsl:if test="$accessGroup != '' and $accessGroup != $adminGroup">
+          <group><xsl:value-of select="$accessGroup"/></group>
+        </xsl:if>
         <group><xsl:value-of select="$adminGroup"/></group>
+        <group><xsl:value-of select="$superGroup"/></group>
       </access>
       <access type="edit">
         <xsl:for-each select="//dams:Unit/dams:unitGroup">
           <group><xsl:value-of select="."/></group>
         </xsl:for-each>
-        <group><xsl:value-of select="$adminGroup"/></group>
+        <group><xsl:value-of select="$superGroup"/></group>
       </access>
 <!-- copyrightPurposeNote?
       <use>

@@ -5,9 +5,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.text.SimpleDateFormat;
 
 // servlet api
 import javax.servlet.ServletException;
@@ -113,6 +117,9 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 	// logging
 	private static Logger log = Logger.getLogger(FedoraAPIServlet.class);
+
+	// date format
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd");
 
 	// xslt
 	Transformer objectContentTransform;
@@ -280,8 +287,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			{
 				ts = triplestore(req);
 				Map<String,String[]> params = new HashMap<String,String[]>();
-				params.put("defaultGroup", new String[]{roleDefault} );
-				params.put("adminGroup", new String[]{roleAdmin} );
+				params.put("rightsDS", new String[]{} );
 				params.put("dsName",new String[]{fedoraRightsDS});
 				outputTransform(
 					path[2], null, null, true, rightsMetadataTransform, params,
@@ -754,6 +760,34 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				);
 			}
 		}
+
+		// extract rights
+		if ( params.containsKey("rightsDS") )
+		{
+			try
+			{
+				params.remove("rightsDS"); // remove dummy param
+				Document doc = DocumentHelper.parseText(rdfxml);
+				String accessGroup = accessGroup( doc );
+				String adminGroup = doc.valueOf(
+					"/rdf:RDF/dams:Object//dams:unitGroup"
+				);
+				if ( !accessGroup.equals(adminGroup) )
+				{
+					params.put("accessGroup",new String[]{accessGroup});
+				}
+				params.put("adminGroup", new String[]{adminGroup});
+				params.put("superGroup", new String[]{roleSuper});
+System.out.println("adminGroup: " + adminGroup);
+System.out.println("superGroup: " + roleSuper);
+			}
+			catch ( Exception ex )
+			{
+				log.warn("Error parsing rights metadata", ex);
+			}
+		}
+
+		// xslt
 		try
 		{
 			String content =  xslt( rdfxml, xsl, params, null );
@@ -768,6 +802,69 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			);
 		}
 	}
+
+	// determine access group
+	private String accessGroup( Document doc )
+	{
+		String currDate = dateFormat.format( new Date() );
+
+		// lookup unit group code
+		String adminGroup = doc.valueOf("/rdf:RDF/dams:Object//dams:unitGroup");
+
+		//1. restriction[type='display'] and current dates: admin
+		List restr = doc.selectNodes(
+			"/rdf:RDF/dams:Object//dams:Restriction[dams:type='display']"
+		);
+		for ( int i = 0; i < restr.size(); i++ )
+		{
+			Element e = (Element)restr.get(i);
+			if ( currentDates( e, currDate ) )
+			{
+				return adminGroup;
+			}
+		}
+
+		//2. copyright 'Under copyright -- 1st Party' or 'Public domain': public
+		String copyright = doc.valueOf("/rdf:RDF/dams:Object//dams:copyrightStatus");
+		if ( copyright != null
+			&& (copyright.equals("Under copyright -- 1st Party")
+				|| copyright.equals("Public domain")) )
+		{
+			return roleDefault;
+		}
+
+		//3. permission[type='display'] and current dates: public
+		//4. permission[type='localDisplay'] and current dates: local
+		HashSet<String> types = new HashSet<String>();
+		List perms = doc.selectNodes("/rdf:RDF/dams:Object//dams:Permission");
+		for ( int i = 0; i < perms.size(); i++ )
+		{
+			Element e = (Element)perms.get(i);
+			types.add( e.valueOf("dams:type") );
+		}
+		if ( types.contains("display") ) { return roleDefault; }
+		else if ( types.contains("localDisplay") ) { return roleLocal; }
+
+		//5. else: admin
+		return adminGroup;
+	}
+
+	// check whether a permission/restriction is current
+	private static boolean currentDates( Element e, String currDate )
+	{
+		String begin = e.valueOf("dams:beginDate");
+		String end = e.valueOf("dams:endDate");
+		if ( (begin == null || begin.trim().equals("") || begin.compareTo(currDate) < 1 ) &&
+			(end == null || end.trim().equals("") || end.compareTo(currDate) == 1 ) )
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	private String stripPrefix( String id )
 	{
 		if (id != null && id.indexOf(":") > 0 && id.indexOf(":") < id.length())
