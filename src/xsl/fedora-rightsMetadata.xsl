@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-  xmlns:dams="http://library.ucsd.edu/ontology/dams#">
+  xmlns:dams="http://library.ucsd.edu/ontology/dams#"
+  xmlns="http://hydra-collab.stanford.edu/schemas/rightsMetadata/v1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <xsl:output method="xml" indent="yes"/>
   <xsl:param name="objid"/>
   <xsl:param name="accessGroup"/>
   <xsl:param name="adminGroup"/>
   <xsl:param name="superGroup"/>
   <xsl:template match="/">
-    <rightsMetadata>
+    <rightsMetadata xsi:schemaLocation="http://hydra-collab.stanford.edu/schemas/rightsMetadata/v1 http://github.com/projecthydra/schemas/tree/v1/rightsMetadata.xsd">
       <copyright>
         <human><xsl:value-of select="//dams:Copyright/dams:copyrightNote"/></human>
         <machine>
@@ -30,24 +32,33 @@
         </machine>
       </copyright>
       <access type="discover">
-        <xsl:if test="$accessGroup != '' and $accessGroup != $adminGroup">
-          <group><xsl:value-of select="$accessGroup"/></group>
-        </xsl:if>
-        <group><xsl:value-of select="$adminGroup"/></group>
-        <group><xsl:value-of select="$superGroup"/></group>
+        <machine>
+          <xsl:if test="$accessGroup != '' and $accessGroup != $adminGroup">
+            <group><xsl:value-of select="$accessGroup"/></group>
+          </xsl:if>
+          <group><xsl:value-of select="$adminGroup"/></group>
+          <group><xsl:value-of select="$superGroup"/></group>
+          <xsl:for-each select="/rdf:RDF/dams:Unit|/rdf:RDF/dams:ProvenanceCollection|/rdf:RDF/dams:AssembledCollction">
+            <group><xsl:value-of select="$accessGroup"/></group>
+          </xsl:for-each>
+        </machine>
       </access>
       <access type="read">
-        <xsl:if test="$accessGroup != '' and $accessGroup != $adminGroup">
-          <group><xsl:value-of select="$accessGroup"/></group>
-        </xsl:if>
-        <group><xsl:value-of select="$adminGroup"/></group>
-        <group><xsl:value-of select="$superGroup"/></group>
+        <machine>
+          <xsl:if test="$accessGroup != '' and $accessGroup != $adminGroup">
+            <group><xsl:value-of select="$accessGroup"/></group>
+          </xsl:if>
+          <group><xsl:value-of select="$adminGroup"/></group>
+          <group><xsl:value-of select="$superGroup"/></group>
+        </machine>
       </access>
       <access type="edit">
-        <xsl:for-each select="//dams:Unit/dams:unitGroup">
-          <group><xsl:value-of select="."/></group>
-        </xsl:for-each>
-        <group><xsl:value-of select="$superGroup"/></group>
+        <machine>
+          <xsl:for-each select="//dams:Unit/dams:unitGroup">
+            <group><xsl:value-of select="."/></group>
+          </xsl:for-each>
+          <group><xsl:value-of select="$superGroup"/></group>
+        </machine>
       </access>
 <!-- copyrightPurposeNote?
       <use>

@@ -778,8 +778,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				}
 				params.put("adminGroup", new String[]{adminGroup});
 				params.put("superGroup", new String[]{roleSuper});
-System.out.println("adminGroup: " + adminGroup);
-System.out.println("superGroup: " + roleSuper);
 			}
 			catch ( Exception ex )
 			{
@@ -810,6 +808,18 @@ System.out.println("superGroup: " + roleSuper);
 
 		// lookup unit group code
 		String adminGroup = doc.valueOf("/rdf:RDF/dams:Object//dams:unitGroup");
+
+		//0. all collections and units are public
+		if ( doc.selectNodes("/rdf:RDF/dams:Object").size() == 0 &&
+			(
+				doc.selectNodes("/rdf:RDF/dams:Unit").size() > 0
+				|| doc.selectNodes("/rdf:RDF/dams:AssembledCollection").size() > 0 
+				|| doc.selectNodes("/rdf:RDF/dams:ProvenanceCollection").size() > 0
+			)
+		)
+		{
+			return roleDefault;
+		}
 
 		//1. restriction[type='display'] and current dates: admin
 		List restr = doc.selectNodes(

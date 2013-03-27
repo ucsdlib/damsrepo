@@ -3805,7 +3805,6 @@ private static String listToString(String[] arr)
 				{
 					String escaped = StringEscapeUtils.escapeJava(val);
 					t.setParameter( key, escaped );
-System.out.println("xsl.param " + key + " = " + escaped);
 				}
 			}
 		}
