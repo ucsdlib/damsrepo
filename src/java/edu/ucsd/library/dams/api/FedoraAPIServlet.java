@@ -119,7 +119,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	private static Logger log = Logger.getLogger(FedoraAPIServlet.class);
 
 	// date format
-	private static SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd");
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 	// xslt
 	Transformer objectContentTransform;

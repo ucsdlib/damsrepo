@@ -97,6 +97,7 @@
         includeantruntime="false" source="1.6">
       <classpath refid="classpath"/>
       <!-- <compilerarg line="-Xlint:unchecked"/> -->
+      <!-- <compilerarg line="-Xlint:all"/> -->
     </javac>
 
     <!-- setup command-line scripts -->
