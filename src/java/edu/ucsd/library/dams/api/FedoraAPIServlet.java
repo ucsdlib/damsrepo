@@ -827,8 +827,10 @@ System.out.println("superGroup: " + roleSuper);
 		//2. copyright 'Under copyright -- 1st Party' or 'Public domain': public
 		String copyright = doc.valueOf("/rdf:RDF/dams:Object//dams:copyrightStatus");
 		if ( copyright != null
-			&& (copyright.equals("Under copyright -- 1st Party")
-				|| copyright.equals("Public domain")) )
+			&& (   copyright.equalsIgnoreCase("Under copyright -- 1st Party")
+				|| copyright.equalsIgnoreCase("Under copyright--1st Party")
+				|| copyright.equalsIgnoreCase("Public domain") )
+			)
 		{
 			return roleDefault;
 		}
