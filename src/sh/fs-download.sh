@@ -4,7 +4,7 @@
 
 BASE=`dirname $0`
 source $BASE/common.sh
-DIR=/pub/backup/tmp
+DIR=$DAMS_HOME/tmp
 
 FS=$1
 OBJ=$2
