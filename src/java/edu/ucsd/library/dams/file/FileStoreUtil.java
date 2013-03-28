@@ -188,24 +188,12 @@ public class FileStoreUtil
         {
             BufferedInputStream bufin = new BufferedInputStream(in);
             BufferedOutputStream bufout = new BufferedOutputStream(out);
-			long start = System.currentTimeMillis();
             for ( int c = -1; (c=bufin.read()) != -1; )
             {   
                 bufout.write(c);
 				bytesRead++;
-				if ( bytesRead % 1000000 == 0 )
-				{
-					long dur = System.currentTimeMillis() - start;
-					System.out.println(
-						"bytes read: " + bytesRead + ", dur: " + dur
-					);
-				}
             }
 			bufout.close();
-			long dur = System.currentTimeMillis() - start;
-			System.out.println(
-				"bytes read: " + bytesRead + ", dur: " + dur
-			);
         }
         catch ( Exception ex ) { throw new FileStoreException(ex); }
 		return bytesRead;
