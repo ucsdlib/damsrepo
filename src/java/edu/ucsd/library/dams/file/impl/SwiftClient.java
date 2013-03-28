@@ -353,7 +353,7 @@ public class SwiftClient
 		BufferedOutputStream out = new BufferedOutputStream(
 			new FileOutputStream(fn)
 		);
-		int bytesRead = -1;
+		long bytesRead = -1L;
 		try
 		{
 			bytesRead = FileStoreUtil.copy( in, out );
