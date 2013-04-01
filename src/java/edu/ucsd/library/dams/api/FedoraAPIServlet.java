@@ -132,6 +132,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	Transformer rightsMetadataTransform;
 	Transformer linksMetadataTransform;
 
+	private String fulltextPrefix = "fulltext";
+
     // initialize servlet parameters
     public void init( ServletConfig config ) throws ServletException
     {
@@ -245,6 +247,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					+ req.getServerName() + ":" + req.getServerPort()
 					+ req.getContextPath() + req.getServletPath() + "/";
 				params.put("baseURL",new String[]{baseURL});
+				params.put("fulltextPrefix",new String[]{fulltextPrefix});
 				outputTransform(
 					path[2], null, null, true, objectDatastreamsTransform,
 					params, "application/xml", res.SC_OK, ts, es, res
@@ -278,6 +281,29 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					objectContentTransform, null, "application/xml",
 					res.SC_OK, ts, es, res
 				);
+			}
+			// GET /objects/[oid]/datastreams/[fulltextPrefix][dsid]/content
+			// STATUS: TEST
+			else if ( path.length == 6 && path[1].equals("objects")
+				&& path[3].equals("datastreams") && path[5].equals("content")
+				&& path[4].startsWith(fulltextPrefix) )
+			{
+				fs = filestore(req);
+				String[] parts = path[4].split("_");
+				String cmpid = null;
+				String fileid = null;
+				if ( parts.length == 2 )
+				{
+					fileid = parts[1];
+				}
+				else if ( parts.length == 3 )
+				{
+					cmpid  = parts[1];
+					fileid = parts[2];
+				}
+				Map info = extractText( path[2], cmpid, fileid, fs );
+				String text = (String)info.get("text");
+				output( res.SC_OK, text, "text/plain", res );
 			}
 			// GET /objects/[oid]/datastreams/[fedoraRightsDS]/content
 			// STATUS: TEST

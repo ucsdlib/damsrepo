@@ -6,6 +6,7 @@
   <xsl:param name="objid"/>
   <xsl:param name="baseURL"/>
   <xsl:param name="objectDS"/>
+  <xsl:param name="fulltextPrefix"/>
   <xsl:template match="/">
     <objectDatastreams pid="{$objid}" baseURL="{$baseURL}"
         xmlns="http://www.fedora.info/definitions/1/0/access/"
@@ -21,6 +22,9 @@
       <xsl:for-each select="//dams:File">
         <xsl:variable name="dsid" select="translate(substring-after(@rdf:about,concat($objid,'/')),'/','_')"/>
         <datastream dsid="_{$dsid}" label="" mimeType="{dams:mimeType}"/>
+        <xsl:if test="dams:mimeType = 'application/pdf'">
+          <datastream dsid="{$fulltextPrefix}_{$dsid}" label="text extracted from {$dsid}" mimeType="text/plain"/>
+        </xsl:if>
       </xsl:for-each>
     </objectDatastreams>
   </xsl:template>
