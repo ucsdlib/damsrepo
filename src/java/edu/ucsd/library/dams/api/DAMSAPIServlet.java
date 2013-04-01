@@ -112,6 +112,7 @@ import edu.ucsd.library.dams.triple.TripleStoreUtil;
 import edu.ucsd.library.dams.triple.edit.Edit;
 import edu.ucsd.library.dams.util.HttpUtil;
 import edu.ucsd.library.dams.util.LDAPUtil;
+import edu.ucsd.library.dams.util.PDFParser;
 
 /**
  * Servlet implementing the DAMS REST API.
@@ -719,6 +720,20 @@ public class DAMSAPIServlet extends HttpServlet
 				ts = triplestore(req);
 				es = events(req);
 				info = fileFixity( path[2], path[3], path[4], fs, ts, es );
+			}
+			// GET /files/bb1234567x/1.tif/text
+			else if ( path.length == 5 && path[1].equals("files")
+				&& path[4].equals("text") )
+			{
+				fs = filestore(req);
+				info = extractText( path[2], null, path[3], fs );
+			}
+			// GET /files/bb1234567x/1/1.tif/text
+			else if ( path.length == 6 && path[1].equals("files")
+				&& path[5].equals("text") && isNumber(path[3]) )
+			{
+				fs = filestore(req);
+				info = extractText( path[2], path[3], path[4], fs );
 			}
 			// GET /client/info
 			else if ( path.length == 3 && path[1].equals("client")
@@ -2501,6 +2516,47 @@ private static String listToString(String[] arr)
 			log.warn( "Error checking file existence", ex );
 			return error( "Error processing request: " + ex.toString() );
 		}
+	}
+    public Map extractText( String objid, String cmpid, String fileid,
+		FileStore fs )
+	{
+		Map info = new LinkedHashMap();
+		InputStream in = null;
+		String fn = objid;
+		if ( cmpid != null ) { fn += "/" + cmpid; }
+		fn += "/" + fileid;
+		try
+		{
+			// make sure objid and fileid are specified
+			if ( objid == null || fileid == null )
+			{
+				return error(
+					HttpServletResponse.SC_BAD_REQUEST,
+					"Object and file must be specified"
+				);
+			}
+
+			// make sure file exists
+			if ( !fs.exists( objid, cmpid, fileid ) )
+			{
+				return error(
+					HttpServletResponse.SC_NOT_FOUND, "File does not exist"
+				);
+			}
+
+			// extract text
+			in = fs.getInputStream( objid, cmpid, fileid );
+			String text = PDFParser.getContent( in, objid );
+			info.put( "text", text );
+		}
+		catch ( Exception ex )
+		{
+			log.warn( "Error extracting text from " + fn, ex );
+			return error(
+				"Error extracting text from " + fn + ": " + ex.toString()
+			);
+		}
+		return info;
 	}
 	public Map fileFixity( String objid, String cmpid, String fileid,
 		FileStore fs, TripleStore ts, TripleStore es )
