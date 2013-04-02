@@ -8,7 +8,10 @@ if [ "$3" ]; then
 	TS="?ts=$3"
 fi
 
-curl -X PUT -F file=@$FILE http://localhost:8080/dams/api/objects/$OBJID$TS
+BASE=`dirname $0`
+source $BASE/common.sh
+
+curl -k -u $USER:$PASS -X PUT -F file=@$FILE https://localhost:8443/dams/api/objects/$OBJID$TS
 if [ $? != 0 ]; then
     exit 1
 fi
