@@ -72,7 +72,6 @@
       <url-pattern>/api/*</url-pattern>
       <url-pattern>/fedora/*</url-pattern>
       <http-method>DELETE</http-method>
-      <http-method>GET</http-method>
       <http-method>POST</http-method>
       <http-method>PUT</http-method>
     </web-resource-collection>
