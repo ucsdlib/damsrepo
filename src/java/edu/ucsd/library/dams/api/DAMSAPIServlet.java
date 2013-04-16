@@ -3250,12 +3250,12 @@ private static String listToString(String[] arr)
 		if ( fs == null || fs.trim().equals("") )
 		{
 			fs = lookupFileStore(objid, cmpid, fileid);
-			if ( fs != null )
-			{
-				url += ( url.indexOf("?") > -1 ) ? "&" : "?";
-				url += "fs=" + fs;
-				log.info("added filestore=" + fs);
-			}
+		}
+		if ( fs != null )
+		{
+			url += ( url.indexOf("?") > -1 ) ? "&" : "?";
+			url += "fs=" + fs;
+			log.info("added filestore=" + fs);
 		}
 		try
 		{
