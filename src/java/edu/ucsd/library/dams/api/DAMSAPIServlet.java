@@ -59,6 +59,11 @@ import javax.jms.TextMessage;
 
 // logging
 import org.apache.log4j.Logger;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.sax.BodyContentHandler;
 
 // post/put file attachments
 import org.apache.commons.fileupload.FileItem;
@@ -87,6 +92,7 @@ import javax.xml.transform.stream.StreamSource;
 // json
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.xml.sax.ContentHandler;
 
 // dams
 import edu.ucsd.library.dams.file.Checksum;
@@ -2546,8 +2552,14 @@ private static String listToString(String[] arr)
 
 			// extract text
 			in = fs.getInputStream( objid, cmpid, fileid );
-			String text = PDFParser.getContent( in, objid );
-			info.put( "text", text );
+			//String text = PDFParser.getContent( in, objid );
+			ContentHandler contentHandler = new BodyContentHandler();
+			Metadata metadata = new Metadata();
+			metadata.set(Metadata.RESOURCE_NAME_KEY, fileid);
+			Parser parser = new AutoDetectParser();
+			ParseContext parserContext = new ParseContext();
+			parser.parse(in, contentHandler, metadata, parserContext);
+			info.put( "text",contentHandler.toString() );
 		}
 		catch ( Exception ex )
 		{
