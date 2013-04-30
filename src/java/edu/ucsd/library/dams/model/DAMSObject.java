@@ -71,6 +71,25 @@ public class DAMSObject
 	Set<Identifier> events = new HashSet<Identifier>();
 
 	/**
+	 * Get a list of links for an object.
+	**/
+	public Set<Statement> getLinks() throws TripleStoreException
+	{
+		Set<Statement> links = new HashSet<Statement>();
+		StatementIterator it = getStatements(false);
+		while ( it.hasNext() )
+		{
+			Statement s = it.nextStatement();
+			if ( !s.hasLiteralObject() && !s.getObject().isBlankNode() )
+			{
+				links.add( s );
+			}
+		}
+		it.close();
+		return links;
+	}
+
+	/**
 	 * Get an iterator of all statements about this object.
 	 * @param recurse If true, recursively retrieve triples for records that
 	 *   this object links to.  If false, just retrieve triples directly

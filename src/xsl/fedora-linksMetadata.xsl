@@ -2,14 +2,15 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:dams="http://library.ucsd.edu/ontology/dams#"
-    xmlns:ns0="info:fedora/fedora-system:def/model#">
+    xmlns:ns0="info:fedora/fedora-system:def/model#"
+    xmlns:ns1="info:fedora/fedora-system:def/relations-external#dams:">
   <xsl:param name="objid"/>
   <xsl:output method="xml" indent="yes"/>
   <xsl:template match="/">
     <rdf:RDF>
       <rdf:Description rdf:about="info:fedora/{$objid}">
         <xsl:choose>
-          <xsl:when test="//*[contains(@rdf:about,$objid)]/dams:RelatedResource[dams:type='hydra-afmodel']">
+          <xsl:when test="//*[contains(@rdf:about,$objid)]/dams:relatedResource/dams:RelatedResource[dams:type='hydra-afmodel']">
             <ns0:hasModel rdf:resource="{//dams:RelatedResource[dams:type='hydra-afmodel']/dams:uri}"/>
           </xsl:when>
           <xsl:otherwise>
@@ -28,6 +29,10 @@
             </xsl:for-each>
           </xsl:otherwise>
         </xsl:choose>
+        <xsl:for-each select="//dams:vocabulary">
+          <xsl:variable name="vid" select="substring-after(@rdf:resource,'http://library.ucsd.edu/ark:/20775/')"/>
+          <ns1:vocabulary rdf:resource="info:fedora/{$vid}"/>
+        </xsl:for-each>
       </rdf:Description>
     </rdf:RDF>
   </xsl:template>
