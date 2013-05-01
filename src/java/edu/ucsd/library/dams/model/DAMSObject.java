@@ -40,6 +40,7 @@ public class DAMSObject
 	private Identifier id;
 	private Map<String,String> nsmap;
 	private String idNS;
+	private String prNS;
 	private String owlNS;
 	private String rdfNS;
 	private String eventPred;
@@ -57,6 +58,7 @@ public class DAMSObject
 		this.es = es;
 		this.nsmap = nsmap;
 		this.idNS = nsmap.get("damsid");
+		this.prNS = nsmap.get("dams");
 		this.owlNS = nsmap.get("owl");
 		this.rdfNS = nsmap.get("rdf");
 		this.eventPred = nsmap.get("dams") + "event";
@@ -75,14 +77,29 @@ public class DAMSObject
 	**/
 	public Set<Statement> getLinks() throws TripleStoreException
 	{
+		Identifier hasModel = Identifier.publicURI(prNS + "hasModel");
+		Identifier rdfType  = Identifier.publicURI(rdfNS + "type");
 		Set<Statement> links = new HashSet<Statement>();
 		StatementIterator it = getStatements(false);
 		while ( it.hasNext() )
 		{
 			Statement s = it.nextStatement();
-			if ( !s.hasLiteralObject() && !s.getObject().isBlankNode() )
+			if ( !s.hasLiteralObject() && !s.getObject().isBlankNode()
+				&& s.getObject().getId().indexOf(idNS) != -1 )
 			{
+				log.warn("found link: " + s.getPredicate() +" "+ s.getObject());
 				links.add( s );
+			}
+			else if ( s.getLiteral() != null
+				&& s.getLiteral().indexOf("info:fedora/afmodel") != -1 )
+			{
+				log.warn("found model: " + s.getLiteral());
+				String model = s.getLiteral();
+				if ( model.startsWith("\"") && model.endsWith("\"") )
+				{
+					model = model.substring(1,model.length()-1);
+				}
+				links.add( new Statement( id, hasModel, model ) );
 			}
 		}
 		it.close();

@@ -903,6 +903,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 		// fix rdf:about
 		Set<Statement> newLinks = new HashSet<Statement>();
+		Set<String> newModels = new HashSet<String>();
 		List linkNodes = doc.selectNodes("/rdf:RDF/rdf:Description/*");
 		QName rdfRes = new QName("resource",new Namespace("rdf",rdfNS));
 		String eventURI = prNS + "event";
@@ -920,7 +921,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				log.info("ns:finfo");
 
 				// dummy model link
-				rel = prNS + "hasModel";
+				newModels.add( uri );
 			}
 			else if ( ns.getURI().equals(fdams.getURI()) )
 			{
@@ -932,73 +933,109 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 				// fix object URI
 				uri = idNS + uri.substring( uri.lastIndexOf("/")+1 );
+
+				log.info("newLink: " + rel + ": " + uri );
+				newLinks.add( new Statement(
+					id, Identifier.publicURI(rel), Identifier.publicURI(uri)
+				));
 			}
 			else
 			{
 				log.warn("RELS-EXT link with unknown namespace: " + ns.toString() );
 			}
-			log.info( "newLink: " + rel + ": " + uri + " (" + e.asXML()+ ")" );
-			newLinks.add( new Statement(
-				id, Identifier.publicURI(rel), Identifier.publicURI(uri)
-			));
 		}
 
 		// get existing links from triplestore
-		Set<Statement> oldLinks = null;
+		Set<Statement> oldLinks = new HashSet<Statement>();
+		Set<String> oldModels = new HashSet<String>();
+
+		// dummy model uri
+		Identifier hasModel = Identifier.publicURI(prNS+"hasModel");
 		if ( ts.exists(id) )
 		{
 			Map info = objectShow( stripPrefix(objid), ts, es );
 			if ( info.get("obj") != null )
 			{
 				DAMSObject obj = (DAMSObject)info.get("obj");
-				oldLinks = obj.getLinks();
+				Set<Statement> rels = obj.getLinks();
+				for ( Iterator<Statement> it = rels.iterator(); it.hasNext(); )
+				{
+					Statement s = it.next();
+					if ( s.getPredicate().equals(hasModel) )
+					{
+						oldModels.add( s.getLiteral() );
+log.warn("old model: " + s.toString() );
+					}
+					else
+					{
+						oldLinks.add(s);
+					}
+				}
 			}
 		}
 
 		// remove common links
-		Set<Statement> remove = new HashSet<Statement>();
+		Set<Statement> commonLinks = new HashSet<Statement>();
 		if ( oldLinks != null && oldLinks.size() > 0 )
 		{
 			for ( Iterator<Statement> it = oldLinks.iterator(); it.hasNext(); )
 			{
 				Statement s = it.next();
-				if ( s.getPredicate().getId().equals(eventURI) || newLinks.contains(s) )
+				if ( s.getPredicate().getId().equals(eventURI)
+					|| newLinks.contains(s) )
 				{
-					remove.add( s );
+					commonLinks.add( s );
 				}
 			}
-			newLinks.removeAll( remove );
-			oldLinks.removeAll( remove );
+			newLinks.removeAll( commonLinks );
+			oldLinks.removeAll( commonLinks );
 		}
-		debugSet( "del", oldLinks );
-		debugSet( "add", newLinks );
+		debugSet( "delLink", oldLinks );
+		debugSet( "addLink", newLinks );
+
+		// remove common models
+		Set<String> commonModels = new HashSet<String>();
+		if ( oldModels != null && oldModels.size() > 0 )
+		{
+			for ( Iterator<String> it = oldModels.iterator(); it.hasNext(); )
+			{
+				String s = it.next();
+				if ( newModels.contains(s) )
+				{
+					commonModels.add( s );
+				}
+			}
+			newModels.removeAll( commonModels );
+			oldModels.removeAll( commonModels );
+		}
+		debugSet( "delModel", oldModels );
+		debugSet( "addModel", newModels );
 
 		// add links from newLinks
-		String hasModel = prNS + "hasModel";
+		for ( Iterator<Statement> it = newLinks.iterator(); it.hasNext(); )
+		{
+			Statement s = it.next();
+			ts.addStatement(s, id);
+		}
+
+		// add new models
 		Identifier resPred = Identifier.publicURI(prNS + "relatedResource");
 		Identifier resType = Identifier.publicURI(prNS + "RelatedResource");
 		Identifier rdfType = Identifier.publicURI(rdfNS + "type");
 		Identifier damsType = Identifier.publicURI(prNS + "type");
 		Identifier damsURI = Identifier.publicURI(prNS + "uri");
-		for ( Iterator<Statement> it = newLinks.iterator(); it.hasNext(); )
-		{
-			Statement s = it.next();
-			if ( s.getPredicate().getId().equals(hasModel) )
-			{
-				// map dams:hasModel to dams:RelatedResource 
-				Identifier bn1 = ts.blankNode();
-				ts.addStatement( id, resPred, bn1, id );
-				ts.addStatement( bn1, rdfType, resType, id );
-				ts.addLiteralStatement( bn1, damsType, "'hydra-afmodel'", id );
-				ts.addLiteralStatement( bn1, damsURI, "'" + s.getObject().getId() + "'", id );
-			}
-			else
-			{
-				ts.addStatement(s, id);
-			}
+		for ( Iterator<String> it = newModels.iterator(); it.hasNext(); )
+		{	
+			String model = it.next();
+			Identifier bn1 = ts.blankNode();
+			ts.addStatement( id, resPred, bn1, id );
+			ts.addStatement( bn1, rdfType, resType, id );
+			ts.addLiteralStatement( bn1, damsType, "'hydra-afmodel'", id );
+			ts.addLiteralStatement( bn1, damsURI, "'" + model + "'", id );
 		}
 
 		// XXX: delete links from oldLinks
+		// XXX: delete models from oldModels
 
 /*
 //////////////////////////////
@@ -1037,11 +1074,11 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			params, "application/xml", res.SC_CREATED, ts, es, res
 		);
 	}
-	private static void debugSet( String msg, Set<Statement> stmts )
+	private static void debugSet( String msg, Set s )
 	{
-		for ( Statement s : stmts )
+		for ( Object o : s )
 		{
-			log.info( msg + ": " + s.toString() );
+			log.info( msg + ": " + o );
 		}
 		log.debug("---------------------------------------------------");
 	}

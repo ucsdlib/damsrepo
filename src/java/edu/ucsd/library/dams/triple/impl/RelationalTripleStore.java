@@ -477,20 +477,18 @@ public class RelationalTripleStore implements TripleStore
 	}
 	protected static boolean isLiteral( String s )
 	{
+		boolean isLiteral = true;
 		if ( s != null && s.startsWith("_:") )
 		{
 			// blank node
-			return false;
+			isLiteral = false;
 		}
 		else if (s != null && (s.startsWith("<") && s.indexOf(" ") == -1))
 		{
 			// URI
-			return false;
+			isLiteral = false;
 		}
-		else
-		{
-			return true;
-		}
+		return isLiteral;
 	}
 	/**
 	 * Select all triples for an object, including blank-node children
