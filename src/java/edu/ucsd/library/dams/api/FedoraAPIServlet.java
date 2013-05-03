@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.text.SimpleDateFormat;
 
 // servlet api
@@ -53,6 +54,8 @@ import org.apache.log4j.Logger;
 import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.model.DAMSObject;
 import edu.ucsd.library.dams.triple.Identifier;
+import edu.ucsd.library.dams.triple.Statement;
+import edu.ucsd.library.dams.triple.StatementIterator;
 import edu.ucsd.library.dams.triple.TripleStore;
 import edu.ucsd.library.dams.triple.TripleStoreException;
 
@@ -277,7 +280,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
                 ts = triplestore(req);
                 es = events(req);
 				outputTransform(
-					stripPrefix(path[2]), null, null, true,
+					stripPrefix(path[2]), null, null, false,
 					objectContentTransform, null, "application/xml",
 					res.SC_OK, ts, es, res
 				);
@@ -330,7 +333,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
                 Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("dsName",new String[]{fedoraLinksDS});
                 outputTransform(
-                    path[2], null, null, true, linksMetadataTransform, params,
+                    path[2], null, null, false, linksMetadataTransform, params,
                     "application/xml", res.SC_OK, ts, null, res
                 );
 			}
@@ -478,43 +481,11 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			{
 				InputBundle bundle = input(req);
 				InputStream in = bundle.getInputStream();
-
-				String id = stripPrefix(path[2]);
-				cacheRemove(id);
-				Identifier id2 = createID( id, null, null );
-
-				// get model link
-				String model = getModel( in );
-
-				Document doc = DocumentHelper.createDocument();
-				Element root = doc.addElement("RDF",rdfNS);
-				doc.setRootElement(root);
-				Element desc = root.addElement("Description",rdfNS);
-				QName rdfAbout = new QName("about",new Namespace("rdf",rdfNS));
-				desc.addAttribute( rdfAbout, id2.getId() );
-				Element relPred = desc.addElement("relatedResource",prNS);
-				Element relElem = relPred.addElement("RelatedResource",prNS);
-				relElem.addElement("uri",prNS).setText( model );
-				relElem.addElement("type",prNS).setText( "hydra-afmodel" );
-
-				// post
 				ts = triplestore(req);
 				es = events(req);
-				boolean exists = ts.exists(id2);
-				InputStream in2 = new ByteArrayInputStream(
-					doc.asXML().getBytes()
-				);
+				String id = stripPrefix(path[2]);
 
-				objectEdit(
-					id, !exists, in2, "add", null, null, null, ts, es
-				);
-
-				Map<String,String[]> params = new HashMap<String,String[]>();
-				params.put("dsName",new String[]{fedoraLinksDS});
-				outputTransform(
-					path[2], null, null, true, datastreamProfileTransform,
-					params, "application/xml", res.SC_CREATED, ts, es, res
-				);
+				updateLinks( id, in, ts, es, res );
 			}
 			// POST /objects/[oid]/datastreams/[fid]
 			// STATUS: WORKING
@@ -608,8 +579,13 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[3].equals("datastreams")
 				&& path[4].equals(fedoraLinksDS) )
 			{
-				// ignore
-				//InputBundle bundle = input(req);
+				InputBundle bundle = input(req);
+				InputStream in = bundle.getInputStream();
+				ts = triplestore(req);
+				es = events(req);
+				String id = stripPrefix(path[2]);
+
+				updateLinks( id, in, ts, es, res );
 			}
 			// PUT /objects/[oid]/datastreams/[fid]
 			// STATUS: WORKING
@@ -914,102 +890,199 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			return id;
 		}
 	}
-	private String getModelJAXP( InputStream in )
+	private void updateLinks( String objid, InputStream in, TripleStore ts,
+		TripleStore es, HttpServletResponse res ) throws Exception
 	{
-		// JAXP impl.
-		String model = null;
-		try
-		{
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder parser = dbf.newDocumentBuilder();
-			org.w3c.dom.Document doc = parser.parse(in);
+		cacheRemove(objid);
+		Identifier id = createID( objid, null, null );
 
-			// find model
-			NodeList models = doc.getElementsByTagName("ns0:hasModel");
-			for ( int i = 0; i < models.getLength() && model == null; i++ )
+		// get links from input
+		SAXReader parser = new SAXReader();
+		Document doc = parser.read(in);
+		log.info("updateLinks() doc=" + doc.asXML());
+
+		// fix rdf:about
+		Set<Statement> newLinks = new HashSet<Statement>();
+		Set<String> newModels = new HashSet<String>();
+		List linkNodes = doc.selectNodes("/rdf:RDF/rdf:Description/*");
+		QName rdfRes = new QName("resource",new Namespace("rdf",rdfNS));
+		String eventURI = prNS + "event";
+		Namespace finfo = new Namespace("fedora-model","info:fedora/fedora-system:def/model#");
+		Namespace fdams = new Namespace("fext-dams","info:fedora/fedora-system:def/relations-external#dams:");
+		for ( int i = 0; i < linkNodes.size(); i++ )
+		{
+			Element e = (Element)linkNodes.get(i);
+			String rel = e.getName();
+			String uri = e.attributeValue(rdfRes);
+			Namespace ns = e.getNamespace();
+			if ( ns.getURI().equals(finfo.getURI()) )
 			{
-				org.w3c.dom.Node n = models.item(i);
-				if ( n.getNodeType() == n.ELEMENT_NODE )
-				{
-					org.w3c.dom.Element e = (org.w3c.dom.Element)n;
-					model = e.getAttribute("rdf:resource");
-				}
+				// model links
+				log.info("ns:finfo");
+
+				// dummy model link
+				newModels.add( uri );
+			}
+			else if ( ns.getURI().equals(fdams.getURI()) )
+			{
+				// dams record links
+				log.info("ns:fdams");
+
+				// fix predicate URI
+				rel = prNS + rel;
+
+				// fix object URI
+				uri = idNS + uri.substring( uri.lastIndexOf("/")+1 );
+
+				log.info("newLink: " + rel + ": " + uri );
+				newLinks.add( new Statement(
+					id, Identifier.publicURI(rel), Identifier.publicURI(uri)
+				));
+			}
+			else
+			{
+				log.warn("RELS-EXT link with unknown namespace: " + ns.toString() );
 			}
 		}
-		catch ( Exception ex )
-		{
-			log.warn("Error extracting model from RELS-EXT", ex );
-		}
-		return model;
-	}
-	private String getModel( InputStream in )
-	{
-		Document doc = null;
-		String model = null;
-		try
-		{
-			// parse doc
-			SAXReader parser = new SAXReader();
-			doc = parser.read(in);
 
-			// fix rdf:about
-			Element modelElem = (Element)doc.selectSingleNode(
-				"/rdf:RDF/rdf:Description/ns0:hasModel"
-			);
-			if ( modelElem != null )
+		// get existing links from triplestore
+		Set<Statement> oldLinks = new HashSet<Statement>();
+		Set<String> oldModels = new HashSet<String>();
+
+		// dummy model uri
+		Identifier hasModel = Identifier.publicURI(prNS+"hasModel");
+		if ( ts.exists(id) )
+		{
+			Map info = objectShow( stripPrefix(objid), ts, es );
+			if ( info.get("obj") != null )
 			{
-				QName rdfRes = new QName("resource",new Namespace("rdf",rdfNS));
-				model = modelElem.attributeValue( rdfRes );
-			}
-		}
-		catch ( Exception ex )
-		{
-			log.warn("Error extracting model from RELS-EXT", ex );
-		}
-		return model;
-	}
-	private InputStream pruneInputJAXP( InputStream in, String objURI )
-	{
-		// JAXP impl.
-		String xml = null;
-
-		try
-		{
-			// parse xml
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder parser = dbf.newDocumentBuilder();
-			org.w3c.dom.Document doc = parser.parse(in);
-
-			// fix rdf:about
-			org.w3c.dom.Element root = doc.getDocumentElement();
-			NodeList children = root.getChildNodes();
-			for ( int i = 0; i < children.getLength(); i++ )
-			{
-				org.w3c.dom.Node n = children.item(i);
-				if ( n.getNodeType() == n.ELEMENT_NODE )
+				DAMSObject obj = (DAMSObject)info.get("obj");
+				Set<Statement> rels = obj.getLinks();
+				for ( Iterator<Statement> it = rels.iterator(); it.hasNext(); )
 				{
-					org.w3c.dom.Element e = (org.w3c.dom.Element)n;
-					if ( !e.getAttribute("rdf:about").equals(objURI) )
+					Statement s = it.next();
+					if ( s.getPredicate().equals(hasModel) )
 					{
-						e.setAttribute("rdf:about",objURI);
+						oldModels.add( s.getLiteral() );
+log.warn("old model: " + s.toString() );
+					}
+					else
+					{
+						oldLinks.add(s);
 					}
 				}
 			}
-
-			// convert doc to string
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer transformer = tf.newTransformer();
-			StringWriter writer = new StringWriter();
-			transformer.transform(new DOMSource(doc), new StreamResult(writer));
-			xml = writer.toString();
 		}
-		catch ( Exception ex )
+
+		// remove common links
+		Set<Statement> commonLinks = new HashSet<Statement>();
+		if ( oldLinks != null && oldLinks.size() > 0 )
 		{
-			log.warn( "Error pruning input (JAXP)", ex );
+			for ( Iterator<Statement> it = oldLinks.iterator(); it.hasNext(); )
+			{
+				Statement s = it.next();
+				if ( s.getPredicate().getId().equals(eventURI)
+					|| newLinks.contains(s) )
+				{
+					commonLinks.add( s );
+				}
+			}
+			newLinks.removeAll( commonLinks );
+			oldLinks.removeAll( commonLinks );
+		}
+		debugSet( "delLink", oldLinks );
+		debugSet( "addLink", newLinks );
+
+		// remove common models
+		Set<String> commonModels = new HashSet<String>();
+		if ( oldModels != null && oldModels.size() > 0 )
+		{
+			for ( Iterator<String> it = oldModels.iterator(); it.hasNext(); )
+			{
+				String s = it.next();
+				if ( newModels.contains(s) )
+				{
+					commonModels.add( s );
+				}
+			}
+			newModels.removeAll( commonModels );
+			oldModels.removeAll( commonModels );
+		}
+		debugSet( "delModel", oldModels );
+		debugSet( "addModel", newModels );
+
+		// add links from newLinks
+		for ( Iterator<Statement> it = newLinks.iterator(); it.hasNext(); )
+		{
+			Statement s = it.next();
+			ts.addStatement(s, id);
 		}
 
-		return new ByteArrayInputStream(xml.getBytes());
+		// add new models
+		Identifier resPred = Identifier.publicURI(prNS + "relatedResource");
+		Identifier resType = Identifier.publicURI(prNS + "RelatedResource");
+		Identifier rdfType = Identifier.publicURI(rdfNS + "type");
+		Identifier damsType = Identifier.publicURI(prNS + "type");
+		Identifier damsURI = Identifier.publicURI(prNS + "uri");
+		for ( Iterator<String> it = newModels.iterator(); it.hasNext(); )
+		{	
+			String model = it.next();
+			Identifier bn1 = ts.blankNode();
+			ts.addStatement( id, resPred, bn1, id );
+			ts.addStatement( bn1, rdfType, resType, id );
+			ts.addLiteralStatement( bn1, damsType, "'hydra-afmodel'", id );
+			ts.addLiteralStatement( bn1, damsURI, "'" + model + "'", id );
+		}
+
+		// XXX: delete links from oldLinks
+		// XXX: delete models from oldModels
+
+/*
+//////////////////////////////
+		
+		if ( modelElem != null )
+		{
+			model = modelElem.attributeValue( rdfRes );
+		}
+
+		Document doc = DocumentHelper.createDocument();
+		Element root = doc.addElement("RDF",rdfNS);
+		doc.setRootElement(root);
+		Element desc = root.addElement("Description",rdfNS);
+		QName rdfAbout = new QName("about",new Namespace("rdf",rdfNS));
+		desc.addAttribute( rdfAbout, id.getId() );
+		Element relPred = desc.addElement("relatedResource",prNS);
+		Element relElem = relPred.addElement("RelatedResource",prNS);
+		relElem.addElement("uri",prNS).setText( model );
+		relElem.addElement("type",prNS).setText( "hydra-afmodel" );
+
+		// post
+		boolean exists = ts.exists(id);
+		InputStream in2 = new ByteArrayInputStream(
+			doc.asXML().getBytes()
+		);
+
+		objectEdit(
+			id, !exists, in2, "add", null, null, null, ts, es
+		);
+*/
+
+		Map<String,String[]> params = new HashMap<String,String[]>();
+		params.put("dsName",new String[]{fedoraLinksDS});
+		outputTransform(
+			objid, null, null, true, datastreamProfileTransform,
+			params, "application/xml", res.SC_CREATED, ts, es, res
+		);
 	}
+	private static void debugSet( String msg, Set s )
+	{
+		for ( Object o : s )
+		{
+			log.info( msg + ": " + o );
+		}
+		log.debug("---------------------------------------------------");
+	}
+
 	private InputStream pruneInput( InputStream in, String objURI )
 	{
 		Document doc = null;
