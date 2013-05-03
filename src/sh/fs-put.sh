@@ -1,6 +1,8 @@
 #!/bin/sh
 
 # update an existing file
+BASE=`dirname $0`
+source $BASE/common.sh
 
 OBJID=$1
 FILEID=$2
@@ -10,7 +12,7 @@ if [ "$USE" ]; then
     OPT="?use=$USE"
 	ARG="-F use=$USE"
 fi
-curl -i -X PUT -d @$FILE http://localhost:8080/dams/api/files/$OBJID/$FILEID$OPT
+curl -u $USER:$PASS -i -X PUT -d @$FILE http://localhost:8080/dams/api/files/$OBJID/$FILEID$OPT
 if [ $? != 0 ]; then
     exit 1
 fi
