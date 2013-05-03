@@ -78,7 +78,6 @@ public class DAMSObject
 	public Set<Statement> getLinks() throws TripleStoreException
 	{
 		Identifier hasModel = Identifier.publicURI(prNS + "hasModel");
-		Identifier rdfType  = Identifier.publicURI(rdfNS + "type");
 		Set<Statement> links = new HashSet<Statement>();
 		StatementIterator it = getStatements(false);
 		while ( it.hasNext() )
@@ -104,6 +103,31 @@ public class DAMSObject
 		}
 		it.close();
 		return links;
+	}
+
+	/**
+	 * Get a list of fedora models for an object.
+	**/
+	public Set<String> getModels() throws TripleStoreException
+	{
+		Set<String> models = new HashSet<String>();
+		StatementIterator it = getStatements(false);
+		while ( it.hasNext() )
+		{
+			Statement s = it.nextStatement();
+			if ( s.getLiteral() != null
+				&& s.getLiteral().indexOf("info:fedora/afmodel") != -1 )
+			{
+				String model = s.getLiteral();
+				if ( model.startsWith("\"") && model.endsWith("\"") )
+				{
+					model = model.substring(1,model.length()-1);
+				}
+				models.add( model );
+			}
+		}
+		it.close();
+		return models;
 	}
 
 	/**

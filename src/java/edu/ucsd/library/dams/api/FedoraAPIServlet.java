@@ -485,7 +485,15 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				es = events(req);
 				String id = stripPrefix(path[2]);
 
-				updateLinks( id, in, ts, es, res );
+				updateModels( id, in, ts, es );
+
+				// send output
+				Map<String,String[]> params = new HashMap<String,String[]>();
+				params.put("dsName",new String[]{fedoraLinksDS});
+				outputTransform(
+					path[2], null, null, true, datastreamProfileTransform,
+					params, "application/xml", res.SC_CREATED, ts, es, res
+				);
 			}
 			// POST /objects/[oid]/datastreams/[fid]
 			// STATUS: WORKING
@@ -585,7 +593,15 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				es = events(req);
 				String id = stripPrefix(path[2]);
 
-				updateLinks( id, in, ts, es, res );
+				updateModels( id, in, ts, es );
+
+				// send output
+				Map<String,String[]> params = new HashMap<String,String[]>();
+				params.put("dsName",new String[]{fedoraLinksDS});
+				outputTransform(
+					path[2], null, null, true, datastreamProfileTransform,
+					params, "application/xml", res.SC_OK, ts, es, res
+				);
 			}
 			// PUT /objects/[oid]/datastreams/[fid]
 			// STATUS: WORKING
@@ -890,6 +906,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			return id;
 		}
 	}
+
+	/**
+	 * Add and remove models and links from triplestore to match RELS-EXT
+	**/
 	private void updateLinks( String objid, InputStream in, TripleStore ts,
 		TripleStore es, HttpServletResponse res ) throws Exception
 	{
@@ -990,8 +1010,6 @@ log.warn("old model: " + s.toString() );
 			newLinks.removeAll( commonLinks );
 			oldLinks.removeAll( commonLinks );
 		}
-		debugSet( "delLink", oldLinks );
-		debugSet( "addLink", newLinks );
 
 		// remove common models
 		Set<String> commonModels = new HashSet<String>();
@@ -1008,8 +1026,6 @@ log.warn("old model: " + s.toString() );
 			newModels.removeAll( commonModels );
 			oldModels.removeAll( commonModels );
 		}
-		debugSet( "delModel", oldModels );
-		debugSet( "addModel", newModels );
 
 		// add links from newLinks
 		for ( Iterator<Statement> it = newLinks.iterator(); it.hasNext(); )
@@ -1034,39 +1050,19 @@ log.warn("old model: " + s.toString() );
 			ts.addLiteralStatement( bn1, damsURI, "'" + model + "'", id );
 		}
 
-		// XXX: delete links from oldLinks
-		// XXX: delete models from oldModels
-
-/*
-//////////////////////////////
-		
-		if ( modelElem != null )
+		// delete links from oldLinks
+		for ( Iterator<Statement> it = oldLinks.iterator(); it.hasNext(); )
 		{
-			model = modelElem.attributeValue( rdfRes );
+			Statement s = it.next();
+			ts.removeStatements(
+				s.getSubject(), s.getPredicate(), s.getObject()
+			);
 		}
 
-		Document doc = DocumentHelper.createDocument();
-		Element root = doc.addElement("RDF",rdfNS);
-		doc.setRootElement(root);
-		Element desc = root.addElement("Description",rdfNS);
-		QName rdfAbout = new QName("about",new Namespace("rdf",rdfNS));
-		desc.addAttribute( rdfAbout, id.getId() );
-		Element relPred = desc.addElement("relatedResource",prNS);
-		Element relElem = relPred.addElement("RelatedResource",prNS);
-		relElem.addElement("uri",prNS).setText( model );
-		relElem.addElement("type",prNS).setText( "hydra-afmodel" );
+		// XXX: delete models from oldModels
 
-		// post
-		boolean exists = ts.exists(id);
-		InputStream in2 = new ByteArrayInputStream(
-			doc.asXML().getBytes()
-		);
 
-		objectEdit(
-			id, !exists, in2, "add", null, null, null, ts, es
-		);
-*/
-
+		// send output
 		Map<String,String[]> params = new HashMap<String,String[]>();
 		params.put("dsName",new String[]{fedoraLinksDS});
 		outputTransform(
@@ -1074,15 +1070,98 @@ log.warn("old model: " + s.toString() );
 			params, "application/xml", res.SC_CREATED, ts, es, res
 		);
 	}
-	private static void debugSet( String msg, Set s )
-	{
-		for ( Object o : s )
-		{
-			log.info( msg + ": " + o );
-		}
-		log.debug("---------------------------------------------------");
-	}
 
+	/**
+	 * Add and remove models from triplestore to match RELS-EXT
+	**/
+	private void updateModels( String objid, InputStream in, TripleStore ts,
+		TripleStore es ) throws Exception
+	{
+		cacheRemove(objid);
+		Identifier id = createID( objid, null, null );
+
+		// get models for existing objects
+		QName rdfRes = new QName("resource",new Namespace("rdf",rdfNS));
+		String finfoURI = "info:fedora/fedora-system:def/model#";
+		String hasModelURI = finfoURI + "hasModel";
+		QName hasModel = new QName( "hasModel", new Namespace("ns0",finfoURI) );
+		Set<String> oldModels = new HashSet<String>();
+		if ( ts.exists(id) )
+		{
+			Map info = objectShow( stripPrefix(objid), ts, null );
+			if ( info.get("obj") != null )
+			{
+				DAMSObject obj = (DAMSObject)info.get("obj");
+				oldModels = obj.getModels();
+			}
+		}
+
+		// parse input
+		SAXReader parser = new SAXReader();
+		Document doc = parser.read(in);
+		log.debug("updateModels() doc=" + doc.asXML());
+
+		// find models in input
+		Set<String> newModels = new HashSet<String>();
+		List linkNodes = doc.selectNodes("/rdf:RDF/rdf:Description/*");
+		for ( int i = 0; i < linkNodes.size(); i++ )
+		{
+			Element e = (Element)linkNodes.get(i);
+			String rel = e.getName();
+			String uri = e.attributeValue(rdfRes);
+			if ( e.getQName().equals(hasModel) )
+			{
+				if ( !oldModels.contains( uri ) )
+				{
+					log.debug("newModel: " + uri);
+					newModels.add( uri );
+				}
+			}
+			else
+			{
+				log.debug("Unhandled RELS-EXT link: " + rel + " " + uri);
+			}
+		}
+
+		// add new models
+		if ( newModels.size() > 0 )
+		{
+			Identifier relP = Identifier.publicURI(prNS + "relatedResource");
+			Identifier relT = Identifier.publicURI(prNS + "RelatedResource");
+			Identifier rdfT = Identifier.publicURI(rdfNS + "type");
+			Identifier damsT = Identifier.publicURI(prNS + "type");
+			Identifier damsU = Identifier.publicURI(prNS + "uri");
+
+			boolean success = true;
+			String detail = "Add " + newModels.size() + " fedora models";
+			String error = null;
+			try
+			{
+				for ( Iterator<String> it = newModels.iterator(); it.hasNext();)
+				{	
+					String model = it.next();
+					Identifier bn1 = ts.blankNode();
+					ts.addStatement( id, relP, bn1, id );
+					ts.addStatement( bn1, rdfT, relT, id );
+					ts.addLiteralStatement( bn1, damsT, "'hydra-afmodel'", id );
+					ts.addLiteralStatement( bn1, damsU, "'" + model + "'", id );
+				}
+			}
+			catch ( Exception ex )
+			{
+				success = false;
+				error = ex.toString();
+			}
+			finally
+			{
+				// add event
+				createEvent(
+					ts, es, objid, null, null, "update-fedora-models",
+					success, detail, error
+				);
+			}
+		}
+	}
 	private InputStream pruneInput( InputStream in, String objURI )
 	{
 		Document doc = null;
@@ -1106,6 +1185,7 @@ log.warn("old model: " + s.toString() );
 				}
 			}
 			xml = doc.asXML();
+			log.info("pruned: " + xml);
 		}
 		catch ( Exception ex )
 		{

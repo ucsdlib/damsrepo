@@ -1,6 +1,7 @@
 package edu.ucsd.library.dams.model;
 
 import java.util.Date;
+import java.util.TimeZone;
 import java.text.SimpleDateFormat;
 
 import edu.ucsd.library.dams.triple.Identifier;
@@ -23,9 +24,7 @@ public class Event
 	private String outcomeNote;
 	private Date eventDate;
 
-	private SimpleDateFormat fmt = new SimpleDateFormat(
-		"yyyy-MM-dd'T'hh:mm:ssZ"
-	);
+	private SimpleDateFormat fmt = null;
 
 	public Event( Identifier eventID, Identifier parent, Identifier subject,
 		Identifier userID, boolean success, String type, String detail,
@@ -40,6 +39,10 @@ public class Event
 		this.detail      = detail;
 		this.outcomeNote = outcomeNote;
 		eventDate = new Date();
+
+		// setup time format
+		fmt = new SimpleDateFormat( "yyyy-MM-dd'T'hh:mm:ssX" );
+	    fmt.setTimeZone( TimeZone.getTimeZone("UTC") );
 	}
 	public void save( TripleStore ts, TripleStore es )
 		throws TripleStoreException
