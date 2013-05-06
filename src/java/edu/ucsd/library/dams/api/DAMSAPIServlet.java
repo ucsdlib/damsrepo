@@ -4375,6 +4375,9 @@ private static String listToString(String[] arr)
 		}
 		return new InputBundle( params, in );
 	}
+	/**
+	 * List embargoed objects a collection/unit
+	 */
 	private List<Map<String,String>> getEmbargoedList(String pred, String gid, TripleStore ts) throws TripleStoreException{
 		Identifier pre = createPred( pred );
 		String sparql = "select ?oid ?endDate where {?oid <" + pre.getId() + "> <" + idNS + gid + ">" +
