@@ -1594,13 +1594,30 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public Map unitEmbargo( String colid, TripleStore ts )
 	{
-		return null; // DAMS_MGR
-		// output = metadata: list of objects (??)
+		Map info = new LinkedHashMap();
+		try {
+			info.put("embargoed", getEmbargoedList("dams:unit", colid, ts));
+		} catch (TripleStoreException ex) {
+			return error( "Error listing embargoed objects for unit " + colid + ": " + ex.toString() );
+		}
+		return info;
+		// output = metadata: list of embargoed objects and embargoed endDate
 	}
 	public Map collectionEmbargo( String colid, TripleStore ts )
 	{
-		return null; // DAMS_MGR
-		// output = metadata: list of objects (??)
+		Map info = new LinkedHashMap();
+		List<Map<String, String>> embargoes = new ArrayList<Map<String, String>>();
+		String[] colTypes = new String[]{ "dams:collection", "dams:assembledCollection", "dams:provenanceCollection", "dams:provenanceCollectionPart" };
+		try{
+			for(int i=0; i<colTypes.length; i++)
+				embargoes.addAll(getEmbargoedList(colTypes[i], colid, ts));
+			
+			info.put("embargoed", embargoes);
+		} catch (TripleStoreException ex) {
+			return error( "Error listing embargoed objects for collection " + colid + ": " + ex.toString() );
+		}
+		return info;
+		// output = metadata: list of embargoed objects and embargoed endDate
 	}
 	public Map unitListAll( TripleStore ts )
 	{
@@ -4357,6 +4374,27 @@ private static String listToString(String[] arr)
 			in = localFile( params );
 		}
 		return new InputBundle( params, in );
+	}
+	/**
+	 * List embargoed objects a collection/unit
+	 */
+	private List<Map<String,String>> getEmbargoedList(String pred, String gid, TripleStore ts) throws TripleStoreException{
+		Identifier pre = createPred( pred );
+		String sparql = "select ?oid ?endDate where {?oid <" + pre.getId() + "> <" + idNS + gid + ">" +
+				" . ?oid <" + prNS + "license> ?Lisense . ?Lisense <" + prNS + "licenseNote> '\"embargo\"'" +
+				" . ?Lisense <" + prNS + "rightsAction> ?Restriction . ?Restriction <" + prNS + "endDate> ?endDate}";
+		BindingIterator embargoeds = null;
+		try
+		{
+			embargoeds = ts.sparqlSelect(sparql);
+			List<Map<String,String>> embargoedList = bindings(embargoeds);
+			return embargoedList;
+		}
+		finally
+		{
+			if(embargoeds != null )
+				embargoeds.close();
+		}
 	}
 }
 class InputBundle
