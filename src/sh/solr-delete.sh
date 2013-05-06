@@ -1,8 +1,10 @@
 #!/bin/sh
 
 # delete a record from solr
+BASE=`dirname $0`
+source $BASE/common.sh
 
-curl -X DELETE http://localhost:8080/dams/api/objects/bb01010101/index
+curl -u $USER:$PASS -X DELETE http://localhost:8080/dams/api/objects/bb01010101/index
 if [ $? != 0 ]; then
     exit 1
 fi

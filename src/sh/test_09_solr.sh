@@ -1,10 +1,14 @@
 #!/bin/sh
 
+# test solr
+BASE=`dirname $0`
+source $BASE/common.sh
+
 ERRORS=0
 
 # list units
 echo "Listing units"
-UNIT_LIST=`curl -s -f http://localhost:8080/dams/api/units`
+UNIT_LIST=`curl -u $USER:$PASS -s -f http://localhost:8080/dams/api/units`
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
@@ -16,7 +20,7 @@ echo "Unit: $UNIT"
 
 # list objects in the unit
 echo "Listing objects in unit $UNIT"
-OBJ_LIST=`curl -s -f http://localhost:8080/dams/api/units/$UNIT`
+OBJ_LIST=`curl -u $USER:$PASS -s -f http://localhost:8080/dams/api/units/$UNIT`
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
@@ -31,7 +35,7 @@ done
 echo
 
 echo "Index a record in solr"
-curl -f -X POST http://localhost:8080/dams/api/objects/$OBJ/index
+curl -u $USER:$PASS -f -X POST http://localhost:8080/dams/api/objects/$OBJ/index
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
@@ -44,7 +48,7 @@ for i in $OBJS; do
 	IDS="${IDS}id=$i&"
 done
 echo http://localhost:8080/dams/api/index?$IDS
-curl -f -X POST "http://localhost:8080/dams/api/index?$IDS"
+curl -u $USER:$PASS -f -X POST "http://localhost:8080/dams/api/index?$IDS"
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
     exit 1
@@ -53,14 +57,14 @@ echo
 echo
 
 echo "Search solr"
-curl -f -X GET http://localhost:8080/dams/api/index?q=test
+curl -u $USER:$PASS -f -X GET http://localhost:8080/dams/api/index?q=test
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
 echo
 
 echo "Remove a record from solr"
-curl -f -X DELETE http://localhost:8080/dams/api/objects/$OBJ/index
+curl -u $USER:$PASS -f -X DELETE http://localhost:8080/dams/api/objects/$OBJ/index
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
@@ -68,7 +72,7 @@ echo
 echo
 
 echo "Bulk delete records from solr index"
-curl -f -X DELETE "http://localhost:8080/dams/api/index?$IDS"
+curl -u $USER:$PASS -f -X DELETE "http://localhost:8080/dams/api/index?$IDS"
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi

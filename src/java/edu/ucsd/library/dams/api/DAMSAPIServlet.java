@@ -197,7 +197,7 @@ public class DAMSAPIServlet extends HttpServlet
 	// number detection
 	private static Pattern numberPattern = null;
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat(
-		"yyyy-MM-dd'T'hh:mm:ssZ"
+		"yyyy-MM-dd'T'hh:mm:ssX"
 	);
 
 	// ldap for group lookup
@@ -3226,7 +3226,7 @@ private static String listToString(String[] arr)
 		}
 		return error;
 	}
-	private void createEvent( TripleStore ts, TripleStore es, String objid,
+	protected void createEvent( TripleStore ts, TripleStore es, String objid,
 		String cmpid, String fileid, String type, boolean success,
 		String detail, String outcomeNote ) throws TripleStoreException
 	{
