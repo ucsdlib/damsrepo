@@ -4382,7 +4382,7 @@ private static String listToString(String[] arr)
 		Identifier pre = createPred( pred );
 		String sparql = "select ?oid ?endDate where {?oid <" + pre.getId() + "> <" + idNS + gid + ">" +
 				" . ?oid <" + prNS + "license> ?Lisense . ?Lisense <" + prNS + "licenseNote> '\"embargo\"'" +
-				" . ?Lisense <" + prNS + "rightsAction> ?Restriction . ?Restriction <" + prNS + "endDate> ?endDate}";
+				" . ?Lisense <" + prNS + "restriction> ?Restriction . ?Restriction <" + prNS + "endDate> ?endDate}";
 		BindingIterator embargoeds = null;
 		try
 		{
