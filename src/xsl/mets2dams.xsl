@@ -91,7 +91,19 @@
   <xsl:template match="mods:mods/mods:titleInfo|mods:relatedItem/mods:titleInfo">
     <dams:title>
       <dams:Title>
-        <rdf:value><xsl:value-of select="mods:title"/></rdf:value>
+        <xsl:if test="@type != ''">
+          <dams:type><xsl:value-of select="@type"/></dams:type>
+        </xsl:if>
+        <rdf:value>
+          <xsl:value-of select="mods:nonSort"/>
+          <xsl:value-of select="mods:title"/>
+        </rdf:value>
+        <xsl:for-each select="mods:subTitle">
+           <dams:subtitle><xsl:value-of select="."/></dams:subtitle>
+        </xsl:for-each>
+        <xsl:for-each select="mods:partNumber">
+           <dams:partNumber><xsl:value-of select="."/></dams:partNumber>
+        </xsl:for-each>
       </dams:Title>
     </dams:title>
   </xsl:template>
@@ -116,7 +128,12 @@
   </xsl:template>
   <xsl:template match="mods:mods/mods:typeOfResource">
     <dams:typeOfResource>
-      <xsl:value-of select="."/>
+      <xsl:choose>
+        <xsl:when test="text() != ''">
+          <xsl:value-of select="."/>
+        </xsl:when>
+        <xsl:when test="@collection = 'yes'">collection</xsl:when>
+      </xsl:choose>
     </dams:typeOfResource>
   </xsl:template>
   <xsl:template match="mods:physicalDescription/mods:extent">
@@ -143,20 +160,48 @@
       </dams:Note>
     </dams:note>
   </xsl:template>
+  <xsl:template match="mods:mods/mods:relatedItem">
+    <dams:relatedResource>
+      <dams:RelatedResource>
+        <xsl:if test="mods:titleInfo/mods:title">
+          <dams:description>
+            <xsl:value-of select="mods:titleInfo/mods:title"/>
+            <xsl:if test="mods:name">
+              <xsl:text> by </xsl:text>
+              <xsl:for-each select="mods:name/mods:namePart">
+                <xsl:if test="position() &gt; 1"><xsl:text> </xsl:text></xsl:if>
+                <xsl:value-of select="."/>
+              </xsl:for-each>
+            </xsl:if>
+          </dams:description>
+        </xsl:if>
+        <xsl:if test="mods:location/mods:url">
+          <xsl:if test="mods:location/mods:url/@note">
+            <dams:description>
+              <xsl:value-of select="mods:location/mods:url/@note"/>
+            </dams:description>
+            <dams:uri><xsl:value-of select="mods:location/mods:url"/></dams:uri>
+          </xsl:if>
+        </xsl:if>
+      </dams:RelatedResource>
+    </dams:relatedResource>
+  </xsl:template>
   <xsl:template match="mods:mods/mods:note|mods:mods/mods:physicalDescription/mods:note|mods:relatedItem/mods:note">
-    <dams:note>
-      <dams:Note>
-        <xsl:if test="@displayLabel != ''">
-          <dams:displayLabel>
-            <xsl:value-of select="@displayLabel" disable-output-escaping="yes"/>
-          </dams:displayLabel>
-        </xsl:if>
-        <xsl:if test="@type != ''">
-          <dams:type><xsl:value-of select="@type"/></dams:type>
-        </xsl:if>
-        <rdf:value><xsl:value-of select="."/></rdf:value>
-      </dams:Note>
-    </dams:note>
+    <xsl:if test="text() != ''">
+      <dams:note>
+        <dams:Note>
+          <xsl:if test="@displayLabel != ''">
+            <dams:displayLabel>
+              <xsl:value-of select="@displayLabel" disable-output-escaping="yes"/>
+            </dams:displayLabel>
+          </xsl:if>
+          <xsl:if test="@type != ''">
+            <dams:type><xsl:value-of select="@type"/></dams:type>
+          </xsl:if>
+          <rdf:value><xsl:value-of select="."/></rdf:value>
+        </dams:Note>
+      </dams:note>
+    </xsl:if>
   </xsl:template>
   <xsl:template match="mods:accessCondition">
     <xsl:choose>
@@ -200,40 +245,78 @@
     </dams:note>
   </xsl:template>
   <xsl:template match="mods:originInfo">
-    <dams:date>
-      <dams:Date>
-        <xsl:for-each select="mods:dateCreated">
-          <xsl:choose>
-            <xsl:when test="@point='start'">
-              <dams:beginDate><xsl:value-of select="."/></dams:beginDate>
-            </xsl:when>
-            <xsl:when test="@point='end'">
-              <dams:endDate><xsl:value-of select="."/></dams:endDate>
-            </xsl:when>
-            <xsl:otherwise>
-              <rdf:value><xsl:value-of select="."/></rdf:value>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:for-each>
-      </dams:Date>
-    </dams:date>
+    <xsl:if test="mods:dateCreated|mods:dateIssued|mods:dateOther">
+      <dams:date>
+        <dams:Date>
+          <xsl:for-each select="mods:dateCreated|mods:dateIssued|mods:dateOther">
+            <xsl:if test="@type != ''">
+              <dams:type><xsl:value-of select="@type"/></dams:type>
+            </xsl:if>
+            <xsl:choose>
+              <xsl:when test="@point='start'">
+                <dams:beginDate><xsl:value-of select="."/></dams:beginDate>
+              </xsl:when>
+              <xsl:when test="@point='end'">
+                <dams:endDate><xsl:value-of select="."/></dams:endDate>
+              </xsl:when>
+              <xsl:otherwise>
+                <rdf:value><xsl:value-of select="."/></rdf:value>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:for-each>
+        </dams:Date>
+      </dams:date>
+    </xsl:if>
+    <xsl:if test="mods:publisher|mods:place">
+      <dams:note>
+        <dams:Note>
+          <dams:type>publication</dams:type>
+          <rdf:value>
+            <xsl:if test="mods:place/mods:placeTerm[@type !='code' or not(@type)] != ''">
+              <xsl:value-of select="mods:place/mods:placeTerm[@type!='code' or not(@type)]"/>
+            </xsl:if>
+            <xsl:if test="mods:publisher != '' and mods:place/mods:placeTerm[@type!='code' or not(@type)] != ''">, </xsl:if>
+            <xsl:if test="mods:publisher != ''">
+              <xsl:value-of select="mods:publisher"/>
+            </xsl:if>
+            <xsl:if test="mods:place/mods:placeTerm[@type='code'] != ''">
+              <xsl:text> (</xsl:text>
+              <xsl:value-of select="mods:place/mods:placeTerm[@type='code']"/>
+              <xsl:text>)</xsl:text>
+            </xsl:if>
+          </rdf:value>
+        </dams:Note>
+      </dams:note>
+    </xsl:if>
   </xsl:template>
   <xsl:template match="mods:mods/mods:name">
     <dams:relationship>
       <dams:Relationship>
         <dams:role>
           <dams:Role rdf:about="{generate-id()}">
-            <dams:code>
-              <xsl:value-of select="mods:role/mods:roleTerm[@type='code']"/>
-            </dams:code>
-            <rdf:value>
-              <xsl:value-of select="mods:role/mods:roleTerm[@type='text']"/>
-            </rdf:value>
-            <xsl:if test="mods:role/mods:roleTerm/@authority != ''">
-              <dams:authority>
-                <xsl:value-of select="mods:role/mods:roleTerm/@authority"/>
-              </dams:authority>
-            </xsl:if>
+            <xsl:choose>
+              <xsl:when test="mods:role">
+                <xsl:for-each select="mods:role/mods:roleTerm[@type='code']">
+                  <dams:code>
+                    <xsl:value-of select="."/>
+                  </dams:code>
+                </xsl:for-each>
+                <xsl:for-each select="mods:role/mods:roleTerm[@type='text']">
+                  <rdf:value>
+                    <xsl:value-of select="."/>
+                  </rdf:value>
+                </xsl:for-each>
+                <xsl:if test="mods:role/mods:roleTerm/@authority != ''">
+                  <dams:authority>
+                    <xsl:value-of select="mods:role/mods:roleTerm/@authority"/>
+                  </dams:authority>
+                </xsl:if>
+              </xsl:when>
+              <xsl:otherwise>
+                <dams:code>cre</dams:code>
+                <rdf:value>Creator</rdf:value>
+              </xsl:otherwise>
+            </xsl:choose>
           </dams:Role>
         </dams:role>
         <dams:name>
@@ -268,7 +351,10 @@
             <xsl:value-of select="mods:displayForm"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of select="mods:namePart"/>
+            <xsl:for-each select="mods:namePart">
+              <xsl:if test="position() &gt; 1">, </xsl:if>
+              <xsl:value-of select="."/>
+            </xsl:for-each>
           </xsl:otherwise>
         </xsl:choose>
       </mads:authoritativeLabel>
@@ -323,7 +409,17 @@
             <mads:authoritativeLabel>
               <xsl:for-each select="*">
                 <xsl:if test="position() &gt; 1">--</xsl:if>
-                <xsl:value-of select="."/>
+                <xsl:choose>
+                  <xsl:when test="name() = 'name'">
+                    <xsl:for-each select="mods:namePart">
+                      <xsl:if test="position() &gt; 1">, </xsl:if>
+                      <xsl:value-of select="."/>
+                    </xsl:for-each>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:value-of select="."/>
+                  </xsl:otherwise>
+                </xsl:choose>
               </xsl:for-each>
             </mads:authoritativeLabel>
             <mads:componentList rdf:parseType="Collection">
@@ -344,6 +440,28 @@
       <xsl:when test="mods:topic">
         <dams:topic><xsl:apply-templates/></dams:topic>
       </xsl:when>
+      <xsl:when test="mods:hierarchicalGeographic">
+        <dams:geographic>
+          <mads:Geographic>
+            <xsl:variable name="label">
+              <xsl:for-each select="mods:hierarchicalGeographic/*">
+                <xsl:if test="position() &gt; 1">--</xsl:if>
+                <xsl:value-of select="."/>
+              </xsl:for-each>
+            </xsl:variable>
+            <mads:authoritativeLabel>
+              <xsl:value-of select="$label"/>
+            </mads:authoritativeLabel>
+            <mads:elementList rdf:parseType="Collection">
+              <mads:GeographicElement>
+                <mads:elementValue>
+                  <xsl:value-of select="$label"/>
+                </mads:elementValue>
+              </mads:GeographicElement>
+            </mads:elementList>
+          </mads:Geographic>
+        </dams:geographic>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates/>
       </xsl:otherwise>
@@ -358,6 +476,7 @@
     <xsl:variable name="elemName">
       <xsl:choose>
         <xsl:when test="local-name() = 'topic'">Topic</xsl:when>
+        <xsl:when test="local-name() = 'geographic'">Geographic</xsl:when>
         <xsl:when test="local-name() = 'genre'">GenreForm</xsl:when>
         <xsl:otherwise>ZZZ<xsl:value-of select="name()"/></xsl:otherwise>
       </xsl:choose>
