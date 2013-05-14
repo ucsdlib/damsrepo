@@ -289,21 +289,26 @@ public class TripleStoreUtil
 		// list and delete subjects in the model
 		if ( deleteFirst )
 		{
+			Resource res = null;
 			try
 			{
 				ResIterator subjects = model.listSubjects();
 				while ( subjects.hasNext() )
 				{
-					Resource res = subjects.nextResource();
-					Identifier id = toIdentifier(res);
-					log.info("removing subject: " + id.toString() );
-					ts.removeObject(id);
+					res = subjects.nextResource();
+					if ( !res.isAnon() )
+					{
+						Identifier id = toIdentifier(res);
+						log.info("removing subject: " + id.toString() );
+						ts.removeObject(id);
+					}
 				}
 
 			}
 			catch ( Exception ex )
 			{
-				throw new TripleStoreException("Error reading RDF data", ex);
+				log.warn("error removing id: " + res, ex );
+				//throw new TripleStoreException("Error removing RDF data", ex);
 			}
 		}
 
@@ -469,8 +474,8 @@ public class TripleStoreUtil
 	private static Identifier toIdentifier( Resource res )
 		throws TripleStoreException
 	{
-		String pre = res.getURI();
-		return Identifier.publicURI( pre );
+		String id = res.getURI();
+		return Identifier.publicURI( id );
 	}
 
 	/**
