@@ -2750,23 +2750,17 @@ private static String listToString(String[] arr)
 				if ( mode == null || mode.equals("") || mode.equals("all")
 					|| mode.equals("add") )
 				{
-					if ( !create && mode != null && mode.equals("all") )
-					{
-						// mode=all: delete object and replace
-						try
-						{
-							ts.removeObject(id);
-						}
-						catch ( Exception ex )
-						{
-							return error( "Error deleting existing metadata" );
-						}
+                    boolean deleteFirst = false;
+                    if ( !create && mode != null && mode.equals("all") )
+                    {
+                        // mode=all: delete object and replace
+                        deleteFirst = true;
 					}
 
 					try
 					{
 						// ingest RDF/XML from inputstream
-						TripleStoreUtil.loadRDFXML( in, ts, idNS );
+						TripleStoreUtil.loadRDFXML( in, deleteFirst, ts, idNS );
 
 						// success
 						int status = -1;

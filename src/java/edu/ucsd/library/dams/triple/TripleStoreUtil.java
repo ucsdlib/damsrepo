@@ -29,6 +29,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 //import com.hp.hpl.jena.rdf.model.Statement;// statement ns conflict
 import com.hp.hpl.jena.rdf.model.AnonId;
+import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -256,18 +257,18 @@ public class TripleStoreUtil
 		}
 	}
 
-	public static void loadNTriples( InputStream in, TripleStore ts,
-		String idNS ) throws TripleStoreException
+	public static void loadNTriples( InputStream in, boolean deleteFirst,
+		TripleStore ts, String idNS ) throws TripleStoreException
 	{
-		loadRDF( in, ts, "N-TRIPLE", idNS );
+		loadRDF( in, deleteFirst, ts, "N-TRIPLE", idNS );
 	}
-	public static void loadRDFXML( InputStream in, TripleStore ts, String idNS )
-		throws TripleStoreException
+	public static void loadRDFXML( InputStream in, boolean deleteFirst,
+		TripleStore ts, String idNS ) throws TripleStoreException
 	{
-		loadRDF( in, ts, "RDF/XML", idNS );
+		loadRDF( in, deleteFirst, ts, "RDF/XML", idNS );
 	}
-	private static void loadRDF( InputStream in, TripleStore ts, String format,
-		String idNS ) throws TripleStoreException
+	private static void loadRDF( InputStream in, boolean deleteFirst,
+		TripleStore ts, String format, String idNS ) throws TripleStoreException
 	{
 		// bnode parent tracking
 		Map<String,Identifier> bnodes = new HashMap<String,Identifier>();
@@ -284,6 +285,28 @@ public class TripleStoreUtil
 		{
 			throw new TripleStoreException("Error reading RDF data", ex);
 		}
+
+		// list and delete subjects in the model
+		if ( deleteFirst )
+		{
+			try
+			{
+				ResIterator subjects = model.listSubjects();
+				while ( subjects.hasNext() )
+				{
+					Resource res = subjects.nextResource();
+					Identifier id = toIdentifier(res);
+					log.info("removing subject: " + id.toString() );
+					ts.removeObject(id);
+				}
+
+			}
+			catch ( Exception ex )
+			{
+				throw new TripleStoreException("Error reading RDF data", ex);
+			}
+		}
+
 
 		// iterate over all statements and load into triplestore
 		try

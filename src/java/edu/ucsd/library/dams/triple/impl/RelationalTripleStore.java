@@ -229,7 +229,7 @@ public class RelationalTripleStore implements TripleStore
 		try
 		{
 			FileInputStream in = new FileInputStream(filename);
-			TripleStoreUtil.loadRDFXML( in, this, idNS );
+			TripleStoreUtil.loadRDFXML( in, true, this, idNS );
 		}
 		catch ( TripleStoreException ex )
 		{
@@ -245,7 +245,7 @@ public class RelationalTripleStore implements TripleStore
 		try
 		{
 			FileInputStream in = new FileInputStream(filename);
-			TripleStoreUtil.loadNTriples( in, this, idNS );
+			TripleStoreUtil.loadNTriples( in, true, this, idNS );
 		}
 		catch ( TripleStoreException ex )
 		{
