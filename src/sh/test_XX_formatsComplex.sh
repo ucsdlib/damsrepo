@@ -22,20 +22,20 @@ done
 $BASE/ts-delete.sh bb55555555
 
 # post master files
-$BASE/fs-post-cmp.sh bb55555555 1 1.wav src/sample/files/audio.wav
-$BASE/fs-post-cmp.sh bb55555555 2 1.tar.gz src/sample/files/data.tar.gz
-$BASE/fs-post-cmp.sh bb55555555 3 1.pdf src/sample/files/20775-bb01034796-1-1.pdf
-$BASE/fs-post-cmp.sh bb55555555 4 1.tif src/sample/files/20775-bb01010101-1-1.tif
-$BASE/fs-post-cmp.sh bb55555555 5 1.mov src/sample/files/video.mov
+$BASE/fs-post-cmp.sh bb55555555 1 1.wav $BASE/../sample/files/audio.wav
+$BASE/fs-post-cmp.sh bb55555555 2 1.tar.gz $BASE/../sample/files/data.tar.gz
+$BASE/fs-post-cmp.sh bb55555555 3 1.pdf $BASE/../sample/files/20775-bb01034796-1-1.pdf
+$BASE/fs-post-cmp.sh bb55555555 4 1.tif $BASE/../sample/files/20775-bb01010101-1-1.tif
+$BASE/fs-post-cmp.sh bb55555555 5 1.mov $BASE/../sample/files/video.mov
 
 # generate (or upload) derivatives
-$BASE/fs-post-cmp.sh bb55555555 1 2.mp3 src/sample/files/audio.mp3
+$BASE/fs-post-cmp.sh bb55555555 1 2.mp3 $BASE/../sample/files/audio.mp3
 $BASE/fs-derivatives-cmp.sh bb55555555 3 1.pdf
 $BASE/fs-derivatives-cmp.sh bb55555555 4 1.tif
-$BASE/fs-post-cmp.sh bb55555555 5 2.mp4 src/sample/files/video.mp4
-$BASE/fs-post-cmp.sh bb55555555 5 3.jpg src/sample/files/video-preview.jpg
-$BASE/fs-post-cmp.sh bb55555555 5 4.jpg src/sample/files/video-thumbnail.jpg
-$BASE/fs-post-cmp.sh bb55555555 5 5.jpg src/sample/files/video-icon.jpg
+$BASE/fs-post-cmp.sh bb55555555 5 2.mp4 $BASE/../sample/files/video.mp4
+$BASE/fs-post-cmp.sh bb55555555 5 3.jpg $BASE/../sample/files/video-preview.jpg
+$BASE/fs-post-cmp.sh bb55555555 5 4.jpg $BASE/../sample/files/video-thumbnail.jpg
+$BASE/fs-post-cmp.sh bb55555555 5 5.jpg $BASE/../sample/files/video-icon.jpg
 
 # post object metadata
-$BASE/ts-put.sh bb55555555 src/sample/object/formatSampleComplex.rdf.xml
+$BASE/ts-put.sh bb55555555 $BASE/../sample/object/formatSampleComplex.rdf.xml

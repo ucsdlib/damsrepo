@@ -47,7 +47,7 @@ echo
 
 # augment object metadata (mode=add)
 echo "Augment object metadata (mode=add)"
-cat src/sample/test/object_update_partial.rdf.xml | sed -e"s/__OBJ__/$OBJ/" > tmp/tmp2.rdf.xml
+cat $BASE/../sample/test/object_update_partial.rdf.xml | sed -e"s/__OBJ__/$OBJ/" > tmp/tmp2.rdf.xml
 #XXX: multipart not being triggered...
 curl -u $USER:$PASS -f -X PUT -F mode=add -F file=@tmp/tmp2.rdf.xml http://localhost:8080/dams/api/objects/$OBJ
 if [ $? != 0 ]; then
@@ -57,7 +57,7 @@ echo
 
 # replace a file
 echo "Replace a file"
-FILE_SRC=src/sample/test/test2.jpg
+FILE_SRC=$BASE/../sample/test/test2.jpg
 FILE_ID=2/1.jpg
 curl -u $USER:$PASS -f -X PUT -F file=@$FILE_SRC http://localhost:8080/dams/api/files/$OBJ/$FILE_ID
 if [ $? != 0 ]; then
