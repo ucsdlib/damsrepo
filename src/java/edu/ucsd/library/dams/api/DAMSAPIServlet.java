@@ -278,7 +278,14 @@ public class DAMSAPIServlet extends HttpServlet
 		try
 		{
 			InitialContext ctx = new InitialContext();
-			damsHome = (String)ctx.lookup("java:comp/env/dams/home");
+			try
+			{
+				damsHome = (String)ctx.lookup("java:comp/env/dams/home");
+			}
+			catch ( Exception ex )
+			{
+				damsHome = "dams";
+			}
 			File f = new File( damsHome, "dams.properties" );
 			props = new Properties();
 			props.load( new FileInputStream(f) );
@@ -2970,6 +2977,7 @@ private static String listToString(String[] arr)
 				);
 			}
 			Identifier id = createID( objid, null, null );
+if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			if ( ts.exists(id) )
 			{
 				obj = new DAMSObject( ts, es, objid, nsmap );

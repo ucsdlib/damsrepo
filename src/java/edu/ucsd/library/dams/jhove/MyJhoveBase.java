@@ -64,7 +64,7 @@ public class MyJhoveBase extends JhoveBase {
 		MyJhoveBase jebase = null;
 		if(myJhoves.size() == 0){
 			if(jhoveconf == null || !new File(jhoveconf).exists()){
-				jhoveconf = System.getProperty("catalina.base") + "/webapps/dams/WEB-INF/classes/jhove.conf";
+				jhoveconf = "dams/jhove.conf";
 				if(!new File(jhoveconf).exists())
 					throw new Exception("Configuration file was not found: " + jhoveconf);
 			}

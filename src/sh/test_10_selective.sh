@@ -53,7 +53,7 @@ echo
 # post selective_update_1.rdf.xml
 # => date and original note added
 echo "Augment object metadata (mode=add)"
-cat src/sample/test/selective_update_1.rdf.xml | sed -e"s/__OBJ__/$OBJ/" > tmp/tmp3.rdf.xml
+cat $BASE/../sample/test/selective_update_1.rdf.xml | sed -e"s/__OBJ__/$OBJ/" > tmp/tmp3.rdf.xml
 curl -u $USER:$PASS -f -X PUT -F mode=add -F file=@tmp/tmp3.rdf.xml http://localhost:8080/dams/api/objects/$OBJ
 if [ $? != 0 ]; then
     ERRORS=$(( $ERRORS + 1 ))
@@ -72,7 +72,7 @@ echo
 # post selective_update_2.rdf.xml
 # => date remains, new note added
 echo "Augment object metadata (mode=add)"
-cat src/sample/test/selective_update_2.rdf.xml | sed -e"s/__OBJ__/$OBJ/" > tmp/tmp4.rdf.xml
+cat $BASE/../sample/test/selective_update_2.rdf.xml | sed -e"s/__OBJ__/$OBJ/" > tmp/tmp4.rdf.xml
 curl -u $USER:$PASS -f -X PUT -F mode=add -F file=@tmp/tmp4.rdf.xml http://localhost:8080/dams/api/objects/$OBJ
 if [ $? != 0 ]; then
     ERRORS=$(( $ERRORS + 1 ))

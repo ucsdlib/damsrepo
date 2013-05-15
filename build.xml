@@ -105,6 +105,23 @@
       <fileset dir="${sh}"/>
     </copy>
     <chmod dir="${tmp}/commands" perm="ugo+rx" includes="**/*.sh"/>
+
+    <!-- jars -->
+    <copy todir="${tmp}/lib">
+      <fileset dir="${lib}"/>
+      <fileset dir="${lib2}"/>
+    </copy>
+
+    <!-- compiled classes -->
+    <copy todir="${tmp}/classes">
+      <fileset dir="${webapp}/WEB-INF/classes"/>
+    </copy>
+
+    <!-- sample files -->
+    <copy todir="${tmp}/sample">
+      <fileset dir="${src}/sample"/>
+    </copy>
+
   </target>
 
   <!-- build webapp -->
@@ -178,5 +195,39 @@
   <target name="remote-undeploy" description="Remove webapp from remote tomcat">
     <undeploy url="http://${manager.host}:8080/manager/text" path="/${appName}"
           username="${manager.user}" password="${manager.pass}" failonerror="false"/>
+  </target>
+
+  <!-- jetty -->
+  <target name="jetty" description="Update scripts and files in jetty"
+      depends="webapp">
+    <!-- command-line scripts -->
+    <copy todir="${jetty.home}/dams/bin">
+      <fileset dir="${sh}"/>
+    </copy>
+    <chmod dir="${jetty.home}/dams/bin" perm="ugo+rx" includes="**/*.sh"/>
+
+    <!-- jars -->
+    <copy todir="${jetty.home}/dams/lib">
+      <fileset dir="${lib}"/>
+      <fileset dir="${lib2}"/>
+    </copy>
+
+    <!-- xsl stylesheets -->
+    <copy todir="${jetty.home}/dams/xsl">
+      <fileset dir="${xsl}"/>
+    </copy>
+
+    <!-- compiled classes -->
+    <copy todir="${jetty.home}/dams/classes">
+      <fileset dir="${webapp}/WEB-INF/classes"/>
+    </copy>
+
+    <!-- sample files -->
+    <copy todir="${jetty.home}/dams/sample">
+      <fileset dir="${src}/sample"/>
+    </copy>
+
+    <!-- webapp -->
+    <copy file="${dist}/${appName}.war" todir="${jetty.home}/webapps"/>
   </target>
 </project>
