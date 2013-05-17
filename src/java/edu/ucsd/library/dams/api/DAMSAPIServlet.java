@@ -397,7 +397,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// Jhove configuration
 			String jhoveConf = props.getProperty("jhove.conf");
 			if ( jhoveConf != null )
-				MyJhoveBase.setJhoveConfig("jhove.conf");
+				MyJhoveBase.setJhoveConfig(jhoveConf);
 			jhoveMaxSize = getPropLong( props, "jhove.maxSize", -1L );
 
 			// ldap for group lookup
