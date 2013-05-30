@@ -5,6 +5,12 @@
     xmlns:mads="http://www.loc.gov/mads/rdf/v1#"
     xmlns:damsid="http://library.ucsd.edu/ark:/20775/">
   <dams:ProvenanceCollection rdf:about="http://library.ucsd.edu/ark:/20775/bd5905304g">
+    <dams:otherResource>
+      <dams:RelatedResource>
+        <dams:type>preview</dams:type>
+        <dams:uri rdf:resource="http://pontos.ucsd.edu/images/santafe.jpg"/>
+      </dams:RelatedResource>
+    </dams:otherResource>
     <dams:corporateName rdf:resource="http://library.ucsd.edu/ark:/20775/bd69633288"/>
     <dams:relationship>
       <dams:Relationship>

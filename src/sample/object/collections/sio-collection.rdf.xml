@@ -5,6 +5,12 @@
     xmlns:mads="http://www.loc.gov/mads/rdf/v1#"
     xmlns:damsid="http://library.ucsd.edu/ark:/20775/">
   <dams:ProvenanceCollection rdf:about="http://library.ucsd.edu/ark:/20775/bd24241158">
+    <dams:otherResource>
+      <dams:RelatedResource>
+        <dams:type>preview</dams:type>
+        <dams:uri rdf:resource="http://pontos.ucsd.edu/images/siogeo.jpg"/>
+      </dams:RelatedResource>
+    </dams:otherResource>
     <dams:title>
       <dams:Title>
         <rdf:value>Scripps Institution of Oceanography, Geological Collections</rdf:value>
