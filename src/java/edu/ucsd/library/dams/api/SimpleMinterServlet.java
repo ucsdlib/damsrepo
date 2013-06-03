@@ -111,7 +111,7 @@ public class SimpleMinterServlet extends HttpServlet
 		}
 
 		// set initial state
-		String prefix = getString( props, "prefix", "xx" );
+		String prefix = getString( props, "prefix", "id: 20775/xx" );
 		int lastID = getInt( props, "lastid", 0 );
 		int digits = getInt( props, "digits", 8 );
 		
@@ -127,7 +127,7 @@ public class SimpleMinterServlet extends HttpServlet
 		for ( int i = 0; i < count; i++ )
 		{
 			lastID++;
-			out.println( "id: " + prefix + fmt.format(lastID) );
+			out.println( prefix + fmt.format(lastID) );
 		}
 		out.flush();
 

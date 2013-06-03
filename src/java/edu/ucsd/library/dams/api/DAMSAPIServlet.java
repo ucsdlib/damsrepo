@@ -2677,12 +2677,13 @@ private static String listToString(String[] arr)
 			return error("Unknown id minter: " + name);
 		}
 		minterURL += count;
+		log.info("minterURL: " + minterURL);
 
 		try
 		{
 			// generate id and check output
 			String result = HttpUtil.get(minterURL);
-			if ( result == null || result.trim().equals("") )
+			if ( result == null || !result.startsWith("id: ") )
 			{
 				return error("Failed to generate id");
 			}
