@@ -33,6 +33,10 @@
     <servlet-name>FileStoreServlet</servlet-name>
     <servlet-class>edu.ucsd.library.dams.api.FileStoreServlet</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>SimpleMinterServlet</servlet-name>
+    <servlet-class>edu.ucsd.library.dams.api.SimpleMinterServlet</servlet-class>
+  </servlet>
   <servlet-mapping>
     <servlet-name>DAMSAPIServlet</servlet-name>
     <url-pattern>/api/*</url-pattern>
@@ -45,6 +49,10 @@
     <servlet-name>FileStoreServlet</servlet-name>
     <url-pattern>/file/*</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>SimpleMinterServlet</servlet-name>
+    <url-pattern>/minter</url-pattern>
+  </servlet-mapping>
 
   <!-- relational database connection pools for triplestores -->
   <resource-ref>
@@ -52,13 +60,6 @@
     <res-type>javax.sql.DataSource</res-type>
     <res-auth>Container</res-auth>
   </resource-ref>
-<!--
-  <resource-ref>
-    <res-ref-name>jdbc/postgres</res-ref-name>
-    <res-type>javax.sql.DataSource</res-type>
-    <res-auth>Container</res-auth>
-  </resource-ref>
--->
 
   <!-- dams config and resource directory -->
   <resource-ref>
@@ -68,7 +69,6 @@
   </resource-ref>
 
   <!-- access control -->
-<!--XXX
   <security-constraint>
     <web-resource-collection>
       <web-resource-name>DAMS Repository</web-resource-name>
@@ -79,18 +79,14 @@
       <http-method>PUT</http-method>
     </web-resource-collection>
     <auth-constraint>
-XXX-->
       <!-- <role-name>dams-repository</role-name> -->
-<!--XXX
       <role-name>*</role-name>
     </auth-constraint>
-XXX-->
 <!--
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>
     </user-data-constraint>
 -->
-<!--XXX
   </security-constraint>
   <login-config>
     <auth-method>BASIC</auth-method>
@@ -102,5 +98,4 @@ XXX-->
   <security-role>
     <role-name>*</role-name>
   </security-role>
-XXX-->
 </web-app>
