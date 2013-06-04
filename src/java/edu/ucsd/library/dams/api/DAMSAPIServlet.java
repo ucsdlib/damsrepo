@@ -948,7 +948,7 @@ public class DAMSAPIServlet extends HttpServlet
 					}
 					else
 					{
-						InputBundle bundle = input( req );
+						InputBundle bundle = input(req,path[2],null,path[3]);
 						InputStream in = bundle.getInputStream();
 						params = bundle.getParams();
 						fs = filestore(params);
@@ -987,7 +987,7 @@ public class DAMSAPIServlet extends HttpServlet
 					}
 					else
 					{
-						InputBundle bundle = input( req );
+						InputBundle bundle = input(req,path[2],path[3],path[4]);
 						InputStream in = bundle.getInputStream();
 						params = bundle.getParams();
 						fs = filestore(params);
@@ -1172,8 +1172,7 @@ public class DAMSAPIServlet extends HttpServlet
 					es = events(params);
 					cacheRemove(path[2]);
 					info = fileUpload(
-						path[2], path[3], path[4], true, in, fs, ts, es,
-						params
+						path[2], path[3], path[4], true, in, fs, ts, es, params
 					);
 				}
 				catch ( Exception ex )
@@ -4289,12 +4288,18 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 	protected InputBundle input( HttpServletRequest req )
 		throws IOException, FileUploadException
 	{
+		return input( req, null, null, null );
+	}
+	protected InputBundle input( HttpServletRequest req, String objid,
+		String cmpid, String fileid )
+		throws IOException, FileUploadException
+	{
 		log.info( req.getMethod() + " " + req.getRequestURL() );
 		InputBundle input = null;
 		if ( ServletFileUpload.isMultipartContent(req) || (req.getContentType() != null && req.getContentType().startsWith("multipart/form-data")) )
 		{
 			// process multipart uploads
-			input = multipartInput(req);
+			input = multipartInput(req, objid, cmpid, fileid);
 		}
 		else if ( req.getContentLength() > 0 )
 		{
@@ -4304,14 +4309,20 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		}
 		else
 		{
-			// check for locally-staged file
+			// check for locally-staged file or source filestore reference
 			Map<String,String[]> params = req.getParameterMap();
-			input = new InputBundle( params, localFile(params) );
+			InputStream in = alternateStream( params, objid, cmpid, fileid );
+			input = new InputBundle( params, in );
 		}
 		return input;
 	}
-	private InputStream localFile( Map<String,String[]> params )
-		throws IOException
+
+	/**
+	 * Look for file sources other than HttpRequest, such as locally-staged
+	 * files and FileStore source references.
+	**/
+	private InputStream alternateStream( Map<String,String[]> params,
+		String objid, String cmpid, String fileid ) throws IOException
 	{
 		File f = getParamFile(params,"local",null);
 		InputStream in = null;
@@ -4319,9 +4330,31 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		{
 			in = new FileInputStream(f);
 		}
+		else
+		{
+			String srcName = getParamString(params,"srcfs",null);
+			if ( srcName != null )
+			{
+				try
+				{
+					FileStore srcfs = FileStoreUtil.getFileStore(props,srcName);
+					if ( srcfs != null && srcfs.exists(objid, cmpid, fileid) )
+					{
+						in = srcfs.getInputStream( objid, cmpid, fileid );
+					}
+				}
+				catch ( Exception ex )
+				{
+					throw new IOException(
+						"Error trying to load file from alternate FileStore", ex
+					);
+				}
+			}
+		}
 		return in;
 	}
-	private InputBundle multipartInput( HttpServletRequest req )
+	private InputBundle multipartInput( HttpServletRequest req, String objid,
+		String cmpid, String fileid )
 		throws IOException, SizeLimitExceededException
 	{
 		// process parts
@@ -4374,7 +4407,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		// if no file upload found, check for locally-staged file
 		if ( in == null )
 		{
-			in = localFile( params );
+			in = alternateStream( params, objid, cmpid, fileid );
 		}
 		return new InputBundle( params, in );
 	}
