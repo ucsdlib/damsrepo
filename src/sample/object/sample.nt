@@ -254,24 +254,6 @@ _:bn25n02 <http://library.ucsd.edu/ontology/dams#endDate> "2009-05-31" .
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#provenanceCollection> <http://library.ucsd.edu/ark:/20775/bb24242424> .
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#event> <http://library.ucsd.edu/ark:/20775/bb30303030> .
 
-<http://library.ucsd.edu/ark:/20775/bb03030303> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#AssembledCollection> .
-<http://library.ucsd.edu/ark:/20775/bb03030303> <http://library.ucsd.edu/ontology/dams#title> _:bn03n01 .
-_:bn03n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Title> .
-_:bn03n01 <http://library.ucsd.edu/ontology/dams#type> "main" .
-_:bn03n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "UCSD Electronic Theses and Dissertations" .
-<http://library.ucsd.edu/ark:/20775/bb03030303> <http://library.ucsd.edu/ontology/dams#date> _:bn03n02 .
-_:bn03n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Date> .
-_:bn03n02 <http://library.ucsd.edu/ontology/dams#beginDate> "2009-05-03" .
-<http://library.ucsd.edu/ark:/20775/bb03030303> <http://library.ucsd.edu/ontology/dams#language> <http://library.ucsd.edu/ark:/20775/bd0410344f> .
-<http://library.ucsd.edu/ark:/20775/bb03030303> <http://library.ucsd.edu/ontology/dams#note> _:bn03n03 .
-_:bn03n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#ScopeContentNote> .
-_:bn03n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Electronic theses and dissertations submitted by UC San Diego students as part of their degree requirements and representing all UC San Diego academic programs." .
-_:bn03n03 <http://library.ucsd.edu/ontology/dams#displayLabel> "Scope and contents" .
-_:bn03n03 <http://library.ucsd.edu/ontology/dams#type> "scope_and_content" .
-<http://library.ucsd.edu/ark:/20775/bb03030303> <http://library.ucsd.edu/ontology/dams#relatedCollection> <http://library.ucsd.edu/ark:/20775/bb03030303> .
-<http://library.ucsd.edu/ark:/20775/bb03030303> <http://library.ucsd.edu/ontology/dams#hasProvenanceCollection> <http://library.ucsd.edu/ark:/20775/bb24242424> .
-<http://library.ucsd.edu/ark:/20775/bb03030303> <http://library.ucsd.edu/ontology/dams#event> <http://library.ucsd.edu/ark:/20775/bb28282828> .
-
 <http://library.ucsd.edu/ark:/20775/bb31313131> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Vocabulary> .
 <http://library.ucsd.edu/ark:/20775/bb31313131> <http://library.ucsd.edu/ontology/dams#description> "mods:typeOfResource Value List" .
 
