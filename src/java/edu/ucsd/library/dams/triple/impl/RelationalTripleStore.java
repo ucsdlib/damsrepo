@@ -104,6 +104,7 @@ public class RelationalTripleStore implements TripleStore
 		String dsURL  = props.getProperty("dataSourceURL"); // direct
 		String dsUser = props.getProperty("dataSourceUser");
 		String dsPass = props.getProperty("dataSourcePass");
+		Exception dsex = null;
 		if ( dsName != null )
 		{
 			try
@@ -119,16 +120,7 @@ public class RelationalTripleStore implements TripleStore
 			}
 			catch ( Exception ex )
 			{
-				if ( dsURL == null || dsUser == null || dsPass == null )
-				{
-					// log exception if not enough info for direct connection
-					log.error("Unable to get direct connection", ex);
-				}
-				else
-				{
-					// just log status if we can make direct connection
-					log.info("Unable to get datasource connection: " + dsName);
-				}
+				dsex = ex;
 				con = null;
 			}
 		}
@@ -143,8 +135,16 @@ public class RelationalTripleStore implements TripleStore
 			}
 			catch ( Exception ex )
 			{
+				if ( dsex != null )
+				{
+					log.error( "Unable to get datasource connection", dsex );
+				}
 				log.error( "Unable to get direct connection", ex );
 			}
+		}
+		else if ( con == null && dsex != null )
+		{
+			log.error( "Unable to get datasource connection, direct connection parameters not found", dsex );
 		}
 
 		// setup ark/uri translation
