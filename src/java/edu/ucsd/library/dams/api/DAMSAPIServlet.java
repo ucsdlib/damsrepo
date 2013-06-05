@@ -197,7 +197,7 @@ public class DAMSAPIServlet extends HttpServlet
 	// number detection
 	private static Pattern numberPattern = null;
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat(
-		"yyyy-MM-dd'T'hh:mm:ssX"
+		"yyyy-MM-dd'T'hh:mm:ssZ"
 	);
 
 	// ldap for group lookup
