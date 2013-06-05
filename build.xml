@@ -159,39 +159,6 @@
     </war>
   </target>
 
-  <!-- build webapp for jetty -->
-  <target name="webapp-jetty" description="Build WAR file for jetty"
-      depends="compile">
-    <!-- move old war file out of the way -->
-    <move file="${dist}/${appName}.war" tofile="${dist}/${appName}.bak"
-      failonerror="false"/>
-
-    <!-- copy files -->
-    <copy todir="${webapp}">
-      <fileset dir="${root}" includes="**/*"/>
-    </copy>
-    <copy todir="${webapp}/WEB-INF/lib">
-      <fileset refid="lib"/>
-    </copy>
-    <copy todir="${webapp}/WEB-INF/classes">
-      <fileset dir="${props}" includes="**/*.properties, jhove.conf"/>
-    </copy>
-    <copy file="${webinf}/web-jetty.xml" tofile="${webapp}/WEB-INF/web.xml">
-      <filterset refid="version-filters"/>
-    </copy>
-
-    <!-- generate new war file -->
-    <war destfile="${dist}/${appName}.war"
-        webxml="${webapp}/WEB-INF/web.xml">
-      <fileset dir="${webapp}">
-        <exclude name="WEB-INF/**"/>
-        <exclude name="META-INF/**"/>
-      </fileset>
-      <webinf dir="${webapp}/WEB-INF" excludes="web.xml"/>
-      <metainf dir="${webapp}/META-INF"/>
-    </war>
-  </target>
-
   <!-- deploy stylesheets -->
   <target name="xsl" description="Copy xsl stylesheets to deploy directory">
     <copy todir="${xsl.home}">
@@ -232,7 +199,40 @@
 
   <!-- jetty -->
   <target name="jetty" description="Update scripts and files in jetty"
-      depends="webapp">
+      depends="compile">
+
+    <!-- move old war file out of the way -->
+    <move file="${dist}/${appName}.war" tofile="${dist}/${appName}.bak"
+      failonerror="false"/>
+
+    <!-- copy files -->
+    <copy todir="${webapp}">
+      <fileset dir="${root}" includes="**/*"/>
+    </copy>
+    <copy todir="${webapp}/WEB-INF/lib">
+      <fileset refid="lib"/>
+    </copy>
+    <copy todir="${webapp}/WEB-INF/classes">
+      <fileset dir="${props}" includes="**/*.properties, jhove.conf"/>
+    </copy>
+    <copy file="${webinf}/web-jetty.xml" tofile="${webapp}/WEB-INF/web.xml">
+      <filterset refid="version-filters"/>
+    </copy>
+
+    <!-- generate new war file -->
+    <war destfile="${dist}/${appName}.war"
+        webxml="${webapp}/WEB-INF/web.xml">
+      <fileset dir="${webapp}">
+        <exclude name="WEB-INF/**"/>
+        <exclude name="META-INF/**"/>
+      </fileset>
+      <webinf dir="${webapp}/WEB-INF" excludes="web.xml"/>
+      <metainf dir="${webapp}/META-INF"/>
+    </war>
+
+    <!-- copy webapp -->
+    <copy file="${dist}/${appName}.war" todir="${jetty.home}/webapps"/>
+
     <!-- command-line scripts -->
     <copy todir="${jetty.home}/dams/bin">
       <fileset dir="${sh}"/>
@@ -259,8 +259,5 @@
     <copy todir="${jetty.home}/dams/sample">
       <fileset dir="${src}/sample"/>
     </copy>
-
-    <!-- webapp -->
-    <copy file="${dist}/${appName}.war" todir="${jetty.home}/webapps"/>
   </target>
 </project>
