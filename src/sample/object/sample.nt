@@ -25,13 +25,24 @@ _:bn01n07 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd
 _:bn01n07 <http://library.ucsd.edu/ontology/dams#beginDate> "2012-09-01" .
 _:bn01n07 <http://library.ucsd.edu/ontology/dams#endDate> "2012-09-30" .
 _:bn01n07 <http://library.ucsd.edu/ontology/dams#type> "recreated" .
+
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#title> _:bn01n03 .
-_:bn01n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Title> .
-_:bn01n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "The real thing" .
-_:bn01n03 <http://library.ucsd.edu/ontology/dams#relatedTitle> _:bn01n04 .
-_:bn01n04 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Title> .
-_:bn01n04 <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Le chose vrai"@fr .
-_:bn01n04 <http://library.ucsd.edu/ontology/dams#type> "translated" .
+_:bn01n03 <rdf:type> <mads:Title> .
+_:bn01n03 <mads:authoritativeLabel> "The real thing" .
+_:bn01n03 <mads:elementList> _:bn01n04 .
+_:bn01n04 <rdf:first> _:bn01n09 .
+_:bn01n04 <rdf:rest> <rdf:nil> .
+_:bn01n09 <rdf:type> <mads:MainTitleElement> .
+_:bn01n09 <mads:elementValue> "The real thing" .
+<http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#title> _:bn01n06 .
+_:bn01n06 <rdf:type> <mads:Title> .
+_:bn01n06 <mads:authoritativeLabel> "Le chose vrai"@fr .
+_:bn01n06 <mads:elementList> _:bn01n07 .
+_:bn01n07 <rdf:first> _:bn01n08 .
+_:bn01n07 <rdf:rest> <rdf:nil> .
+_:bn01n08 <rdf:type> <mads:MainTitleElement> .
+_:bn01n08 <mads:elementValue> "Le chose vrai"@fr .
+
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#language> <http://library.ucsd.edu/ark:/20775/bd0410344f> .
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#otherResource> _:bn01n05 .
 _:bn01n05 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#RelatedResource> .
@@ -92,8 +103,20 @@ _:bn01n05 <http://library.ucsd.edu/ontology/dams#uri> "http://library.ucsd.edu/t
 <http://library.ucsd.edu/ark:/20775/bb48484848> <http://library.ucsd.edu/ontology/dams#unitURI> "http://rci.ucsd.edu/" .
 <http://library.ucsd.edu/ark:/20775/bb48484848> <http://library.ucsd.edu/ontology/dams#unitGroup> "dams-rci" .
 
+<http://library.ucsd.edu/ark:/20775/bb04040404> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#ComplexSubject> .
+<http://library.ucsd.edu/ark:/20775/bb04040404> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Jefferson, Thomas, 1743-1826--Relics--1826"@en .
+<http://library.ucsd.edu/ark:/20775/bb04040404> <http://www.loc.gov/mads/rdf/v1#componentList> _:bn04n01 .
+_:bn04n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://library.ucsd.edu/ark:/20775/bb10101010> .
+_:bn04n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:bn04n03 .
+_:bn04n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://library.ucsd.edu/ark:/20775/bb11111111> .
+_:bn04n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:bn04n05 .
+_:bn04n05 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:bn04n06 .
+_:bn04n05 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+_:bn04n06 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Temporal> .
+_:bn04n06 <http://www.loc.gov/mads/rdf/v1#elementValue> "1826" .
+
 <http://library.ucsd.edu/ark:/20775/bb05050505> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Copyright> .
-<http://library.ucsd.edu/ark:/20775/bb05050505> <http://library.ucsd.edu/ontology/dams#copyrightStatus> "Under copyright -- 3rd Party" .
+<http://library.ucsd.edu/ark:/20775/bb05050505> <http://library.ucsd.edu/ontology/dams#copyrightStatus> "Under copyright" .
 <http://library.ucsd.edu/ark:/20775/bb05050505> <http://library.ucsd.edu/ontology/dams#copyrightJurisdiction> "us" .
 <http://library.ucsd.edu/ark:/20775/bb05050505> <http://library.ucsd.edu/ontology/dams#copyrightPurposeNote> "This work is available from the UC San Diego Libraries. This digital copy of the work is intended to support research, teaching, and private study." .
 <http://library.ucsd.edu/ark:/20775/bb05050505> <http://library.ucsd.edu/ontology/dams#copyrightNote> "This work is protected by the U.S. Copyright Law (Title 17, U.S.C.).  Use of this work beyond that allowed by \"fair use\" requires written permission of the copyright holder(s). Responsibility for obtaining permissions and any use and distribution of this work rests exclusively with the user and not the UC San Diego Libraries." .
@@ -104,26 +127,26 @@ _:bn05n01 <http://library.ucsd.edu/ontology/dams#beginDate> "1993-12-31" .
 <http://library.ucsd.edu/ark:/20775/bb06060606> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#OtherRights> .
 <http://library.ucsd.edu/ark:/20775/bb06060606> <http://library.ucsd.edu/ontology/dams#otherRightsBasis> "fair use" .
 <http://library.ucsd.edu/ark:/20775/bb06060606> <http://library.ucsd.edu/ontology/dams#otherRightsURI> <http://library.ucsd.edu/lisn/policy/2010-12-31-a.pdf> .
-<http://library.ucsd.edu/ark:/20775/bb06060606> <http://library.ucsd.edu/ontology/dams#relationship> _:bn08n01 .
-_:bn08n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Relationship> .
-_:bn08n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ark:/20775/bd3004227d> .
-_:bn08n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/ark:/20775/bb09090909> .
-<http://library.ucsd.edu/ark:/20775/bb06060606> <http://library.ucsd.edu/ontology/dams#permission> _:bn08n02 .
-_:bn08n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Permission> .
-_:bn08n02 <http://library.ucsd.edu/ontology/dams#type> "display" .
-_:bn08n02 <http://library.ucsd.edu/ontology/dams#beginDate> "2011-09-24" .
+<http://library.ucsd.edu/ark:/20775/bb06060606> <http://library.ucsd.edu/ontology/dams#relationship> _:bn06n01 .
+_:bn06n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Relationship> .
+_:bn06n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ark:/20775/bd3004227d> .
+_:bn06n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/ark:/20775/bb09090909> .
+<http://library.ucsd.edu/ark:/20775/bb06060606> <http://library.ucsd.edu/ontology/dams#permission> _:bn06n02 .
+_:bn06n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Permission> .
+_:bn06n02 <http://library.ucsd.edu/ontology/dams#type> "display" .
+_:bn06n02 <http://library.ucsd.edu/ontology/dams#beginDate> "2011-09-24" .
 
 <http://library.ucsd.edu/ark:/20775/bb08080808> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#PersonalName> .
 <http://library.ucsd.edu/ark:/20775/bb08080808> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Artist, Alice, 1966-"@en .
-<http://library.ucsd.edu/ark:/20775/bb08080808> <http://www.loc.gov/mads/rdf/v1#elementList> _:bn10n01 .
-_:bn10n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:bn10n02 .
-_:bn10n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:bn10n03 .
-_:bn10n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#FullNameElement> .
-_:bn10n02 <http://www.loc.gov/mads/rdf/v1#elementValue> "Artist, Alice," .
-_:bn10n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:bn10n04 .
-_:bn10n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
-_:bn10n04 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#DateNameElement> .
-_:bn10n04 <http://www.loc.gov/mads/rdf/v1#elementValue> "1966-"@en .
+<http://library.ucsd.edu/ark:/20775/bb08080808> <http://www.loc.gov/mads/rdf/v1#elementList> _:bn08n01 .
+_:bn08n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:bn08n02 .
+_:bn08n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:bn08n03 .
+_:bn08n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#FullNameElement> .
+_:bn08n02 <http://www.loc.gov/mads/rdf/v1#elementValue> "Artist, Alice," .
+_:bn08n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:bn08n04 .
+_:bn08n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+_:bn08n04 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#DateNameElement> .
+_:bn08n04 <http://www.loc.gov/mads/rdf/v1#elementValue> "1966-"@en .
 
 <http://library.ucsd.edu/ark:/20775/bb09090909> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#PersonalName> .
 <http://library.ucsd.edu/ark:/20775/bb09090909> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Administrator, Bob, 1977-"@en .
@@ -136,18 +159,6 @@ _:bn09n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:bn09n04 .
 _:bn09n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
 _:bn09n04 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#DateNameElement> .
 _:bn09n04 <http://www.loc.gov/mads/rdf/v1#elementValue> "1977-"@en .
-
-<http://library.ucsd.edu/ark:/20775/bb04040404> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#ComplexSubject> .
-<http://library.ucsd.edu/ark:/20775/bb04040404> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Jefferson, Thomas, 1743-1826--Relics--1826"@en .
-<http://library.ucsd.edu/ark:/20775/bb04040404> <http://www.loc.gov/mads/rdf/v1#componentList> _:bn04n01 .
-_:bn04n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://library.ucsd.edu/ark:/20775/bb10101010> .
-_:bn04n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:bn04n03 .
-_:bn04n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://library.ucsd.edu/ark:/20775/bb11111111> .
-_:bn04n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:bn04n05 .
-_:bn04n05 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:bn04n06 .
-_:bn04n05 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
-_:bn04n06 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Temporal> .
-_:bn04n06 <http://www.loc.gov/mads/rdf/v1#elementValue> "1826" .
 
 <http://library.ucsd.edu/ark:/20775/bb10101010> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#PersonalName> .
 <http://library.ucsd.edu/ark:/20775/bb10101010> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Jefferson, Thomas, 1743-1826-"@en .
@@ -168,39 +179,38 @@ _:bn11n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1
 _:bn11n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#TopicElement> .
 _:bn11n02 <http://www.loc.gov/mads/rdf/v1#elementValue> "Relics"@en .
 
-<http://library.ucsd.edu/ark:/20775/bb14141414> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Vocabulary> .
-<http://library.ucsd.edu/ark:/20775/bb14141414> <http://library.ucsd.edu/ontology/dams#description> "Role" .
+<http://library.ucsd.edu/ark:/20775/bd55639754> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bd55639754> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/relators> .
+<http://library.ucsd.edu/ark:/20775/bd55639754> <http://www.loc.gov/mads/rdf/v1#hasExactExternalAuthority> <http://id.loc.gov/vocabulary/relators/cre> .
+<http://library.ucsd.edu/ark:/20775/bd55639754> <http://www.loc.gov/mads/rdf/v1#code> "cre" .
+<http://library.ucsd.edu/ark:/20775/bd55639754> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Creator" .
 
-<http://library.ucsd.edu/ark:/20775/bb15151515> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Vocabulary> .
-<http://library.ucsd.edu/ark:/20775/bb15151515> <http://library.ucsd.edu/ontology/dams#description> "Language" .
+<http://library.ucsd.edu/ark:/20775/bd4301164f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> . 
+<http://library.ucsd.edu/ark:/20775/bd4301164f> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/relators> .
+<http://library.ucsd.edu/ark:/20775/bd4301164f> <http://www.loc.gov/mads/rdf/v1#hasExactExternalAuthority> <http://id.loc.gov/vocabulary/relators/aut> .
+<http://library.ucsd.edu/ark:/20775/bd4301164f> <http://www.loc.gov/mads/rdf/v1#code> "aut" .
+<http://library.ucsd.edu/ark:/20775/bd4301164f> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Author" .
 
-<http://library.ucsd.edu/ark:/20775/bd55639754> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Role> .
-<http://library.ucsd.edu/ark:/20775/bd55639754> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb14141414> .
-<http://library.ucsd.edu/ark:/20775/bd55639754> <http://library.ucsd.edu/ontology/dams#code> "cre" .
-<http://library.ucsd.edu/ark:/20775/bd55639754> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Creator" .
-<http://library.ucsd.edu/ark:/20775/bd55639754> <http://library.ucsd.edu/ontology/dams#valueURI> <http://id.loc.gov/vocabulary/relators/cre> .
+<http://library.ucsd.edu/ark:/20775/bd3004227d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bd3004227d> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/relators> .
+<http://library.ucsd.edu/ark:/20775/bd3004227d> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Decision Maker" .
 
-<http://library.ucsd.edu/ark:/20775/bd4301164f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Role> .
-<http://library.ucsd.edu/ark:/20775/bd4301164f> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb14141414> .
-<http://library.ucsd.edu/ark:/20775/bd4301164f> <http://library.ucsd.edu/ontology/dams#code> "aut" .
-<http://library.ucsd.edu/ark:/20775/bd4301164f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Author" .
-<http://library.ucsd.edu/ark:/20775/bd4301164f> <http://library.ucsd.edu/ontology/dams#valueURI> <http://id.loc.gov/vocabulary/relators/aut> .
+<http://library.ucsd.edu/ark:/20775/bd0410344f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Language> .
+<http://library.ucsd.edu/ark:/20775/bd0410344f> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/languages> .
+<http://library.ucsd.edu/ark:/20775/bd0410344f> <http://www.loc.gov/mads/rdf/v1#hasExactExternalAuthority> <http://id.loc.gov/vocabulary/languages/en> .
+<http://library.ucsd.edu/ark:/20775/bd0410344f> <http://www.loc.gov/mads/rdf/v1#code> "en" . 
+<http://library.ucsd.edu/ark:/20775/bd0410344f> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "English" .
+<http://library.ucsd.edu/ark:/20775/bd0410344f> <http://www.loc.gov/mads/rdf/v1#elementList> _:bnXXn01 .
+_:bnXXn01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+_:bnXXn01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:bnXXn02 .
+_:bnXXn02 <http://www.loc.gov/mads/rdf/v1#elementValue> "English" .
+_:bnXXn02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#LanguageElement> .
 
-<http://library.ucsd.edu/ark:/20775/bd3004227d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Role> .
-<http://library.ucsd.edu/ark:/20775/bd3004227d> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb14141414> .
-<http://library.ucsd.edu/ark:/20775/bd3004227d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Decision Maker" .
-
-<http://library.ucsd.edu/ark:/20775/bd0410344f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Language> .
-<http://library.ucsd.edu/ark:/20775/bd0410344f> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb15151515> .
-<http://library.ucsd.edu/ark:/20775/bd0410344f> <http://library.ucsd.edu/ontology/dams#code> "en" .
-<http://library.ucsd.edu/ark:/20775/bd0410344f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "English" .
-<http://library.ucsd.edu/ark:/20775/bd0410344f> <http://library.ucsd.edu/ontology/dams#valueURI> <http://id.loc.gov/vocabulary/iso639-1/en> .
-
-<http://library.ucsd.edu/ark:/20775/bd91134949> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Language> .
-<http://library.ucsd.edu/ark:/20775/bd91134949> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb15151515> .
-<http://library.ucsd.edu/ark:/20775/bd91134949> <http://library.ucsd.edu/ontology/dams#code> "fr" .
-<http://library.ucsd.edu/ark:/20775/bd91134949> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "French" .
-<http://library.ucsd.edu/ark:/20775/bd91134949> <http://library.ucsd.edu/ontology/dams#valueURI> <http://id.loc.gov/vocabulary/iso639-1/fr> .
+<http://library.ucsd.edu/ark:/20775/bd91134949> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Language> .
+<http://library.ucsd.edu/ark:/20775/bd91134949> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/languages> .
+<http://library.ucsd.edu/ark:/20775/bd91134949> <http://www.loc.gov/mads/rdf/v1#hasExactExternalAuthority> <http://id.loc.gov/vocabulary/languages/fr> .
+<http://library.ucsd.edu/ark:/20775/bd91134949> <http://www.loc.gov/mads/rdf/v1#code> "fr" . 
+<http://library.ucsd.edu/ark:/20775/bd91134949> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "French" .
 
 <http://library.ucsd.edu/ark:/20775/bb20202020> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Cartographics> .
 <http://library.ucsd.edu/ark:/20775/bb20202020> <http://library.ucsd.edu/ontology/dams#scale> "1:20000" .
@@ -228,113 +238,106 @@ _:bn22n01 <http://library.ucsd.edu/ontology/dams#beginDate> "2010-01-01" .
 
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#ProvenanceCollection> .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Collection> .
-<http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#title> _:bn24n01 .
-_:bn24n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Title> .
-_:bn24n01 <http://library.ucsd.edu/ontology/dams#type> "main" .
-_:bn24n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Historical Dissertations" .
-<http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#date> _:bn24n02 .
-_:bn24n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Date> .
-_:bn24n02 <http://library.ucsd.edu/ontology/dams#beginDate> "2009-05-03" .
-_:bn24n02 <http://library.ucsd.edu/ontology/dams#endDate> "2010-06-30" .
+<http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#title> _:bn24n03 .
+_:bn24n03 <rdf:type> <mads:Title> .
+_:bn24n03 <mads:authoritativeLabel> "Historical Dissertations" .
+_:bn24n03 <mads:elementList> _:bn24n04 .
+_:bn24n04 <rdf:first> _:bn24n09 .
+_:bn24n04 <rdf:rest> <rdf:nil> .
+_:bn24n09 <rdf:type> <mads:MainTitleElement> .
+_:bn24n09 <mads:elementValue> "Historical Dissertations" .
+<http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#date> _:bn24n01 .
+_:bn24n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Date> .
+_:bn24n01 <http://library.ucsd.edu/ontology/dams#beginDate> "2009-05-03" .
+_:bn24n01 <http://library.ucsd.edu/ontology/dams#endDate> "2010-06-30" .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#language> <http://library.ucsd.edu/ark:/20775/bd0410344f> .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#hasPart> <http://library.ucsd.edu/ark:/20775/bb25252525> .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#event> <http://library.ucsd.edu/ark:/20775/bb29292929> .
 
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#ProvenanceCollectionPart> .
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Collection> .
-<http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#title> _:bn25n01 .
-_:bn25n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Title> .
-_:bn25n01 <http://library.ucsd.edu/ontology/dams#type> "main" .
-_:bn25n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "May 2009" .
-<http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#date> _:bn25n02 .
-_:bn25n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Date> .
-_:bn25n02 <http://library.ucsd.edu/ontology/dams#beginDate> "2009-05-03" .
-_:bn25n02 <http://library.ucsd.edu/ontology/dams#endDate> "2009-05-31" .
+<http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#title> _:bn25n03 .
+_:bn25n03 <rdf:type> <mads:Title> .
+_:bn25n03 <mads:authoritativeLabel> "May 2009" .
+_:bn25n03 <mads:elementList> _:bn25n04 .
+_:bn25n04 <rdf:first> _:bn25n09 .
+_:bn25n04 <rdf:rest> <rdf:nil> .
+_:bn25n09 <rdf:type> <mads:MainTitleElement> .
+_:bn25n09 <mads:elementValue> "May 2009" .
+<http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#date> _:bn25n01 .
+_:bn25n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Date> .
+_:bn25n01 <http://library.ucsd.edu/ontology/dams#beginDate> "2009-05-03" .
+_:bn25n01 <http://library.ucsd.edu/ontology/dams#endDate> "2009-05-31" .
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#language> <http://library.ucsd.edu/ark:/20775/bd0410344f> .
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#provenanceCollection> <http://library.ucsd.edu/ark:/20775/bb24242424> .
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#event> <http://library.ucsd.edu/ark:/20775/bb30303030> .
 
-<http://library.ucsd.edu/ark:/20775/bb31313131> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Vocabulary> .
-<http://library.ucsd.edu/ark:/20775/bb31313131> <http://library.ucsd.edu/ontology/dams#description> "mods:typeOfResource Value List" .
+<http://library.ucsd.edu/ark:/20775/bb31313131> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#MADSScheme> .
+<http://library.ucsd.edu/ark:/20775/bb31313131> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "mods:typeOfResource Value List" .
 
-<http://library.ucsd.edu/ark:/20775/bb32323232> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
-<http://library.ucsd.edu/ark:/20775/bb32323232> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
-<http://library.ucsd.edu/ark:/20775/bb32323232> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
-<http://library.ucsd.edu/ark:/20775/bb32323232> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "text" .
+<http://library.ucsd.edu/ark:/20775/bb32323232> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bb32323232> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb32323232> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "text" .
 
-<http://library.ucsd.edu/ark:/20775/bb33333333> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
-<http://library.ucsd.edu/ark:/20775/bb33333333> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
-<http://library.ucsd.edu/ark:/20775/bb33333333> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
-<http://library.ucsd.edu/ark:/20775/bb33333333> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "cartographic" .
+<http://library.ucsd.edu/ark:/20775/bb33333333> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bb33333333> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb33333333> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "cartographic" .
 
-<http://library.ucsd.edu/ark:/20775/bb34343434> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
-<http://library.ucsd.edu/ark:/20775/bb34343434> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
-<http://library.ucsd.edu/ark:/20775/bb34343434> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
-<http://library.ucsd.edu/ark:/20775/bb34343434> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "notated music" .
+<http://library.ucsd.edu/ark:/20775/bb34343434> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bb34343434> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb34343434> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "notated music" .
 
-<http://library.ucsd.edu/ark:/20775/bb35353535> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
-<http://library.ucsd.edu/ark:/20775/bb35353535> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
-<http://library.ucsd.edu/ark:/20775/bb35353535> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
-<http://library.ucsd.edu/ark:/20775/bb35353535> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "sound recording-musical" .
+<http://library.ucsd.edu/ark:/20775/bb35353535> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bb35353535> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb35353535> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "sound recording-musical" .
 
-<http://library.ucsd.edu/ark:/20775/bb36363636> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
-<http://library.ucsd.edu/ark:/20775/bb36363636> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
-<http://library.ucsd.edu/ark:/20775/bb36363636> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
-<http://library.ucsd.edu/ark:/20775/bb36363636> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "sound recording-nonmusical,sound recording" .
+<http://library.ucsd.edu/ark:/20775/bb36363636> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bb36363636> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb36363636> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "sound recording-nonmusical,sound recording" .
 
-<http://library.ucsd.edu/ark:/20775/bb37373737> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
-<http://library.ucsd.edu/ark:/20775/bb37373737> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
-<http://library.ucsd.edu/ark:/20775/bb37373737> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
-<http://library.ucsd.edu/ark:/20775/bb37373737> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "still image" .
+<http://library.ucsd.edu/ark:/20775/bb37373737> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bb37373737> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb37373737> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "still image" .
 
-<http://library.ucsd.edu/ark:/20775/bb38383838> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
-<http://library.ucsd.edu/ark:/20775/bb38383838> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
-<http://library.ucsd.edu/ark:/20775/bb38383838> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
-<http://library.ucsd.edu/ark:/20775/bb38383838> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "moving image" .
+<http://library.ucsd.edu/ark:/20775/bb38383838> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bb37373737> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb37373737> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "still image" .
 
-<http://library.ucsd.edu/ark:/20775/bb39393939> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
-<http://library.ucsd.edu/ark:/20775/bb39393939> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
-<http://library.ucsd.edu/ark:/20775/bb39393939> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
-<http://library.ucsd.edu/ark:/20775/bb39393939> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "three dimensional object" .
+<http://library.ucsd.edu/ark:/20775/bb39393939> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bb39393939> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb39393939> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "three dimensional object" .
 
-<http://library.ucsd.edu/ark:/20775/bb40404040> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
-<http://library.ucsd.edu/ark:/20775/bb40404040> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
-<http://library.ucsd.edu/ark:/20775/bb40404040> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
-<http://library.ucsd.edu/ark:/20775/bb40404040> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "software" .
+<http://library.ucsd.edu/ark:/20775/bb40404040> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bb40404040> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb40404040> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "software" .
 
-<http://library.ucsd.edu/ark:/20775/bb41414141> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
-<http://library.ucsd.edu/ark:/20775/bb41414141> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
-<http://library.ucsd.edu/ark:/20775/bb41414141> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
-<http://library.ucsd.edu/ark:/20775/bb41414141> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "multimedia" .
+<http://library.ucsd.edu/ark:/20775/bb41414141> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bb41414141> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb41414141> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "multimedia" .
 
-<http://library.ucsd.edu/ark:/20775/bb42424242> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb31313131> .
-<http://library.ucsd.edu/ark:/20775/bb42424242> <http://library.ucsd.edu/ontology/dams#authorityURI> "http://www.loc.gov/standards/mods/" .
-<http://library.ucsd.edu/ark:/20775/bb42424242> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
-<http://library.ucsd.edu/ark:/20775/bb42424242> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "mixed material" .
+<http://library.ucsd.edu/ark:/20775/bb42424242> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bb42424242> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb31313131> .
+<http://library.ucsd.edu/ark:/20775/bb42424242> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "mixed material" .
 
-<http://library.ucsd.edu/ark:/20775/bb43434343> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Vocabulary> .
-<http://library.ucsd.edu/ark:/20775/bb43434343> <http://library.ucsd.edu/ontology/dams#description> "ISO 3166-1 Country Value List" .
+<http://library.ucsd.edu/ark:/20775/bb43434343> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#MADSScheme> .
+<http://library.ucsd.edu/ark:/20775/4343434343> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "ISO 3166-1 Country Value List" .
 
-<http://library.ucsd.edu/ark:/20775/bb44444444> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/43434343> .
-<http://library.ucsd.edu/ark:/20775/bb44444444> <http://library.ucsd.edu/ontology/dams#authority> "ISO 3166-1" .
-<http://library.ucsd.edu/ark:/20775/bb44444444> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
-<http://library.ucsd.edu/ark:/20775/bb44444444> <http://library.ucsd.edu/ontology/dams#code> "be" .
-<http://library.ucsd.edu/ark:/20775/bb44444444> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Belgium" .
+<http://library.ucsd.edu/ark:/20775/bb44444444> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bb44444444> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/countries> .
+<http://library.ucsd.edu/ark:/20775/bb44444444> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Belgium" .
+<http://library.ucsd.edu/ark:/20775/bb44444444> <http://www.loc.gov/mads/rdf/v1#code> "be" .
 
-<http://library.ucsd.edu/ark:/20775/bb45454545> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/43434343> .
-<http://library.ucsd.edu/ark:/20775/bb45454545> <http://library.ucsd.edu/ontology/dams#authority> "ISO 3166-1" .
-<http://library.ucsd.edu/ark:/20775/bb45454545> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
-<http://library.ucsd.edu/ark:/20775/bb45454545> <http://library.ucsd.edu/ontology/dams#code> "fr" .
-<http://library.ucsd.edu/ark:/20775/bb45454545> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "France" .
+<http://library.ucsd.edu/ark:/20775/bb45454545> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bb45454545> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/countries> .
+<http://library.ucsd.edu/ark:/20775/bb45454545> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "France" .
+<http://library.ucsd.edu/ark:/20775/bb45454545> <http://www.loc.gov/mads/rdf/v1#code> "fr" .
 
-<http://library.ucsd.edu/ark:/20775/bb46464646> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/43434343> .
-<http://library.ucsd.edu/ark:/20775/bb46464646> <http://library.ucsd.edu/ontology/dams#authority> "ISO 3166-1" .
-<http://library.ucsd.edu/ark:/20775/bb46464646> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
-<http://library.ucsd.edu/ark:/20775/bb46464646> <http://library.ucsd.edu/ontology/dams#code> "jp" .
-<http://library.ucsd.edu/ark:/20775/bb46464646> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Japan" .
+<http://library.ucsd.edu/ark:/20775/bb46464646> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bb46464646> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/countries> .
+<http://library.ucsd.edu/ark:/20775/bb46464646> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Japan" .
+<http://library.ucsd.edu/ark:/20775/bb46464646> <http://www.loc.gov/mads/rdf/v1#code> "jp" .
 
-<http://library.ucsd.edu/ark:/20775/bb47474747> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/43434343> .
-<http://library.ucsd.edu/ark:/20775/bb47474747> <http://library.ucsd.edu/ontology/dams#authority> "ISO 3166-1" .
-<http://library.ucsd.edu/ark:/20775/bb47474747> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#VocabularyEntry> .
-<http://library.ucsd.edu/ark:/20775/bb47474747> <http://library.ucsd.edu/ontology/dams#code> "us" .
-<http://library.ucsd.edu/ark:/20775/bb47474747> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "United States" .
+<http://library.ucsd.edu/ark:/20775/bb47474747> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bb47474747> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/countries> .
+<http://library.ucsd.edu/ark:/20775/bb47474747> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "United States" .
+<http://library.ucsd.edu/ark:/20775/bb47474747> <http://www.loc.gov/mads/rdf/v1#code> "us" .

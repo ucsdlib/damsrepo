@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <rdf:RDF xmlns:dams="http://library.ucsd.edu/ontology/dams#"
   xmlns:mads="http://www.loc.gov/mads/rdf/v1#"
-  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:owl="http://www.w3.org/2002/07/owl#">
 
 <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bb52572546">
 
@@ -15,11 +16,17 @@
 <!-- desc -->
 <dams:typeOfResource>text</dams:typeOfResource>
 <dams:title>
-<dams:Title>
-<rdf:value>Chicano and black radical activism of the 1960s</rdf:value>
-<dams:subtitle>a comparison between the Brown Berets and the Black Panther Party in California</dams:subtitle>
-<dams:type>main</dams:type>
-</dams:Title>
+<mads:Title>
+  <mads:authoritativeLabel>Chicano and black radical activism of the 1960s: a comparison between the Brown Berets and the Black Panther Party in California</mads:authoritativeLabel>
+  <mads:elementList rdf:parseType="Collection">
+    <mads:MainTitleElement>
+      <mads:elementValue>Chicano and black radical activism of the 1960s</mads:elementValue>
+    </mads:MainTitleElement>
+    <mads:SubTitleElement>
+      <mads:elementValue>a comparison between the Brown Berets and the Black Panther Party in California</mads:elementValue>
+    </mads:SubTitleElement>
+  </mads:elementList>
+</mads:Title>
 </dams:title>
 <dams:relationship>
 <dams:Relationship>
@@ -180,54 +187,50 @@
 </dams:ScopeContentNote>
 </dams:scopeContentNote>
 <dams:title>
-<dams:Title>
-<rdf:value>UCSD Electronic Theses and Dissertations</rdf:value>
-<dams:type>main</dams:type>
-</dams:Title>
+<mads:Title>
+  <mads:authoritativeLabel>UCSD Electronic Theses and Dissertations</mads:authoritativeLabel>
+  <mads:elementList rdf:parseType="Collection">
+    <mads:MainTitleElement>
+      <mads:elementValue>UCSD Electronic Theses and Dissertations</mads:elementValue>
+    </mads:MainTitleElement>
+  </mads:elementList>
+</mads:Title>
 </dams:title>
 </dams:AssembledCollection>
 <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bbXXXXXXX4">
+  <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/authorities/subjects/sh99005024"/>
   <mads:elementList rdf:parseType="Collection">
     <mads:TopicElement>
       <mads:elementValue>History</mads:elementValue>
     </mads:TopicElement>
   </mads:elementList>
-  <dams:authority>Library of Congress Subject Headings</dams:authority>
-  <dams:authorityURI rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://id.loc.gov/authorities/subjects</dams:authorityURI>
-  <dams:valueURI rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://id.loc.gov/authorities/subjects/sh99005024</dams:valueURI>
 </mads:Topic>
 <mads:ComplexSubject rdf:about="http://library.ucsd.edu/ark:/20775/bbXXXXXXX5">
   <mads:authoritativeLabel>Academic dissertations</mads:authoritativeLabel>
   <mads:componentList rdf:parseType="Collection">
     <mads:GenreForm>
+      <mads:hasExactExternalAuthority rdf:resource="http://www.rbms.info/committees/bibliographic_standards/controlled_vocabularies/genre/tr19.htm"/>
       <mads:elementList rdf:parseType="Collection">
         <mads:GenreFormElement>
           <mads:elementValue>Academic dissertations</mads:elementValue>
         </mads:GenreFormElement>
       </mads:elementList>
-      <dams:authority>RBMS Controlled Vocabularies: Genre Terms</dams:authority>
-      <dams:authorityURI rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://www.rbms.info/committees/bibliographic_standards/controlled_vocabularies/genre/alphabetical_list.htm</dams:authorityURI>
-      <dams:valueURI rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://www.rbms.info/committees/bibliographic_standards/controlled_vocabularies/genre/tr19.htm</dams:valueURI>
     </mads:GenreForm>
   </mads:componentList>
 </mads:ComplexSubject>
 <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bbXXXXXXX6">
+  <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/authorities/subjects/sh85001932"/>
   <mads:elementList rdf:parseType="Collection">
     <mads:TopicElement>
       <mads:elementValue>African Americans</mads:elementValue>
     </mads:TopicElement>
   </mads:elementList>
-  <dams:authority>Library of Congress Subject Headings</dams:authority>
-  <dams:authorityURI rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://id.loc.gov/authorities/subjects</dams:authorityURI>
-  <dams:valueURI rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://id.loc.gov/authorities/subjects/sh85001932</dams:valueURI>
 </mads:Topic>
 <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bbXXXXXXX7">
+  <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/authorities/names/n80095585"/>
 <mads:elementList rdf:parseType="Collection">
 <mads:NameElement>
 <mads:elementValue>Black Panther Party</mads:elementValue>
-<dams:authority>Library of Congress Name Authority File</dams:authority>
-<dams:authorityURI rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://id.loc.gov/authorities/names</dams:authorityURI>
-<dams:valueURI rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://id.loc.gov/authorities/names/n80095585</dams:valueURI>
 </mads:NameElement>
 </mads:elementList>
 </mads:CorporateName>
@@ -244,26 +247,4 @@
 <dams:copyrightJurisdiction>us</dams:copyrightJurisdiction>
 <dams:copyrightPurposeNote>This work is available from the UC San Diego Libraries.  This digital copy of the work is intended to support research, teaching, and private study.</dams:copyrightPurposeNote>
 </dams:Copyright>
-<!-- referenced items (external)
-<dams:Role rdf:about="http://library.ucsd.edu/ark:/20775/bd55639754">
-<dams:vocabulary>
-<dams:Vocabulary rdf:about="http://library.ucsd.edu/ark:/20775/bb14141414">
-<dams:description>Role</dams:description>
-</dams:Vocabulary>
-</dams:vocabulary>
-<dams:code>cre</dams:code>
-<rdf:value>Creator</rdf:value>
-<dams:valueURI rdf:resource="http://id.loc.gov/vocabulary/relators/cre"/>
-</dams:Role>
-<dams:Language rdf:about="http://library.ucsd.edu/ark:/20775/bd0410344f">
-<dams:vocabulary>
-<dams:Vocabulary rdf:about="http://library.ucsd.edu/ark:/20775/bb15151515">
-<dams:description>Language</dams:description>
-</dams:Vocabulary>
-</dams:vocabulary>
-<dams:code>en</dams:code>
-<rdf:value>English</rdf:value>
-<dams:valueURI rdf:resource="http://id.loc.gov/vocabulary/iso639-1/en"/>
-</dams:Language>
--->
 </rdf:RDF>

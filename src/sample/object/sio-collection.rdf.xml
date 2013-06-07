@@ -12,9 +12,14 @@
       </dams:RelatedResource>
     </dams:otherResource>
     <dams:title>
-      <dams:Title>
-        <rdf:value>Scripps Institution of Oceanography, Geological Collections</rdf:value>
-      </dams:Title>
+      <mads:Title> 
+        <mads:authoritativeLabel>Scripps Institution of Oceanography, Geological Collections</mads:authoritativeLabel> 
+        <mads:elementList rdf:parseType="Collection"> 
+          <mads:MainTitleElement> 
+            <mads:elementValue>Scripps Institution of Oceanography, Geological Collections</mads:elementValue> 
+          </mads:MainTitleElement> 
+        </mads:elementList> 
+      </mads:Title> 
     </dams:title>
     <dams:topic>
       <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bd0888277b">
@@ -49,10 +54,13 @@
     <dams:relationship>
       <dams:Relationship>
         <dams:role>
-          <dams:Role>
-            <dams:code>rps</dams:code>
-            <rdf:value>Repository</rdf:value>
-          </dams:Role>
+          <mads:Authority rdf:about="http://library.ucsd.edu/ark:/20775/bd8396905c">
+            <mads:authoritativeLabel>Repository</mads:authoritativeLabel>
+            <mads:code>rps</mads:code>
+            <mads:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/vocabulary/relators"/>
+            <mads:definitionNote>An organization that hosts data or material culture objects and provides services to promote long term, consistent and shared use of those data or objects.</mads:definitionNote>
+            <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/relators/rps"/>
+          </mads:Authority>
         </dams:role>
         <dams:corporateName>
           <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bd8294487v">
@@ -79,10 +87,13 @@
     <dams:relationship>
       <dams:Relationship>
         <dams:role>
-          <dams:Role>
-            <dams:code>res</dams:code>
-            <rdf:value>Researcher</rdf:value>
-          </dams:Role>
+          <mads:Authority rdf:about="http://library.ucsd.edu/ark:/20775/bd70999634">
+            <mads:authoritativeLabel>Researcher</mads:authoritativeLabel>
+            <mads:code>res</mads:code>
+            <mads:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/vocabulary/relators"/>
+            <mads:definitionNote>A person or organization responsible for performing research.</mads:definitionNote>
+            <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/relators/res"/>
+          </mads:Authority>
         </dams:role>
         <dams:personalName>
           <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd95914293">

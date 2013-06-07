@@ -321,7 +321,7 @@ public class RelationalTripleStore implements TripleStore
 			int result = stmt.executeUpdate( sql );
 			if(logUpdates && result == 0)
 			{
-				log.warn("Failed to delete: sql=" + sql);
+				log.debug("Failed to delete: sql=" + sql);
 			}
 		}
 		catch ( Exception ex )
@@ -1015,6 +1015,7 @@ class RelationalStatementIterator extends StatementIterator
 		{
 			RelationalTripleStore.log.warn( "Error listing statements", ex );
 		}
+		RelationalTripleStore.log.warn("rs: " + stmt.toString());
 		return stmt;
 	}
 	public void close()

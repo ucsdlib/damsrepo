@@ -33,20 +33,33 @@
       </dams:Note>
     </dams:note>
     <dams:title>
-      <dams:Title>
-        <rdf:value>Sample Complex Object Record #3</rdf:value>
-        <dams:subtitle>Format Sampler</dams:subtitle>
-        <dams:type>main</dams:type>
-      </dams:Title>
+      <mads:Title> 
+        <mads:authoritativeLabel>Sample Complex Object Record #3: Format Sampler</mads:authoritativeLabel> 
+        <mads:elementList rdf:parseType="Collection"> 
+          <mads:MainTitleElement> 
+            <mads:elementValue>Sample Complex Object Record #3</mads:elementValue> 
+          </mads:MainTitleElement> 
+          <mads:SubTitleElement> 
+            <mads:elementValue>Format Sampler</mads:elementValue> 
+          </mads:SubTitleElement> 
+        </mads:elementList> 
+      </mads:Title> 
     </dams:title>
     <dams:hasComponent>
       <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555/1">
         <dams:typeOfResource>audio</dams:typeOfResource>
         <dams:title>
-          <dams:Title>
-            <rdf:value>Sample Audio Component</rdf:value>
-            <dams:subtitle>I need another green form</dams:subtitle>
-          </dams:Title>
+          <mads:Title> 
+            <mads:authoritativeLabel>Sample Audio Component: I need another green form</mads:authoritativeLabel> 
+            <mads:elementList rdf:parseType="Collection"> 
+              <mads:MainTitleElement> 
+                <mads:elementValue>Sample Audio Component</mads:elementValue> 
+              </mads:MainTitleElement> 
+              <mads:SubTitleElement> 
+                <mads:elementValue>I need another green form</mads:elementValue> 
+              </mads:SubTitleElement> 
+            </mads:elementList> 
+          </mads:Title> 
         </dams:title>
       </dams:Component>
     </dams:hasComponent>
@@ -54,9 +67,14 @@
       <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555/2">
         <dams:typeOfResource>software, multimedia</dams:typeOfResource>
         <dams:title>
-          <dams:Title>
-            <rdf:value>Sample Data Component</rdf:value>
-          </dams:Title>
+          <mads:Title>
+            <mads:authoritativeLabel>Sample Data Component</mads:authoritativeLabel>
+            <mads:elementList rdf:parseType="Collection">
+              <mads:MainTitleElement>
+                <mads:elementValue>Sample Data Component</mads:elementValue>
+              </mads:MainTitleElement>
+            </mads:elementList>
+          </mads:Title>
         </dams:title>
       </dams:Component>
     </dams:hasComponent>
@@ -64,9 +82,15 @@
       <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555/3">
         <dams:typeOfResource>text</dams:typeOfResource>
         <dams:title>
-          <dams:Title>
-            <rdf:value>Sample Document Component</rdf:value>
-          </dams:Title>
+          <mads:Title> 
+            <mads:authoritativeLabel>Sample Document Component</mads:authoritativeLabel> 
+            <mads:elementList rdf:parseType="Collection"> 
+              <mads:MainTitleElement> 
+                <mads:elementValue>Sample Document Component</mads:elementValue> 
+              </mads:MainTitleElement> 
+            </mads:elementList> 
+          </mads:Title> 
+
         </dams:title>
       </dams:Component>
     </dams:hasComponent>
@@ -74,9 +98,14 @@
       <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555/4">
         <dams:typeOfResource>still image</dams:typeOfResource>
         <dams:title>
-          <dams:Title>
-            <rdf:value>Sample Image Component</rdf:value>
-          </dams:Title>
+          <mads:Title> 
+            <mads:authoritativeLabel>Sample Image Component</mads:authoritativeLabel> 
+            <mads:elementList rdf:parseType="Collection"> 
+              <mads:MainTitleElement> 
+                <mads:elementValue>Sample Image Component</mads:elementValue> 
+              </mads:MainTitleElement> 
+            </mads:elementList> 
+          </mads:Title> 
         </dams:title>
       </dams:Component>
     </dams:hasComponent>
@@ -84,10 +113,15 @@
       <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555/5">
         <dams:typeOfResource>moving image</dams:typeOfResource>
         <dams:title>
-          <dams:Title>
-            <rdf:value>Sample Video Component</rdf:value>
-          </dams:Title>
-        </dams:title>
+          <mads:Title> 
+            <mads:authoritativeLabel>Sample Video Component</mads:authoritativeLabel> 
+            <mads:elementList rdf:parseType="Collection"> 
+              <mads:MainTitleElement> 
+                <mads:elementValue>Sample Video Component</mads:elementValue> 
+              </mads:MainTitleElement> 
+            </mads:elementList> 
+          </mads:Title> 
+        </dams:title> 
       </dams:Component>
     </dams:hasComponent>
   </dams:Object>

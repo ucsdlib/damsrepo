@@ -14,18 +14,7 @@
     <dams:corporateName rdf:resource="http://library.ucsd.edu/ark:/20775/bd69633288"/>
     <dams:relationship>
       <dams:Relationship>
-        <dams:role>
-          <dams:Role rdf:about="http://library.ucsd.edu/ark:/20775/bd55639754">
-            <dams:vocabulary>
-              <dams:Vocabulary rdf:about="http://library.ucsd.edu/ark:/20775/bb14141414">
-                <dams:description>Role</dams:description>
-              </dams:Vocabulary>
-            </dams:vocabulary>
-            <dams:code>cre</dams:code>
-            <rdf:value>Creator</rdf:value>
-            <dams:valueURI rdf:resource="http://id.loc.gov/vocabulary/relators/cre"/>
-          </dams:Role>
-        </dams:role>
+        <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bd55639754"/>
         <dams:name>
           <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd94548235">
             <mads:authoritativeLabel>O'Shea, Brian W.,  (Brian William), 1978-</mads:authoritativeLabel>
@@ -81,10 +70,13 @@
       <dams:Relationship>
         <dams:name rdf:resource="http://library.ucsd.edu/ark:/20775/bd6860945s"/>
         <dams:role>
-          <dams:Role rdf:about="http://library.ucsd.edu/ark:/20775/bd0785823z">
-            <rdf:value>donor</rdf:value>
-            <dams:code></dams:code>
-          </dams:Role>
+          <mads:Authority rdf:about="http://library.ucsd.edu/ark:/20775/bd0785823z">
+            <mads:authoritativeLabel>Donor</mads:authoritativeLabel>
+            <mads:code>dnr</mads:code>
+            <mads:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/vocabulary/relators"/>
+            <mads:definitionNote>A former owner of an item who donated that item to another owner.</mads:definitionNote>
+            <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/relators/dnr"/>
+          </mads:Authority>
         </dams:role>
       </dams:Relationship>
     </dams:relationship>
@@ -237,7 +229,8 @@ The entire collection was arranged into thirty-one components and described comp
     </dams:relationship>
     <dams:rightsHolder>
       <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd93182924">
-        <dams:valueURI rdf:resource="http://lccn.loc.gov/n90694888"/>
+        <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/authorities/names/n90694888"/>
+        <mads:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/authorities/names"/>
         <mads:elementList rdf:parseType="Collection">
           <mads:FamilyNameElement>
             <mads:elementValue>Burns</mads:elementValue>
@@ -251,12 +244,19 @@ The entire collection was arranged into thirty-one components and described comp
       </mads:PersonalName>
     </dams:rightsHolder>
     <dams:language>
-      <dams:Language rdf:about="http://library.ucsd.edu/ark:/20775/bd2082762w">
-        <rdf:value>English</rdf:value>
-        <dams:authority>iso639-2b</dams:authority>
-        <dams:code>eng</dams:code>
-      </dams:Language>
+      <mads:Language rdf:about="http://library.ucsd.edu/ark:/20775/bd2082762w">
+        <mads:authoritativeLabel>English</mads:authoritativeLabel>
+        <mads:code>eng</mads:code>
+        <mads:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/vocabulary/languages"/>
+        <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/languages/eng"/>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:LanguageElement>
+            <mads:elementValue>English</mads:elementValue>
+          </mads:LanguageElement>
+        </mads:elementList>
+      </mads:Language>
     </dams:language>
+
     <dams:topic>
       <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bd2355785j">
         <mads:elementList rdf:parseType="Collection">
@@ -298,9 +298,14 @@ The entire collection was arranged into thirty-one components and described comp
     </dams:note>
     <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd94548235"/>
     <dams:title>
-      <dams:Title>
-        <rdf:value>Santa Fe Light Cone Simulation research project files 2005-2012, Bulk 2005-2007</rdf:value>
-      </dams:Title>
+      <mads:Title> 
+        <mads:authoritativeLabel>Santa Fe Light Cone Simulation research project files 2005-2012, Bulk 2005-2007</mads:authoritativeLabel> 
+        <mads:elementList rdf:parseType="Collection"> 
+          <mads:MainTitleElement> 
+            <mads:elementValue>Santa Fe Light Cone Simulation research project files 2005-2012, Bulk 2005-2007</mads:elementValue> 
+          </mads:MainTitleElement> 
+        </mads:elementList> 
+      </mads:Title> 
     </dams:title>
     <dams:note>
       <dams:Note>
@@ -418,7 +423,7 @@ The contents of each project component labeled RD00## are the same:
   <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bd60418237">
     <mads:authoritativeLabel>University of California, San Diego.. Center for Astrophysics and Space Sciences.</mads:authoritativeLabel>
     <dams:authority>naf</dams:authority>
-    <owl:sameAs rdf:resource="http://library.ucsd.edu/ark:/20775/bd69633288"/>
+    <mads:hasExactExternalAuthority rdf:resource="http://library.ucsd.edu/ark:/20775/bd69633288"/>
     <mads:elementList rdf:parseType="Collection">
       <mads:NameElement>
         <mads:elementValue>University of California, San Diego</mads:elementValue>

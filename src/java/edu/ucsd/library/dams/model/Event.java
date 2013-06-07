@@ -41,7 +41,7 @@ public class Event
 		eventDate = new Date();
 
 		// setup time format
-		fmt = new SimpleDateFormat( "yyyy-MM-dd'T'hh:mm:ssX" );
+		fmt = new SimpleDateFormat( "yyyy-MM-dd'T'hh:mm:ssZ" );
 	    fmt.setTimeZone( TimeZone.getTimeZone("UTC") );
 	}
 	public void save( TripleStore ts, TripleStore es )
