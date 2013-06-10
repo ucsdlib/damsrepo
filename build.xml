@@ -260,4 +260,74 @@
       <fileset dir="${src}/sample"/>
     </copy>
   </target>
+
+  <!-- tomcat -->
+  <target name="tomcat" description="Update scripts and files in tomcat"
+      depends="compile">
+
+    <!-- move old war file out of the way -->
+    <move file="${dist}/${appName}.war" tofile="${dist}/${appName}.bak"
+      failonerror="false"/>
+
+    <!-- copy files -->
+    <copy todir="${webapp}">
+      <fileset dir="${root}" includes="**/*"/>
+    </copy>
+    <copy todir="${webapp}/WEB-INF/lib">
+      <fileset refid="lib"/>
+    </copy>
+    <copy todir="${webapp}/WEB-INF/classes">
+      <fileset dir="${props}" includes="**/*.properties, jhove.conf"/>
+    </copy>
+    <copy file="${webinf}/web.xml" tofile="${webapp}/WEB-INF/web.xml">
+      <filterset refid="version-filters"/>
+    </copy>
+    <copy todir="${webapp}/META-INF/">
+      <fileset dir="${webinf}" includes="context.xml"/>
+    </copy>
+
+    <!-- generate new war file -->
+    <war destfile="${dist}/${appName}.war"
+        webxml="${webapp}/WEB-INF/web.xml">
+      <fileset dir="${webapp}">
+        <exclude name="WEB-INF/**"/>
+        <exclude name="META-INF/**"/>
+      </fileset>
+      <webinf dir="${webapp}/WEB-INF" excludes="web.xml"/>
+      <metainf dir="${webapp}/META-INF"/>
+    </war>
+
+    <!-- copy webapp -->
+    <copy file="${dist}/${appName}.war" todir="${tomcat.home}/tomcat/webapps"/>
+
+    <!-- copy database driver -->
+    <copy file="${lib2}/hsqldb.jar" tofile="${tomcat.home}/tomcat/lib/hsqldb.jar"/>
+
+    <!-- command-line scripts -->
+    <copy todir="${tomcat.home}/dams/bin">
+      <fileset dir="${sh}"/>
+    </copy>
+    <chmod dir="${tomcat.home}/dams/bin" perm="ugo+rx" includes="**/*.sh"/>
+
+    <!-- jars -->
+    <copy todir="${tomcat.home}/dams/lib">
+      <fileset dir="${lib}"/>
+      <fileset dir="${lib2}"/>
+    </copy>
+
+    <!-- xsl stylesheets -->
+    <copy todir="${tomcat.home}/dams/xsl">
+      <fileset dir="${xsl}"/>
+    </copy>
+
+    <!-- compiled classes -->
+    <copy todir="${tomcat.home}/dams/classes">
+      <fileset dir="${webapp}/WEB-INF/classes"/>
+    </copy>
+
+    <!-- sample files -->
+    <copy todir="${tomcat.home}/dams/sample">
+      <fileset dir="${src}/sample"/>
+    </copy>
+  </target>
 </project>

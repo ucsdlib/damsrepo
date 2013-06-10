@@ -19,6 +19,7 @@ import java.util.Properties;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.naming.NoInitialContextException;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -299,7 +300,7 @@ public class TripleStoreUtil
 					if ( !res.isAnon() )
 					{
 						Identifier id = toIdentifier(res);
-						log.info("removing subject: " + id.toString() );
+						log.debug("removing subject: " + id.toString() );
 						ts.removeObject(id);
 					}
 				}

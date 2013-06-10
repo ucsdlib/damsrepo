@@ -26,6 +26,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 import javax.naming.InitialContext;
+import javax.naming.NoInitialContextException;
 import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
@@ -118,6 +119,7 @@ public class RelationalTripleStore implements TripleStore
 					con = ds.getConnection();
 				}
 			}
+			catch ( NoInitialContextException ex ) {}
 			catch ( Exception ex )
 			{
 				dsex = ex;
@@ -321,7 +323,7 @@ public class RelationalTripleStore implements TripleStore
 			int result = stmt.executeUpdate( sql );
 			if(logUpdates && result == 0)
 			{
-				log.warn("Failed to delete: sql=" + sql);
+				log.debug("Failed to delete: sql=" + sql);
 			}
 		}
 		catch ( Exception ex )
