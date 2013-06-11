@@ -19,6 +19,7 @@ import java.util.Properties;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.naming.NoInitialContextException;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context>
   <ResourceLink global="jdbc/dams" name="jdbc/dams" type="javax.sql.DataSource"/>
-  <ResourceLink global="jdbc/postgres" name="jdbc/postgres" type="javax.sql.DataSource"/>
   <ResourceLink global="dams/home" name="dams/home" type="java.lang.String"/>
   <Realm className="org.apache.catalina.realm.UserDatabaseRealm" resourceName="UserDatabase"/>
   <ResourceLink global="UserDatabase" name="UserDatabase" type="org.apache.catalina.UserDatabase"/>
