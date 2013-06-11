@@ -11,7 +11,6 @@
         <dams:uri rdf:resource="http://pontos.ucsd.edu/images/santafe.jpg"/>
       </dams:RelatedResource>
     </dams:otherResource>
-    <dams:corporateName rdf:resource="http://library.ucsd.edu/ark:/20775/bd69633288"/>
     <dams:relationship>
       <dams:Relationship>
         <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bd55639754"/>
@@ -423,7 +422,7 @@ The contents of each project component labeled RD00## are the same:
   <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bd60418237">
     <mads:authoritativeLabel>University of California, San Diego.. Center for Astrophysics and Space Sciences.</mads:authoritativeLabel>
     <dams:authority>naf</dams:authority>
-    <mads:hasExactExternalAuthority rdf:resource="http://library.ucsd.edu/ark:/20775/bd69633288"/>
+    <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/authorities/names/n84131507"/>
     <mads:elementList rdf:parseType="Collection">
       <mads:NameElement>
         <mads:elementValue>University of California, San Diego</mads:elementValue>
