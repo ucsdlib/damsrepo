@@ -27,21 +27,21 @@ _:bn01n07 <http://library.ucsd.edu/ontology/dams#endDate> "2012-09-30" .
 _:bn01n07 <http://library.ucsd.edu/ontology/dams#type> "recreated" .
 
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#title> _:bn01n03 .
-_:bn01n03 <rdf:type> <mads:Title> .
-_:bn01n03 <mads:authoritativeLabel> "The real thing" .
-_:bn01n03 <mads:elementList> _:bn01n04 .
-_:bn01n04 <rdf:first> _:bn01n09 .
-_:bn01n04 <rdf:rest> <rdf:nil> .
-_:bn01n09 <rdf:type> <mads:MainTitleElement> .
-_:bn01n09 <mads:elementValue> "The real thing" .
+_:bn01n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Title> .
+_:bn01n03 <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "The real thing" .
+_:bn01n03 <http://www.loc.gov/mads/rdf/v1#elementList> _:bn01n04 .
+_:bn01n04 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:bn01n09 .
+_:bn01n04 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+_:bn01n09 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#MainTitleElement> .
+_:bn01n09 <http://www.loc.gov/mads/rdf/v1#elementValue> "The real thing" .
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#title> _:bn01n06 .
-_:bn01n06 <rdf:type> <mads:Title> .
-_:bn01n06 <mads:authoritativeLabel> "Le chose vrai"@fr .
-_:bn01n06 <mads:elementList> _:bn01n07 .
-_:bn01n07 <rdf:first> _:bn01n08 .
-_:bn01n07 <rdf:rest> <rdf:nil> .
-_:bn01n08 <rdf:type> <mads:MainTitleElement> .
-_:bn01n08 <mads:elementValue> "Le chose vrai"@fr .
+_:bn01n06 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Title> .
+_:bn01n06 <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Le chose vrai"@fr .
+_:bn01n06 <http://www.loc.gov/mads/rdf/v1#elementList> _:bn01n07 .
+_:bn01n07 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:bn01n08 .
+_:bn01n07 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+_:bn01n08 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#MainTitleElement> .
+_:bn01n08 <http://www.loc.gov/mads/rdf/v1#elementValue> "Le chose vrai"@fr .
 
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#language> <http://library.ucsd.edu/ark:/20775/bd0410344f> .
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#otherResource> _:bn01n05 .
@@ -239,13 +239,13 @@ _:bn22n01 <http://library.ucsd.edu/ontology/dams#beginDate> "2010-01-01" .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#ProvenanceCollection> .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Collection> .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#title> _:bn24n03 .
-_:bn24n03 <rdf:type> <mads:Title> .
-_:bn24n03 <mads:authoritativeLabel> "Historical Dissertations" .
-_:bn24n03 <mads:elementList> _:bn24n04 .
-_:bn24n04 <rdf:first> _:bn24n09 .
-_:bn24n04 <rdf:rest> <rdf:nil> .
-_:bn24n09 <rdf:type> <mads:MainTitleElement> .
-_:bn24n09 <mads:elementValue> "Historical Dissertations" .
+_:bn24n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Title> .
+_:bn24n03 <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Historical Dissertations" .
+_:bn24n03 <http://www.loc.gov/mads/rdf/v1#elementList> _:bn24n04 .
+_:bn24n04 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:bn24n09 .
+_:bn24n04 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+_:bn24n09 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#MainTitleElement> .
+_:bn24n09 <http://www.loc.gov/mads/rdf/v1#elementValue> "Historical Dissertations" .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#date> _:bn24n01 .
 _:bn24n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Date> .
 _:bn24n01 <http://library.ucsd.edu/ontology/dams#beginDate> "2009-05-03" .
@@ -257,13 +257,13 @@ _:bn24n01 <http://library.ucsd.edu/ontology/dams#endDate> "2010-06-30" .
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#ProvenanceCollectionPart> .
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Collection> .
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#title> _:bn25n03 .
-_:bn25n03 <rdf:type> <mads:Title> .
-_:bn25n03 <mads:authoritativeLabel> "May 2009" .
-_:bn25n03 <mads:elementList> _:bn25n04 .
-_:bn25n04 <rdf:first> _:bn25n09 .
-_:bn25n04 <rdf:rest> <rdf:nil> .
-_:bn25n09 <rdf:type> <mads:MainTitleElement> .
-_:bn25n09 <mads:elementValue> "May 2009" .
+_:bn25n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Title> .
+_:bn25n03 <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "May 2009" .
+_:bn25n03 <http://www.loc.gov/mads/rdf/v1#elementList> _:bn25n04 .
+_:bn25n04 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:bn25n09 .
+_:bn25n04 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+_:bn25n09 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#MainTitleElement> .
+_:bn25n09 <http://www.loc.gov/mads/rdf/v1#elementValue> "May 2009" .
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#date> _:bn25n01 .
 _:bn25n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Date> .
 _:bn25n01 <http://library.ucsd.edu/ontology/dams#beginDate> "2009-05-03" .
