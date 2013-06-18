@@ -90,7 +90,7 @@ _:bn01n05 <http://library.ucsd.edu/ontology/dams#uri> "http://library.ucsd.edu/t
 <http://library.ucsd.edu/ark:/20775/bb01010101/2/1.jpg> <http://library.ucsd.edu/ontology/dams#sourceFileName> "000112123132.jpeg" .
 
 <http://library.ucsd.edu/ark:/20775/bb02020202> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Unit> .
-<http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#unitName> "Library Collections" .
+<http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#unitName> "Library Digital Collections" .
 <http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#code> "dlp" .
 <http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#unitDescription> "Search over 56,690 images, documents and video files from the UCSD Libraries." .
 <http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#unitURI> "http://libraries.ucsd.edu/digital/" .
