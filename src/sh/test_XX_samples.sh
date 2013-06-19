@@ -30,9 +30,3 @@ $BASE/fs-post-cmp.sh bb80808080 2 1.jpg $BASE/../sample/files/20775-bb75097630-1
 
 # generate derivatives
 $BASE/fs-derivatives-cmp.sh bb80808080 2 1.jpg
-
-# post tif
-$BASE/fs-post.sh bb90909090 1.tif $BASE/../sample/files/20775-bb01010101-1-1.tif
-
-# generate derivatives
-$BASE/fs-derivatives.sh bb90909090 1.tif

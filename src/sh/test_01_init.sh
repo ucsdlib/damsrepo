@@ -36,6 +36,5 @@ if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + $1 ))
 fi
 
-
 echo ERRORS: $ERRORS
 exit $ERRORS
