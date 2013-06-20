@@ -180,23 +180,23 @@ _:bn11n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/
 _:bn11n02 <http://www.loc.gov/mads/rdf/v1#elementValue> "Relics"@en .
 
 <http://library.ucsd.edu/ark:/20775/bd55639754> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
-<http://library.ucsd.edu/ark:/20775/bd55639754> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/relators> .
+<http://library.ucsd.edu/ark:/20775/bd55639754> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bd5837217p> .
 <http://library.ucsd.edu/ark:/20775/bd55639754> <http://www.loc.gov/mads/rdf/v1#hasExactExternalAuthority> <http://id.loc.gov/vocabulary/relators/cre> .
 <http://library.ucsd.edu/ark:/20775/bd55639754> <http://www.loc.gov/mads/rdf/v1#code> "cre" .
 <http://library.ucsd.edu/ark:/20775/bd55639754> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Creator" .
 
 <http://library.ucsd.edu/ark:/20775/bd4301164f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> . 
-<http://library.ucsd.edu/ark:/20775/bd4301164f> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/relators> .
+<http://library.ucsd.edu/ark:/20775/bd4301164f> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bd5837217p> .
 <http://library.ucsd.edu/ark:/20775/bd4301164f> <http://www.loc.gov/mads/rdf/v1#hasExactExternalAuthority> <http://id.loc.gov/vocabulary/relators/aut> .
 <http://library.ucsd.edu/ark:/20775/bd4301164f> <http://www.loc.gov/mads/rdf/v1#code> "aut" .
 <http://library.ucsd.edu/ark:/20775/bd4301164f> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Author" .
 
 <http://library.ucsd.edu/ark:/20775/bd3004227d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
-<http://library.ucsd.edu/ark:/20775/bd3004227d> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/relators> .
+<http://library.ucsd.edu/ark:/20775/bd3004227d> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bd5837217p> .
 <http://library.ucsd.edu/ark:/20775/bd3004227d> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Decision Maker" .
 
 <http://library.ucsd.edu/ark:/20775/bd0410344f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Language> .
-<http://library.ucsd.edu/ark:/20775/bd0410344f> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/languages> .
+<http://library.ucsd.edu/ark:/20775/bd0410344f> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bd71341600> .
 <http://library.ucsd.edu/ark:/20775/bd0410344f> <http://www.loc.gov/mads/rdf/v1#hasExactExternalAuthority> <http://id.loc.gov/vocabulary/languages/en> .
 <http://library.ucsd.edu/ark:/20775/bd0410344f> <http://www.loc.gov/mads/rdf/v1#code> "en" . 
 <http://library.ucsd.edu/ark:/20775/bd0410344f> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "English" .
@@ -206,8 +206,16 @@ _:bnXXn01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:bnXXn02 .
 _:bnXXn02 <http://www.loc.gov/mads/rdf/v1#elementValue> "English" .
 _:bnXXn02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#LanguageElement> .
 
+<http://library.ucsd.edu/ark:/20775/bd71341600> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#MADSScheme> .
+<http://library.ucsd.edu/ark:/20775/bd71341600> <http://www.w3.org/2000/01/rdf-schema#label> "ISO 639 languages" .
+<http://library.ucsd.edu/ark:/20775/bd71341600> <http://www.loc.gov/mads/rdf/v1#hasExactExternalAuthority> <http://id.loc.gov/vocabulary/languages> .
+
+<http://library.ucsd.edu/ark:/20775/bd5837217p> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#MADSScheme> .
+<http://library.ucsd.edu/ark:/20775/bd5837217p> <http://www.w3.org/2000/01/rdf-schema#label> "MARC Relator Codes" .
+<http://library.ucsd.edu/ark:/20775/bd5837217p> <http://www.loc.gov/mads/rdf/v1#hasExactExternalAuthority> <http://id.loc.gov/vocabulary/relators> .
+
 <http://library.ucsd.edu/ark:/20775/bd91134949> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Language> .
-<http://library.ucsd.edu/ark:/20775/bd91134949> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/languages> .
+<http://library.ucsd.edu/ark:/20775/bd91134949> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bd71341600> .
 <http://library.ucsd.edu/ark:/20775/bd91134949> <http://www.loc.gov/mads/rdf/v1#hasExactExternalAuthority> <http://id.loc.gov/vocabulary/languages/fr> .
 <http://library.ucsd.edu/ark:/20775/bd91134949> <http://www.loc.gov/mads/rdf/v1#code> "fr" . 
 <http://library.ucsd.edu/ark:/20775/bd91134949> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "French" .
