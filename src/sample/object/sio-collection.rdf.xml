@@ -57,7 +57,7 @@
           <mads:Authority rdf:about="http://library.ucsd.edu/ark:/20775/bd8396905c">
             <mads:authoritativeLabel>Repository</mads:authoritativeLabel>
             <mads:code>rps</mads:code>
-            <mads:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/vocabulary/relators"/>
+            <mads:isMemberOfMADSScheme rdf:resource="http://library.ucsd.edu/ark:/20775/bd5837217p"/>
             <mads:definitionNote>An organization that hosts data or material culture objects and provides services to promote long term, consistent and shared use of those data or objects.</mads:definitionNote>
             <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/relators/rps"/>
           </mads:Authority>
@@ -90,7 +90,7 @@
           <mads:Authority rdf:about="http://library.ucsd.edu/ark:/20775/bd70999634">
             <mads:authoritativeLabel>Researcher</mads:authoritativeLabel>
             <mads:code>res</mads:code>
-            <mads:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/vocabulary/relators"/>
+            <mads:isMemberOfMADSScheme rdf:resource="http://library.ucsd.edu/ark:/20775/bd5837217p"/>
             <mads:definitionNote>A person or organization responsible for performing research.</mads:definitionNote>
             <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/relators/res"/>
           </mads:Authority>

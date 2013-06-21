@@ -93,7 +93,7 @@ _:bn01n05 <http://library.ucsd.edu/ontology/dams#uri> "http://library.ucsd.edu/t
 <http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#unitName> "Library Digital Collections" .
 <http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#code> "dlp" .
 <http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#unitDescription> "Search over 56,690 images, documents and video files from the UCSD Libraries." .
-<http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#unitURI> "http://libraries.ucsd.edu/digital/" .
+<http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#unitURI> "http://library.ucsd.edu/dams/" .
 <http://library.ucsd.edu/ark:/20775/bb02020202> <http://library.ucsd.edu/ontology/dams#unitGroup> "dams-curator" .
 
 <http://library.ucsd.edu/ark:/20775/bb48484848> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Unit> .
@@ -307,10 +307,6 @@ _:bn25n01 <http://library.ucsd.edu/ontology/dams#endDate> "2009-05-31" .
 <http://library.ucsd.edu/ark:/20775/bb37373737> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb31313131> .
 <http://library.ucsd.edu/ark:/20775/bb37373737> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "still image" .
 
-<http://library.ucsd.edu/ark:/20775/bb38383838> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
-<http://library.ucsd.edu/ark:/20775/bb37373737> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb31313131> .
-<http://library.ucsd.edu/ark:/20775/bb37373737> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "still image" .
-
 <http://library.ucsd.edu/ark:/20775/bb39393939> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
 <http://library.ucsd.edu/ark:/20775/bb39393939> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb31313131> .
 <http://library.ucsd.edu/ark:/20775/bb39393939> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "three dimensional object" .
@@ -331,21 +327,21 @@ _:bn25n01 <http://library.ucsd.edu/ontology/dams#endDate> "2009-05-31" .
 <http://library.ucsd.edu/ark:/20775/4343434343> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "ISO 3166-1 Country Value List" .
 
 <http://library.ucsd.edu/ark:/20775/bb44444444> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
-<http://library.ucsd.edu/ark:/20775/bb44444444> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/countries> .
+<http://library.ucsd.edu/ark:/20775/bb44444444> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb43434343> .
 <http://library.ucsd.edu/ark:/20775/bb44444444> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Belgium" .
 <http://library.ucsd.edu/ark:/20775/bb44444444> <http://www.loc.gov/mads/rdf/v1#code> "be" .
 
 <http://library.ucsd.edu/ark:/20775/bb45454545> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
-<http://library.ucsd.edu/ark:/20775/bb45454545> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/countries> .
+<http://library.ucsd.edu/ark:/20775/bb45454545> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb43434343> .
 <http://library.ucsd.edu/ark:/20775/bb45454545> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "France" .
 <http://library.ucsd.edu/ark:/20775/bb45454545> <http://www.loc.gov/mads/rdf/v1#code> "fr" .
 
 <http://library.ucsd.edu/ark:/20775/bb46464646> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
-<http://library.ucsd.edu/ark:/20775/bb46464646> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/countries> .
+<http://library.ucsd.edu/ark:/20775/bb46464646> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb43434343> .
 <http://library.ucsd.edu/ark:/20775/bb46464646> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Japan" .
 <http://library.ucsd.edu/ark:/20775/bb46464646> <http://www.loc.gov/mads/rdf/v1#code> "jp" .
 
 <http://library.ucsd.edu/ark:/20775/bb47474747> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
-<http://library.ucsd.edu/ark:/20775/bb47474747> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/vocabulary/countries> .
+<http://library.ucsd.edu/ark:/20775/bb47474747> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bb43434343> .
 <http://library.ucsd.edu/ark:/20775/bb47474747> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "United States" .
 <http://library.ucsd.edu/ark:/20775/bb47474747> <http://www.loc.gov/mads/rdf/v1#code> "us" .
