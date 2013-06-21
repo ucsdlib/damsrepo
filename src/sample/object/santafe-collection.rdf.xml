@@ -17,7 +17,7 @@
         <dams:name>
           <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd94548235">
             <mads:authoritativeLabel>O'Shea, Brian W.,  (Brian William), 1978-</mads:authoritativeLabel>
-            <dams:authority>naf</dams:authority>
+            <mads:isMemberOfMADSScheme rdf:resource="http://library.ucsd.edu/ark:/20775/bd0683587d"/>
             <mads:elementList rdf:parseType="Collection">
               <mads:FamilyNameElement>
                 <mads:elementValue>O'Shea</mads:elementValue>
@@ -83,7 +83,7 @@
     <dams:rightsHolder>
       <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd07175448">
         <mads:authoritativeLabel>Norman, Michael L.</mads:authoritativeLabel>
-        <dams:authority>naf</dams:authority>
+        <mads:isMemberOfMADSScheme rdf:resource="http://library.ucsd.edu/ark:/20775/bd0683587d"/>
         <mads:elementList rdf:parseType="Collection">
           <mads:FamilyNameElement>
             <mads:elementValue>Norman</mads:elementValue>
@@ -96,7 +96,7 @@
     </dams:rightsHolder>
     <dams:corporateName>
       <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bd8806354w">
-        <dams:authority>naf</dams:authority>
+        <mads:isMemberOfMADSScheme rdf:resource="http://library.ucsd.edu/ark:/20775/bd0683587d"/>
         <mads:authoritativeLabel>San Diego Supercomputer Center.</mads:authoritativeLabel>
         <mads:elementList rdf:parseType="Collection">
           <mads:NameElement>
@@ -193,7 +193,7 @@
     <dams:genreForm>
       <mads:GenreForm rdf:about="http://library.ucsd.edu/ark:/20775/bd84650541">
         <mads:authoritativeLabel>Research data</mads:authoritativeLabel>
-        <dams:authority>local</dams:authority>
+        <mads:isMemberOfMADSScheme rdf:resource="http://library.ucsd.edu/ark:/20775/bd9386739x"/>
         <mads:elementList rdf:parseType="Collection">
           <mads:GenreFormElement>
             <mads:elementValue>Research data</mads:elementValue>
@@ -239,7 +239,7 @@ The entire collection was arranged into thirty-one components and described comp
           </mads:GivenNameElement>
         </mads:elementList>
         <mads:authoritativeLabel>Burns, Jack O.</mads:authoritativeLabel>
-        <dams:authority>naf</dams:authority>
+        <mads:isMemberOfMADSScheme rdf:resource="http://library.ucsd.edu/ark:/20775/bd0683587d"/>
       </mads:PersonalName>
     </dams:rightsHolder>
     <dams:language>
@@ -421,7 +421,7 @@ The contents of each project component labeled RD00## are the same:
   </dams:ProvenanceCollection>
   <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bd60418237">
     <mads:authoritativeLabel>University of California, San Diego.. Center for Astrophysics and Space Sciences.</mads:authoritativeLabel>
-    <dams:authority>naf</dams:authority>
+    <mads:isMemberOfMADSScheme rdf:resource="http://library.ucsd.edu/ark:/20775/bd0683587d"/>
     <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/authorities/names/n84131507"/>
     <mads:elementList rdf:parseType="Collection">
       <mads:NameElement>
