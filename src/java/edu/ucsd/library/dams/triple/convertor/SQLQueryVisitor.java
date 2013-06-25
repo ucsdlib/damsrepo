@@ -38,7 +38,7 @@ import com.hp.hpl.jena.sparql.syntax.ElementBind;
 import com.hp.hpl.jena.sparql.syntax.ElementData;
 import com.hp.hpl.jena.sparql.syntax.ElementDataset;
 import com.hp.hpl.jena.sparql.syntax.ElementExists;
-import com.hp.hpl.jena.sparql.syntax.ElementFetch;
+// XXX import com.hp.hpl.jena.sparql.syntax.ElementFetch;
 import com.hp.hpl.jena.sparql.syntax.ElementFilter;
 import com.hp.hpl.jena.sparql.syntax.ElementGroup;
 import com.hp.hpl.jena.sparql.syntax.ElementMinus;
@@ -309,10 +309,10 @@ public class SQLQueryVisitor implements QueryVisitor{
 			// XXX
 			log.debug("Function NOT implemented - (ElementSubQuery elem): " + elem);			
 		}
-		public void visit(ElementFetch elem) {
-			// XXX
-			log.debug("Function NOT implemented - (ElementFetch elem): " + elem);			
-		}
+// XXX		public void visit(ElementFetch elem) {
+// XXX			// XXX
+// XXX			log.debug("Function NOT implemented - (ElementFetch elem): " + elem);			
+// XXX		}
 		public void visit(ElementMinus elem) {
 			// XXX
 			log.debug("Function NOT implemented - (ElementMinus elem): " + elem);			

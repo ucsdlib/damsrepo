@@ -90,40 +90,70 @@
   </xsl:template>
   <xsl:template match="mods:mods/mods:titleInfo|mods:relatedItem/mods:titleInfo">
     <dams:title>
-      <dams:Title>
-        <xsl:if test="@type != ''">
-          <dams:type><xsl:value-of select="@type"/></dams:type>
-        </xsl:if>
-        <rdf:value>
+      <mads:Title>
+        <mads:authoritativeLabel>
           <xsl:value-of select="mods:nonSort"/>
           <xsl:value-of select="mods:title"/>
-        </rdf:value>
-        <xsl:for-each select="mods:subTitle">
-           <dams:subtitle><xsl:value-of select="."/></dams:subtitle>
-        </xsl:for-each>
-        <xsl:for-each select="mods:partNumber">
-           <dams:partNumber><xsl:value-of select="."/></dams:partNumber>
-        </xsl:for-each>
-      </dams:Title>
+          <xsl:for-each select="mods:subTitle">
+            <dams:subtitle><xsl:value-of select="."/></dams:subtitle>
+          </xsl:for-each>
+          <xsl:for-each select="mods:partNumber">
+            <dams:partNumber><xsl:value-of select="."/></dams:partNumber>
+          </xsl:for-each>
+        </mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <xsl:apply-templates/>
+        </mads:elementList>
+      </mads:Title>
     </dams:title>
+  </xsl:template>
+  <xsl:template match="mods:titleInfo/mods:title">
+    <mads:MainTitleElement>
+      <mads:elementValue><xsl:value-of select="."/></mads:elementValue>
+    </mads:MainTitleElement>
+  </xsl:template>
+  <xsl:template match="mods:titleInfo/mods:nonSort">
+    <mads:NonSortElement>
+      <mads:elementValue><xsl:value-of select="."/></mads:elementValue>
+    </mads:NonSortElement>
+  </xsl:template>
+  <xsl:template match="mods:titleInfo/mods:subTitle">
+    <mads:SubTitleElement>
+      <mads:elementValue><xsl:value-of select="."/></mads:elementValue>
+    </mads:SubTitleElement>
+  </xsl:template>
+  <xsl:template match="mods:titleInfo/mods:partNumber">
+    <mads:PartNumberElement>
+      <mads:elementValue><xsl:value-of select="."/></mads:elementValue>
+    </mads:PartNumberElement>
   </xsl:template>
   <xsl:template match="mods:mods/mods:language">
     <dams:language>
-      <dams:Language rdf:about="{generate-id()}">
+      <mads:Language rdf:about="{generate-id()}">
         <xsl:for-each select="mods:languageTerm">
           <xsl:choose>
             <xsl:when test="@type='code'">
-              <dams:code><xsl:value-of select="."/></dams:code>
+              <mads:code><xsl:value-of select="."/></mads:code>
+              <xsl:call-template name="authority">
+                <xsl:with-param name="auth" select="@authority"/>
+                <xsl:with-param name="code" select="."/>
+              </xsl:call-template>
             </xsl:when>
             <xsl:when test="@type='text'">
-              <rdf:value><xsl:value-of select="."/></rdf:value>
+              <mads:authoritativeLabel>
+                <xsl:value-of select="."/>
+              </mads:authoritativeLabel>
+              <mads:elementList rdf:parseType="Collection">
+                <mads:LanguageElement>
+                  <mads:elementValue>
+                    <xsl:value-of select="."/>
+                  </mads:elementValue>
+                </mads:LanguageElement>
+              </mads:elementList>
             </xsl:when>
           </xsl:choose>
-          <xsl:if test="@authority != ''">
-            <dams:authority><xsl:value-of select="@authority"/></dams:authority>
-          </xsl:if>
         </xsl:for-each>
-      </dams:Language>
+      </mads:Language>
     </dams:language>
   </xsl:template>
   <xsl:template match="mods:mods/mods:typeOfResource">
@@ -208,8 +238,8 @@
       <xsl:when test="@displayLabel = 'Rights'">
         <dams:copyright>
           <dams:Copyright rdf:about="{generate-id()}">
-            <dams:copyrightStatus>XXX</dams:copyrightStatus>
-            <dams:copyrightJurisdiction>XXX</dams:copyrightJurisdiction>
+            <dams:copyrightStatus>Under copyright</dams:copyrightStatus>
+            <dams:copyrightJurisdiction>us</dams:copyrightJurisdiction>
             <dams:copyrightNote><xsl:value-of select="."/></dams:copyrightNote>
             <xsl:for-each select="//mods:accessCondition[@displayLabel='Access']">
               <dams:copyrightPurposeNote>
@@ -293,31 +323,28 @@
     <dams:relationship>
       <dams:Relationship>
         <dams:role>
-          <dams:Role rdf:about="{generate-id()}">
+          <mads:Authority rdf:about="{generate-id()}">
             <xsl:choose>
               <xsl:when test="mods:role">
                 <xsl:for-each select="mods:role/mods:roleTerm[@type='code']">
-                  <dams:code>
-                    <xsl:value-of select="."/>
-                  </dams:code>
+                  <mads:code><xsl:value-of select="."/></mads:code>
+                  <xsl:call-template name="authority">
+                    <xsl:with-param name="auth" select="@authority"/>
+                    <xsl:with-param name="code" select="."/>
+                  </xsl:call-template>
                 </xsl:for-each>
                 <xsl:for-each select="mods:role/mods:roleTerm[@type='text']">
-                  <rdf:value>
+                  <mads:authoritativeLabel>
                     <xsl:value-of select="."/>
-                  </rdf:value>
+                  </mads:authoritativeLabel>
                 </xsl:for-each>
-                <xsl:if test="mods:role/mods:roleTerm/@authority != ''">
-                  <dams:authority>
-                    <xsl:value-of select="mods:role/mods:roleTerm/@authority"/>
-                  </dams:authority>
-                </xsl:if>
               </xsl:when>
               <xsl:otherwise>
                 <dams:code>cre</dams:code>
                 <rdf:value>Creator</rdf:value>
               </xsl:otherwise>
             </xsl:choose>
-          </dams:Role>
+          </mads:Authority>
         </dams:role>
         <dams:name>
           <xsl:call-template name="name"/>
@@ -326,12 +353,45 @@
     </dams:relationship>
   </xsl:template>
   <xsl:template name="authority">
-    <xsl:if test="@authority != ''">
-      <dams:authority><xsl:value-of select="@authority"/></dams:authority>
+    <xsl:param name="auth"/>
+    <xsl:param name="code"/>
+    <xsl:param name="uri"/>
+    <xsl:if test="$uri != ''">
+      <mads:hasExactExternalAuthority rdf:resource="{$uri}"/>
     </xsl:if>
-    <xsl:if test="@authorityURI != ''">
-      <dams:authorityURI rdf:resource="{@authorityURI}"/>
-    </xsl:if>
+    <xsl:choose>
+      <xsl:when test="$auth = 'iso639-2b'">
+        <mads:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/vocabulary/iso639-2"/>
+        <xsl:if test="$code != '' and $uri = ''">
+          <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/iso639-2/{$code}"/>
+        </xsl:if>
+      </xsl:when>
+      <xsl:when test="$auth = 'lcsh'">
+        <mads:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/authorities/subjects"/>
+      </xsl:when>
+      <xsl:when test="$auth = 'marcrelator'">
+        <mads:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/vocabulary/relators"/>
+        <xsl:if test="$code != '' and $uri = ''">
+          <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/relators/{$code}"/>
+        </xsl:if>
+      </xsl:when>
+      <xsl:when test="$auth = 'naf'">
+        <mads:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/authorities/names"/>
+      </xsl:when>
+      <xsl:when test="$auth = 'rbgenr'">
+        <mads:isMemberOfMADSScheme rdf:resource="http://www.rbms.info/committees/bibliographic_standards/controlled_vocabularies/genre/"/>
+      </xsl:when>
+      <xsl:when test="$auth = 'local'">
+        <mads:isMemberOfMADSScheme rdf:resource="http://library.ucsd.edu/ontology/dams/vocabulary"/>
+      </xsl:when>
+      <xsl:when test="$auth != ''">
+        <mads:isMemberOfMADSScheme>
+          <mads:MADSScheme rdf:about="{generate-id()}">
+            <mads:code><xsl:value-of select="$auth"/></mads:code>
+          </mads:MADSScheme>
+        </mads:isMemberOfMADSScheme>
+      </xsl:when>
+    </xsl:choose>
   </xsl:template>
   <xsl:template name="name" match="mods:subject/mods:name">
     <xsl:variable name="elementName">
@@ -358,9 +418,11 @@
           </xsl:otherwise>
         </xsl:choose>
       </mads:authoritativeLabel>
-      <xsl:call-template name="authority"/>
+      <xsl:call-template name="authority">
+        <xsl:with-param name="auth" select="@authority"/>
+      </xsl:call-template>
       <xsl:if test="mods:description != ''">
-        <owl:sameAs rdf:resource="{normalize-space(mods:description)}"/>
+        <mads:hasExactExternalAuthority rdf:resource="{normalize-space(mods:description)}"/>
       </xsl:if>
       <mads:elementList rdf:parseType="Collection">
         <xsl:choose>
@@ -405,7 +467,9 @@
       <xsl:when test="count(*) &gt; 1">
         <dams:complexSubject>
           <mads:ComplexSubject rdf:about="{generate-id()}">
-            <xsl:call-template name="authority"/>
+            <xsl:call-template name="authority">
+              <xsl:with-param name="auth" select="@authority"/>
+            </xsl:call-template>
             <mads:authoritativeLabel>
               <xsl:for-each select="*">
                 <xsl:if test="position() &gt; 1">--</xsl:if>
@@ -485,7 +549,9 @@
       <xsl:attribute name="rdf:about">
         <xsl:value-of select="generate-id()"/>
       </xsl:attribute>
-      <xsl:call-template name="authority"/>
+      <xsl:call-template name="authority">
+        <xsl:with-param name="auth" select="@authority"/>
+      </xsl:call-template>
       <mads:authoritativeLabel>
         <xsl:value-of select="."/>
       </mads:authoritativeLabel>

@@ -1017,6 +1017,7 @@ class RelationalStatementIterator extends StatementIterator
 		{
 			RelationalTripleStore.log.warn( "Error listing statements", ex );
 		}
+		RelationalTripleStore.log.warn("rs: " + stmt.toString());
 		return stmt;
 	}
 	public void close()

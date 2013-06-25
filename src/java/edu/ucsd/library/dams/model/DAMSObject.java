@@ -214,6 +214,7 @@ public class DAMSObject
 		while ( it.hasNext() )
 		{
 			Statement stmt = it.nextStatement();
+			log.debug("process: "  + stmt.toString() );
 			slist.add(stmt);
 
 			// move identifier from todo to done

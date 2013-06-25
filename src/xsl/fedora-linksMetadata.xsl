@@ -27,7 +27,15 @@
                     <xsl:otherwise>Dams</xsl:otherwise>
                   </xsl:choose>
                 </xsl:variable>
-                <ns0:hasModel rdf:resource="info:fedora/afmodel:{$prefix}{local-name()}"></ns0:hasModel>
+                <xsl:variable name="suffix">
+                  <xsl:choose>
+                    <xsl:when test="starts-with(local-name(),'MADS') or starts-with(local-name(),'DAMS')">
+                      <xsl:value-of select="substring(local-name(),5)"/>
+                    </xsl:when>
+                    <xsl:otherwise><xsl:value-of select="local-name()"/></xsl:otherwise>
+                  </xsl:choose>
+                </xsl:variable>
+                <ns0:hasModel rdf:resource="info:fedora/afmodel:{$prefix}{$suffix}"></ns0:hasModel>
               </xsl:if>
             </xsl:for-each>
           </xsl:otherwise>

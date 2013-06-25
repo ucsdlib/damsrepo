@@ -232,6 +232,7 @@
 
     <!-- copy webapp -->
     <copy file="${dist}/${appName}.war" todir="${jetty.home}/webapps"/>
+    <touch file="${jetty.home}/contexts/dams.xml"/>
 
     <!-- command-line scripts -->
     <copy todir="${jetty.home}/dams/bin">

@@ -145,6 +145,7 @@ public class TripleStoreUtil
 		Map<String,String> nsmap ) throws TripleStoreException
 	{
 		outputRDF( iter, writer, "RDF/XML-ABBREV", nsmap );
+		//outputRDF( iter, writer, "RDF/XML", nsmap );
 	}
 	/**
 	 * Output a set of Statements as NTriples.
@@ -187,6 +188,7 @@ public class TripleStoreUtil
 		Model m, edu.ucsd.library.dams.triple.Statement stmt )
 		throws TripleStoreException
 	{
+		log.info("s1: " + stmt.toString());
 		Resource s = toResource( m, stmt.getSubject() );
 		Property p = toProperty( m, stmt.getPredicate() );
 		RDFNode  o = stmt.hasLiteralObject() ?
@@ -357,6 +359,7 @@ public class TripleStoreUtil
 					Identifier objectSubj = objectSubject(parent,idNS);
 
 					// add triple
+					log.debug( "s3: " + stmt.toString() );
 					ts.addStatement( stmt, objectSubj );
 				}
 				else
@@ -462,6 +465,7 @@ public class TripleStoreUtil
 				Identifier objectSubj = objectSubject(parent,idNS);
 
 				// add statement and remove from orphans list
+				log.debug( "s2: " + orphan.toString() );
 				ts.addStatement( orphan, objectSubj );
 				orphans.remove( orphan );
 				i--;
