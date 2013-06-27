@@ -7,7 +7,8 @@
       xmlns:owl="http://www.w3.org/2002/07/owl#"
       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
       xmlns:xlink="http://www.w3.org/1999/xlink"
-      xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+      xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
   <xsl:output method="xml" indent="yes"/>
   <xsl:variable name="madsNS">http://www.loc.gov/mads/rdf/v1#</xsl:variable>
   <xsl:variable name="damsid">http://library.ucsd.edu/ark:/20775/</xsl:variable>
@@ -356,42 +357,50 @@
     <xsl:param name="auth"/>
     <xsl:param name="code"/>
     <xsl:param name="uri"/>
-    <xsl:if test="$uri != ''">
-      <mads:hasExactExternalAuthority rdf:resource="{$uri}"/>
-    </xsl:if>
     <xsl:choose>
-      <xsl:when test="$auth = 'iso639-2b'">
-        <mads:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/vocabulary/iso639-2"/>
-        <xsl:if test="$code != '' and $uri = ''">
-          <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/iso639-2/{$code}"/>
-        </xsl:if>
+      <xsl:when test="$uri != ''">
+        <mads:hasExactExternalAuthority rdf:resource="{$uri}"/>
       </xsl:when>
-      <xsl:when test="$auth = 'lcsh'">
-        <mads:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/authorities/subjects"/>
+      <xsl:when test="$auth = 'iso639-2b' and $code != ''">
+        <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/iso639-2/{$code}"/>
       </xsl:when>
-      <xsl:when test="$auth = 'marcrelator'">
-        <mads:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/vocabulary/relators"/>
-        <xsl:if test="$code != '' and $uri = ''">
-          <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/relators/{$code}"/>
-        </xsl:if>
-      </xsl:when>
-      <xsl:when test="$auth = 'naf'">
-        <mads:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/authorities/names"/>
-      </xsl:when>
-      <xsl:when test="$auth = 'rbgenr'">
-        <mads:isMemberOfMADSScheme rdf:resource="http://www.rbms.info/committees/bibliographic_standards/controlled_vocabularies/genre/"/>
-      </xsl:when>
-      <xsl:when test="$auth = 'local'">
-        <mads:isMemberOfMADSScheme rdf:resource="http://library.ucsd.edu/ontology/dams/vocabulary"/>
-      </xsl:when>
-      <xsl:when test="$auth != ''">
-        <mads:isMemberOfMADSScheme>
-          <mads:MADSScheme rdf:about="{generate-id()}">
-            <mads:code><xsl:value-of select="$auth"/></mads:code>
-          </mads:MADSScheme>
-        </mads:isMemberOfMADSScheme>
+      <xsl:when test="$auth = 'marcrelator' and code != ''">
+        <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/relators/{$code}"/>
       </xsl:when>
     </xsl:choose>
+    <xsl:if test="$auth != ''">
+      <mads:isMemberOfMADSScheme>
+        <mads:MADSScheme rdf:about="{generate-id()}">
+          <mads:code><xsl:value-of select="$auth"/></mads:code>
+          <xsl:choose>
+            <xsl:when test="$auth = 'iso639-2b'">
+              <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/iso639-2"/>
+              <rdfs:label>ISO 639 Language Codes</rdfs:label>
+            </xsl:when>
+            <xsl:when test="$auth = 'lcsh'">
+              <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/authorities/subjects"/>
+              <rdfs:label>Library of Congress Subject Headings</rdfs:label>
+            </xsl:when>
+            <xsl:when test="$auth = 'marcrelator'">
+              <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/relators"/>
+              <rdfs:label>MARC Relator Codes</rdfs:label>
+            </xsl:when>
+            <xsl:when test="$auth = 'naf'">
+              <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/authorities/names"/>
+              <rdfs:label>Library of Congress Name Authority File</rdfs:label>
+            </xsl:when>
+            <xsl:when test="$auth = 'rbgenr'">
+              <mads:hasExactExternalAuthority rdf:resource="http://www.rbms.info/committees/bibliographic_standards/controlled_vocabularies/genre/"/>
+              <rdfs:label>RBMS Genre Terms</rdfs:label>
+            </xsl:when>
+            <xsl:when test="$auth = 'local'">
+              <mads:hasExactExternalAuthority rdf:resource="http://library.ucsd.edu/ontology/dams/vocabulary"/>
+              <rdfs:label>Local</rdfs:label>
+            </xsl:when>
+          </xsl:choose>
+        </mads:MADSScheme>
+      </mads:isMemberOfMADSScheme>
+    </xsl:if>
   </xsl:template>
   <xsl:template name="name" match="mods:subject/mods:name">
     <xsl:variable name="elementName">
