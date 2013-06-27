@@ -105,8 +105,6 @@ import edu.ucsd.library.dams.jhove.MyJhoveBase;
 import edu.ucsd.library.dams.model.DAMSObject;
 import edu.ucsd.library.dams.model.Event;
 import edu.ucsd.library.dams.solr.SolrFormat;
-import edu.ucsd.library.dams.solr.SolrHelper;
-import edu.ucsd.library.dams.solr.SolrIndexer;
 import edu.ucsd.library.dams.triple.ArkTranslator;
 import edu.ucsd.library.dams.triple.BindingIterator;
 import edu.ucsd.library.dams.triple.Identifier;
