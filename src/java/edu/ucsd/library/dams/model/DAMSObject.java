@@ -351,9 +351,11 @@ public class DAMSObject
 			);
 			com.hp.hpl.jena.rdf.model.Statement typeSt
 				= m.getProperty(sub,rdfType);
-			String recordType = typeSt.getObject().toString();
-			if ( recordType.endsWith("Collection")
-				|| recordType.endsWith("CollectionPart") )
+			String recordType = null;
+			try { recordType = typeSt.getObject().toString(); }
+			catch ( Exception ex ) { }
+			if ( recordType != null && ( recordType.endsWith("Collection")
+				|| recordType.endsWith("CollectionPart")) )
 			{
 				long records = countObjectsInCollection(id,ts);
 
@@ -427,6 +429,7 @@ public class DAMSObject
 		}
 		catch ( Exception ex )
 		{
+			ex.printStackTrace();
 			throw new TripleStoreException( ex );
 		}
 	}
