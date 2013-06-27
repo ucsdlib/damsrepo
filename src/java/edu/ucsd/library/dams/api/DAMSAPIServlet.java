@@ -1452,13 +1452,14 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public Map collectionCount( String colid, TripleStore ts )
 	{
-		return count( "dams:collection", colid, ts );
+		String[] preds = new String[]{"dams:collection","dams:assembledCollection","dams:provenanceCollection","dams:provenanceCollectionPart"};
+		return count( preds, colid, ts );
 	}
 	public Map unitCount( String repid, TripleStore ts )
 	{
-		return count( "dams:unit", repid, ts );
+		return count( new String[]{"dams:unit"}, repid, ts );
 	}
-	protected Map count( String pred, String obj, TripleStore ts )
+	protected Map count( String[] pred, String obj, TripleStore ts )
 	{
 		try
 		{
@@ -1470,10 +1471,30 @@ public class DAMSAPIServlet extends HttpServlet
 					pred + " does not exist"
 				);
 			}
+			if ( pred == null || pred.length < 1 )
+			{
+				return null;
+			}
 
-			Identifier pre = createPred( pred );
-			String sparql = "select ?id where { ?id <" + pre.getId() + "> "
-				+ "<" + objid.getId() + "> }";
+			String sparql = "select ?id where ";
+			if ( pred.length == 1 )
+			{
+				Identifier pre = createPred( pred[0] );
+ 				sparql += "{ ?id <" + pre.getId() + "> "
+					+ "<" + objid.getId() + "> }";
+			}
+			else
+			{
+				sparql += "{";
+				for ( int i = 0; i < pred.length; i++ )
+				{
+					if ( i > 0 ) { sparql += " UNION "; }
+					Identifier pre = createPred( pred[i] );
+					sparql += "{?id <" + pre.getId() + "> "
+						+ "<" + objid.getId() + "> }";
+				}
+				sparql += "}";
+			}
 
 			long count = ts.sparqlCount( sparql );
 			Map info = new LinkedHashMap();

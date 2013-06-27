@@ -2,7 +2,6 @@ package edu.ucsd.library.dams.triple;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.text.NumberFormat;
@@ -138,88 +137,7 @@ public class TripleStoreUtil
 		return nsmap;
 	}
 
-	/**
-	 * Output a set of Statements as RDF/XML.
-	**/
-	public static void outputRDFXML( StatementIterator iter, Writer writer,
-		Map<String,String> nsmap ) throws TripleStoreException
-	{
-		outputRDF( iter, writer, "RDF/XML-ABBREV", nsmap );
-		//outputRDF( iter, writer, "RDF/XML", nsmap );
-	}
-	/**
-	 * Output a set of Statements as NTriples.
-	**/
-	public static void outputNTriples( StatementIterator iter, Writer writer,
-		Map<String,String> nsmap ) throws TripleStoreException
-	{
-		outputRDF( iter, writer, "N-TRIPLE", nsmap );
-	}
-	private static void outputRDF( StatementIterator it, Writer writer,
-		String format, Map<String,String> nsmap ) throws TripleStoreException
-	{
-		Model model = ModelFactory.createDefaultModel();
-		try
-		{
-			// load statements into a jena model
-			for ( int i = 0; it.hasNext(); i++ )
-			{
-				model.add( jenaStatement(model,it.nextStatement()) );
-			}
-
-			// register namespace prefixes
-			for (Iterator<String> i2 = nsmap.keySet().iterator(); i2.hasNext();)
-			{
-				String prefix = i2.next();
-				if ( prefix.indexOf(":") == -1 )
-				{
-					model.setNsPrefix( prefix, nsmap.get(prefix) );
-				}
-			}
-
-			model.write( writer, format );
-		}
-		catch ( Exception ex )
-		{
-			throw new TripleStoreException( ex );
-		}
-	}
-	private static com.hp.hpl.jena.rdf.model.Statement jenaStatement(
-		Model m, edu.ucsd.library.dams.triple.Statement stmt )
-		throws TripleStoreException
-	{
-		log.info("s1: " + stmt.toString());
-		Resource s = toResource( m, stmt.getSubject() );
-		Property p = toProperty( m, stmt.getPredicate() );
-		RDFNode  o = stmt.hasLiteralObject() ?
-			toLiteral(m,stmt.getLiteral()) : toResource(m,stmt.getObject());
-		return m.createStatement(s, p, o);
-	}
-	private static Resource toResource( Model m, Identifier id )
-	{
-		Resource res = null;
-		if ( id != null && id.isBlankNode() )
-		{
-			res = m.createResource( new AnonId(id.getId()) );
-		}
-		else if ( id != null )
-		{
-			res = m.createResource( id.getId() );
-		}
-		return res;
-	}
-	private static Property toProperty( Model m, Identifier id )
-		throws TripleStoreException
-	{
-		Property prop = null;
-		if ( id != null && !id.isBlankNode() )
-		{
-			String ark = id.getId();
-			prop = m.createProperty( ark );
-		}
-		return prop;
-	}
-	private static Literal toLiteral( Model m, String s )
+	public static Literal toLiteral( Model m, String s )
 	{
 		if ( m == null ) { m = staticModel; }
 		// literal with language tag
@@ -314,7 +232,6 @@ public class TripleStoreUtil
 				//throw new TripleStoreException("Error removing RDF data", ex);
 			}
 		}
-
 
 		// iterate over all statements and load into triplestore
 		try
