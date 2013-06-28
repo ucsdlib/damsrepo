@@ -302,7 +302,7 @@ public class DAMSAPIServlet extends HttpServlet
 			for ( int i = 0; i < minterNames.length; i++ )
 			{
 				idMinters.put(
-					minterNames[0], props.getProperty("minters."+minterNames[0])
+					minterNames[i], props.getProperty("minters."+minterNames[i])
 				);
 			}
 			nsmap = TripleStoreUtil.namespaceMap(props);
