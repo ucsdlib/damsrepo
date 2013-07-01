@@ -1,3 +1,5 @@
+<http://library.ucsd.edu/ark:/20775/bd76461085> <http://library.ucsd.edu/ark:/20775/bd4608335b> "rdfs:label" .
+<http://library.ucsd.edu/ark:/20775/bd76461085> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://www.w3.org/2000/01/rdf-schema#label> .
 <http://library.ucsd.edu/ark:/20775/bd4608335b> <http://library.ucsd.edu/ark:/20775/bd4608335b> "rdf:label" .
 <http://library.ucsd.edu/ark:/20775/bd4608335b> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://www.w3.org/1999/02/22-rdf-syntax-ns#label> .
 <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ark:/20775/bd4608335b> "owl:sameAs" .
