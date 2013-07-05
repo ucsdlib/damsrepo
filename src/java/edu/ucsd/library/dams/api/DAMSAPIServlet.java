@@ -155,6 +155,7 @@ public class DAMSAPIServlet extends HttpServlet
 	protected String idNS;                // Prefix for unqualified identifiers
 	protected String prNS;                // Prefix for unqualified predicates
 	protected String rdfNS;               // Prefix for RDF predicates
+	protected String madsNS;               // Prefix for MADS ontology predicates
 
 	// uploads
 	private int uploadCount = 0; // current number of uploads being processed
@@ -309,6 +310,7 @@ public class DAMSAPIServlet extends HttpServlet
 			idNS = nsmap.get("damsid");
 			prNS = nsmap.get("dams");
 			rdfNS = nsmap.get("rdf");
+			madsNS = nsmap.get("mads");
 
 			// solr
 			solrBase = props.getProperty("solr.base");
@@ -1759,7 +1761,7 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	public List<Map<String,String>> collectionListAll( TripleStore ts, String type ) throws Exception
 	{
-		String sparql = "select ?collection ?title where { ?collection <" + prNS + "title> ?bn . ?bn <" + rdfNS + "value> ?title . ?collection <" + rdfNS + "type> <" + prNS + type + "> }";
+		String sparql = "select ?collection ?title where { ?collection <" + prNS + "title> ?bn . ?bn <" + madsNS + "authoritativeLabel> ?title . ?collection <" + rdfNS + "type> <" + prNS + type + "> }";
 		BindingIterator bit = ts.sparqlSelect(sparql);
 		List<Map<String,String>> cols = bindings(bit);
 
