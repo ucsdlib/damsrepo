@@ -168,12 +168,14 @@
     </dams:typeOfResource>
   </xsl:template>
   <xsl:template match="mods:physicalDescription/mods:extent">
-    <dams:note>
-      <dams:Note>
-        <dams:type>extent</dams:type>
-        <rdf:value><xsl:value-of select="."/></rdf:value>
-      </dams:Note>
-    </dams:note>
+    <xsl:if test="not(/mods:modsCollection)">
+      <dams:note>
+        <dams:Note>
+          <dams:type>extent</dams:type>
+          <rdf:value><xsl:value-of select="."/></rdf:value>
+        </dams:Note>
+      </dams:note>
+    </xsl:if>
   </xsl:template>
   <xsl:template match="mods:mods/mods:abstract">
     <dams:note>
@@ -216,6 +218,20 @@
         </xsl:if>
       </dams:RelatedResource>
     </dams:relatedResource>
+  </xsl:template>
+  <xsl:template match="mods:mods/mods:note[@type='citation']" priority="1">
+    <xsl:if test="text() != ''">
+      <dams:preferredCitationNote>
+        <dams:PreferredCitationNote>
+          <xsl:if test="@displayLabel != ''">
+            <dams:displayLabel>
+              <xsl:value-of select="@displayLabel" disable-output-escaping="yes"/>
+            </dams:displayLabel>
+          </xsl:if>
+          <rdf:value><xsl:value-of select="."/></rdf:value>
+        </dams:PreferredCitationNote>
+      </dams:preferredCitationNote>
+    </xsl:if>
   </xsl:template>
   <xsl:template match="mods:mods/mods:note|mods:mods/mods:physicalDescription/mods:note|mods:relatedItem/mods:note">
     <xsl:if test="text() != ''">

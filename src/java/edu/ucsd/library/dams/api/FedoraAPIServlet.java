@@ -261,15 +261,29 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			else if ( path.length == 5 && path[1].equals("objects")
 				&& path[3].equals("datastreams") )
 			{
-				ts = triplestore(req);
-				es = events(req);
-				Map<String,String[]> params = new HashMap<String,String[]>();
-				params.put("dsName",new String[]{path[4]});
-				outputTransform(
-					path[2], cmpid(path[4]), fileid(path[4]),
-					true, datastreamProfileTransform, params, "application/xml",
-					res.SC_OK, ts, es, res
-				);
+				// check if file exists and send 404 if not
+				fs = filestore(req);
+				if (path[4].equals(fedoraObjectDS)
+					|| path[4].equals(fedoraRightsDS)
+					|| path[4].equals(fedoraLinksDS)
+					|| path[4].equals(fedoraSystemDS)
+					|| fs.exists(path[2],cmpid(path[4]),fileid(path[4])) )
+				{
+					// if the file exists, send profile
+					ts = triplestore(req);
+					es = events(req);
+					Map<String,String[]> params = new HashMap<String,String[]>();
+					params.put("dsName",new String[]{path[4]});
+					outputTransform(
+						path[2], cmpid(path[4]), fileid(path[4]),
+						true, datastreamProfileTransform, params,
+						"application/xml", res.SC_OK, ts, es, res
+					);
+				}
+				else
+				{
+					output( res.SC_NOT_FOUND, "File not found: " + req.getPathInfo(), "text/plain", res );
+				}
 			}
 			// GET /objects/[oid]/datastreams/[fedoraObjectDS]/content
 			// STATUS: TEST
@@ -630,6 +644,12 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					true, datastreamProfileTransform, params, "application/xml",
 					res.SC_OK, ts, es, res
 				);
+			}
+			// PUT /objects/[oid]
+			// STATUS: WORKING
+			else if ( path.length == 3 && path[1].equals("objects") )
+			{
+				// required for file uploads to work, doesn't need a response
 			}
 			else
 			{

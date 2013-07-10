@@ -2745,8 +2745,6 @@ private static String listToString(String[] arr)
 	{
 		try
 		{
-			//in = debugInputStream(in);
-
 			// make sure an identifier is specified
 			if ( objid == null || objid.trim().equals("") )
 			{
