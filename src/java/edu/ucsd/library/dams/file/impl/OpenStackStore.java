@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.PrintStream;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +51,13 @@ public class OpenStackStore implements FileStore
 	{
 		try
 		{
-			client = new SwiftClient( props, System.out );
+			PrintStream out = null;
+			String debug = props.getProperty("debug");
+			if ( debug != null && !debug.equals("") && !debug.equals("false") )
+			{
+				out = System.out;
+			}
+			client = new SwiftClient( props, out );
 			orgCode = props.getProperty("orgCode");
 		}
 		catch ( IOException ex )
@@ -136,13 +143,14 @@ public class OpenStackStore implements FileStore
 			for ( int i = 0; i < files.size(); i++ )
 			{
 				String fn = files.get(i);
+				String orig = fn;
 				if ( fn.startsWith(stem) )
 				{
 					fn = fn.substring(stem.length());
-				}
-				if ( !fn.equals("manifest.txt") && !fn.endsWith("/") )
-				{
-					files2.add( fn );
+					if ( !fn.equals("manifest.txt") && !fn.endsWith("/") )
+					{
+						files2.add( fn );
+					}
 				}
 			}
 
@@ -303,6 +311,27 @@ public class OpenStackStore implements FileStore
 	public void close() throws FileStoreException
 	{
 		client = null;
+	}
+	public void copy( String srcObjID, String srcCompID, String srcFileID,
+		String dstObjID, String dstCompID, String dstFileID )
+		throws FileStoreException
+	{
+		try
+		{
+			// make sure destination container exists
+			if ( !client.exists(dstObjID,null) )
+			{
+				client.createContainer(dstObjID);
+			}
+			client.copy(
+				cn(orgCode,srcObjID), fn(orgCode,srcObjID,srcCompID,srcFileID),
+				cn(orgCode,dstObjID), fn(orgCode,dstObjID,dstCompID,dstFileID)
+			);
+		}
+		catch ( IOException ex )
+		{
+			throw new FileStoreException(ex);
+		}
 	}
 	public void trash( String objectID, String componentID, String fileID )
 		throws FileStoreException

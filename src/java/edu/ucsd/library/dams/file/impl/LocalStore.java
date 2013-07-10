@@ -290,6 +290,13 @@ public class LocalStore implements FileStore
 		this.baseDir = null;
 		this.baseLength = 0;
 	}
+	public void copy( String srcObjID, String srcCompID, String srcFileID,
+		String dstObjID, String dstCompID, String dstFileID )
+		throws FileStoreException
+	{
+		InputStream in = getInputStream( srcObjID, srcCompID, srcFileID );
+		write( dstObjID, dstCompID, dstFileID, in );
+	}
 	public void trash( String objectID, String componentID, String fileID )
 		throws FileStoreException
 	{
@@ -347,7 +354,7 @@ public class LocalStore implements FileStore
 		if ( componentID == null ) { componentID = "0"; }
 		String file = stem(objectID) + componentID + "-" + fileID;
 		File f = new File( dir(objectID), file );
-		log.info("getFile: " + f.getAbsolutePath() );
+		log.debug("getFile: " + f.getAbsolutePath() );
 		return f;
 	}
 

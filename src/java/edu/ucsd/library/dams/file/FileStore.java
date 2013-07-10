@@ -95,6 +95,15 @@ public interface FileStore
 		throws FileStoreException;
 
 	/**
+	 * Copy a file within a filestore.  In some implementations, this may be
+	 * implemented using copying functionality internal to the storage resource,	 * which is usually more efficient than retrieving a file and writing it to
+	 * a new file.
+	**/
+    public void copy( String srcObjID, String srcCompID, String srcFileID, 
+        String dstObjID, String dstCompID, String dstFileID )
+        throws FileStoreException;
+
+	/**
 	 * Get the organization code.
 	**/
 	public String orgCode() throws FileStoreException;

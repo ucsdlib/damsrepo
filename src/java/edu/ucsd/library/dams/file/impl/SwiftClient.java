@@ -535,7 +535,7 @@ public class SwiftClient
 			HttpPut put = new HttpPut( url );
 			put.addHeader( "X-Auth-Token", authToken );
 			put.addHeader( "X-Copy-From", "/" + srcContainer + "/" + srcObject);
-			put.addHeader( "Content-Length" , "0" );
+			//put.addHeader( "Content-Length" , "0" );
 			try
 			{
 				HttpUtil http = new HttpUtil( client, put );
