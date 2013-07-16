@@ -1,18 +1,19 @@
 package edu.ucsd.library.dams.commands;
 
 import java.io.FileInputStream;
-import java.util.Iterator;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
 
+import edu.ucsd.library.dams.file.Checksum;
 import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.file.FileStoreUtil;
 
 /**
- * List files in an object.
+ * Checksum files in an object.
  * @author escowles@ucsd.edu
 **/
-public class FileStoreList
+public class FileStoreChecksum
 {
 	public static void main( String[] args ) throws Exception
 	{
@@ -38,7 +39,14 @@ public class FileStoreList
 			for ( int j = 0; j < files.length; j++ )
 			{
 				long len = fs.length( objid, comps[i], files[j] );
-				System.out.println( comps[i] + " " + files[j] + " " + len );
+				InputStream in = fs.getInputStream(objid, comps[i], files[j] );
+				Map<String,String> checksums = Checksum.checksums(
+					in, null, false, true, false, false, false
+				);
+				String md5 = checksums.get("md5");
+				System.out.println(
+					comps[i] + " " + files[j] + " " + len + " " +  md5
+				);
 			}
 		}
 
