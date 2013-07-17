@@ -178,20 +178,33 @@
     </xsl:if>
   </xsl:template>
   <xsl:template match="mods:mods/mods:abstract">
-    <dams:note>
-      <dams:Note>
-        <dams:displayLabel>
-          <xsl:choose>
-            <xsl:when test="@displayLabel != ''">
-              <xsl:value-of select="@displayLabel"/>
-            </xsl:when>
-            <xsl:otherwise>Abstract</xsl:otherwise>
-          </xsl:choose>
-        </dams:displayLabel>
-        <dams:type>abstract</dams:type>
-        <rdf:value><xsl:value-of select="."/></rdf:value>
-      </dams:Note>
-    </dams:note>
+    <xsl:choose>
+      <xsl:when test="@displayLabel = 'Scope and Contents note' or @displayLabel = 'Contents'">
+        <dams:scopeContentNote>
+          <dams:ScopeContentNote>
+            <dams:displayLabel>Scope and Contents</dams:displayLabel>
+            <dams:type>scopeAndContent</dams:type>
+            <rdf:value><xsl:value-of select="."/></rdf:value>
+          </dams:ScopeContentNote>
+        </dams:scopeContentNote>
+      </xsl:when>
+      <xsl:otherwise>
+        <dams:note>
+          <dams:Note>
+            <dams:displayLabel>
+              <xsl:choose>
+                <xsl:when test="@displayLabel != ''">
+                  <xsl:value-of select="@displayLabel"/>
+                </xsl:when>
+                <xsl:otherwise>Abstract</xsl:otherwise>
+              </xsl:choose>
+            </dams:displayLabel>
+            <dams:type>abstract</dams:type>
+            <rdf:value><xsl:value-of select="."/></rdf:value>
+          </dams:Note>
+        </dams:note>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   <xsl:template match="mods:mods/mods:relatedItem">
     <dams:relatedResource>
