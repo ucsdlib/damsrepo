@@ -1956,7 +1956,8 @@ public class DAMSAPIServlet extends HttpServlet
 				else
 				{
 					// if file not available locally, copy to local disk
-					File srcFile = File.createTempFile( "jhovetmp", null );
+					String fileExt = fileid.indexOf(".")>0?fileid.substring(fileid.indexOf(".")):"";
+					File srcFile = File.createTempFile( "jhovetmp",  fileExt);
 					long fileSize = fs.length(objid, cmpid, fileid);
 
 					// make sure file is not too large to copy locally...
