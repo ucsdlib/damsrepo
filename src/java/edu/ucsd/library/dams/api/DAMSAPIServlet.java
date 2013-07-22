@@ -2112,8 +2112,8 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					//indexQueue(objid,"modifyObject");
 					createEvent(
-						ts, es, objid, cmpid, fileid, "Jhove Extraction", true,
-						null, m.get("status")
+						ts, es, objid, cmpid, fileid, Event.CHECKSUM_CALCULATED,
+						true, null, m.get("status")
 					);
 				}
 				return status( "Jhove extracted and saved successfully" );
@@ -2254,7 +2254,9 @@ public class DAMSAPIServlet extends HttpServlet
 				&& fs.length(objid,cmpid,fileid) > 0;
 			in.close();
 
-			String type = (overwrite) ? "file modification" : "file creation";
+			String type = null;
+			if ( overwrite) { type = Event.FILE_MODIFIED; }
+			else { type = Event.FILE_ADDED; }
 			String message = null;
 			if ( successful )
 			{
@@ -2365,7 +2367,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				//indexQueue(objid,"modifyObject");
 				createEvent(
-					ts, es, objid, cmpid, fileid, "file deletion", true,
+					ts, es, objid, cmpid, fileid, Event.FILE_DELETED, true,
 					null, null
 				);
 
@@ -2377,7 +2379,7 @@ public class DAMSAPIServlet extends HttpServlet
 			else
 			{
 				createEvent(
-					ts, es, objid, cmpid, fileid, "file deletion", false,
+					ts, es, objid, cmpid, fileid, Event.FILE_DELETED, false,
 					null, null
 				);
 				return error(
@@ -2518,7 +2520,7 @@ private static String listToString(String[] arr)
 				);
 				//indexQueue(objid,"modifyObject");
 				createEvent(
-					ts, es, objid, cmpid, derid, "Derivatives Creation",
+					ts, es, objid, cmpid, derid, Event.DERIVATIVE_CREATED,
 					true, null, null
 				);
 			}
@@ -2672,7 +2674,7 @@ private static String listToString(String[] arr)
 			if ( es != null )
 			{
 				createEvent(
-					ts, es, objid, cmpid, fileid, "fixity check--content",
+					ts, es, objid, cmpid, fileid, Event.CHECKSUM_VERIFIED,
 					success, detail, null
 				);
 			}
@@ -2791,8 +2793,9 @@ private static String listToString(String[] arr)
 						// success
 						int status = -1;
 						String message = null;
-						String type = create ?
-							"object creation" : "object modification";
+						String type = null;
+						if ( create ) { type = Event.RECORD_CREATED; }
+						else { type = Event.RECORD_EDITED; }
 						if ( create )
 						{
 							status = HttpServletResponse.SC_CREATED;
@@ -2827,8 +2830,9 @@ private static String listToString(String[] arr)
 						backupDir, adds, updates, deletes, objid, ts, nsmap
 					);
 					edit.saveBackup();
-					String type = create ?
-						"object creation" : "object modification";
+					String type = null;
+					if ( create ) { type = Event.RECORD_CREATED; }
+					else { type = Event.RECORD_EDITED; }
 					if ( edit.update() )
 					{
 						// success
@@ -2901,13 +2905,16 @@ private static String listToString(String[] arr)
 			if ( ! ts.exists(id) )
 			{
 				//indexQueue(objid,"purgeObject");
-				createEvent( ts, es, objid, null, null, "object deletion", true, null, null );
+				createEvent(
+					ts, es, objid, null, null, Event.RECORD_DELETED, true,
+					null, null
+				);
 				return status( "Object deleted successfully" );
 			}
 			else
 			{
 				createEvent(
-					ts, es, objid, null, null, "object deletion", false,
+					ts, es, objid, null, null, Event.RECORD_DELETED, false,
 					null, null
 				);
 				return error( "Object deletion failed" );
@@ -2967,7 +2974,7 @@ private static String listToString(String[] arr)
 
 			//indexQueue(objid,"modifyObject");
 			createEvent(
-				ts, es, objid, null, null, "object modification", true,
+				ts, es, objid, null, null, Event.RECORD_EDITED, true,
 				null, null
 			);
 			return status( "Predicate deleted successfully" );
@@ -2976,7 +2983,7 @@ private static String listToString(String[] arr)
 		{
 			log.warn( "Error deleting predicates", ex );
 			try {createEvent(
-				ts, es, objid, null, null, "object modification", false,
+				ts, es, objid, null, null, Event.RECORD_EDITED, false,
 				null, null
 			);} catch ( Exception ex2 ) {}
 			return error( "Error deleting predicates: " + ex.toString() );
@@ -3086,7 +3093,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 				fs.write( objid, cmpid, destid, content.getBytes() );
 				//indexQueue(objid,"modifyObject");
 				createEvent(
-					ts, es, objid, cmpid, fileid, "transformation-metadata",
+					ts, es, objid, cmpid, fileid, Event.RECORD_TRANSFORMED,
 					true, null, null
 				);
 			}
@@ -3097,7 +3104,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			try
 			{
 				createEvent(
-					ts, es, objid, cmpid, fileid, "transformation-metadata",
+					ts, es, objid, cmpid, fileid, Event.RECORD_TRANSFORMED,
 					false, null, ex.toString()
 				);
 			}

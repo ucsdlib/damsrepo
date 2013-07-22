@@ -53,6 +53,7 @@ import org.apache.log4j.Logger;
 // dams
 import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.model.DAMSObject;
+import edu.ucsd.library.dams.model.Event;
 import edu.ucsd.library.dams.triple.Identifier;
 import edu.ucsd.library.dams.triple.Statement;
 import edu.ucsd.library.dams.triple.StatementIterator;
@@ -1176,7 +1177,7 @@ log.warn("old model: " + s.toString() );
 			{
 				// add event
 				createEvent(
-					ts, es, objid, null, null, "update-fedora-models",
+					ts, es, objid, null, null, Event.RECORD_EDITED,
 					success, detail, error
 				);
 			}

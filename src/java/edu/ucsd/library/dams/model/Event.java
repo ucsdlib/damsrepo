@@ -14,6 +14,21 @@ import edu.ucsd.library.dams.triple.TripleStoreException;
 **/
 public class Event
 {
+	public static String CHECKSUM_CALCULATED = "checksum calculated";
+	public static String CHECKSUM_VERIFIED   = "checksum verified";
+	public static String DERIVATIVE_CREATED  = "derivative created";
+	public static String FILE_ADDED          = "file added";
+	public static String FILE_DELETED        = "file deleted";
+	public static String FILE_MODIFIED       = "file modified";
+	public static String FILE_VIRUS_CHECKED  = "file virus checked ";
+	public static String RECORD_CREATED      = "record created";
+	public static String RECORD_EDITED       = "record edited";
+	public static String RECORD_DELETED      = "record deleted";
+	public static String RECORD_INDEXED      = "record indexed";
+	public static String RECORD_TRANSFORMED  = "record transformed";
+	public static String OBJECT_REPLICATED   = "object replicated";
+	public static String OBJECT_VALIDATED    = "object validated";
+
 	private Identifier eventID;
 	private Identifier parent;
 	private Identifier subject;
