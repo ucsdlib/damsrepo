@@ -1,5 +1,5 @@
 <http://library.ucsd.edu/ark:/20775/bb07070707> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#DAMSEvent> .
-<http://library.ucsd.edu/ark:/20775/bb07070707> <http://library.ucsd.edu/ontology/dams#type> "object creation" .
+<http://library.ucsd.edu/ark:/20775/bb07070707> <http://library.ucsd.edu/ontology/dams#type> "record created" .
 <http://library.ucsd.edu/ark:/20775/bb07070707> <http://library.ucsd.edu/ontology/dams#eventDate> "2012-11-06T09:26:34-0500" .
 <http://library.ucsd.edu/ark:/20775/bb07070707> <http://library.ucsd.edu/ontology/dams#outcome> "success" .
 <http://library.ucsd.edu/ark:/20775/bb07070707> <http://library.ucsd.edu/ontology/dams#relationship> _:bn07n01 .
@@ -8,7 +8,7 @@ _:bn07n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/
 _:bn07n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/ark:/20775/bb56565656> .
 
 <http://library.ucsd.edu/ark:/20775/bb12121212> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#DAMSEvent> .
-<http://library.ucsd.edu/ark:/20775/bb12121212> <http://library.ucsd.edu/ontology/dams#type> "file creation" .
+<http://library.ucsd.edu/ark:/20775/bb12121212> <http://library.ucsd.edu/ontology/dams#type> "file added" .
 <http://library.ucsd.edu/ark:/20775/bb12121212> <http://library.ucsd.edu/ontology/dams#eventDate> "2012-11-06T09:26:34-0500" .
 <http://library.ucsd.edu/ark:/20775/bb12121212> <http://library.ucsd.edu/ontology/dams#outcome> "success" .
 <http://library.ucsd.edu/ark:/20775/bb12121212> <http://library.ucsd.edu/ontology/dams#relationship> _:bn12n01 .
@@ -16,7 +16,7 @@ _:bn12n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/
 _:bn12n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/ark:/20775/bb56565656> .
 
 <http://library.ucsd.edu/ark:/20775/bb13131313> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#DAMSEvent> .
-<http://library.ucsd.edu/ark:/20775/bb13131313> <http://library.ucsd.edu/ontology/dams#type> "file creation" .
+<http://library.ucsd.edu/ark:/20775/bb13131313> <http://library.ucsd.edu/ontology/dams#type> "file added" .
 <http://library.ucsd.edu/ark:/20775/bb13131313> <http://library.ucsd.edu/ontology/dams#eventDate> "2012-11-06T09:26:34-0500" .
 <http://library.ucsd.edu/ark:/20775/bb13131313> <http://library.ucsd.edu/ontology/dams#outcome> "success" .
 <http://library.ucsd.edu/ark:/20775/bb13131313> <http://library.ucsd.edu/ontology/dams#relationship> _:bn13n01 .
@@ -24,7 +24,7 @@ _:bn13n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/
 _:bn13n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/ark:/20775/bb56565656> .
 
 <http://library.ucsd.edu/ark:/20775/bb28282828> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#DAMSEvent> .
-<http://library.ucsd.edu/ark:/20775/bb28282828> <http://library.ucsd.edu/ontology/dams#type> "collection creation" .
+<http://library.ucsd.edu/ark:/20775/bb28282828> <http://library.ucsd.edu/ontology/dams#type> "record created" .
 <http://library.ucsd.edu/ark:/20775/bb28282828> <http://library.ucsd.edu/ontology/dams#eventDate> "2012-11-06T09:26:34-0500" .
 <http://library.ucsd.edu/ark:/20775/bb28282828> <http://library.ucsd.edu/ontology/dams#outcome> "success" .
 <http://library.ucsd.edu/ark:/20775/bb28282828> <http://library.ucsd.edu/ontology/dams#relationship> _:bn28n01 .
@@ -32,7 +32,7 @@ _:bn28n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/
 _:bn28n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/ark:/20775/bb56565656> .
 
 <http://library.ucsd.edu/ark:/20775/bb29292929> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#DAMSEvent> .
-<http://library.ucsd.edu/ark:/20775/bb29292929> <http://library.ucsd.edu/ontology/dams#type> "collection creation" .
+<http://library.ucsd.edu/ark:/20775/bb29292929> <http://library.ucsd.edu/ontology/dams#type> "record created" .
 <http://library.ucsd.edu/ark:/20775/bb29292929> <http://library.ucsd.edu/ontology/dams#eventDate> "2012-11-06T09:26:34-0500" .
 <http://library.ucsd.edu/ark:/20775/bb29292929> <http://library.ucsd.edu/ontology/dams#outcome> "success" .
 <http://library.ucsd.edu/ark:/20775/bb29292929> <http://library.ucsd.edu/ontology/dams#relationship> _:bn29n01 .
@@ -40,7 +40,7 @@ _:bn29n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/
 _:bn29n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/ark:/20775/bb56565656> .
 
 <http://library.ucsd.edu/ark:/20775/bb30303030> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#DAMSEvent> .
-<http://library.ucsd.edu/ark:/20775/bb30303030> <http://library.ucsd.edu/ontology/dams#type> "collection creation" .
+<http://library.ucsd.edu/ark:/20775/bb30303030> <http://library.ucsd.edu/ontology/dams#type> "record created" .
 <http://library.ucsd.edu/ark:/20775/bb30303030> <http://library.ucsd.edu/ontology/dams#eventDate> "2012-11-06T09:26:34-0500" .
 <http://library.ucsd.edu/ark:/20775/bb30303030> <http://library.ucsd.edu/ontology/dams#outcome> "success" .
 <http://library.ucsd.edu/ark:/20775/bb30303030> <http://library.ucsd.edu/ontology/dams#relationship> _:bn30n01 .

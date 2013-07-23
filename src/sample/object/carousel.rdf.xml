@@ -14,4 +14,135 @@
       </mads:Title>
     </dams:title>
   </dams:AssembledCollection>
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd08540633">
+    <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
+    <dams:title>
+      <mads:Title>
+        <mads:authoritativeLabel>Carousel Image #1 (OpenTopo)</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:MainTitleElement>
+            <mads:elementValue>Carousel Image #1 (OpenTopo)</mads:elementValue>
+          </mads:MainTitleElement>
+        </mads:elementList>
+      </mads:Title>
+    </dams:title>
+  </dams:Object>
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd21510035">
+    <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
+    <dams:title>
+      <mads:Title>
+        <mads:authoritativeLabel>Carousel Image #2 (Levantine Archaeology Laboratory)</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:MainTitleElement>
+            <mads:elementValue>Carousel Image #2 (Levantine Archaeology Laboratory)</mads:elementValue>
+          </mads:MainTitleElement>
+        </mads:elementList>
+      </mads:Title>
+    </dams:title>
+  </dams:Object>
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd3413814d">
+    <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
+    <dams:title>
+      <mads:Title>
+        <mads:authoritativeLabel>Carousel Image #3 (Brain Observatory)</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:MainTitleElement>
+            <mads:elementValue>Carousel Image #3 (Brain Observatory)</mads:elementValue>
+          </mads:MainTitleElement>
+        </mads:elementList>
+      </mads:Title>
+    </dams:title>
+  </dams:Object>
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd82602702">
+    <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
+    <dams:title>
+      <mads:Title>
+        <mads:authoritativeLabel>Carousel Image #4 (Santa Fe Light Cone)</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:MainTitleElement>
+            <mads:elementValue>Carousel Image #4 (Santa Fe Light Cone)</mads:elementValue>
+          </mads:MainTitleElement>
+        </mads:elementList>
+      </mads:Title>
+    </dams:title>
+  </dams:Object>
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd95572101">
+    <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
+    <dams:title>
+      <mads:Title>
+        <mads:authoritativeLabel>Carousel Image #5 (SIO Geological)</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:MainTitleElement>
+            <mads:elementValue>Carousel Image #5 (SIO Geological)</mads:elementValue>
+          </mads:MainTitleElement>
+        </mads:elementList>
+      </mads:Title>
+    </dams:title>
+  </dams:Object>
+
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd6963330m">
+    <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
+    <dams:title>
+      <mads:Title>
+        <mads:authoritativeLabel>Carousel Image #6 (SIO Archives)</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:MainTitleElement>
+            <mads:elementValue>Carousel Image #6 (SIO Archives)</mads:elementValue>
+          </mads:MainTitleElement>
+        </mads:elementList>
+      </mads:Title>
+    </dams:title>
+  </dams:Object>
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd4369453c">
+    <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
+    <dams:title>
+      <mads:Title>
+        <mads:authoritativeLabel>Carousel Image #7 (Latin American Political Campaign Ephemera)</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:MainTitleElement>
+            <mads:elementValue>Carousel Image #7</mads:elementValue>
+          </mads:MainTitleElement>
+        </mads:elementList>
+      </mads:Title>
+    </dams:title>
+  </dams:Object>
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd5666392f">
+    <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
+    <dams:title>
+      <mads:Title>
+        <mads:authoritativeLabel>Carousel Image #8 (UCSD History)</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:MainTitleElement>
+            <mads:elementValue>Carousel Image #8 (UCSD History)</mads:elementValue>
+          </mads:MainTitleElement>
+        </mads:elementList>
+      </mads:Title>
+    </dams:title>
+  </dams:Object>
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd3106642r">
+    <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
+    <dams:title>
+      <mads:Title>
+        <mads:authoritativeLabel>Carousel Image #9 (Baja California Collection)</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:MainTitleElement>
+            <mads:elementValue>Carousel Image #9 (Baja California Collection)</mads:elementValue>
+          </mads:MainTitleElement>
+        </mads:elementList>
+      </mads:Title>
+    </dams:title>
+  </dams:Object>
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd18097029">
+    <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
+    <dams:title>
+      <mads:Title>
+        <mads:authoritativeLabel>Carousel Image #10 (Melanesian Archive)</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:MainTitleElement>
+            <mads:elementValue>Carousel Image #10 (Melanesian Archive)</mads:elementValue>
+          </mads:MainTitleElement>
+        </mads:elementList>
+      </mads:Title>
+    </dams:title>
+  </dams:Object>
 </rdf:RDF>

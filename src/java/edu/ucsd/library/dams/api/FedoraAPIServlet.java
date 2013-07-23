@@ -345,11 +345,12 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[4].equals(fedoraLinksDS) )
 			{
                 ts = triplestore(req);
+                es = events(req);
                 Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("dsName",new String[]{fedoraLinksDS});
                 outputTransform(
                     path[2], null, null, false, linksMetadataTransform, params,
-                    "application/xml", res.SC_OK, ts, null, res
+                    "application/xml", res.SC_OK, ts, es, res
                 );
 			}
 			// GET /objects/[oid]/datastreams/[fedoraSystemDS]/content
