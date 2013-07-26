@@ -30,3 +30,8 @@ $BASE/fs-post-cmp.sh bb80808080 2 1.jpg $BASE/../sample/files/20775-bb75097630-1
 
 # generate derivatives
 $BASE/fs-derivatives-cmp.sh bb80808080 2 1.jpg
+
+# simple image object with derivatives
+$BASE/fs-post.sh bd66666666 1.jpg $BASE/../sample/files/20775-bb01010101-2-1.jpg
+$BASE/fs-derivatives.sh bd66666666 1.jpg
+
