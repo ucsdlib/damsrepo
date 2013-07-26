@@ -12,6 +12,7 @@ $BASE/test_XX_carousel.sh        # load carousel image files
 
 IDS="$IDS bb02020202" # units
 IDS="$IDS bb48484848"
+IDS="$IDS bb07070707" # event
 IDS="$IDS bd24241158" # collections
 IDS="$IDS bb03030303"
 IDS="$IDS bd5905304g"
@@ -19,6 +20,7 @@ IDS="$IDS bb01010101" # complex objects
 IDS="$IDS bb80808080"
 IDS="$IDS bb52572546"
 IDS="$IDS bb55555555" # format sampler
+IDS="$IDS bd66666666" # simple object
 IDS="$IDS bd5905379f" # carousel
 IDS="$IDS bd3413814d"
 IDS="$IDS bd21510035"
