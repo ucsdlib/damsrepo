@@ -11,7 +11,7 @@
 <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bb03030303"/>
 <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb02020202"/>
 <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX1"/>
-<dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX9"/>
+<dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
 <dams:license rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX8"/>
 <!-- desc -->
 <dams:typeOfResource>text</dams:typeOfResource>
@@ -222,10 +222,4 @@
 </dams:Permission>
 </dams:rightsAction>
 </dams:License>
-<dams:Copyright rdf:about="http://library.ucsd.edu/ark:/20775/bbXXXXXXX9">
-<dams:copyrightNote>This work is protected by the U.S. Copyright Law (Title 17, U.S.C.).  Use of this work beyond that allowed by "fair use" requires written permission of the copyright holder(s).  Responsibility for obtaining permissions and any use and distribution of this work rests exclusively with the user and not the UC San Diego Libraries.  Inquiries can be made to the UC San Diego Libraries department having custody of the work (http://libraries.ucsd.edu/locations/mscl/).</dams:copyrightNote>
-<dams:copyrightStatus>under_copyright_1st_party</dams:copyrightStatus>
-<dams:copyrightJurisdiction>us</dams:copyrightJurisdiction>
-<dams:copyrightPurposeNote>This work is available from the UC San Diego Libraries.  This digital copy of the work is intended to support research, teaching, and private study.</dams:copyrightPurposeNote>
-</dams:Copyright>
 </rdf:RDF>
