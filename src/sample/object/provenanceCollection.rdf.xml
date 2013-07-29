@@ -2,66 +2,7 @@
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:dams="http://library.ucsd.edu/ontology/dams#"
     xmlns:mads="http://www.loc.gov/mads/rdf/v1#">
-  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd66666666">
-    <!-- object only -->
-    <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb02020202"/>
-    <dams:cartographics rdf:resource="http://library.ucsd.edu/ark:/20775/bb20202020"/>
-    <dams:typeOfResource>still image</dams:typeOfResource>
-
-    <!-- rights -->
-    <dams:rightsHolder>
-      <mads:PersonalName>
-        <mads:authoritativeLabel>Smithee, Alan, 1968-</mads:authoritativeLabel>
-        <mads:elementList rdf:parseType="Collection">
-          <mads:FullNameElement>
-            <mads:elementValue>Smithee, Alan, 1968-</mads:elementValue>
-          </mads:FullNameElement>
-        </mads:elementList>
-      </mads:PersonalName>
-    </dams:rightsHolder>
-    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
-    <dams:license>
-      <dams:License rdf:about="http://library.ucsd.edu/ark:/20775/bb22222222">
-        <dams:licenseNote>FOO</dams:licenseNote>
-        <dams:licenseURI>http://foo.com</dams:licenseURI>
-        <dams:permission>
-          <dams:Permission>
-            <dams:beginDate>2012-12-31</dams:beginDate>
-            <dams:endDate>2062-12-31</dams:endDate>
-            <dams:type>display</dams:type>
-          </dams:Permission>
-        </dams:permission>
-      </dams:License>
-    </dams:license>
-    <dams:otherRights>
-      <dams:OtherRights>
-        <dams:otherRightsBasis>Other Rights Basis value</dams:otherRightsBasis>
-        <dams:otherRightsNote>Other Rights Note value</dams:otherRightsNote>
-        <dams:otherRightsURI>http://bar.com</dams:otherRightsURI>
-        <dams:permission>
-          <dams:Permission>
-            <dams:beginDate>2012-12-31</dams:beginDate>
-            <dams:endDate>2062-12-31</dams:endDate>
-            <dams:type>display</dams:type>
-          </dams:Permission>
-        </dams:permission>
-      </dams:OtherRights>
-    </dams:otherRights>
-    <dams:statute>
-      <dams:Statute>
-        <dams:statuteNote>Statute Note</dams:statuteNote>
-        <dams:statuteCitation>Statute Citation value</dams:statuteCitation>
-        <dams:statuteJurisdiction>us</dams:statuteJurisdiction>
-        <dams:restriction>
-          <dams:Restriction>
-            <dams:beginDate>2015-01-01</dams:beginDate>
-            <dams:endDate>2015-12-31</dams:endDate>
-            <dams:type>display</dams:type>
-          </dams:Restriction>
-        </dams:restriction>
-      </dams:Statute>
-    </dams:statute>
-
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bb6008254b">
     <!-- resource common -->
     <dams:language rdf:resource="http://library.ucsd.edu/ark:/20775/bd0410344f"/>
     <dams:date>
@@ -74,16 +15,16 @@
     </dams:date>
     <dams:title>
       <mads:Title> 
-        <mads:authoritativeLabel>Sample Simple Object, The: An Image Object, Allegro, 1</mads:authoritativeLabel> 
+        <mads:authoritativeLabel>Sample Provenance Collection, The: Subtitle, Allegro, 1</mads:authoritativeLabel> 
         <mads:elementList rdf:parseType="Collection"> 
           <mads:MainTitleElement> 
-            <mads:elementValue>Sample Simple Object</mads:elementValue> 
+            <mads:elementValue>Sample Provenance Collection</mads:elementValue> 
           </mads:MainTitleElement> 
           <mads:NonSortElement> 
             <mads:elementValue>The</mads:elementValue> 
           </mads:NonSortElement> 
           <mads:SubTitleElement> 
-            <mads:elementValue>An Image Object</mads:elementValue> 
+            <mads:elementValue>Subtitle</mads:elementValue> 
           </mads:SubTitleElement> 
           <mads:PartNameElement> 
             <mads:elementValue>Allegro</mads:elementValue> 
@@ -143,22 +84,22 @@
       <mads:ComplexSubject>
         <mads:authoritativeLabel>mads:Topic value--mads:Temporal value</mads:authoritativeLabel>
         <mads:componentList rdf:parseType="Collection">
-          <mads:Topic>
-            <mads:authoritativeLabel>mads:Topic value</mads:authoritativeLabel>
-            <mads:elementList rdf:parseType="Collection">
-              <mads:TopicElement>
-                <mads:elementValue>mads:Topic value</mads:elementValue>
-              </mads:TopicElement>
-            </mads:elementList>
-          </mads:Topic>
-          <mads:Temporal>
-            <mads:authoritativeLabel>mads:Temporal value</mads:authoritativeLabel>
-            <mads:elementList rdf:parseType="Collection">
-              <mads:TemporalElement>
-                <mads:elementValue>mads:Temporal value</mads:elementValue>
-              </mads:TemporalElement>
-            </mads:elementList>
-          </mads:Temporal>
+            <mads:Topic>
+              <mads:authoritativeLabel>mads:Topic value</mads:authoritativeLabel>
+              <mads:elementList rdf:parseType="Collection">
+                <mads:TopicElement>
+                  <mads:elementValue>mads:Topic value</mads:elementValue>
+                </mads:TopicElement>
+              </mads:elementList>
+            </mads:Topic>
+            <mads:Temporal>
+              <mads:authoritativeLabel>mads:Temporal value</mads:authoritativeLabel>
+              <mads:elementList rdf:parseType="Collection">
+                <mads:TemporalElement>
+                  <mads:elementValue>mads:Temporal value</mads:elementValue>
+                </mads:TemporalElement>
+              </mads:elementList>
+            </mads:Temporal>
         </mads:componentList>
       </mads:ComplexSubject>
     </dams:complexSubject>
