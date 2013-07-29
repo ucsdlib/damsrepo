@@ -8,7 +8,7 @@ source $BASE/common.sh
 if [ "$1" ]; then
 	COUNT="?count=$1"
 fi
-curl -X POST -u $USER:$PASS http://localhost:8080/dams/api/next_id$COUNT
+curl -X POST -u $USER:$PASS $URL/api/next_id$COUNT
 if [ $? != 0 ]; then
     exit 1
 fi

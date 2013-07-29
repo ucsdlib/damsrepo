@@ -7,7 +7,7 @@ source $BASE/common.sh
 OBJID=$1
 FILEID=$2
 FILE=$3
-curl -u $USER:$PASS -i -L -X POST -F local=$FILE http://localhost:8080/dams/api/files/$OBJID/$FILEID?fs=openStack
+curl -u $USER:$PASS -i -L -X POST -F local=$FILE $URL/api/files/$OBJID/$FILEID?fs=openStack
 if [ $? != 0 ]; then
 	exit 1
 fi

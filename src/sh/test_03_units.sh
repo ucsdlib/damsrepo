@@ -3,7 +3,7 @@
 ERRORS=0
 
 # list units
-RESP=`curl -f http://localhost:8080/dams/api/units`
+RESP=`curl -f $URL/api/units`
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
@@ -13,21 +13,21 @@ UNIT=`echo $RESP | perl -pe 's/></>\n</g' | grep "<unit>" | head -1 | perl -pe "
 echo "Unit: $UNIT"
 
 # list objects in a unit
-curl -f http://localhost:8080/dams/api/units/$UNIT
+curl -f $URL/api/units/$UNIT
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
 echo
 
 # count objects in a unit
-curl -f http://localhost:8080/dams/api/units/$UNIT/count
+curl -f $URL/api/units/$UNIT/count
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
 echo
 
 # list files in a unit
-curl -f http://localhost:8080/dams/api/units/$UNIT/files
+curl -f $URL/api/units/$UNIT/files
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi

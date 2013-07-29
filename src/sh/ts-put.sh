@@ -11,7 +11,7 @@ fi
 BASE=`dirname $0`
 source $BASE/common.sh
 
-curl -k -u $USER:$PASS -X PUT -F file=@$FILE http://localhost:8080/dams/api/objects/$OBJID$TS
+curl -k -u $USER:$PASS -X PUT -F file=@$FILE $URL/api/objects/$OBJID$TS
 if [ $? != 0 ]; then
     exit 1
 fi

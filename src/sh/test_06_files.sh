@@ -4,7 +4,7 @@ ERRORS=0
 
 # list units
 echo "Listing units"
-UNIT_LIST=`curl -s -f http://localhost:8080/dams/api/units`
+UNIT_LIST=`curl -s -f $URL/api/units`
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
@@ -15,7 +15,7 @@ echo "Unit: $UNIT"
 
 # list objects in the unit
 echo "Listing objects in unit $UNIT"
-OBJ_LIST=`curl -s -f http://localhost:8080/dams/api/units/$UNIT`
+OBJ_LIST=`curl -s -f $URL/api/units/$UNIT`
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
@@ -26,7 +26,7 @@ echo "Object: $OBJ"
 
 # get basic object metadata
 echo "Basic object metadata"
-OBJ_RDF=`curl -s -f http://localhost:8080/dams/api/objects/$OBJ`
+OBJ_RDF=`curl -s -f $URL/api/objects/$OBJ`
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
@@ -37,7 +37,7 @@ echo "File: $FILE"
 
 # retrieve a file
 echo "Retrieve a file"
-curl -s -f -o /dev/null http://localhost:8080/dams/api/files/$OBJ/$FILE
+curl -s -f -o /dev/null $URL/api/files/$OBJ/$FILE
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
@@ -45,7 +45,7 @@ echo
 
 # test whether a file exists
 echo "Test whether a file exists"
-curl -f http://localhost:8080/dams/api/files/$OBJ/$FILE/exists
+curl -f $URL/api/files/$OBJ/$FILE/exists
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
@@ -53,7 +53,7 @@ echo
 
 # fixity check
 echo "Fixity check"
-curl -f http://localhost:8080/dams/api/files/$OBJ/$FILE/fixity
+curl -f $URL/api/files/$OBJ/$FILE/fixity
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
@@ -61,7 +61,7 @@ echo
 
 # characterization
 echo "Characterize"
-curl -f http://localhost:8080/dams/api/files/$OBJ/$FILE/characterize
+curl -f $URL/api/files/$OBJ/$FILE/characterize
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi

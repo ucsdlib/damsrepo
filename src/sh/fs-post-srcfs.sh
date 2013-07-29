@@ -11,7 +11,7 @@ FS=$4
 if [ "$FS" ]; then
 	FSOPT="-F fs=$FS"
 fi
-curl -u $USER:$PASS -i -L -X POST $FSOPT -F srcfs=$SRC http://localhost:8080/dams/api/files/$OBJID/$CMPID/$FILEID
+curl -u $USER:$PASS -i -L -X POST $FSOPT -F srcfs=$SRC $URL/api/files/$OBJID/$CMPID/$FILEID
 if [ $? != 0 ]; then
 	exit 1
 fi

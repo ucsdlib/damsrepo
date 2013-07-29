@@ -14,13 +14,18 @@ for i in "$JARS"/*.jar; do
 done
 
 # repo username/password
-if [ "$DAMSPAS_HOME" -a -f "$DAMSPAS_HOME/config/fedora.yml" ]; then
-	REPOCFG="$DAMSPAS_HOME/config/fedora.yml"
-elif [ -f "$DAMS_HOME/dams.yml" ]; then
+if [ -f "$DAMS_HOME/dams.yml" ]; then
 	REPOCFG="$DAMS_HOME/dams.yml"
+elif [ -f "$DAMSPAS_HOME/config/fedora.yml" ]; then
+	REPOCFG="$DAMSPAS_HOME/config/fedora.yml"
 fi
 if [ -f "$REPOCFG" ]; then
 	export USER=`grep -A 3 "^development:" "$REPOCFG" | grep user | cut -d: -f2 | tr -d ' '`
 	export PASS=`grep -A 3 "^development:" "$REPOCFG" | grep password | cut -d: -f2 | tr -d ' '`
-	export URL=`grep -A 3 "^development:" "$REPOCFG" | grep url | cut -d: -f2 | tr -d ' '`
+	export URL=`grep -A 3 "^development:" "$REPOCFG" | grep url | cut -d: -f2- | tr -d ' ' | sed -e's/\/fedora$//'`
+	export SOLR_URL=`echo $URL | sed -e's/dams$/solr/'`
+fi
+if [ ! "$URL" ]; then
+	URL="http://localhost:8080/dams"
+	SOLR_URL="http://localhost:8080/solr"
 fi

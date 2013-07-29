@@ -11,7 +11,7 @@ ERRORS=0
 
 function mintark
 {
-    XML=`curl -s -u $USER:$PASS -f -X POST http://localhost:8080/dams/api/next_id`
+    XML=`curl -s -u $USER:$PASS -f -X POST $URL/api/next_id`
     if [ $? != 0 ]; then
         ERRORS=$(( $ERRORS + 1 ))
     fi
@@ -22,7 +22,7 @@ function addobj
 	OBJ_ARK=`mintark`
 	echo "Adding object: $OBJ_ARK"
 	JSON=`echo "[{\"subject\":\"$OBJ_ARK\",\"predicate\":\"rdf:type\",\"object\":\"dams:Object\"},{\"subject\":\"$OBJ_ARK\",\"predicate\":\"dams:assembledCollection\",\"object\":\"$DAMSID$COL_ARK\"}]" | urlencode`
-	curl -s -u $USER:$PASS -f -X POST "http://localhost:8080/dams/api/objects/$OBJ_ARK?adds=$JSON"
+	curl -s -u $USER:$PASS -f -X POST "$URL/api/objects/$OBJ_ARK?adds=$JSON"
 	if [ $? != 0 ]; then
     	ERRORS=$(( $ERRORS + 1 ))
 	fi
@@ -33,7 +33,7 @@ function addobj
 COL_ARK=`mintark`
 echo "Adding collection: $COL_ARK"
 JSON=`echo "[{\"subject\":\"$COL_ARK\",\"predicate\":\"rdf:type\",\"object\":\"dams:AssembledCollection\"}]" | urlencode`
-curl -s -u $USER:$PASS -f -X POST "http://localhost:8080/dams/api/objects/$COL_ARK?adds=$JSON"
+curl -s -u $USER:$PASS -f -X POST "$URL/api/objects/$COL_ARK?adds=$JSON"
 if [ $? != 0 ]; then
     ERRORS=$(( $ERRORS + 1 ))
 fi
@@ -43,7 +43,7 @@ echo
 addobj
 
 # check for extent=1
-COUNT=`curl -s http://localhost:8080/dams/api/objects/$COL_ARK | grep -c "1 digital object."`
+COUNT=`curl -s $URL/api/objects/$COL_ARK | grep -c "1 digital object."`
 if [ $COUNT = 1 ]; then
 	echo "extent = 1"
 else
@@ -54,7 +54,7 @@ fi
 addobj
 
 # check for extent=2
-COUNT=`curl -s http://localhost:8080/dams/api/objects/$COL_ARK | grep -c "2 digital objects."`
+COUNT=`curl -s $URL/api/objects/$COL_ARK | grep -c "2 digital objects."`
 if [ $COUNT = 1 ]; then
 	echo "extent = 2"
 else

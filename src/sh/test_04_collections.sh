@@ -3,7 +3,7 @@
 ERRORS=0
 
 # list collections
-RESP=`curl -f http://localhost:8080/dams/api/collections`
+RESP=`curl -f $URL/api/collections`
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
@@ -13,21 +13,21 @@ COL=`echo $RESP | perl -pe 's/></>\n</g' | grep "<collection>" | head -1 | perl 
 echo "Collection: $COL"
 
 # list objects in a collection
-curl -f http://localhost:8080/dams/api/collections/$COL
+curl -f $URL/api/collections/$COL
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
 echo
 
 # count objects in a collection
-curl -f http://localhost:8080/dams/api/collections/$COL/count
+curl -f $URL/api/collections/$COL/count
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
 echo
 
 # list files in a collection
-curl -f http://localhost:8080/dams/api/collections/$COL/files
+curl -f $URL/api/collections/$COL/files
 if [ $? != 0 ]; then
 	ERRORS=$(( $ERRORS + 1 ))
 fi
