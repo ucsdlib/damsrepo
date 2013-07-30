@@ -44,7 +44,7 @@ _:bn01n08 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/
 _:bn01n08 <http://www.loc.gov/mads/rdf/v1#elementValue> "Le chose vrai"@fr .
 
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#language> <http://library.ucsd.edu/ark:/20775/bd0410344f> .
-<http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#otherResource> _:bn01n05 .
+<http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#relatedResource> _:bn01n05 .
 _:bn01n05 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#RelatedResource> .
 _:bn01n05 <http://library.ucsd.edu/ontology/dams#type> "online exhibit" .
 _:bn01n05 <http://library.ucsd.edu/ontology/dams#description> "foo" .
