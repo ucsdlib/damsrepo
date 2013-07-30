@@ -2,7 +2,11 @@
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:dams="http://library.ucsd.edu/ontology/dams#"
     xmlns:mads="http://www.loc.gov/mads/rdf/v1#">
-  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bb7305194x">
+  <dams:AssembledCollection rdf:about="http://library.ucsd.edu/ark:/20775/bb7305194x">
+    <!-- collection links -->
+    <dams:hasProvenanceCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bb6008254b"/>
+    <dams:relatedCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
+
     <!-- resource common -->
     <dams:language rdf:resource="http://library.ucsd.edu/ark:/20775/bd0410344f"/>
     <dams:date>
@@ -287,5 +291,5 @@
       </mads:Topic>
     </dams:topic>
 
-  </dams:Object>
+  </dams:AssembledCollection>
 </rdf:RDF>
