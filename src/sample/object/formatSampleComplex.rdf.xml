@@ -2,7 +2,7 @@
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:dams="http://library.ucsd.edu/ontology/dams#"
     xmlns:mads="http://www.loc.gov/mads/rdf/v1#">
-  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555">
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd0922518w">
     <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb02020202"/>
     <dams:language rdf:resource="http://library.ucsd.edu/ark:/20775/bd0410344f"/>
     <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bb03030303"/>
@@ -28,7 +28,7 @@
     <dams:note>
       <dams:Note>
         <dams:displayLabel>ARK ID</dams:displayLabel>
-        <rdf:value>http://library.ucsd.edu/ark:/20775/bb55555555</rdf:value>
+        <rdf:value>http://library.ucsd.edu/ark:/20775/bd0922518w</rdf:value>
         <dams:type>identifier</dams:type>
       </dams:Note>
     </dams:note>
@@ -46,7 +46,7 @@
       </mads:Title> 
     </dams:title>
     <dams:hasComponent>
-      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555/1">
+      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bd0922518w/1">
         <dams:typeOfResource>audio</dams:typeOfResource>
         <dams:title>
           <mads:Title> 
@@ -64,7 +64,7 @@
       </dams:Component>
     </dams:hasComponent>
     <dams:hasComponent>
-      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555/2">
+      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bd0922518w/2">
         <dams:typeOfResource>software, multimedia</dams:typeOfResource>
         <dams:title>
           <mads:Title>
@@ -79,7 +79,7 @@
       </dams:Component>
     </dams:hasComponent>
     <dams:hasComponent>
-      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555/3">
+      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bd0922518w/3">
         <dams:typeOfResource>text</dams:typeOfResource>
         <dams:title>
           <mads:Title> 
@@ -95,7 +95,7 @@
       </dams:Component>
     </dams:hasComponent>
     <dams:hasComponent>
-      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555/4">
+      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bd0922518w/4">
         <dams:typeOfResource>still image</dams:typeOfResource>
         <dams:title>
           <mads:Title> 
@@ -110,7 +110,7 @@
       </dams:Component>
     </dams:hasComponent>
     <dams:hasComponent>
-      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bb55555555/5">
+      <dams:Component rdf:about="http://library.ucsd.edu/ark:/20775/bd0922518w/5">
         <dams:typeOfResource>moving image</dams:typeOfResource>
         <dams:title>
           <mads:Title> 

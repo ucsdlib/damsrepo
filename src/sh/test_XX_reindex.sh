@@ -13,11 +13,11 @@ IDS="$IDS bd5905304g"
 IDS="$IDS bb01010101" # complex objects
 IDS="$IDS bb80808080"
 IDS="$IDS bb52572546"
-IDS="$IDS bb55555555" # format sampler
-IDS="$IDS bd66666666" # simple object
-IDS="$IDS bb7305194x" # assembled collection
-IDS="$IDS bb6008254b" # provenance collection
-IDS="$IDS bb4711315n" # provenance collection part
+IDS="$IDS bd0922518w" # format sampler
+IDS="$IDS bd22194583" # simple object
+IDS="$IDS bd3516400n" # assembled collection
+IDS="$IDS bd48133407" # provenance collection
+IDS="$IDS bd6110278b" # provenance collection part
 
 IDS="$IDS bd5905379f" # carousel
 IDS="$IDS bd3413814d"
