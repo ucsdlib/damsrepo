@@ -33,7 +33,8 @@ public class TripleStoreShutdown
 		Connection con = DriverManager.getConnection( dsURL, dsUser, dsPass );
 
 		Statement stmt = con.createStatement();
-		stmt.executeUpdate("shutdown");
+		System.out.println("Shutdown: " + tsName);
+		stmt.execute("shutdown");
 		stmt.close();
 		con.close();
 	}

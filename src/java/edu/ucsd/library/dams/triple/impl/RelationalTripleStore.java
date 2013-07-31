@@ -794,13 +794,6 @@ public class RelationalTripleStore implements TripleStore
 		}
 		return count;
 	}
-	public void shutdown() throws TripleStoreException
-	{
-		if (implClass != null && implClass.equals("org.hsqldb.jdbc.JDBCDriver"))
-		{
-			update("shutdown");
-		}
-	}
 	public void close() throws TripleStoreException
 	{
 		// close pstmts
