@@ -36,7 +36,8 @@ IDS="$IDS bb05050505" # copyright
 
 # solr indexing
 if [ "$INDEXER" -a -d $INDEXER ]; then
-	$INDEXER/bin/damsolrizer-single --hydra_home $INDEXER $IDS
+	cd $INDEXER
+	bundle exec bin/damsolrizer-single --hydra_home . $IDS
 else
 	echo "Couldn't find indexer!"
 fi
