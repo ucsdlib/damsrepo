@@ -69,6 +69,7 @@ public class RelationalTripleStore implements TripleStore
 	protected boolean logIngest = false;
 	protected boolean logUpdates = true;
 	private String columnDef = null;
+	private String implClass = null;
 
 	/***********************************************************************/
 	/*** Constructor Core **************************************************/
@@ -78,7 +79,8 @@ public class RelationalTripleStore implements TripleStore
 		try
 		{
 			columnDef = props.getProperty("columnDef");
-			Class c = Class.forName( props.getProperty("driverClass") );
+			implClass = props.getProperty("driverClass");
+			Class c = Class.forName( implClass );
 			Driver driver = (Driver)c.newInstance();
 			connect( props, driver );
 		}
@@ -791,6 +793,13 @@ public class RelationalTripleStore implements TripleStore
 			catch ( Exception ex1 ) { throw new TripleStoreException(ex1); }
 		}
 		return count;
+	}
+	public void shutdown() throws TripleStoreException
+	{
+		if (implClass != null && implClass.equals("org.hsqldb.jdbc.JDBCDriver"))
+		{
+			update("shutdown");
+		}
 	}
 	public void close() throws TripleStoreException
 	{

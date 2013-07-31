@@ -158,6 +158,11 @@ public interface TripleStore
     **/
     public void close() throws TripleStoreException;
 
+    /**
+     * Shutdown the triplestore and release any resources.
+    **/
+    public void shutdown() throws TripleStoreException;
+
 	/**
 	 * Setup new triplestore.
 	**/
