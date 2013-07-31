@@ -3,6 +3,11 @@ package edu.ucsd.library.dams.commands;
 import java.io.FileInputStream;
 import java.util.Properties;
 
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.Statement;
+
 import edu.ucsd.library.dams.triple.TripleStore;
 import edu.ucsd.library.dams.triple.TripleStoreUtil;
 
@@ -18,14 +23,18 @@ public class TripleStoreShutdown
 		props.load( new FileInputStream(args[0]) );
 		String tsName = args[1];
 
-		// get TripleStore instance
-		TripleStore ts = TripleStoreUtil.getTripleStore( props, tsName );
+        String dsURL   = props.getProperty( "ts." + tsName + ".dataSourceURL");
+        String dsUser  = props.getProperty( "ts." + tsName + ".dataSourceUser");
+        String dsPass  = props.getProperty( "ts." + tsName + ".dataSourcePass");
+		String dsClass = props.getProperty( "ts." + tsName + ".driverClass");
+		Class c = Class.forName( dsClass );
+		Driver driver = (Driver)c.newInstance();
+		DriverManager.registerDriver( driver );
+		Connection con = DriverManager.getConnection( dsURL, dsUser, dsPass );
 
-		// shutdown
-		ts.shutdown();
-
-		// close the model and database connection
-		System.out.println("closing connection");
-		ts.close();
+		Statement stmt = con.createStatement();
+		stmt.executeUpdate("shutdown");
+		stmt.close();
+		con.close();
 	}
 }
