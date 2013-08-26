@@ -138,6 +138,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 	private String fulltextPrefix = "fulltext";
 
+	private boolean RECURSIVE_OBJ = false;
+
     // initialize servlet parameters
     public void init( ServletConfig config ) throws ServletException
     {
@@ -295,7 +297,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
                 ts = triplestore(req);
                 es = events(req);
 				outputTransform(
-					stripPrefix(path[2]), null, null, false,
+					stripPrefix(path[2]), null, null, RECURSIVE_OBJ,
 					objectContentTransform, null, "application/xml",
 					res.SC_OK, ts, es, res
 				);
@@ -349,8 +351,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
                 Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("dsName",new String[]{fedoraLinksDS});
                 outputTransform(
-                    path[2], null, null, false, linksMetadataTransform, params,
-                    "application/xml", res.SC_OK, ts, es, res
+                    path[2], null, null, RECURSIVE_OBJ, linksMetadataTransform,
+					params, "application/xml", res.SC_OK, ts, es, res
                 );
 			}
 			// GET /objects/[oid]/datastreams/[fedoraSystemDS]/content
@@ -776,7 +778,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		else
 		{
 			// Q: check cache & use export if cached?  any impact on xsl?
-			Map info = objectShow( objid, ts, null );
+			Map info = objectShow( stripPrefix(objid), ts, es );
 			if ( info.get("obj") != null )
 			{
 				DAMSObject obj = (DAMSObject)info.get("obj");
