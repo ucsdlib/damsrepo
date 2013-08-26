@@ -216,40 +216,63 @@ public class DAMSAPIServlet extends HttpServlet
 	private static LinkedList<String> cacheAccess = new LinkedList<String>();
 	private static int cacheSize = 10; // max objects in cache, 0 = disabled
 
-	protected static void cacheAdd( String key, String content )
+	protected static void cacheAdd( String objid, String content )
 	{
 		if ( cacheSize > 0 )
 		{
-			if ( !cacheContent.containsKey(key) )
+			if ( !cacheContent.containsKey(objid) )
 			{
 				while ( cacheContent.size() >= cacheSize )
 				{
 					cacheContent.remove(cacheAccess.pop());
 				}
 			}
-			cacheContent.put(key,content);
-			cacheAccess.add(key);
+			cacheContent.put(objid,content);
+			cacheAccess.add(objid);
 		}
 	}
-	protected static String cacheGet( String key )
+	protected static String cacheGet( String objid )
 	{
 		if ( cacheSize > 0 )
 		{
-			cacheAccess.remove(key);
-			cacheAccess.add(key);
-			return cacheContent.get(key);
+			cacheAccess.remove(objid);
+			cacheAccess.add(objid);
+			return cacheContent.get(objid);
 		}
 		else
 		{
 			return null;
 		}
 	}
-	protected static void cacheRemove( String key )
+	protected String cacheUpdate( String objid, TripleStore ts, TripleStore es )
+	{
+		// Q: serialize with events? performance implications?
+		String rdfxml = null;
+		Map info = objectShow( objid, ts, es ); // static???
+		if ( info.get("obj") != null )
+		{
+			DAMSObject obj = (DAMSObject)info.get("obj");
+			try
+			{
+				rdfxml = obj.getRDFXML(true);
+				if ( rdfxml != null )
+				{
+					cacheAdd( objid, rdfxml );
+				}
+			}
+			catch ( Exception ex )
+			{
+				log.warn( "Error retrieving RDF/XML", ex );
+			}
+		}
+		return rdfxml;
+	}
+	protected static void cacheRemove( String objid )
 	{
 		if ( cacheSize > 0 )
 		{
-			cacheContent.remove(key);
-			cacheAccess.remove(key);
+			cacheContent.remove(objid);
+			cacheAccess.remove(objid);
 		}
 	}
 	protected static void cacheClear()
@@ -895,8 +918,9 @@ public class DAMSAPIServlet extends HttpServlet
 					String adds = getParamString( params, "adds", null );
 					ts = triplestore(params);
 					es = events(params);
+					fs = filestore(params);
 					cacheRemove(path[2]);
-					info = objectCreate( path[2], in, adds, ts, es );
+					info = objectEdit( path[2], true, in, null, adds, null, null, ts, es, fs );
 				}
 				catch ( Exception ex )
 				{
@@ -1125,9 +1149,11 @@ public class DAMSAPIServlet extends HttpServlet
 					String mode    = getParamString(params,"mode",null);
 					ts = triplestore(req);
 					es = events(req);
+					fs = filestore(req);
 					cacheRemove(path[2]);
-					info = objectUpdate(
-						path[2], in, mode, adds, updates, deletes, ts, es
+					info = objectEdit(
+						path[2], false, in, mode, adds, updates, deletes,
+						ts, es, fs
 					);
 				}
 				catch ( Exception ex )
@@ -1297,8 +1323,9 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				ts = triplestore(req);
 				es = events(req);
+				fs = filestore(req);
 				cacheRemove(path[2]);
-				info = objectDelete( path[2], ts, es );
+				info = objectDelete( path[2], ts, es, fs );
 			}
 			// DELETE /objects/bb1234567x/index
 			else if ( path.length == 4 && path[1].equals("objects")
@@ -1314,8 +1341,9 @@ public class DAMSAPIServlet extends HttpServlet
 				String[] predicates = req.getParameterValues("predicate");
 				ts = triplestore(req);
 				es = events(req);
+				fs = filestore(req);
 				cacheRemove(path[2]);
-				info = selectiveDelete( path[2], null, predicates, ts, es );
+				info = selectiveDelete( path[2], null, predicates, ts, es, fs );
 			}
 			// DELETE /objects/bb1234567x/1/selective
 			else if ( path.length == 5 && path[1].equals("objects")
@@ -1324,8 +1352,11 @@ public class DAMSAPIServlet extends HttpServlet
 				String[] predicates = req.getParameterValues("predicate");
 				ts = triplestore(req);
 				es = events(req);
+				fs = filestore(req);
 				cacheRemove(path[2]);
-				info = selectiveDelete( path[2], path[3], predicates, ts, es );
+				info = selectiveDelete(
+					path[2], path[3], predicates, ts, es, fs
+				);
 			}
 			// DELETE /files/bb1234567x/1.tif
 			else if ( path.length == 4 && path[1].equals("files") )
@@ -1437,7 +1468,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			catch ( NameNotFoundException ex )
 			{
-				log.info( "Error looking up groups, name not found: " + user );
+				log.warn( "Error looking up groups, name not found: " + user );
 			}
 			catch ( Exception ex )
 			{
@@ -2113,7 +2144,7 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					//indexQueue(objid,"modifyObject");
 					createEvent(
-						ts, es, objid, cmpid, fileid, Event.CHECKSUM_CALCULATED,
+						ts, es, fs, objid, cmpid, fileid, Event.CHECKSUM_CALCULATED,
 						true, null, m.get("status")
 					);
 				}
@@ -2274,7 +2305,7 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 				//indexQueue(objid,"modifyObject");
 				createEvent(
-					ts, es, objid, cmpid, fileid, type, true, null, null
+					ts, es, fs, objid, cmpid, fileid, type, true, null, null
 				);
 
 				Map info = status( status, message );
@@ -2313,7 +2344,7 @@ public class DAMSAPIServlet extends HttpServlet
 				if ( overwrite ) { message = "File update failed"; }
 				else { message = "File creation failed"; }
 				createEvent(
-					ts, es, objid, cmpid, fileid, type, false, null,
+					ts, es, fs, objid, cmpid, fileid, type, false, null,
 					"Failed to upload file"
 				);
 
@@ -2368,7 +2399,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				//indexQueue(objid,"modifyObject");
 				createEvent(
-					ts, es, objid, cmpid, fileid, Event.FILE_DELETED, true,
+					ts, es, fs, objid, cmpid, fileid, Event.FILE_DELETED, true,
 					null, null
 				);
 
@@ -2380,7 +2411,7 @@ public class DAMSAPIServlet extends HttpServlet
 			else
 			{
 				createEvent(
-					ts, es, objid, cmpid, fileid, Event.FILE_DELETED, false,
+					ts, es, fs, objid, cmpid, fileid, Event.FILE_DELETED, false,
 					null, null
 				);
 				return error(
@@ -2394,16 +2425,16 @@ public class DAMSAPIServlet extends HttpServlet
 			return error( "Error deleting file: " + ex.toString() );
 		}
 	}
-private static String listToString(String[] arr)
-{
-	String val = "";
-	for ( int i = 0; arr != null && i < arr.length; i++ )
+	private static String listToString(String[] arr)
 	{
-		if ( !val.equals("") ) { val += ", "; }
-		val += arr[i];
+		String val = "";
+		for ( int i = 0; arr != null && i < arr.length; i++ )
+		{
+			if ( !val.equals("") ) { val += ", "; }
+			val += arr[i];
+		}
+		return val;
 	}
-	return val;
-}
 	public Map fileDerivatives( String objid, String cmpid, String fileid,
 		boolean overwrite, FileStore fs, TripleStore ts, TripleStore es,
 		Map<String, String[]> params )
@@ -2521,7 +2552,7 @@ private static String listToString(String[] arr)
 				);
 				//indexQueue(objid,"modifyObject");
 				createEvent(
-					ts, es, objid, cmpid, derid, Event.DERIVATIVE_CREATED,
+					ts, es, fs, objid, cmpid, derid, Event.DERIVATIVE_CREATED,
 					true, null, null
 				);
 			}
@@ -2675,7 +2706,7 @@ private static String listToString(String[] arr)
 			if ( es != null )
 			{
 				createEvent(
-					ts, es, objid, cmpid, fileid, Event.CHECKSUM_VERIFIED,
+					ts, es, fs, objid, cmpid, fileid, Event.CHECKSUM_VERIFIED,
 					success, detail, null
 				);
 			}
@@ -2700,7 +2731,6 @@ private static String listToString(String[] arr)
 			return error("Unknown id minter: " + name);
 		}
 		minterURL += count;
-		log.info("minterURL: " + minterURL);
 
 		try
 		{
@@ -2728,23 +2758,9 @@ private static String listToString(String[] arr)
 			return error( "Error generating id" );
 		}
 	}
-	public Map objectCreate( String objid, InputStream in, String adds,
-		TripleStore ts, TripleStore es )
-	{
-		return objectEdit( objid, true, in, null, adds, null, null, ts, es );
-	}
-	public Map objectUpdate( String objid, InputStream in, String mode,
-		String adds, String updates, String deletes, TripleStore ts,
-		TripleStore es )
-	{
-		return objectEdit(
-			objid, false, in, mode, adds, updates, deletes, ts, es
-		);
-	}
-
 	protected Map objectEdit( String objid, boolean create, InputStream in,
 		String mode, String adds, String updates, String deletes,
-		TripleStore ts, TripleStore es )
+		TripleStore ts, TripleStore es, FileStore fs )
 	{
 		try
 		{
@@ -2809,7 +2825,7 @@ private static String listToString(String[] arr)
 						}
 						//indexQueue(objid,"modifyObject");
 						createEvent(
-							ts, es, objid, null, null, type, true, null, null
+							ts, es, fs, objid, null, null, type, true, null, null
 						);
 						return status( status, message );
 					}
@@ -2851,7 +2867,7 @@ private static String listToString(String[] arr)
 						}
 						//indexQueue(objid,"modifyObject");
 						createEvent(
-							ts, es, objid, null, null, type, true, null, null
+							ts, es, fs, objid, null, null, type, true, null, null
 						);
 						edit.removeBackup();
 						return status( status, message );
@@ -2861,7 +2877,7 @@ private static String listToString(String[] arr)
 						// failure
 						String msg = edit.getException().toString();
 						createEvent(
-							ts, es, objid, null, null, type, false,
+							ts, es, fs, objid, null, null, type, false,
 							null, msg
 						);
 						return error( msg );
@@ -2882,7 +2898,8 @@ private static String listToString(String[] arr)
 			return error( "Error editing object: " + ex.toString() );
 		}
 	}
-	public Map objectDelete( String objid, TripleStore ts, TripleStore es )
+	public Map objectDelete( String objid, TripleStore ts, TripleStore es,
+		FileStore fs )
 	{
 		try
 		{
@@ -2907,7 +2924,7 @@ private static String listToString(String[] arr)
 			{
 				//indexQueue(objid,"purgeObject");
 				createEvent(
-					ts, es, objid, null, null, Event.RECORD_DELETED, true,
+					ts, es, fs, objid, null, null, Event.RECORD_DELETED, true,
 					null, null
 				);
 				return status( "Object deleted successfully" );
@@ -2915,7 +2932,7 @@ private static String listToString(String[] arr)
 			else
 			{
 				createEvent(
-					ts, es, objid, null, null, Event.RECORD_DELETED, false,
+					ts, es, fs, objid, null, null, Event.RECORD_DELETED, false,
 					null, null
 				);
 				return error( "Object deletion failed" );
@@ -2934,7 +2951,7 @@ private static String listToString(String[] arr)
 		}
 	}
 	public Map selectiveDelete( String objid, String cmpid, String[] predicates,
-		TripleStore ts, TripleStore es )
+		TripleStore ts, TripleStore es, FileStore fs )
 	{
 		try
 		{
@@ -2975,7 +2992,7 @@ private static String listToString(String[] arr)
 
 			//indexQueue(objid,"modifyObject");
 			createEvent(
-				ts, es, objid, null, null, Event.RECORD_EDITED, true,
+				ts, es, fs, objid, null, null, Event.RECORD_EDITED, true,
 				null, null
 			);
 			return status( "Predicate deleted successfully" );
@@ -2984,7 +3001,7 @@ private static String listToString(String[] arr)
 		{
 			log.warn( "Error deleting predicates", ex );
 			try {createEvent(
-				ts, es, objid, null, null, Event.RECORD_EDITED, false,
+				ts, es, fs, objid, null, null, Event.RECORD_EDITED, false,
 				null, null
 			);} catch ( Exception ex2 ) {}
 			return error( "Error deleting predicates: " + ex.toString() );
@@ -3094,7 +3111,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 				fs.write( objid, cmpid, destid, content.getBytes() );
 				//indexQueue(objid,"modifyObject");
 				createEvent(
-					ts, es, objid, cmpid, fileid, Event.RECORD_TRANSFORMED,
+					ts, es, fs, objid, cmpid, fileid, Event.RECORD_TRANSFORMED,
 					true, null, null
 				);
 			}
@@ -3105,7 +3122,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			try
 			{
 				createEvent(
-					ts, es, objid, cmpid, fileid, Event.RECORD_TRANSFORMED,
+					ts, es, fs, objid, cmpid, fileid, Event.RECORD_TRANSFORMED,
 					false, null, ex.toString()
 				);
 			}
@@ -3255,9 +3272,10 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		}
 		return error;
 	}
-	protected void createEvent( TripleStore ts, TripleStore es, String objid,
-		String cmpid, String fileid, String type, boolean success,
-		String detail, String outcomeNote ) throws TripleStoreException
+	protected void createEvent( TripleStore ts, TripleStore es, FileStore fs,
+		String objid, String cmpid, String fileid, String type, boolean success,
+		String detail, String outcomeNote )
+			throws TripleStoreException
 	{
 		try
 		{
@@ -3282,6 +3300,18 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 				detail, outcomeNote
 			);
 			e.save(ts,es);
+
+			// serialize update rdfxml to disk
+			try
+			{
+				fs.write(
+					objid, null, "rdf.xml", cacheUpdate(objid,ts,es).getBytes()
+				);
+			}
+			catch ( Exception inner )
+			{
+				log.warn("Error serializing RDF/XML on update", inner);
+			}
 		}
 		catch ( IOException ex )
 		{
@@ -3494,7 +3524,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			// check for null xml
 			if ( output == null )
 			{
-				log.info(
+				log.warn(
 					"Processing error performing Solr search, url: " + url,
 					formatEx
 				);
@@ -4413,7 +4443,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 				params.put(
 					item.getFieldName(), new String[]{item.getString()}
 				);
-				log.info(
+				log.debug(
 					"Parameter: " + item.getFieldName()
 						+ " = " + item.getString()
 				);
