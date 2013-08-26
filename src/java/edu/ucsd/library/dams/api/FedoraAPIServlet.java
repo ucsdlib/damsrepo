@@ -138,6 +138,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 	private String fulltextPrefix = "fulltext";
 
+	private boolean RECURSIVE_OBJ = false;
+
     // initialize servlet parameters
     public void init( ServletConfig config ) throws ServletException
     {
@@ -295,7 +297,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
                 ts = triplestore(req);
                 es = events(req);
 				outputTransform(
-					stripPrefix(path[2]), null, null, false,
+					stripPrefix(path[2]), null, null, RECURSIVE_OBJ,
 					objectContentTransform, null, "application/xml",
 					res.SC_OK, ts, es, res
 				);
@@ -349,8 +351,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
                 Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("dsName",new String[]{fedoraLinksDS});
                 outputTransform(
-                    path[2], null, null, false, linksMetadataTransform, params,
-                    "application/xml", res.SC_OK, ts, es, res
+                    path[2], null, null, RECURSIVE_OBJ, linksMetadataTransform,
+					params, "application/xml", res.SC_OK, ts, es, res
                 );
 			}
 			// GET /objects/[oid]/datastreams/[fedoraSystemDS]/content
@@ -446,10 +448,13 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				}
 				ts = triplestore(req);
 				es = events(req);
+				fs = filestore(req);
 				String id = stripPrefix(path[2]);
-				cacheRemove(id);
 
-				Map info = objectCreate(id, in, adds, ts, es);
+				cacheRemove(id);
+				Map info = objectEdit(
+					id, true, in, null, adds, null, null, ts, es, fs
+				);
 
 				// output id plaintext
 				output( res.SC_CREATED, path[2], "text/plain", res );
@@ -465,6 +470,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				ts = triplestore(req);
 				es = events(req);
+				fs = filestore(req);
 				String id = stripPrefix(path[2]);
 				cacheRemove(id);
 				Identifier id2 = Identifier.publicURI(idNS+id);
@@ -472,7 +478,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in2 = pruneInput( in, id2.getId() );
 
 				objectEdit(
-					id, !exists, in2, "add", null, null, null, ts, es
+					id, !exists, in2, "add", null, null, null, ts, es, fs
 				);
 
 				Map<String,String[]> params = new HashMap<String,String[]>();
@@ -499,9 +505,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				ts = triplestore(req);
 				es = events(req);
+				fs = filestore(req);
 				String id = stripPrefix(path[2]);
 
-				updateModels( id, in, ts, es );
+				updateModels( id, in, ts, es, fs );
 
 				// send output
 				Map<String,String[]> params = new HashMap<String,String[]>();
@@ -573,6 +580,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				ts = triplestore(req);
 				es = events(req);
+				fs = filestore(req);
 				String id = stripPrefix(path[2]);
 				cacheRemove(id);
 				Identifier id2 = createID( id, null, null );
@@ -580,7 +588,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in2 = pruneInput( in, id2.getId() );
 
 				objectEdit(
-					id, !exists, in2, "all", null, null, null, ts, es
+					id, !exists, in2, "all", null, null, null, ts, es, fs
 				);
 
 				Map<String,String[]> params = new HashMap<String,String[]>();
@@ -607,9 +615,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				ts = triplestore(req);
 				es = events(req);
+				fs = filestore(req);
 				String id = stripPrefix(path[2]);
 
-				updateModels( id, in, ts, es );
+				updateModels( id, in, ts, es, fs );
 
 				// send output
 				Map<String,String[]> params = new HashMap<String,String[]>();
@@ -689,10 +698,11 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				// delete object
 				ts = triplestore(req);
 				es = events(req);
+				fs = filestore(req);
 				String id = stripPrefix(path[2]);
 				cacheRemove(id);
 
-				info = objectDelete( id, ts, es );
+				info = objectDelete( id, ts, es, fs );
 
 				outputTransform(
 					path[2], null, null, true, datastreamDeleteTransform, null,
@@ -757,18 +767,22 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 		// get object metadata
 		String rdfxml = null;
-		if ( export ) { rdfxml = cacheGet( stripPrefix(objid) ); }
-		if ( rdfxml == null )
+		if ( export )
 		{
+			rdfxml = cacheGet( stripPrefix(objid) );
+			if ( rdfxml == null )
+			{
+				rdfxml = cacheUpdate( stripPrefix(objid), ts, es );
+			}
+		}
+		else
+		{
+			// Q: check cache & use export if cached?  any impact on xsl?
 			Map info = objectShow( stripPrefix(objid), ts, es );
 			if ( info.get("obj") != null )
 			{
 				DAMSObject obj = (DAMSObject)info.get("obj");
-				rdfxml = obj.getRDFXML(export);
-			}
-			if ( rdfxml != null && export )
-			{
-				cacheAdd( stripPrefix(objid), rdfxml );
+				rdfxml = obj.getRDFXML(false);
 			}
 		}
 
@@ -930,174 +944,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	}
 
 	/**
-	 * Add and remove models and links from triplestore to match RELS-EXT
-	**/
-	private void updateLinks( String objid, InputStream in, TripleStore ts,
-		TripleStore es, HttpServletResponse res ) throws Exception
-	{
-		cacheRemove(objid);
-		Identifier id = createID( objid, null, null );
-
-		// get links from input
-		SAXReader parser = new SAXReader();
-		Document doc = parser.read(in);
-		log.info("updateLinks() doc=" + doc.asXML());
-
-		// fix rdf:about
-		Set<Statement> newLinks = new HashSet<Statement>();
-		Set<String> newModels = new HashSet<String>();
-		List linkNodes = doc.selectNodes("/rdf:RDF/rdf:Description/*");
-		QName rdfRes = new QName("resource",new Namespace("rdf",rdfNS));
-		String eventURI = prNS + "event";
-		Namespace finfo = new Namespace("fedora-model","info:fedora/fedora-system:def/model#");
-		Namespace fdams = new Namespace("fext-dams","info:fedora/fedora-system:def/relations-external#dams:");
-		for ( int i = 0; i < linkNodes.size(); i++ )
-		{
-			Element e = (Element)linkNodes.get(i);
-			String rel = e.getName();
-			String uri = e.attributeValue(rdfRes);
-			Namespace ns = e.getNamespace();
-			if ( ns.getURI().equals(finfo.getURI()) )
-			{
-				// model links
-				log.info("ns:finfo");
-
-				// dummy model link
-				newModels.add( uri );
-			}
-			else if ( ns.getURI().equals(fdams.getURI()) )
-			{
-				// dams record links
-				log.info("ns:fdams");
-
-				// fix predicate URI
-				rel = prNS + rel;
-
-				// fix object URI
-				uri = idNS + uri.substring( uri.lastIndexOf("/")+1 );
-
-				log.info("newLink: " + rel + ": " + uri );
-				newLinks.add( new Statement(
-					id, Identifier.publicURI(rel), Identifier.publicURI(uri)
-				));
-			}
-			else
-			{
-				log.warn("RELS-EXT link with unknown namespace: " + ns.toString() );
-			}
-		}
-
-		// get existing links from triplestore
-		Set<Statement> oldLinks = new HashSet<Statement>();
-		Set<String> oldModels = new HashSet<String>();
-
-		// dummy model uri
-		Identifier hasModel = Identifier.publicURI(prNS+"hasModel");
-		if ( ts.exists(id) )
-		{
-			Map info = objectShow( stripPrefix(objid), ts, es );
-			if ( info.get("obj") != null )
-			{
-				DAMSObject obj = (DAMSObject)info.get("obj");
-				Set<Statement> rels = obj.getLinks();
-				for ( Iterator<Statement> it = rels.iterator(); it.hasNext(); )
-				{
-					Statement s = it.next();
-					if ( s.getPredicate().equals(hasModel) )
-					{
-						oldModels.add( s.getLiteral() );
-log.warn("old model: " + s.toString() );
-					}
-					else
-					{
-						oldLinks.add(s);
-					}
-				}
-			}
-		}
-
-		// remove common links
-		Set<Statement> commonLinks = new HashSet<Statement>();
-		if ( oldLinks != null && oldLinks.size() > 0 )
-		{
-			for ( Iterator<Statement> it = oldLinks.iterator(); it.hasNext(); )
-			{
-				Statement s = it.next();
-				if ( s.getPredicate().getId().equals(eventURI)
-					|| newLinks.contains(s) )
-				{
-					commonLinks.add( s );
-				}
-			}
-			newLinks.removeAll( commonLinks );
-			oldLinks.removeAll( commonLinks );
-		}
-
-		// remove common models
-		Set<String> commonModels = new HashSet<String>();
-		if ( oldModels != null && oldModels.size() > 0 )
-		{
-			for ( Iterator<String> it = oldModels.iterator(); it.hasNext(); )
-			{
-				String s = it.next();
-				if ( newModels.contains(s) )
-				{
-					commonModels.add( s );
-				}
-			}
-			newModels.removeAll( commonModels );
-			oldModels.removeAll( commonModels );
-		}
-
-		// add links from newLinks
-		for ( Iterator<Statement> it = newLinks.iterator(); it.hasNext(); )
-		{
-			Statement s = it.next();
-			ts.addStatement(s, id);
-		}
-
-		// add new models
-		Identifier resPred = Identifier.publicURI(prNS + "relatedResource");
-		Identifier resType = Identifier.publicURI(prNS + "RelatedResource");
-		Identifier rdfType = Identifier.publicURI(rdfNS + "type");
-		Identifier damsType = Identifier.publicURI(prNS + "type");
-		Identifier damsURI = Identifier.publicURI(prNS + "uri");
-		for ( Iterator<String> it = newModels.iterator(); it.hasNext(); )
-		{	
-			String model = it.next();
-			Identifier bn1 = ts.blankNode();
-			ts.addStatement( id, resPred, bn1, id );
-			ts.addStatement( bn1, rdfType, resType, id );
-			ts.addLiteralStatement( bn1, damsType, "'hydra-afmodel'", id );
-			ts.addLiteralStatement( bn1, damsURI, "'" + model + "'", id );
-		}
-
-		// delete links from oldLinks
-		for ( Iterator<Statement> it = oldLinks.iterator(); it.hasNext(); )
-		{
-			Statement s = it.next();
-			ts.removeStatements(
-				s.getSubject(), s.getPredicate(), s.getObject()
-			);
-		}
-
-		// XXX: delete models from oldModels
-
-
-		// send output
-		Map<String,String[]> params = new HashMap<String,String[]>();
-		params.put("dsName",new String[]{fedoraLinksDS});
-		outputTransform(
-			objid, null, null, true, datastreamProfileTransform,
-			params, "application/xml", res.SC_CREATED, ts, es, res
-		);
-	}
-
-	/**
 	 * Add and remove models from triplestore to match RELS-EXT
 	**/
 	private void updateModels( String objid, InputStream in, TripleStore ts,
-		TripleStore es ) throws Exception
+		TripleStore es, FileStore fs ) throws Exception
 	{
 		cacheRemove(objid);
 		Identifier id = createID( objid, null, null );
@@ -1178,7 +1028,7 @@ log.warn("old model: " + s.toString() );
 			{
 				// add event
 				createEvent(
-					ts, es, objid, null, null, Event.RECORD_EDITED,
+					ts, es, fs, objid, null, null, Event.RECORD_EDITED,
 					success, detail, error
 				);
 			}
@@ -1207,7 +1057,6 @@ log.warn("old model: " + s.toString() );
 				}
 			}
 			xml = doc.asXML();
-			log.info("pruned: " + xml);
 		}
 		catch ( Exception ex )
 		{
