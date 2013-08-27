@@ -254,6 +254,20 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					+ req.getContextPath() + req.getServletPath() + "/";
 				params.put("baseURL",new String[]{baseURL});
 				params.put("fulltextPrefix",new String[]{fulltextPrefix});
+
+				try
+				{
+					fs = filestore(req);
+					if ( fs.exists(path[2], null, "rdf.xml") )
+					{
+						params.put("rdfxmlDS", new String[]{"_rdf.xml"});
+					}
+				}
+				catch ( Exception ex )
+				{
+					log.warn("Error checking for serialized RDF/XML");
+				}
+
 				outputTransform(
 					path[2], null, null, true, objectDatastreamsTransform,
 					params, "application/xml", res.SC_OK, ts, es, res
