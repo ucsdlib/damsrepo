@@ -872,70 +872,94 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	// determine access group
 	private String accessGroup( Document doc )
 	{
-		String currDate = dateFormat.format( new Date() );
 
-		// lookup unit group code
-		String adminGroup = doc.valueOf("/rdf:RDF/dams:Object//dams:unitGroup");
-
-		//0. all collections and units are public
-		if ( doc.selectNodes("/rdf:RDF/dams:Object").size() == 0 &&
-			(
-				doc.selectNodes("/rdf:RDF/dams:Unit").size() > 0
-				|| doc.selectNodes("/rdf:RDF/dams:AssembledCollection").size() > 0 
-				|| doc.selectNodes("/rdf:RDF/dams:ProvenanceCollection").size() > 0
-			)
-		)
-		{
-			return roleDefault;
-		}
-
-		//1. restriction[type='display'] and current dates: admin
-		List restr = doc.selectNodes(
+		// relevant values
+		String roleAdmin = doc.valueOf("/rdf:RDF/dams:Object//dams:unitGroup");
+		String copyright = doc.valueOf(
+			"/rdf:RDF/dams:Object//dams:copyrightStatus"
+		);
+		String rightsHolder = doc.valueOf(
+			"/rdf:RDF/dams:Object//dams:rightsHolder/*/mads:authoritativeLabel"
+		);
+		boolean displayRestriction = findCurrent( doc,
 			"/rdf:RDF/dams:Object//dams:Restriction[dams:type='display']"
 		);
-		for ( int i = 0; i < restr.size(); i++ )
+		boolean displayPermission = findCurrent( doc,
+			"/rdf:RDF/dams:Object//dams:Permission[dams:type='display']"
+		);
+		boolean localPermission = findCurrent( doc,
+			"/rdf:RDF/dams:Object//dams:Permission[dams:type='localDisplay']"
+		);
+
+		// make sure values are not null
+		if ( roleAdmin    == null ) { roleAdmin    = "admin";   }
+		if ( roleLocal    == null ) { roleLocal    = "local";   }
+		if ( roleDefault  == null ) { roleDefault  = "public";  }
+		if ( copyright    == null ) { copyright    = "unknown"; }
+		if ( rightsHolder == null ) { rightsHolder = "unknown"; }
+
+		// logic
+		if (    copyright.equalsIgnoreCase("public domain") ||
+				( copyright.equalsIgnoreCase("under copyright") &&
+				rightsHolder.equalsIgnoreCase(localCopyright) )      )
 		{
-			Element e = (Element)restr.get(i);
-			if ( currentDates( e, currDate ) )
+			// public domain or locally-owned
+			if ( displayRestriction )
 			{
-				return adminGroup;
+				// overridden: admin only
+				return roleAdmin;
+			}
+			else
+			{
+				// default: public
+				return roleDefault;
 			}
 		}
-
-		//2. copyright 'Under copyright -- 1st Party' or 'Public domain': public
-		String copyright = doc.valueOf("/rdf:RDF/dams:Object//dams:copyrightStatus");
-		if ( copyright != null
-			&& (   copyright.equalsIgnoreCase("Under copyright -- 1st Party")
-				|| copyright.equalsIgnoreCase("Under copyright--1st Party")
-				|| copyright.equalsIgnoreCase("Public domain") )
-			)
+		else
 		{
-			return roleDefault;
+			// third party or unknown copyright
+			if ( !displayRestriction && displayPermission )
+			{
+				// overriden: public
+				return roleDefault;
+			}
+			else if ( !displayRestriction && localPermission )
+			{
+				// overriden: local-only
+				return roleLocal;
+			}
+			else
+			{
+				// default: admin-only
+				return roleAdmin;
+			}
 		}
-
-		//3. permission[type='display'] and current dates: public
-		//4. permission[type='localDisplay'] and current dates: local
-		HashSet<String> types = new HashSet<String>();
-		List perms = doc.selectNodes("/rdf:RDF/dams:Object//dams:Permission");
-		for ( int i = 0; i < perms.size(); i++ )
+	}
+	private static boolean findCurrent( Document doc, String xpath )
+	{
+		List nodes = doc.selectNodes( xpath );
+		for ( int i = 0; i < nodes.size(); i++ )
 		{
-			Element e = (Element)perms.get(i);
-			types.add( e.valueOf("dams:type") );
+			Element e = (Element)nodes.get(i);
+			if ( currentDates( e ) )
+			{
+				return true;
+			}
 		}
-		if ( types.contains("display") ) { return roleDefault; }
-		else if ( types.contains("localDisplay") ) { return roleLocal; }
-
-		//5. else: admin
-		return adminGroup;
+		return false;
 	}
 
 	// check whether a permission/restriction is current
-	private static boolean currentDates( Element e, String currDate )
+	private static boolean currentDates( Element e )
 	{
+		String currDate = dateFormat.format( new Date() );
 		String begin = e.valueOf("dams:beginDate");
 		String end = e.valueOf("dams:endDate");
-		if ( (begin == null || begin.trim().equals("") || begin.compareTo(currDate) < 1 ) &&
-			(end == null || end.trim().equals("") || end.compareTo(currDate) == 1 ) )
+		
+		if ( (begin == null || begin.trim().equals("")
+			|| begin.compareTo(currDate) < 1 )     &&
+			(end == null || end.trim().equals("")
+			|| end.compareTo(currDate) > 0 )        )
 		{
 			return true;
 		}

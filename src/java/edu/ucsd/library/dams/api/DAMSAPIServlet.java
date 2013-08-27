@@ -174,6 +174,7 @@ public class DAMSAPIServlet extends HttpServlet
 	protected String roleSuper;           // superuser role
 	protected String roleLocal;           // local-user role
 	protected String roleDefault;         // default role if not matching
+	protected String localCopyright;      // local copyright owner
 	private Map<String,String[]> roleMap; // map of roles to IP addresses
 
 	// fedora compat
@@ -343,6 +344,7 @@ public class DAMSAPIServlet extends HttpServlet
 			solrXslFile = new File( xslBase, "solrindexer.xsl" );
 
 			// access control/filters
+			localCopyright = props.getProperty("role.localCopyright");
 			roleDefault = props.getProperty("role.default");
 			roleLocal = props.getProperty("role.local");
 			roleSuper = props.getProperty("role.super");
