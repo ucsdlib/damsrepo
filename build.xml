@@ -264,7 +264,7 @@
 
   <!-- tomcat -->
   <target name="tomcat" description="Update scripts and files in tomcat"
-      depends="compile">
+      depends="compile,tomcat-files">
 
     <!-- move old war file out of the way -->
     <move file="${dist}/${appName}.war" tofile="${dist}/${appName}.bak"
@@ -303,7 +303,8 @@
 
     <!-- copy database driver -->
     <copy file="${lib2}/hsqldb.jar" tofile="${tomcat.home}/tomcat/lib/hsqldb.jar"/>
-
+  </target>
+  <target name="tomcat-files" description="Update tomcat scripts, sample files">
     <!-- command-line scripts -->
     <copy todir="${tomcat.home}/dams/bin">
       <fileset dir="${sh}"/>
