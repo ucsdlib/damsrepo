@@ -42,5 +42,13 @@
         </mads:elementList> 
       </mads:Title> 
     </dams:title>
+    <dams:cartographics>
+      <dams:Cartographics rdf:about="http://library.ucsd.edu/ark:/20775/bd1810042r">
+        <dams:scale>1:20000</dams:scale>
+        <dams:projection>equirectangular</dams:projection>
+        <dams:referenceSystem>WGS84</dams:referenceSystem>
+        <dams:line>29.67459,-82.37873 20.39032,-85.59203</dams:line>
+      </dams:Cartographics>
+    </dams:cartographics> 
   </dams:Object>
 </rdf:RDF>

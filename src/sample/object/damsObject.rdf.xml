@@ -10,7 +10,15 @@
 
     <!-- object only -->
     <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb02020202"/>
-    <dams:cartographics rdf:resource="http://library.ucsd.edu/ark:/20775/bb20202020"/>
+    <dams:cartographics>
+      <dams:Cartographics rdf:about="http://library.ucsd.edu/ark:/20775/bb20202020">
+        <dams:scale>1:20000</dams:scale>
+        <dams:projection>equirectangular</dams:projection>
+        <dams:referenceSystem>WGS84</dams:referenceSystem>
+        <dams:point>29.67459,-82.37873</dams:point>
+      </dams:Cartographics>
+    </dams:cartographics>
+
     <dams:typeOfResource>still image</dams:typeOfResource>
 
     <!-- rights -->

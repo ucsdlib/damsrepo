@@ -220,12 +220,6 @@ _:bnXXn02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/
 <http://library.ucsd.edu/ark:/20775/bd91134949> <http://www.loc.gov/mads/rdf/v1#code> "fr" . 
 <http://library.ucsd.edu/ark:/20775/bd91134949> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "French" .
 
-<http://library.ucsd.edu/ark:/20775/bb20202020> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Cartographics> .
-<http://library.ucsd.edu/ark:/20775/bb20202020> <http://library.ucsd.edu/ontology/dams#scale> "1:20000" .
-<http://library.ucsd.edu/ark:/20775/bb20202020> <http://library.ucsd.edu/ontology/dams#projection> "equirectangular" .
-<http://library.ucsd.edu/ark:/20775/bb20202020> <http://library.ucsd.edu/ontology/dams#referenceSystem> "WGS84" .
-<http://library.ucsd.edu/ark:/20775/bb20202020> <http://library.ucsd.edu/ontology/dams#point> "29.67459,-82.37873" .
-
 <http://library.ucsd.edu/ark:/20775/bb21212121> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Statute> .
 <http://library.ucsd.edu/ark:/20775/bb21212121> <http://library.ucsd.edu/ontology/dams#statuteCitation> "Family Education Rights and Privacy Act (FERPA)" .
 <http://library.ucsd.edu/ark:/20775/bb21212121> <http://library.ucsd.edu/ontology/dams#statuteJurisdiction> "us" .
