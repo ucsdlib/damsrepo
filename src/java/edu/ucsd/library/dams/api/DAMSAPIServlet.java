@@ -696,6 +696,12 @@ public class DAMSAPIServlet extends HttpServlet
 				es = events(req);
 				info = objectValidate( path[2], fs, ts, es );
 			}
+			// GET /files/image-service
+			else if ( path.length == 3 && path[1].equals("files") )
+			{
+				ts = triplestore(req);
+				info = useListFiles( "\"" + path[2] + "\"", ts );
+			}
 			// GET /files/bb1234567x/1.tif
 			else if ( path.length == 4 && path[1].equals("files") )
 			{
@@ -1550,6 +1556,28 @@ public class DAMSAPIServlet extends HttpServlet
 	public Map unitListFiles( String repid, TripleStore ts )
 	{
 		return listFiles( new String[]{"dams:unit"}, repid, ts );
+	}
+	public Map useListFiles( String use, TripleStore ts )
+		throws TripleStoreException
+	{
+		// perform sparql query
+		Identifier pre = createPred( "dams:use" );
+		String sparql = "select ?obj where { "
+			+ "?obj <" + pre.getId() + "> '" + use + "' }";
+		BindingIterator bind = ts.sparqlSelect(sparql);
+		List<Map<String,String>> results = bindings(bind);
+
+		// unwrap file names
+		List files = new ArrayList();
+		for ( int i = 0; i < results.size(); i++ )
+		{
+			files.add( results.get(i).get("obj") );
+		}
+
+		// build output map
+		Map info = new HashMap();
+		info.put("files", files);
+		return info;
 	}
 	protected Map listFiles( String[] pred, String obj, TripleStore ts )
 	{
@@ -3727,7 +3755,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			format = "xml";
 		}
 		else if ( !format.equals("json") && !format.equals("html")
-			&& !format.equals("xml") )
+			&& !format.equals("properties") && !format.equals("xml") )
 		{
 			// handle invalid format
 			info.put( "warning", "Invalid format: '" + format + "'" );
@@ -3743,6 +3771,11 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		{
 			content = toHTML(info);
 			contentType = "text/html";
+		}
+		else if ( format.equals("properties") )
+		{
+			content = toProperties(info);
+			contentType = "text/plain";
 		}
 		else if ( format.equals("xml") )
 		{
@@ -3831,6 +3864,69 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			}
 		}
 		return doc;
+	}
+	public static String toProperties( Map m )
+	{
+		Properties props = new Properties();
+		Iterator keys = m.keySet().iterator();
+		while ( keys.hasNext() )
+		{
+			String key = (String)keys.next();
+			Object val = m.get(key);
+			if ( val instanceof List )
+			{
+				List list = (List)val;
+				for ( int i = 0; i < list.size(); i++ )
+				{
+					Object o = list.get(i);
+					if ( o instanceof Map )
+					{
+						Map valmap = (Map)o;
+						Iterator fields = valmap.keySet().iterator();
+						while( fields.hasNext() )
+						{
+							String field = (String)fields.next();
+							props.put(
+								key + "." + i + "." + field,
+								valmap.get(field).toString()
+							);
+						}
+					}
+					else
+					{
+						props.put( key + "." + i, o.toString() );
+					}
+				}
+			}
+			else if ( val instanceof Map )
+			{
+				Map m2 = (Map)val;
+				for ( Iterator it = m2.keySet().iterator(); it.hasNext(); )
+				{
+					String k2 = (String)it.next();
+					props.put( key + "." + k2, (String)m2.get(k2) );
+				}
+			}
+			else
+			{
+				props.put( key, val.toString() );
+			}
+		}
+
+		// serialize to a string
+		String content = null;
+		try
+		{
+			StringWriter sw = new StringWriter();
+			props.store( sw, null );
+			content = sw.toString();
+		}
+		catch ( Exception ex )
+		{
+			content = "Error serializing properties: " + ex.toString();
+		}
+			
+		return content;
 	}
 	public static String toXMLString( Map m )
 	{
