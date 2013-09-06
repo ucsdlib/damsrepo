@@ -26,6 +26,9 @@
         </mads:elementList>
       </mads:Title>
     </dams:title>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd92162495"/>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
+
   </dams:Object>
   <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd21510035">
     <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
@@ -39,6 +42,8 @@
         </mads:elementList>
       </mads:Title>
     </dams:title>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd92162495"/>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
   </dams:Object>
   <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd3413814d">
     <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
@@ -52,6 +57,8 @@
         </mads:elementList>
       </mads:Title>
     </dams:title>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd92162495"/>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
   </dams:Object>
   <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd82602702">
     <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
@@ -65,6 +72,8 @@
         </mads:elementList>
       </mads:Title>
     </dams:title>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd92162495"/>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
   </dams:Object>
   <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd95572101">
     <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
@@ -78,6 +87,8 @@
         </mads:elementList>
       </mads:Title>
     </dams:title>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd92162495"/>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
   </dams:Object>
 
   <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd6963330m">
@@ -92,6 +103,8 @@
         </mads:elementList>
       </mads:Title>
     </dams:title>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd92162495"/>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
   </dams:Object>
   <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd4369453c">
     <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
@@ -105,6 +118,8 @@
         </mads:elementList>
       </mads:Title>
     </dams:title>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd92162495"/>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
   </dams:Object>
   <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd5666392f">
     <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
@@ -118,6 +133,8 @@
         </mads:elementList>
       </mads:Title>
     </dams:title>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd92162495"/>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
   </dams:Object>
   <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd3106642r">
     <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
@@ -131,6 +148,8 @@
         </mads:elementList>
       </mads:Title>
     </dams:title>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd92162495"/>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
   </dams:Object>
   <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd18097029">
     <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
@@ -144,5 +163,7 @@
         </mads:elementList>
       </mads:Title>
     </dams:title>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd92162495"/>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
   </dams:Object>
 </rdf:RDF>
