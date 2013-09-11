@@ -36,7 +36,9 @@
           <xsl:if test="$accessGroup != '' and $accessGroup != $adminGroup">
             <group><xsl:value-of select="$accessGroup"/></group>
           </xsl:if>
-          <group><xsl:value-of select="$adminGroup"/></group>
+          <xsl:if test="$adminGroup != ''">
+            <group><xsl:value-of select="$adminGroup"/></group>
+          </xsl:if>
           <group><xsl:value-of select="$superGroup"/></group>
           <xsl:for-each select="/rdf:RDF/dams:Unit|/rdf:RDF/dams:ProvenanceCollection|/rdf:RDF/dams:AssembledCollction">
             <group><xsl:value-of select="$accessGroup"/></group>
@@ -48,7 +50,9 @@
           <xsl:if test="$accessGroup != '' and $accessGroup != $adminGroup">
             <group><xsl:value-of select="$accessGroup"/></group>
           </xsl:if>
-          <group><xsl:value-of select="$adminGroup"/></group>
+          <xsl:if test="$adminGroup != ''">
+            <group><xsl:value-of select="$adminGroup"/></group>
+          </xsl:if>
           <group><xsl:value-of select="$superGroup"/></group>
         </machine>
       </access>

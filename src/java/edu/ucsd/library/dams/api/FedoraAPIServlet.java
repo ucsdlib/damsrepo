@@ -840,6 +840,11 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				String adminGroup = doc.valueOf(
 					"/rdf:RDF/dams:Object//dams:unitGroup"
 				);
+				// use default admin group if none specified
+				if ( adminGroup == null )
+				{
+					adminGroup = roleAdmin;
+				}
 				if ( !accessGroup.equals(adminGroup) )
 				{
 					params.put("accessGroup",new String[]{accessGroup});
@@ -872,9 +877,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	// determine access group
 	private String accessGroup( Document doc )
 	{
-
 		// relevant values
-		String roleAdmin = doc.valueOf("/rdf:RDF/dams:Object//dams:unitGroup");
+		String roleEdit = doc.valueOf("/rdf:RDF/dams:Object//dams:unitGroup");
 		String copyright = doc.valueOf(
 			"/rdf:RDF/dams:Object//dams:copyrightStatus"
 		);
@@ -890,6 +894,9 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		boolean localPermission = findCurrent( doc,
 			"/rdf:RDF/dams:Object//dams:Permission[dams:type='localDisplay']"
 		);
+		String visibility = doc.valueOf(
+			"/rdf:RDF/dams:AssembledCollection/dams:visibility|/rdf:RDF/dams:ProvenanceCollection/dams:visibility|/rdf:RDF/dams:ProvenanceCollectionPart/dams:visibility"
+		);
 
 		// make sure values are not null
 		if ( roleAdmin    == null ) { roleAdmin    = "admin";   }
@@ -897,9 +904,25 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		if ( roleDefault  == null ) { roleDefault  = "public";  }
 		if ( copyright    == null ) { copyright    = "unknown"; }
 		if ( rightsHolder == null ) { rightsHolder = "unknown"; }
+		if ( roleEdit     == null || roleEdit.trim().equals("") )
+		{
+			roleEdit     = roleAdmin;
+		}
 
 		// logic
-		if (    copyright.equalsIgnoreCase("public domain") ||
+		if ( visibility != null && visibility.equals("curator") )
+		{
+			return roleEdit;
+		}
+		else if ( visibility != null && visibility.equals("local") )
+		{
+			return roleLocal;
+		}
+		else if ( visibility != null && visibility.equals("public") )
+		{
+			return roleDefault;
+		}
+		else if (    copyright.equalsIgnoreCase("public domain") ||
 				( copyright.equalsIgnoreCase("under copyright") &&
 				rightsHolder.equalsIgnoreCase(localCopyright) )      )
 		{
@@ -907,7 +930,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			if ( displayRestriction )
 			{
 				// overridden: admin only
-				return roleAdmin;
+				return roleEdit;
 			}
 			else
 			{
@@ -931,7 +954,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			else
 			{
 				// default: admin-only
-				return roleAdmin;
+				return roleEdit;
 			}
 		}
 	}
