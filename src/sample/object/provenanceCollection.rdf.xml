@@ -9,6 +9,8 @@
 
     <!-- resource common -->
     <dams:language rdf:resource="http://library.ucsd.edu/ark:/20775/bd0410344f"/>
+    <dams:visibility>public</dams:visibility>
+    <dams:typeOfResource>still image</dams:typeOfResource>
     <dams:date>
       <dams:Date>
         <dams:type>creation</dams:type>
