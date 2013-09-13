@@ -40,9 +40,10 @@ if [ ! "$IDS" ]; then
 	IDS="$IDS bd5666392f"
 	IDS="$IDS bd3106642r"
 	IDS="$IDS bd18097029"
-	IDS="$IDS bd0410344f" # language
-	IDS="$IDS bd91134949"
-	IDS="$IDS bb05050505" # copyright
+	IDS="$IDS bd0410344f" # language=English
+	IDS="$IDS bd91134949" # language=French
+	IDS="$IDS bb05050505" # copyright=under copyright
+	IDS="$IDS bd0513099p" # copyright=public domain
 fi
 
 # solr indexing

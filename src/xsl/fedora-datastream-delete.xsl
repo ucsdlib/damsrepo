@@ -12,12 +12,12 @@
           <xsl:value-of select="dams:dateCreated"/>
         </xsl:for-each>
       </xsl:when>
-      <xsl:when test="//dams:Object/dams:event/dams:Event[dams:type='object modification']">
+      <xsl:when test="//dams:Object/dams:event/dams:Event[dams:type='record edited']">
         <!-- XXX find latest date if there are multiple modification events -->
-        <xsl:value-of select="//dams:Object/dams:event/dams:Event[dams:type='object modification']/dams:endDate"/>
+        <xsl:value-of select="//dams:Object/dams:event/dams:Event[dams:type='record edited']/dams:eventDate"/>
       </xsl:when>
-      <xsl:when test="//dams:Object/dams:event/dams:Event[dams:type='object creation']">
-        <xsl:value-of select="//dams:Object/dams:event/dams:Event[dams:type='object creation']/dams:endDate"/>
+      <xsl:when test="//dams:Object/dams:event/dams:Event[dams:type='record created']">
+        <xsl:value-of select="//dams:Object/dams:event/dams:Event[dams:type='record created']/dams:eventDate"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:text>1999-12-31T23:59:59-0800</xsl:text>

@@ -73,12 +73,12 @@
           <dsChecksumType>DISABLED</dsChecksumType>
           <dsChecksum>none</dsChecksum>
           <xsl:choose>
-            <xsl:when test="//dams:Object/dams:event/dams:DAMSEvent[dams:type='object modification']">
+            <xsl:when test="//dams:Object/dams:event/dams:DAMSEvent[dams:type='record edited']">
               <!-- XXX find latest date if there are multiple modification events -->
-              <dsCreateDate><xsl:value-of select="//dams:Object/dams:event/dams:DAMSEvent[dams:type='object modification']/dams:eventDate"/></dsCreateDate>
+              <dsCreateDate><xsl:value-of select="//dams:Object/dams:event/dams:DAMSEvent[dams:type='record edited']/dams:eventDate"/></dsCreateDate>
             </xsl:when>
-            <xsl:when test="//dams:Object/dams:event/dams:DAMSEvent[dams:type='object creation']">
-              <dsCreateDate><xsl:value-of select="//dams:Object/dams:event/dams:DAMSEvent[dams:type='object creation']/dams:eventDate"/></dsCreateDate>
+            <xsl:when test="//dams:Object/dams:event/dams:DAMSEvent[dams:type='record created']">
+              <dsCreateDate><xsl:value-of select="//dams:Object/dams:event/dams:DAMSEvent[dams:type='record created']/dams:eventDate"/></dsCreateDate>
             </xsl:when>
             <xsl:when test="//dams:eventDate">
               <dsCreateDate><xsl:value-of select="//dams:eventDate"/></dsCreateDate>
@@ -87,7 +87,6 @@
           </xsl:choose>
         </xsl:otherwise>
       </xsl:choose>
-
     </datastreamProfile>
   </xsl:template>
 </xsl:stylesheet>
