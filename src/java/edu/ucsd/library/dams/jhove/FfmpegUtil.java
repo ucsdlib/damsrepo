@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 **/
 public class FfmpegUtil
 {
-	Logger log = Logger.getLogger(FfmpegUtil.class);
+	private static Logger log = Logger.getLogger(FfmpegUtil.class);
 
 	/**
 	 * Executes ffmpeg against the specified file, parses the
