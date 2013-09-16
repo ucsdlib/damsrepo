@@ -58,7 +58,7 @@ public class MyJhoveBase extends JhoveBase {
 	private static final String _fileExten[]   = {".pdf",".txt",".gif",".tif",".wav",".xml",".html",".mov",".hierarchy"};
 	private static HashMap _moduleMap;
 	private static String ffmpegCommand = "ffmpeg";
-	public static final String MEDIA_FILES = ".wav .mp3 .mov .mp4 .avi";
+	public static final String MEDIA_FILES = ".wav .mp3 .mov .mp4 .avi .png";
 
 
 	private MyJhoveBase() throws Exception {
@@ -437,6 +437,11 @@ public class MyJhoveBase extends JhoveBase {
 					else if ( audioFormat != null )
 					{
 						dataObj.setQuality( audioFormat );
+					}
+					else if ( videoFormat != null
+						&& videoFormat.startsWith("png, ") )
+					{
+						dataObj.setQuality( videoFormat.substring(5) );
 					}
 					else if ( videoFormat != null )
 					{
