@@ -209,7 +209,9 @@ public class MyJhoveBase extends JhoveBase {
 	    String imageWidth = jdoc.valueOf("//imageWidth");
 	    String imageLength = jdoc.valueOf("//imageHeight");
 	    if(imageWidth != null && imageLength != null && imageWidth.length() > 0)
+		{
 	    	kobj.setQuality(imageWidth + "x" + imageLength);
+		}
 
 		// WAV bit/sample/channels
 		String abits1 = jdoc.valueOf( "//bitDepth" );
@@ -257,7 +259,7 @@ public class MyJhoveBase extends JhoveBase {
 		if ( freq != null )
 		{
 			if ( !qual.equals("") ) { qual += ", "; }
-			qual += freq + units;
+			qual += freq + " " + units;
 		}
 		if ( chan != null )
 		{
@@ -384,9 +386,11 @@ public class MyJhoveBase extends JhoveBase {
 				parseXml(dataObj, swriter);
 			}
 		}
-		catch (Exception e) {
-			System.out.println("Jhove analysis error: " + e.toString());
-			if(srcFileName.endsWith(".pdf") || srcFileName.endsWith(".PDF")){
+		catch (Exception e)
+		{
+			log.warn("Jhove analysis error", e);
+			if(srcFileName.endsWith(".pdf") || srcFileName.endsWith(".PDF"))
+			{
 				//Accept PDF file.
 				swriter.close();
 				kwriter.close();
@@ -412,9 +416,33 @@ public class MyJhoveBase extends JhoveBase {
 
 		if(indx > 0){
 			String fileExt = srcFileName.substring(indx);
-			if(MEDIA_FILES.indexOf(fileExt.toLowerCase()) >= 0){
-				String duration = FfmpegUtil.getDuration(srcFileName, ffmpegCommand);
-				dataObj.setDuration(duration);
+			if(MEDIA_FILES.indexOf(fileExt.toLowerCase()) >= 0)
+			{
+				Map<String,String> ffmpegInfo = FfmpegUtil.executeInquiry(
+					srcFileName, ffmpegCommand
+				);
+				dataObj.setDuration( ffmpegInfo.get("duration") );
+
+				String audioFormat = ffmpegInfo.get("audio");
+				String videoFormat = ffmpegInfo.get("video");
+				if ( dataObj.getQuality() == null
+					|| dataObj.getQuality().equals("") )
+				{
+					if ( audioFormat != null && videoFormat != null )
+					{
+						dataObj.setQuality(
+							"video: " + videoFormat + "; audio: " + audioFormat
+						);
+					}
+					else if ( audioFormat != null )
+					{
+						dataObj.setQuality( audioFormat );
+					}
+					else if ( videoFormat != null )
+					{
+						dataObj.setQuality( videoFormat );
+					}
+				}
 			}
 		}
 		return dataObj;
