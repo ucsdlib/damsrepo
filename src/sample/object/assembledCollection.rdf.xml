@@ -54,6 +54,12 @@
         <dams:description>Related Resource value</dams:description>
       </dams:RelatedResource>
     </dams:relatedResource>
+    <dams:relatedResource>
+      <dams:RelatedResource>
+        <dams:uri>/dams/object/bd3379993m/_4.jpg</dams:uri>
+        <dams:type>thumbnail</dams:type>
+      </dams:RelatedResource>
+    </dams:relatedResource>
 
     <!-- notes -->
     <dams:note>
