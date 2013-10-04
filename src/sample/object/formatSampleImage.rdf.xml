@@ -10,7 +10,6 @@
     <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bb09090909"/>
     <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
     <dams:otherRights rdf:resource="http://library.ucsd.edu/ark:/20775/bb06060606"/>
-    <dams:statute rdf:resource="http://library.ucsd.edu/ark:/20775/bb21212121"/>
     <dams:relationship>
       <dams:Relationship>
         <dams:name rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX1"/>

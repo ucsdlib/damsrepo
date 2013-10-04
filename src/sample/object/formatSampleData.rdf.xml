@@ -3,9 +3,9 @@
     xmlns:dams="http://library.ucsd.edu/ontology/dams#"
     xmlns:mads="http://www.loc.gov/mads/rdf/v1#">
   <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd46428055">
-    <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb02020202"/>
+    <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb48484848"/>
     <dams:language rdf:resource="http://library.ucsd.edu/ark:/20775/bd0410344f"/>
-    <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bb03030303"/>
+    <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905304g"/>
     <dams:rightsHolder>
       <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bd92162495">
         <mads:authoritativeLabel>UC Regents</mads:authoritativeLabel>
