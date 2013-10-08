@@ -12,6 +12,13 @@ if [ ! "$IDS" ]; then
 	IDS="$IDS bd24241158" # collections
 	IDS="$IDS bb03030303"
 	IDS="$IDS bd5905304g"
+	IDS="$IDS bb24242424"
+	IDS="$IDS bb25252525"
+	IDS="$IDS bd3516400n" # assembled collection
+	IDS="$IDS bd48133407" # provenance collection
+	IDS="$IDS bd6110278b" # provenance collection part
+	IDS="$IDS bd44383589" # ucsd-only collection
+	IDS="$IDS bd5735300v" # curator-only collection
 	IDS="$IDS bb01010101" # complex objects
 	IDS="$IDS bb80808080"
 	IDS="$IDS bb52572546"
@@ -22,11 +29,8 @@ if [ ! "$IDS" ]; then
 	IDS="$IDS bd2083054q" #   simple object, format=text
 	IDS="$IDS bd0786115s" #   simple object, format=video
 	IDS="$IDS bd22194583" # simple object
-	IDS="$IDS bd3516400n" # assembled collection
-	IDS="$IDS bd48133407" # provenance collection
-	IDS="$IDS bd6110278b" # provenance collection part
-	IDS="$IDS bd44383589" # ucsd-only collection
-	IDS="$IDS bd5735300v" # curator-only collection
+	IDS="$IDS bd51895934" # provenance collection member
+	IDS="$IDS bd64524003" # provenance collection part member
 	IDS="$IDS bd0683587d" # scheme (naf)
 	IDS="$IDS bd9386739x" # scheme (lcsh)
 	IDS="$IDS bd5905379f" # carousel

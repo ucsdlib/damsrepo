@@ -256,6 +256,7 @@ _:bn24n01 <http://library.ucsd.edu/ontology/dams#endDate> "2010-06-30" .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#event> <http://library.ucsd.edu/ark:/20775/bb29292929> .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#visibility> "public" .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#typeOfResource> "text" .
+<http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#assembledCollection> <http://library.ucsd.edu/ark:/20775/bb03030303> .
 
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#ProvenanceCollectionPart> .
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#title> _:bn25n03 .

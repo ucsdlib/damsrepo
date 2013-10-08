@@ -1,0 +1,39 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dams="http://library.ucsd.edu/ontology/dams#"
+    xmlns:mads="http://www.loc.gov/mads/rdf/v1#">
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd51895934">
+    <dams:provenanceCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bb24242424"/>
+    <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb02020202"/>
+    <dams:typeOfResource>still image</dams:typeOfResource>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
+    <dams:language rdf:resource="http://library.ucsd.edu/ark:/20775/bd0410344f"/>
+    <dams:title>
+      <mads:Title> 
+        <mads:authoritativeLabel>Test Object in Provenance Collection</mads:authoritativeLabel> 
+        <mads:elementList rdf:parseType="Collection"> 
+          <mads:MainTitleElement> 
+            <mads:elementValue>Test Object in Provenance Collection</mads:elementValue> 
+          </mads:MainTitleElement> 
+        </mads:elementList> 
+      </mads:Title> 
+    </dams:title>
+  </dams:Object>
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd64524003">
+    <dams:provenanceCollectionPart rdf:resource="http://library.ucsd.edu/ark:/20775/bb25252525"/>
+    <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb02020202"/>
+    <dams:typeOfResource>still image</dams:typeOfResource>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
+    <dams:language rdf:resource="http://library.ucsd.edu/ark:/20775/bd0410344f"/>
+    <dams:title>
+      <mads:Title> 
+        <mads:authoritativeLabel>Test Object in Provenance Collection Part</mads:authoritativeLabel> 
+        <mads:elementList rdf:parseType="Collection"> 
+          <mads:MainTitleElement> 
+            <mads:elementValue>Test Object in Provenance Collection Part</mads:elementValue> 
+          </mads:MainTitleElement> 
+        </mads:elementList> 
+      </mads:Title> 
+    </dams:title>
+  </dams:Object>
+</rdf:RDF>
