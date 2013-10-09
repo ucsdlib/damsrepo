@@ -10,8 +10,8 @@
     <dams:typeOfResource>dataset</dams:typeOfResource>
     <dams:relatedResource>
       <dams:RelatedResource>
-        <dams:type>preview</dams:type>
-        <dams:uri rdf:resource="http://pontos.ucsd.edu/images/siogeo.jpg"/>
+        <dams:type>thumbnail</dams:type>
+        <dams:uri>http://pontos.ucsd.edu/images/siogeo.jpg</dams:uri>
       </dams:RelatedResource>
     </dams:relatedResource>
     <dams:title>

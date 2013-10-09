@@ -11,6 +11,12 @@
     <dams:language rdf:resource="http://library.ucsd.edu/ark:/20775/bd0410344f"/>
     <dams:visibility>public</dams:visibility>
     <dams:typeOfResource>still image</dams:typeOfResource>
+    <dams:relatedResource>
+      <dams:RelatedResource>
+        <dams:uri>http://pontos.ucsd.edu/images/hoffmeister.jpg</dams:uri>
+        <dams:type>thumbnail</dams:type>
+      </dams:RelatedResource>
+    </dams:relatedResource>
     <dams:date>
       <dams:Date>
         <dams:type>creation</dams:type>

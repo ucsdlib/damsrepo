@@ -11,7 +11,7 @@
     <dams:typeOfResource>dataset</dams:typeOfResource>
     <dams:relatedResource>
       <dams:RelatedResource>
-        <dams:type>preview</dams:type>
+        <dams:type>thumbnail</dams:type>
         <dams:uri rdf:resource="http://pontos.ucsd.edu/images/santafe.jpg"/>
       </dams:RelatedResource>
     </dams:relatedResource>
