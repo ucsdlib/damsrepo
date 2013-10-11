@@ -11,10 +11,12 @@
   <property name="root"      value="${src}/root"/>
   <property name="metainf"   value="${src}/metainf"/>
   <property name="props"     value="${src}/properties"/>
+  <property name="test"      value="${src}/test"/>
   <property name="webinf"    value="${src}/webinf"/>
   <property name="xsl"       value="${src}/xsl"/>
   <property name="tmp"       value="${basedir}/tmp"/>
   <property name="webapp"    value="${tmp}/webapp"/>
+  <property name="testexec"  value="${tmp}/test"/>
   <property name="dist"      value="${basedir}/dist"/>
 
   <tstamp>
@@ -266,5 +268,27 @@
     <copy todir="${tomcat.home}/dams/sample">
       <fileset dir="${src}/sample"/>
     </copy>
+  </target>
+
+  <!-- test-compile -->
+  <target name="test-compile" description="Compile test Java classes.">
+    <mkdir dir="${testexec}"/>
+    <javac destdir="${testexec}" srcdir="${test}"
+        deprecation="on" debug="true" debuglevel="lines,source" target="1.6"
+        includeantruntime="false" source="1.6">
+      <classpath refid="classpath"/>
+    </javac>
+  </target>
+  <target name="test-exec" description="Run test Java classes.">
+    <junit>
+      <classpath refid="classpath"/>
+      <classpath>
+        <pathelement path="${testexec}"/>
+      </classpath>
+      <test name="edu.ucsd.library.dams.integration.D4IntegrationTest"
+          outfile="tmp/result">
+        <formatter type="plain"/>
+      </test>
+    </junit>
   </target>
 </project>
