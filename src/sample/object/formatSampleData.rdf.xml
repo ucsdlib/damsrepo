@@ -5,6 +5,15 @@
   <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd46428055">
     <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb48484848"/>
     <dams:language rdf:resource="http://library.ucsd.edu/ark:/20775/bd0410344f"/>
+    <dams:cartographics>
+      <dams:Cartographics>
+        <dams:scale>1:20000</dams:scale>
+        <dams:projection>equirectangular</dams:projection>
+        <dams:referenceSystem>WGS84</dams:referenceSystem>
+        <dams:polygon>29.60,-82.37 30.30,-80.00 27.00,-79.00</dams:polygon>
+      </dams:Cartographics>
+    </dams:cartographics>
+
     <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905304g"/>
     <dams:rightsHolder>
       <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bd92162495">
