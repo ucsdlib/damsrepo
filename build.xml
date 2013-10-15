@@ -17,6 +17,7 @@
   <property name="tmp"       value="${basedir}/tmp"/>
   <property name="webapp"    value="${tmp}/webapp"/>
   <property name="testexec"  value="${tmp}/test"/>
+  <property name="swiftclient" value="${tmp}/swiftclient"/>
   <property name="dist"      value="${basedir}/dist"/>
 
   <tstamp>
@@ -124,6 +125,12 @@
       <fileset dir="${src}/sample"/>
     </copy>
 
+  </target>
+
+  <target name="jar" depends="compile">
+    <!-- jar up classes -->
+    <jar destfile="${dist}/dams-${app.version}.jar"
+         basedir="${webapp}/WEB-INF/classes"/>
   </target>
 
   <!-- build webapp -->
@@ -290,5 +297,33 @@
         <formatter type="plain"/>
       </test>
     </junit>
+  </target>
+
+  <!-- package swiftclient and deps -->
+  <target name="swiftclient" description="Package SwiftClient" depends="jar">
+    <!-- create directories -->
+    <mkdir dir="${swiftclient}"/>
+    <mkdir dir="${swiftclient}/lib"/>
+
+    <!-- copy files -->
+    <copy file="${sh}/swiftclient.sh" todir="${swiftclient}"/>
+    <copy file="${props}/swiftclient.properties.sample" tofile="${swiftclient}/swiftclient.properties"/>
+    <copy file="${dist}/dams-${app.version}.jar" todir="${swiftclient}/lib"/>
+    <copy file="${lib}/commons-logging-1.1.1.jar" todir="${swiftclient}/lib"/>
+    <copy file="${lib}/httpclient-4.2.1.jar" todir="${swiftclient}/lib"/>
+    <copy file="${lib}/httpcore-4.2.1.jar" todir="${swiftclient}/lib"/>
+    <copy file="${lib}/httpmime-4.2.1.jar" todir="${swiftclient}/lib"/>
+    <copy file="${lib}/log4j-1.2.16.jar" todir="${swiftclient}/lib"/>
+
+    <!-- make scripts executable -->
+    <chmod dir="${swiftclient}" perm="ugo+rx" includes="*.sh"/>
+
+    <!-- create tarball -->
+    <tar destfile="${dist}/swiftclient.tar.gz" compression="gzip"
+         basedir="${tmp}" includes="swiftclient/**" excludes="**/*.sh">
+      <tarfileset dir="${tmp}" filemode="755">
+        <include name="swiftclient/swiftclient.sh"/>
+      </tarfileset>
+    </tar>
   </target>
 </project>

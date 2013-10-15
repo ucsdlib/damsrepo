@@ -76,7 +76,7 @@ public class SwiftClient
 	private NumberFormat nf   = null; // format segment names
 
 	// segmented input stream params
-	private static long SEGMENT_SIZE = 1073741824L; // 1 GB
+	private static long SEGMENT_SIZE = 1073741824L; // 1 GB XXX: config
 	private String manifestContainer = null;
 	private String manifestObject = null;
 	private int manifestCount = 0;

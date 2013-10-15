@@ -1,0 +1,4 @@
+# swiftclient connection properties
+username=ucsdlib:ucsdlib-dev
+password=password
+authURL=https://cloud.sdsc.edu/auth/v1.0
