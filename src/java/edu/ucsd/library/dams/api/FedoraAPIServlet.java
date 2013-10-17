@@ -840,14 +840,17 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				String adminGroup = doc.valueOf(
 					"/rdf:RDF/dams:Object//dams:unitGroup"
 				);
+				log.info("access: " + accessGroup + ", admin: " + adminGroup + ", super: " + roleSuper);
 				// use default admin group if none specified
 				if ( adminGroup == null )
 				{
 					adminGroup = roleAdmin;
+					log.info("using default adminGroup: " + adminGroup);
 				}
 				if ( !accessGroup.equals(adminGroup) )
 				{
 					params.put("accessGroup",new String[]{accessGroup});
+					log.info("non-duplicate accessGroup: " + accessGroup);
 				}
 				params.put("adminGroup", new String[]{adminGroup});
 				params.put("superGroup", new String[]{roleSuper});
@@ -898,6 +901,14 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			"/rdf:RDF/dams:AssembledCollection/dams:visibility|/rdf:RDF/dams:ProvenanceCollection/dams:visibility|/rdf:RDF/dams:ProvenanceCollectionPart/dams:visibility"
 		);
 
+		log.info("accessGroup() roleEdit:" + roleEdit );
+		log.info("accessGroup() copyright:" + copyright );
+		log.info("accessGroup() rightsHolder:" + rightsHolder );
+		log.info("accessGroup() displayRestriction:" + displayRestriction );
+		log.info("accessGroup() displayPermission:" + displayPermission );
+		log.info("accessGroup() localPermission:" + localPermission );
+		log.info("accessGroup() visibility:" + visibility );
+
 		// make sure values are not null
 		if ( roleAdmin    == null ) { roleAdmin    = "admin";   }
 		if ( roleLocal    == null ) { roleLocal    = "local";   }
@@ -907,19 +918,23 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		if ( roleEdit     == null || roleEdit.trim().equals("") )
 		{
 			roleEdit     = roleAdmin;
+			log.info("accessGroup() default roleEdit:" + roleEdit );
 		}
 
 		// logic
 		if ( visibility != null && visibility.equals("curator") )
 		{
+			log.info("accessGroup() curator = " + roleEdit);
 			return roleEdit;
 		}
 		else if ( visibility != null && visibility.equals("local") )
 		{
+			log.info("accessGroup() local = " + roleLocal);
 			return roleLocal;
 		}
 		else if ( visibility != null && visibility.equals("public") )
 		{
+			log.info("accessGroup() visibility = " + roleDefault);
 			return roleDefault;
 		}
 		else if (    copyright.equalsIgnoreCase("public domain") ||
@@ -930,11 +945,13 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			if ( displayRestriction )
 			{
 				// overridden: admin only
+				log.info("accessGroup() loc/pd override = " + roleEdit);
 				return roleEdit;
 			}
 			else
 			{
 				// default: public
+				log.info("accessGroup() loc/pd default = " + roleDefault);
 				return roleDefault;
 			}
 		}
@@ -944,16 +961,19 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			if ( !displayRestriction && displayPermission )
 			{
 				// overriden: public
+				log.info("accessGroup() 3rd/unk override = " + roleDefault);
 				return roleDefault;
 			}
 			else if ( !displayRestriction && localPermission )
 			{
 				// overriden: local-only
+				log.info("accessGroup() 3rd/unk local = " + roleLocal);
 				return roleLocal;
 			}
 			else
 			{
 				// default: admin-only
+				log.info("accessGroup() 3rd/unk default = " + roleEdit);
 				return roleEdit;
 			}
 		}

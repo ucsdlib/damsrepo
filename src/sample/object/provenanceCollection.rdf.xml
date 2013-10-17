@@ -69,6 +69,13 @@
         <dams:type>identifier</dams:type>
       </dams:Note>
     </dams:note>
+    <dams:note>
+      <dams:Note>
+        <dams:displayLabel>Description</dams:displayLabel>
+        <rdf:value>This is a fuller description of the collection record and contents.  It is typically several sentences to several paragraphs in length and follows from the Scope and Content note with additional details.  These details include thematic connections with other resources and collecitons, narrative description of the collection development process, etc.</rdf:value>
+        <dams:type>description</dams:type>
+      </dams:Note>
+    </dams:note>
     <dams:custodialResponsibilityNote>
       <dams:CustodialResponsibilityNote>
         <dams:displayLabel>Custodial Resonsibility</dams:displayLabel>
@@ -78,14 +85,14 @@
     </dams:custodialResponsibilityNote>
     <dams:preferredCitationNote>
       <dams:PreferredCitationNote>
-        <dams:displayLabel>Custodial Resonsibility</dams:displayLabel>
+        <dams:displayLabel>Preferred Citation</dams:displayLabel>
         <rdf:value>PreferredCitationNote value</rdf:value>
         <dams:type>preferredCitationNote</dams:type>
       </dams:PreferredCitationNote>
     </dams:preferredCitationNote>
     <dams:scopeContentNote>
       <dams:ScopeContentNote>
-        <dams:displayLabel>Custodial Resonsibility</dams:displayLabel>
+        <dams:displayLabel>Scope and Contents</dams:displayLabel>
         <rdf:value>ScopeContentNote value</rdf:value>
         <dams:type>scopeContentNote</dams:type>
       </dams:ScopeContentNote>
