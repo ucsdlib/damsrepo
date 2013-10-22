@@ -31,9 +31,6 @@ import edu.ucsd.library.dams.file.FileStoreUtil;
 **/
 public class OpenStackStore implements FileStore
 {
-	/* size of segments to break files into */
-	private static long SEGMENT_SIZE = 1073741824L; // 1 GB
-
 	private SwiftClient client = null;
 	private String orgCode = null;
 
@@ -286,7 +283,7 @@ public class OpenStackStore implements FileStore
 				// if the stream is from a file, check file's size
 				FileInputStream fis = (FileInputStream)in;
 				long size = fis.getChannel().size();
-				if ( size > SEGMENT_SIZE )
+				if ( size > client.segmentSize() )
 				{
 					client.uploadSegmented( cn(orgCode,objectID), fn(orgCode,objectID,componentID,fileID), fis, size );
 				}

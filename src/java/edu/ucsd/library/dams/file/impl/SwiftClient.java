@@ -76,7 +76,10 @@ public class SwiftClient
 	private NumberFormat nf   = null; // format segment names
 
 	// segmented input stream params
-	private static long SEGMENT_SIZE = 1073741824L; // 1 GB XXX: config
+	private static long DEFAULT_SEGMENT_SIZE = 1073741824L; // 1 GB
+	private static int DEFAULT_SEGMENT_NAME_LENGTH = 4;
+	private int segmentNameLength;
+	private long segmentSize;
 	private String manifestContainer = null;
 	private String manifestObject = null;
 	private int manifestCount = 0;
@@ -164,15 +167,40 @@ public class SwiftClient
 			get.reset();
 		}
 
-		// init
-		nf = NumberFormat.getIntegerInstance();
-		nf.setMinimumIntegerDigits(4);
-		nf.setGroupingUsed(false);
+		init(props);
 
-		//message("auth: OK");
-		//message("  Auth Token.: " + authToken );
-		//message("  Storage URL: " + storageURL);
 	}
+	private void init( Properties props )
+	{
+
+		// segment size
+		try
+		{
+			segmentNameLength = Integer.parseInt(
+				props.getProperty("segmentNameLength")
+			);
+			segmentSize       = Long.parseLong(
+				props.getProperty("segmentSize")
+			);
+		}
+		catch ( Exception ex )
+		{
+			segmentNameLength = DEFAULT_SEGMENT_NAME_LENGTH;
+			segmentSize = DEFAULT_SEGMENT_SIZE;
+		}
+
+		// segment name formatting
+		nf = NumberFormat.getIntegerInstance();
+		nf.setMinimumIntegerDigits(segmentNameLength);
+		nf.setGroupingUsed(false);
+	}
+
+	/**
+	 * Return the current segment-size.  Uploads longer than this should be
+	 * broken up into segments, and then joined into a virtual file using a
+	 * manifest.
+	**/
+	public long segmentSize() { return segmentSize; }
 
 	/**
 	 * Create a SwiftClient object using the provided authentication token and
@@ -186,11 +214,7 @@ public class SwiftClient
 		this.authToken = authToken;
 		this.storageURL = storageURL;
 		this.out = out;
-
-		// init
-		nf = NumberFormat.getIntegerInstance();
-		nf.setMinimumIntegerDigits(4);
-		nf.setGroupingUsed(false);
+		init( null );
 	}
 
 	/**
@@ -412,13 +436,13 @@ public class SwiftClient
 		try
 		{
 			SegmentedInputStream sis = new SegmentedInputStream(
-				in, SEGMENT_SIZE
+				in, segmentSize
 			);
 			String contentType = new FileDataSource(object).getContentType();
 			Map<String,String> metadata = new HashMap<String,String>();
 			for ( int i = 0; sis != null; i++ )
 			{
-				long thisLen = Math.min( SEGMENT_SIZE, len - (i*SEGMENT_SIZE) );
+				long thisLen = Math.min( segmentSize, len - (i*segmentSize) );
 				String segName = object + "/" + nf.format(i);
 				if ( exists(container, segName) )
 				{
@@ -439,7 +463,7 @@ public class SwiftClient
 				}
 
 				// check whether we've reached the end of the stream
-				if ( ! sis.exhausted() || (i+1)*SEGMENT_SIZE == len )
+				if ( ! sis.exhausted() || (i+1)*segmentSize == len )
 				{
 					sis.close(true); sis = null;
 				}
@@ -521,7 +545,7 @@ public class SwiftClient
 		manifestAfterSegments( dstContainer, dstObject );
 
 		int status = -1;
-		if ( len > SEGMENT_SIZE )
+		if ( len > segmentSize )
 		{
 			// don't copy, just need to create manifest, but after segments
 			manifestObject = dstObject;
@@ -998,7 +1022,7 @@ public class SwiftClient
 					in = new FileInputStream(args[3]);
 					len = new File(args[3]).length();
 				}
-				if ( len > SEGMENT_SIZE )
+				if ( len > swift.segmentSize() )
 				{
 					swift.output( swift.uploadSegmented(container,object,in,len) );
 				}
