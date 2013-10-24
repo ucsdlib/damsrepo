@@ -7,6 +7,7 @@
 #   createContainer name
 #   delete container [object]
 #   deleteContainer name
+#   deleteContainerRecursive name (deletes contents first)
 #   download [user] container object
 #   listContainers [user]
 #   listObjects [user] container [path]

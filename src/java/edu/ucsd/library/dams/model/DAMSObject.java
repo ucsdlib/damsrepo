@@ -25,6 +25,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.rdf.model.NodeIterator;
@@ -273,7 +274,7 @@ public class DAMSObject
 				Identifier o = stmt.getObject();
 				if ( !o.isBlankNode() && !done.contains(o.getId()) )
 				{
-					// don't follow owl predicates
+					// don't follow owl predicates, rdf:type, or external URIs
 					String p = stmt.getPredicate().getId();
 					if ( p.equals(eventPred) )
 					{
@@ -352,7 +353,13 @@ public class DAMSObject
 			com.hp.hpl.jena.rdf.model.Statement typeSt
 				= m.getProperty(sub,rdfType);
 			String recordType = null;
-			try { recordType = typeSt.getObject().toString(); }
+			Resource rootType = null;
+			try
+			{
+				Resource typeResource = (Resource)typeSt.getObject();
+				rootType = typeResource;
+				recordType = typeResource.toString();
+			}
 			catch ( Exception ex ) { }
 			if ( recordType != null && ( recordType.endsWith("Collection")
 				|| recordType.endsWith("CollectionPart")) )
@@ -424,8 +431,14 @@ public class DAMSObject
 				}
 			}
 
-			// serialize the model
-			m.write( writer, format );
+			// serialize RDF
+			RDFWriter rdfw = m.getWriter(format);
+			if ( rootType != null && format.equals("RDF/XML-ABBREV") )
+			{
+				// tell jena which type should be the root record
+				rdfw.setProperty("prettyTypes", new Resource[]{rootType});
+			}
+			rdfw.write( m, writer, null );
 		}
 		catch ( Exception ex )
 		{

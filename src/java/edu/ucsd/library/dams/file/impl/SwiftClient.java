@@ -727,6 +727,26 @@ public class SwiftClient
 	}
 
 	/**
+	 * Recursively delete a container.
+	**/
+	public int deleteContainerRecursive( String container )
+		throws FileStoreException, IOException
+	{
+		List<String> files = listObjects( null, container, null );
+		int status = -1;
+		for ( int i = 0; i < files.size(); i++ )
+		{
+			status = delete( container, files.get(i) );
+			if ( status != 204 )
+			{
+				return status;
+			}
+		}
+		status = deleteContainer( container );
+		return status;
+	}
+
+	/**
 	 * Delete a container or an object.
 	 * @param object If not null, delete this object.
 	**/
@@ -904,6 +924,11 @@ public class SwiftClient
 		{
 			String container = args[2];
 			swift.output( swift.deleteContainer(container) );
+		}
+		else if ( op.equals("deleteContainerRecursive") )
+		{
+			String container = args[2];
+			swift.output( swift.deleteContainerRecursive(container) );
 		}
 		else if ( op.equals("listObjects") )
 		{
