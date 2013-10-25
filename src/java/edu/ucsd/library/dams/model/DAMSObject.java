@@ -274,13 +274,16 @@ public class DAMSObject
 				Identifier o = stmt.getObject();
 				if ( !o.isBlankNode() && !done.contains(o.getId()) )
 				{
-					// don't follow owl predicates, rdf:type, or external URIs
+					// don't follow owl predicates, rdf:type, external URIs,
+					// or upward collection links
 					String p = stmt.getPredicate().getId();
 					if ( p.equals(eventPred) )
 					{
 						events.add(o);
 					}
 					else if ( !p.equals(rdfNS + "type") && !p.startsWith(owlNS)
+						&& !p.equals(prNS + "provenanceCollection")
+						&& !p.equals(prNS + "assembledCollection")
 						&& o.getId().startsWith(idNS) )
 					{
 						todo.add(o);

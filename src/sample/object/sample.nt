@@ -253,6 +253,7 @@ _:bn24n01 <http://library.ucsd.edu/ontology/dams#beginDate> "2009-05-03" .
 _:bn24n01 <http://library.ucsd.edu/ontology/dams#endDate> "2010-06-30" .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#language> <http://library.ucsd.edu/ark:/20775/bd0410344f> .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#hasPart> <http://library.ucsd.edu/ark:/20775/bb25252525> .
+<http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#hasPart> <http://library.ucsd.edu/ark:/20775/bd6110278b> .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#event> <http://library.ucsd.edu/ark:/20775/bb29292929> .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#visibility> "public" .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#typeOfResource> "text" .
