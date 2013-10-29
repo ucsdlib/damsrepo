@@ -64,6 +64,8 @@ public class DAMSObject
 	private String eventPred;
 	private List<Identifier> childCollectionPredicates = null;
 	private List<Identifier> collectionMemberPredicates = null;
+	private Resource rootType = null;
+
 
 	/**
 	 * Main constructor.
@@ -276,15 +278,12 @@ public class DAMSObject
 				{
 					// don't follow owl predicates, rdf:type, external URIs,
 					// or upward collection links
-					String p = stmt.getPredicate().getId();
-					if ( p.equals(eventPred) )
+					Identifier p = stmt.getPredicate();
+					if ( p.getId().equals(eventPred) )
 					{
 						events.add(o);
 					}
-					else if ( !p.equals(rdfNS + "type") && !p.startsWith(owlNS)
-						&& !p.equals(prNS + "provenanceCollection")
-						&& !p.equals(prNS + "assembledCollection")
-						&& o.getId().startsWith(idNS) )
+					else if ( allowRecursion(p) && o.getId().startsWith(idNS) )
 					{
 						todo.add(o);
 					}
@@ -292,6 +291,31 @@ public class DAMSObject
 			}
 		}
 		it.close();
+	}
+	private boolean allowRecursion( Identifier predicate )
+	{
+		if ( predicate.getId().equals(rdfNS + "type")
+			|| predicate.getId().startsWith(owlNS) )
+		{
+			return false;
+		}
+		else if ( rootType != null && rootType.getURI() != null
+			&& rootType.getURI().indexOf("Collection") != -1 )
+		{
+			if ( childCollectionPredicates.contains(predicate)
+				|| collectionMemberPredicates.contains(predicate) )
+			{
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+		else
+		{
+			return true;
+		}
 	}
 
 	/**
@@ -356,7 +380,7 @@ public class DAMSObject
 			com.hp.hpl.jena.rdf.model.Statement typeSt
 				= m.getProperty(sub,rdfType);
 			String recordType = null;
-			Resource rootType = null;
+			rootType = null;
 			try
 			{
 				Resource typeResource = (Resource)typeSt.getObject();
