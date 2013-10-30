@@ -295,22 +295,10 @@ public class DAMSObject
 	private boolean allowRecursion( Identifier predicate )
 	{
 		if ( predicate.getId().equals(rdfNS + "type")
-			|| predicate.getId().startsWith(owlNS) )
+			|| predicate.getId().startsWith(owlNS)
+			|| childCollectionPredicates.contains(predicate) )
 		{
 			return false;
-		}
-		else if ( rootType != null && rootType.getURI() != null
-			&& rootType.getURI().indexOf("Collection") != -1 )
-		{
-			if ( childCollectionPredicates.contains(predicate)
-				|| collectionMemberPredicates.contains(predicate) )
-			{
-				return false;
-			}
-			else
-			{
-				return true;
-			}
 		}
 		else
 		{
@@ -387,7 +375,7 @@ public class DAMSObject
 				rootType = typeResource;
 				recordType = typeResource.toString();
 			}
-			catch ( Exception ex ) { }
+			catch ( Exception ex ) { log.warn("Error determining type",ex); }
 			if ( recordType != null && ( recordType.endsWith("Collection")
 				|| recordType.endsWith("CollectionPart")) )
 			{
