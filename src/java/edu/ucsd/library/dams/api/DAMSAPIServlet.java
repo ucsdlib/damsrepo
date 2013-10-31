@@ -972,12 +972,15 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				try
 				{
-					// make sure request is multipart with a file upload
-					if ( !ServletFileUpload.isMultipartContent(req) )
+					// make sure request is multipart with a file upload,
+					// or that the srcfs or local params are specified
+					if ( !ServletFileUpload.isMultipartContent(req) 
+						&& req.getParameter("srcfs") == null
+						&& req.getParameter("local") == null )
 					{
 						info = error(
 							HttpServletResponse.SC_BAD_REQUEST,
-							"Multipart required"
+							"Multipart or srcfs/local params required"
 						);
 					}
 					else
@@ -1011,12 +1014,15 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				try
 				{
-					// make sure request is multipart with a file upload
-					if ( !ServletFileUpload.isMultipartContent(req) )
+					// make sure request is multipart with a file upload or
+					// the local or srcfs params are specified
+					if ( !ServletFileUpload.isMultipartContent(req)
+						&& req.getParameter("srcfs") == null
+						&& req.getParameter("local") == null )
 					{
 						info = error(
 							HttpServletResponse.SC_BAD_REQUEST,
-							"Multipart required"
+							"Multipart or srcfs/local params required"
 						);
 					}
 					else
@@ -1177,7 +1183,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				try
 				{
-					InputBundle bundle = input( req );
+					InputBundle bundle = input( req, path[2], null, path[3] );
 					InputStream in = bundle.getInputStream();
 					params = bundle.getParams();
 					fs = filestore(params);
@@ -1200,7 +1206,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				try
 				{
-					InputBundle bundle = input( req );
+					InputBundle bundle = input( req, path[2], path[3], path[4] );
 					InputStream in = bundle.getInputStream();
 					params = bundle.getParams();
 					fs = filestore(params);
@@ -4495,6 +4501,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 				try
 				{
 					FileStore srcfs = FileStoreUtil.getFileStore(props,srcName);
+					log.info("Loading from " + srcfs + ": " + objid + "/" + cmpid + "/" + fileid);
 					if ( srcfs != null && srcfs.exists(objid, cmpid, fileid) )
 					{
 						in = srcfs.getInputStream( objid, cmpid, fileid );
