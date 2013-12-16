@@ -138,7 +138,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 	private String fulltextPrefix = "fulltext";
 
-	private boolean RECURSIVE_OBJ = false;
+	private boolean RECURSIVE_OBJ = true;
 
     // initialize servlet parameters
     public void init( ServletConfig config ) throws ServletException
@@ -210,6 +210,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	**/
 	public void doGet( HttpServletRequest req, HttpServletResponse res )
 	{
+		long start = System.currentTimeMillis();
 		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
@@ -411,6 +412,12 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					);
 				}
             }
+            // GET /system/times
+            else if ( path.length == 3 && path[1].equals("system")
+                && path[2].equals("times") )
+            {
+                output(times(), req.getParameterMap(), req.getPathInfo(), res);
+            }
 		}
 		catch ( Exception ex )
 		{
@@ -420,6 +427,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			cleanup( fs, ts, es );
 		}
+		getTimes.add( System.currentTimeMillis() - start );
 	}
 
 	/**
@@ -427,6 +435,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	**/
 	public void doPost( HttpServletRequest req, HttpServletResponse res )
 	{
+		long start = System.currentTimeMillis();
 		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
@@ -568,6 +577,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			cleanup( fs, ts, es );
 		}
+		pstTimes.add( System.currentTimeMillis() - start );
 	}
 
 	/**
@@ -575,6 +585,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	**/
 	public void doPut( HttpServletRequest req, HttpServletResponse res )
 	{
+		long start = System.currentTimeMillis();
 		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
@@ -690,6 +701,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			cleanup( fs, ts, es );
 		}
+		putTimes.add( System.currentTimeMillis() - start );
 	}
 
 	/**
@@ -697,6 +709,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	**/
 	public void doDelete( HttpServletRequest req, HttpServletResponse res )
 	{
+		long start = System.currentTimeMillis();
 		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
@@ -760,7 +773,38 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			cleanup( fs, ts, es );
 		}
+		delTimes.add( System.currentTimeMillis() - start );
 	}
+
+    public Map times()
+    {
+        Map info = new HashMap();
+        info.put( "get", times(getTimes) );
+        info.put( "pst", times(pstTimes) );
+        info.put( "put", times(putTimes) );
+        info.put( "del", times(delTimes) );
+        return info;
+    }
+    private Map times( List<Long> times )
+    {
+        // calculate mean
+        int count = times.size();
+        long sum = 0L;
+        for ( long time : times )
+        {
+            sum += time;
+        }
+
+        // clear data
+        times.clear();
+
+        // send reponse
+        Map info = new HashMap();
+        info.put( "count", String.valueOf(count) );
+        info.put( "sum", String.valueOf(sum) );
+        info.put( "mean", String.valueOf( (float)sum/count ) );
+        return info;
+    }
 
 	private void outputTransform( String objid, String cmpid, String fileid,
 		boolean export, Transformer xsl, Map<String,String[]> params,

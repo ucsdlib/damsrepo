@@ -276,14 +276,14 @@
       </dams:StylePeriod>
     </dams:stylePeriod>
     <dams:technique>
-      <mads:Technique>
-        <mads:authoritativeLabel>mads:Technique value</mads:authoritativeLabel>
+      <dams:Technique>
+        <mads:authoritativeLabel>dams:Technique value</mads:authoritativeLabel>
         <mads:elementList rdf:parseType="Collection">
-          <mads:TechniqueElement>
-            <mads:elementValue>mads:Technique value</mads:elementValue>
-          </mads:TechniqueElement>
+          <dams:TechniqueElement>
+            <mads:elementValue>dams:Technique value</mads:elementValue>
+          </dams:TechniqueElement>
         </mads:elementList>
-      </mads:Technique>
+      </dams:Technique>
     </dams:technique>
     <dams:temporal>
       <mads:Temporal>

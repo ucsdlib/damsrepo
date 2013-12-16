@@ -213,6 +213,12 @@ public class DAMSAPIServlet extends HttpServlet
 	private Session queueSession;
 	MessageProducer queueProducer;
 
+    // stats tracking
+	protected List<Long> pstTimes = new ArrayList<Long>();
+	protected List<Long> getTimes = new ArrayList<Long>();
+	protected List<Long> putTimes = new ArrayList<Long>();
+	protected List<Long> delTimes = new ArrayList<Long>();
+
 	// object rdf/xml caching
 	private static HashMap<String,String> cacheContent = new HashMap<String,String>();
 	private static LinkedList<String> cacheAccess = new LinkedList<String>();
@@ -485,6 +491,7 @@ public class DAMSAPIServlet extends HttpServlet
 	**/
 	public void doGet( HttpServletRequest req, HttpServletResponse res )
 	{
+		long start = System.currentTimeMillis();
 		Map info = null;
 		boolean outputRequired = true; // set to false to suppress status output
 		FileStore fs = null;
@@ -819,6 +826,12 @@ public class DAMSAPIServlet extends HttpServlet
 				info.put( "filestores", filestores );
 				info.put( "defaultFilestore", fsDefault );
 			}
+			// GET /system/times
+			else if ( path.length == 3 && path[1].equals("system")
+				&& path[2].equals("times") )
+			{
+				info = times();
+			}
 			// GET /system/triplestores
 			else if ( path.length == 3 && path[1].equals("system" )
 				&& path[2].equals("triplestores") )
@@ -830,7 +843,7 @@ public class DAMSAPIServlet extends HttpServlet
 				info.put( "eventsTriplestore", tsEvents );
 			}
 			// GET /system/version
-			else if ( path.length == 3 && path[1].equals("system" )
+			else if ( path.length == 3 && path[1].equals("system")
 				&& path[2].equals("version") )
 			{
 				info = new LinkedHashMap();
@@ -863,6 +876,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// cleanup
 			cleanup( fs, ts, es );
 		}
+		getTimes.add( System.currentTimeMillis() - start );
 	}
 
 	/**
@@ -871,6 +885,7 @@ public class DAMSAPIServlet extends HttpServlet
 	**/
 	public void doPost( HttpServletRequest req, HttpServletResponse res )
 	{
+		long start = System.currentTimeMillis();
 		/*
 			// detect overloaded POST
 			String method = params.get("method");
@@ -1133,6 +1148,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// cleanup
 			cleanup( fs, ts, es );
 		}
+		pstTimes.add( System.currentTimeMillis() - start );
 	}
 	/**
 	 * HTTP PUT methods to modify objects and datastreams.  Calls to PUT should
@@ -1140,6 +1156,7 @@ public class DAMSAPIServlet extends HttpServlet
 	**/
 	public void doPut( HttpServletRequest req, HttpServletResponse res )
 	{
+		long start = System.currentTimeMillis();
 		Map info = null;
 		FileStore fs = null;
 		TripleStore ts = null;
@@ -1302,6 +1319,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// cleanup
 			cleanup( fs, ts, es );
 		}
+		putTimes.add( System.currentTimeMillis() - start );
 	}
 
 	/**
@@ -1310,6 +1328,7 @@ public class DAMSAPIServlet extends HttpServlet
 	**/
 	public void doDelete( HttpServletRequest req, HttpServletResponse res )
 	{
+		long start = System.currentTimeMillis();
 		Map info = null;
 		FileStore fs = null;
 		TripleStore ts = null;
@@ -1410,6 +1429,37 @@ public class DAMSAPIServlet extends HttpServlet
 			// cleanup
 			cleanup( fs, ts, es );
 		}
+		delTimes.add( System.currentTimeMillis() - start );
+	}
+
+	public Map times()
+	{
+		Map info = new HashMap();
+		info.put( "get", times(getTimes) );
+		info.put( "pst", times(pstTimes) );
+		info.put( "put", times(putTimes) );
+		info.put( "del", times(delTimes) );
+		return info;
+	}
+	private Map times( List<Long> times )
+	{
+		// calculate mean
+		int count = times.size();
+		long sum = 0L;
+		for ( long time : times )
+		{
+			sum += time;
+		}
+
+		// clear data
+		times.clear();
+
+		// send reponse
+		Map info = new HashMap();
+		info.put( "count", String.valueOf(count) );
+		info.put( "sum", String.valueOf(sum) );
+		info.put( "mean", String.valueOf( (float)sum/count ) );
+		return info;
 	}
 
 	protected FileStore filestore( HttpServletRequest req ) throws Exception

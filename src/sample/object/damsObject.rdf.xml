@@ -328,14 +328,14 @@
       </dams:StylePeriod>
     </dams:stylePeriod>
     <dams:technique>
-      <mads:Technique rdf:about="http://library.ucsd.edu/ark:/20775/bd42673899">
-        <mads:authoritativeLabel>mads:Technique value</mads:authoritativeLabel>
+      <dams:Technique rdf:about="http://library.ucsd.edu/ark:/20775/bd42673899">
+        <mads:authoritativeLabel>dams:Technique value</mads:authoritativeLabel>
         <mads:elementList rdf:parseType="Collection">
-          <mads:TechniqueElement>
-            <mads:elementValue>mads:Technique value</mads:elementValue>
-          </mads:TechniqueElement>
+          <dams:TechniqueElement>
+            <mads:elementValue>dams:Technique value</mads:elementValue>
+          </dams:TechniqueElement>
         </mads:elementList>
-      </mads:Technique>
+      </dams:Technique>
     </dams:technique>
     <dams:temporal>
       <mads:Temporal rdf:about="http://library.ucsd.edu/ark:/20775/bd3004576n">

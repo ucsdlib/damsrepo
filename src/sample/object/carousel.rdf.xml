@@ -3,7 +3,7 @@
     xmlns:dams="http://library.ucsd.edu/ontology/dams#"
     xmlns:mads="http://www.loc.gov/mads/rdf/v1#">
   <dams:AssembledCollection rdf:about="http://library.ucsd.edu/ark:/20775/bd5905379f">
-    <dams:visibility>public</dams:visibility>
+    <dams:visibility>curator</dams:visibility>
     <dams:typeOfResource>still image</dams:typeOfResource>
     <dams:relatedResource>
       <dams:RelatedResource>
