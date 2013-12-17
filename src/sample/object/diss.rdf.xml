@@ -217,10 +217,11 @@
 </mads:elementList>
 </mads:CorporateName>
 <dams:License rdf:about="http://library.ucsd.edu/ark:/20775/bbXXXXXXX8">
-<dams:rightsAction>
+  <dams:licenseNote>dams:License sample</dams:licenseNote>
+<dams:permission>
 <dams:Permission>
 <rdf:value>display</rdf:value>
 </dams:Permission>
-</dams:rightsAction>
+</dams:permission>
 </dams:License>
 </rdf:RDF>
