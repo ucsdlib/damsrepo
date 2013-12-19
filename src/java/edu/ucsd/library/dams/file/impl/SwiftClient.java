@@ -97,7 +97,6 @@ public class SwiftClient
 		this.props = props;
 		this.out = out;
 
-
 		// accept all SSL certs
         ClientConnectionManager ccm = new PoolingClientConnectionManager();
 		try
@@ -136,6 +135,11 @@ public class SwiftClient
 		);
 		client.setHttpRequestRetryHandler( x );
 
+		init(props);
+		login();
+	}
+	private void login() throws IOException, FileStoreException
+	{
 		String user = props.getProperty("username");
 		String pass = props.getProperty("password");
 		String authURL = props.getProperty("authURL");
@@ -159,6 +163,9 @@ public class SwiftClient
 			else
 			{
 				http.debug(out);
+				throw new FileStoreException(
+					"Error logging in: " + http.statusLine()
+				);
 			}
 		}
 		catch ( LoginException ex ) { throw new FileStoreAuthException(ex); }
@@ -166,9 +173,24 @@ public class SwiftClient
 		{
 			get.reset();
 		}
-
-		init(props);
-
+	}
+	/**
+	 * Test the connection and login if it fails.
+	 * @throws FileStoreException If the connection and logging in both fail.
+	**/
+	public void checkConnection() throws IOException, FileStoreException
+	{
+		// do a basic check to make sure our connection is still good
+		try
+		{
+			stat( null, null );
+			message("Connection OK");
+		}
+		catch ( Exception ex )
+		{
+			message("Retrying after stale connection: " + ex.getMessage() );
+			login();
+		}
 	}
 	private void init( Properties props )
 	{
@@ -455,6 +477,13 @@ public class SwiftClient
 				}
 				else
 				{
+					// check auth
+					if ( i > 0 )
+					{
+						checkConnection();
+					}
+
+					// upload segment using regular upload
 					message(segName + ": " + thisLen);
 					long start = System.currentTimeMillis();
 					upload( container, segName, sis, thisLen );
@@ -826,6 +855,9 @@ public class SwiftClient
 			else
 			{
 				http.debug(out);
+				throw new FileStoreException(
+					"Error getting metadata: " + http.statusLine()
+				);
 			}
 		}
 		catch ( LoginException ex ) { throw new FileStoreAuthException(ex); }

@@ -98,6 +98,10 @@ public class HttpUtil
 	{
 		return response.getStatusLine().getStatusCode();
 	}
+	public String statusLine()
+	{
+		return status() + ": " + response.getStatusLine().getReasonPhrase();
+	}
 	public HttpRequestBase request()
 	{
 		return request;
