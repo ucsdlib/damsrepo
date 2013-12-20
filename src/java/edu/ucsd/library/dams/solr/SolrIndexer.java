@@ -48,11 +48,14 @@ public class SolrIndexer implements MessageListener
 	}
 	public void deleteObject( String pid ) throws Exception
 	{
+		System.out.println("delete: " + pid);
 		solr.deleteById(pid);
+		solr.commit();
 	}
 	public void updateObject( String pid ) throws Exception
 	{
 		// fetch solr xml from damspas
+		System.out.println("update: " + pid);
 		String solrxml = HttpUtil.get( damspas + "/" + pid + "/solr" );
 
 		// parse & build SolrInputDocument
