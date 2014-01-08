@@ -1,6 +1,10 @@
 package edu.ucsd.library.dams.solr;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.jms.Connection;
@@ -48,15 +52,23 @@ public class SolrIndexer implements MessageListener
 	}
 	public void deleteObject( String pid ) throws Exception
 	{
-		System.out.println("delete: " + pid);
 		solr.deleteById(pid);
 		solr.commit();
 	}
 	public void updateObject( String pid ) throws Exception
 	{
 		// fetch solr xml from damspas
-		System.out.println("update: " + pid);
-		String solrxml = HttpUtil.get( damspas + "/" + pid + "/solr" );
+		HttpUtil http = new HttpUtil( damspas + "/solrdoc/" + pid );
+		int status = http.exec();
+		if ( status != 200 )
+		{
+			throw new Exception(
+				"Error retrieving " + pid + ": "
+					+ http.response().getStatusLine().toString()
+			);
+		}
+
+		String solrxml = http.contentBodyAsString();
 
 		// parse & build SolrInputDocument
 		SolrInputDocument solrdoc = new SolrInputDocument();
@@ -87,10 +99,12 @@ public class SolrIndexer implements MessageListener
 			String method = message.getStringProperty("methodName");
 			if ( method.equals("purgeObject") )
 			{
+				System.out.println("delete: " + pid);
 				deleteObject(pid);
 			}
 			else
 			{
+				System.out.println("update: " + pid);
 				updateObject(pid);
 			}
 		}
@@ -101,26 +115,85 @@ public class SolrIndexer implements MessageListener
 	}
 	public static void main( String[] args ) throws Exception
 	{
-		String queueUrl = args[0];
-		String queueName = args[1];
-		String damspas = args[2];
-		String solr = args[3];
+		String damspas = args[0];
+		String solr = args[1];
+		SolrIndexer indexer = new SolrIndexer(damspas,solr);
 
-		// connect
-		ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(
-			queueUrl
-		);
-		Connection con = factory.createConnection();
-		con.start();
-		Session session = con.createSession( false, Session.AUTO_ACKNOWLEDGE );
+		File idList = new File( args[2] );
+		if ( idList.exists() )
+		{
+			// read record ids from a file
+			
+			BufferedReader buf = new BufferedReader( new FileReader(idList) );
+			long totalDur = 0L;
+			int indexed = 0;
+			ArrayList<String> errors = new ArrayList<String>();
+			for ( String ark = null; (ark = buf.readLine()) != null; )
+			{
+				long start = System.currentTimeMillis();
+				System.out.print( "SolrIndexer: " + ark );
+				boolean success = false;
+				Exception ex = null;
+				try
+				{
+					indexed++;
+					indexer.updateObject( ark );
+					success = true;
+				}
+				catch ( Exception e )
+				{
+					success = false;
+					errors.add(ark);
+					ex = e;
+				}
+				long dur = System.currentTimeMillis() - start;
+				totalDur += dur;
+				if ( success )
+				{
+					System.out.print(" OK");
+				}
+				else
+				{
+					System.out.print(" ERR");
+				}
+				System.out.println(
+					" (" + indexed + "), " + errors.size() + " errors, "
+					+ ((float)dur/1000) + " sec"
+				);
+				if ( ex != null ) { System.out.println( ex.getMessage() ); }
+			}
+			System.out.println(
+				"indexing time: " + ((float)totalDur/1000) + " sec"
+			);
+			if ( errors.size() > 0 ) { System.out.println("errors:"); }
+			for ( int i = 0; i < errors.size(); i++ )
+			{
+				System.out.println( errors.get(i) );
+			}
+			System.exit(0);
+		}
+		else
+		{
+			// listen for records on JMS queue
+			String queueUrl = args[2];
+			String queueName = args[3];
 
-		// setup listener
-		ActiveMQTopic topic = new ActiveMQTopic( queueName );
-		MessageConsumer consumer = session.createConsumer(topic);
-		consumer.setMessageListener( new SolrIndexer(damspas,solr) );
+			// connect
+			ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(
+				queueUrl
+			);
+			Connection con = factory.createConnection();
+			con.start();
+			Session session = con.createSession( false, Session.AUTO_ACKNOWLEDGE );
 
-		System.out.println("SolrIndexer listening for events...");
-		InputStreamReader in = new InputStreamReader( System.in );
-		while ( ((char)in.read()) != 'c' ) { }
+			// setup listener
+			ActiveMQTopic topic = new ActiveMQTopic( queueName );
+			MessageConsumer consumer = session.createConsumer(topic);
+			consumer.setMessageListener( new SolrIndexer(damspas,solr) );
+
+			System.out.println("SolrIndexer listening for events...");
+			InputStreamReader in = new InputStreamReader( System.in );
+			while ( ((char)in.read()) != 'c' ) { }
+		}
 	}
 }
