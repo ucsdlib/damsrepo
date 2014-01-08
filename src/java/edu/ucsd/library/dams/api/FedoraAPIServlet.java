@@ -1150,18 +1150,24 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			SAXReader parser = new SAXReader();
 			doc = parser.read(in);
 
-			// fix rdf:about
-			Element objElem = (Element)doc.selectSingleNode("/rdf:RDF/*");
-			if ( objElem != null )
+			// suppress elements with different rdf:about
+			QName rdfAbout = new QName("about",new Namespace("rdf",rdfNS));
+			List elems = doc.selectNodes("/rdf:RDF/*");
+			for ( int i = 0; i < elems.size(); i++ )
 			{
-				QName rdfAbout = new QName("about",new Namespace("rdf",rdfNS));
-				Attribute aboutAttrib = objElem.attribute( rdfAbout );
-				if ( !aboutAttrib.getValue().equals("objURI") )
+				Element e = (Element)elems.get(i);
+				Attribute att = e.attribute( rdfAbout );
+				if ( att != null && !att.getValue().equals(objURI) )
 				{
-					aboutAttrib.setValue( objURI );
+					log.info( "Suppressing " + att.getValue() );
+					e.detach();
 				}
 			}
 			xml = doc.asXML();
+			if ( fedoraDebug )
+			{
+				log.info("Pruned input: " + xml);
+			}
 		}
 		catch ( Exception ex )
 		{

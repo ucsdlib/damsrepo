@@ -186,6 +186,7 @@ public class DAMSAPIServlet extends HttpServlet
 	protected String sampleObject;    // sample object for fedora demo
 	protected String adminEmail;      // email address of system admin
 	protected String fedoraCompat;    // fedora version emulated
+	protected boolean fedoraDebug;    // debug output of ds PUT/POST content
 
 	// derivatives creation
 	private Map<String, String> derivativesRes; // derivatives resolution map
@@ -400,6 +401,10 @@ public class DAMSAPIServlet extends HttpServlet
 			sampleObject = props.getProperty("fedora.samplePID");
 			adminEmail = props.getProperty("fedora.adminEmail");
 			fedoraCompat = props.getProperty("fedora.compatVersion");
+			if ( props.getProperty("fedora.debug") != null )
+			{
+				fedoraDebug = props.getProperty("fedora.debug").equals("true");
+			}
 
 			// derivative list
 			derivativesExt  = props.getProperty("derivatives.ext");
@@ -4518,7 +4523,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		{
 			// if there is a POST/PUT body, then use it
 			InputStream in = req.getInputStream();
-			input = new InputBundle( req.getParameterMap(), in );
+			input = new InputBundle(req.getParameterMap(), in, fedoraDebug);
 		}
 		else
 		{
@@ -4653,8 +4658,30 @@ class InputBundle
 	InputStream in;
 	InputBundle( Map<String,String[]> params, InputStream in )
 	{
+		this( params, in, false );
+	}
+	InputBundle( Map<String,String[]> params, InputStream in, boolean debug )
+	{
 		this.params = params;
-		this.in = in;
+		if ( debug )
+		{
+			try
+			{
+				StringBuffer buf = new StringBuffer();
+				for ( int i = -1; (i=in.read()) != -1; )
+				{
+					buf.append( (char)i );
+				}
+				in.close();
+				System.out.println("raw input: " + buf.toString() );
+				this.in = new ByteArrayInputStream( buf.toString().getBytes() );
+			}
+			catch ( Exception ex ) { ex.printStackTrace(); }
+		}
+		else
+		{
+			this.in = in;
+		}
 	}
 	Map<String,String[]> getParams() { return params; }
 	InputStream getInputStream() { return in; }
