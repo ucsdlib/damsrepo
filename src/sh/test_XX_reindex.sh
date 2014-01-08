@@ -52,6 +52,12 @@ fi
 
 # solr indexing
 if [ "$INDEXER" -a -d $INDEXER ]; then
+	SOLR_CONF=solr/blacklight/conf/
+	if [ -d $SOLR_CONF ]; then
+		cp -v $INDEXER/solr_conf/conf/* $SOLR_CONF
+	else
+		echo "$SOLR_CONF doesn't exist, can't update Solr config!"
+	fi
 	cd $INDEXER
 	bundle exec bin/damsolrizer-single --hydra_home . $IDS
 else
