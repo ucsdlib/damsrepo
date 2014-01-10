@@ -4,18 +4,15 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.jms.Connection;
-import javax.jms.DeliveryMode;
-import javax.jms.Destination;
-import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.Session;
-import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -23,6 +20,7 @@ import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -32,36 +30,89 @@ import org.dom4j.Element;
 import edu.ucsd.library.dams.util.HttpUtil;
 
 /**
- * ActiveMQ event listever that indexes DAMS objects in Solr.
+ * Solr indexer utility, using ConcurrentUpdateSolrServer for efficient 
+ * background interaction with the Solr server.  This indexer has two modes:
+ * It can either take a list of IDs to index from a file (one ID per line), or
+ * it can listen to an ActiveMQ queue and extract IDs from the messages.
+ * By default, a buffer size of 10MB and two worker threads are used.  These
+ * can be overridden using the SolrIndexer.bufSize and SolrIndexer.threadCount
+ * System properties.
  * @author escowles
 **/
 public class SolrIndexer implements MessageListener
 {
-	private String damspas;
-	private String solrUrl;
+	private String xmlBaseURL;
+	private String solrBaseURL;
 	private SolrServer solr;
 	private static int BUFFER_SIZE = 10 * 1024 * 1024; // 10 MB buffer
 	private static int THREAD_COUNT = 2; // worker threads
-	public SolrIndexer( String damspas, String solrUrl )
+
+	/**
+	 * Constructor with supplied base URLs for Solr and retrieving the XML for
+	 * each object to be indexed.
+	 * @param xmlBaseURL Base URL for retrieving Solr XML for a record.  The
+	 *   URL is formed by appending the ID to the base URL.
+	 * @param solrBaseURL Base URL for the Solr server.  For multi-core
+	 *   indexing, this base URL should include the core name.
+	**/
+	public SolrIndexer( String xmlBaseURL, String solrBaseURL )
 	{
-		this.damspas = damspas;
-		this.solrUrl = solrUrl;
+		this.xmlBaseURL = xmlBaseURL;
+		this.solrBaseURL = solrBaseURL;
 		this.solr = new ConcurrentUpdateSolrServer(
-			solrUrl, BUFFER_SIZE, THREAD_COUNT
+			solrBaseURL, BUFFER_SIZE, THREAD_COUNT
 		);
+
+		// look for system properties to override buffer/thread defaults
+		BUFFER_SIZE = intProperty("SolrIndexer.bufSize",BUFFER_SIZE);
+		THREAD_COUNT = intProperty("SolrIndexer.threadCount",THREAD_COUNT);
 	}
-	public void deleteObject( String pid ) throws Exception
+	private static int intProperty( String name, int defaultValue )
+	{
+		int i = defaultValue;
+		String val = System.getProperty(name);
+		if ( val != null )
+		{
+			try { i = Integer.parseInt(val); }
+			catch ( Exception ex )
+			{
+				System.err.println("Error parsing " + name + " value: " + val);
+			}
+		}
+		return i;
+	}
+
+	/**
+	 * Delete a record from the Solr index.
+	 * @param pid The record ID.
+     * @throws SolrServerException When there is an error in the remote Solr
+	 *  server.
+	 * @throws IOException When there is a low-level I/O error, e.g. unable to
+	 *  connect to the Solr server.
+	**/
+	public void deleteObject( String pid )
+		throws SolrServerException, IOException
 	{
 		solr.deleteById(pid);
 	}
-	public void updateObject( String pid ) throws Exception
+	/**
+	 * Retrieve the Solr XML for a record and update the Solr index.
+	 * @param pid The record ID.
+	 * @throws SolrServerException When there is an error in the remote Solr
+	 *  server.
+	 * @throws IOException When there is a low-level I/O error, e.g. unable to
+	 *  connect to the Solr server, or if the Solr XML cannot be retrieved.
+	 * @throws DocumentException When there is an error parsing the Solr XML.
+	**/
+	public void updateObject( String pid )
+		throws SolrServerException, IOException, DocumentException
 	{
-		// fetch solr xml from damspas
-		HttpUtil http = new HttpUtil( damspas + "/solrdoc/" + pid );
+		// fetch solr xml
+		HttpUtil http = new HttpUtil( xmlBaseURL + pid );
 		int status = http.exec();
 		if ( status != 200 )
 		{
-			throw new Exception(
+			throw new IOException(
 				"Error retrieving " + pid + ": "
 					+ http.response().getStatusLine().toString()
 			);
@@ -87,10 +138,23 @@ public class SolrIndexer implements MessageListener
 		// add the doc to solr
 		solr.add( solrdoc );
 	}
-	public void commit() throws Exception
+	/**
+	 * Commit changes to the Solr server.
+	 * @throws SolrServerException When there is an error in the remote Solr
+	 *  server.
+	 * @throws IOException When there is a low-level I/O error, e.g. unable to
+	 *  connect to the Solr server.
+	**/
+	public void commit() throws SolrServerException, IOException
 	{
 		solr.commit();
 	}
+	/**
+	 * Handle JMS messages.
+	 * @param message JMS message, assumed to be in Fedora 3 format: with the
+	 *  record ID in the property "pid" and the type of operation in the 
+	 *  property "methodName".
+	**/
 	public void onMessage( Message message )
 	{
 		try
@@ -113,11 +177,17 @@ public class SolrIndexer implements MessageListener
 			ex.printStackTrace();
 		}
 	}
+	/**
+ 	 * Command-line operation.
+	 * Usage:
+	 * SolrIndexer [xmlBaseURL] [solrBaseURL] [idFile]
+	 * SolrIndexer [xmlBaseURL] [solrBaseURL] [jmsQueueURL] [jmsQueueName]
+	**/
 	public static void main( String[] args ) throws Exception
 	{
-		String damspas = args[0];
+		String xmlBaseURL = args[0];
 		String solr = args[1];
-		SolrIndexer indexer = new SolrIndexer(damspas,solr);
+		SolrIndexer indexer = new SolrIndexer(xmlBaseURL,solr);
 
 		File idList = new File( args[2] );
 		if ( idList.exists() )
@@ -190,7 +260,7 @@ public class SolrIndexer implements MessageListener
 			// setup listener
 			ActiveMQTopic topic = new ActiveMQTopic( queueName );
 			MessageConsumer consumer = session.createConsumer(topic);
-			consumer.setMessageListener( new SolrIndexer(damspas,solr) );
+			consumer.setMessageListener( new SolrIndexer(xmlBaseURL,solr) );
 
 			System.out.println("SolrIndexer listening for events...");
 			InputStreamReader in = new InputStreamReader( System.in );
