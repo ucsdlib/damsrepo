@@ -40,8 +40,8 @@ public class SolrIndexer implements MessageListener
 	private String damspas;
 	private String solrUrl;
 	private SolrServer solr;
-	private static int BUFFER_SIZE = 10 * 1024 * 1024; // 10 MB
-	private static int THREAD_COUNT = 3; // worker threads
+	private static int BUFFER_SIZE = 10 * 1024 * 1024; // 10 MB buffer
+	private static int THREAD_COUNT = 2; // worker threads
 	public SolrIndexer( String damspas, String solrUrl )
 	{
 		this.damspas = damspas;
@@ -53,7 +53,6 @@ public class SolrIndexer implements MessageListener
 	public void deleteObject( String pid ) throws Exception
 	{
 		solr.deleteById(pid);
-		solr.commit();
 	}
 	public void updateObject( String pid ) throws Exception
 	{
@@ -87,8 +86,9 @@ public class SolrIndexer implements MessageListener
 
 		// add the doc to solr
 		solr.add( solrdoc );
-
-		// temporarily force commits
+	}
+	public void commit() throws Exception
+	{
 		solr.commit();
 	}
 	public void onMessage( Message message )
@@ -162,6 +162,7 @@ public class SolrIndexer implements MessageListener
 				);
 				if ( ex != null ) { System.out.println( ex.getMessage() ); }
 			}
+			indexer.commit();
 			System.out.println(
 				"indexing time: " + ((float)totalDur/1000) + " sec"
 			);
