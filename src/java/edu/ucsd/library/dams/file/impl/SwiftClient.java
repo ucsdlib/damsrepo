@@ -452,8 +452,8 @@ public class SwiftClient
 		return in;
 	}
 
-	public int uploadSegmented( String container, String object,
-		InputStream in, long len ) throws IOException
+	public int uploadSegmented( String container, String object, InputStream in,
+		long len ) throws IOException
 	{
 		try
 		{
