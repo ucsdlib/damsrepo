@@ -161,19 +161,23 @@ public class SolrIndexer implements MessageListener
 		{
 			String pid = message.getStringProperty("pid");
 			String method = message.getStringProperty("methodName");
+			long start = System.currentTimeMillis();
 			if ( method.equals("purgeObject") )
 			{
-				System.out.println("delete: " + pid);
+				System.out.print("delete: " + pid);
 				deleteObject(pid);
 			}
 			else
 			{
-				System.out.println("update: " + pid);
+				System.out.print("update: " + pid);
 				updateObject(pid);
 			}
+			long dur = System.currentTimeMillis() - start;
+			System.out.println(" OK (" + dur + "ms)");
 		}
 		catch ( Exception ex )
 		{
+			System.out.println(" ERR: " + ex.toString());
 			ex.printStackTrace();
 		}
 	}
@@ -193,57 +197,16 @@ public class SolrIndexer implements MessageListener
 		if ( idList.exists() )
 		{
 			// read record ids from a file
-			
+			List<String> ids = new ArrayList<String>();
 			BufferedReader buf = new BufferedReader( new FileReader(idList) );
-			long totalDur = 0L;
-			int indexed = 0;
-			ArrayList<String> errors = new ArrayList<String>();
 			for ( String ark = null; (ark = buf.readLine()) != null; )
 			{
-				long start = System.currentTimeMillis();
-				System.out.print( "SolrIndexer: " + ark );
-				boolean success = false;
-				Exception ex = null;
-				try
-				{
-					indexed++;
-					indexer.updateObject( ark );
-					success = true;
-				}
-				catch ( Exception e )
-				{
-					success = false;
-					errors.add(ark);
-					ex = e;
-				}
-				long dur = System.currentTimeMillis() - start;
-				totalDur += dur;
-				if ( success )
-				{
-					System.out.print(" OK");
-				}
-				else
-				{
-					System.out.print(" ERR");
-				}
-				System.out.println(
-					" (" + indexed + "), " + errors.size() + " errors, "
-					+ ((float)dur/1000) + " sec"
-				);
-				if ( ex != null ) { System.out.println( ex.getMessage() ); }
+				ids.add(ark);
 			}
-			indexer.commit();
-			System.out.println(
-				"indexing time: " + ((float)totalDur/1000) + " sec"
-			);
-			if ( errors.size() > 0 ) { System.out.println("errors:"); }
-			for ( int i = 0; i < errors.size(); i++ )
-			{
-				System.out.println( errors.get(i) );
-			}
+			indexer.batchIndex(ids);
 			System.exit(0);
 		}
-		else
+		else if ( args[2] != null && args[2].startsWith("tcp://") )
 		{
 			// listen for records on JMS queue
 			String queueUrl = args[2];
@@ -265,6 +228,79 @@ public class SolrIndexer implements MessageListener
 			System.out.println("SolrIndexer listening for events...");
 			InputStreamReader in = new InputStreamReader( System.in );
 			while ( ((char)in.read()) != 'c' ) { }
+		}
+		else
+		{
+			// treat the rest of the args as ids and index them
+			List<String> ids = new ArrayList<String>();
+			for ( int i = 2; i < args.length; i++ )
+			{
+				ids.add(args[i]);
+			}
+			indexer.batchIndex(ids);
+			System.exit(0);
+		}
+	}
+	private void batchIndex( List<String> ids )
+	{
+		// read record ids from a file
+		long totalDur = 0L;
+		ArrayList<String> errors = new ArrayList<String>();
+		for ( int i = 0; i < ids.size(); i++ )
+		{
+			long start = System.currentTimeMillis();
+			String ark = ids.get(i);
+			System.out.print( "SolrIndexer: " + ark );
+			boolean success = false;
+			Exception ex = null;
+			try
+			{
+				updateObject( ark );
+				success = true;
+			}
+			catch ( Exception e )
+			{
+				success = false;
+				errors.add(ark);
+				ex = e;
+			}
+			long dur = System.currentTimeMillis() - start;
+			totalDur += dur;
+			if ( success )
+			{
+				System.out.print(" OK");
+			}
+			else
+			{
+				System.out.print(" ERR");
+			}
+			System.out.println(
+				" (" + (i+1) + " of " + ids.size() + "), "
+				+ errors.size() + " errors, " + ((float)dur/1000) + " sec"
+			);
+			if ( ex != null ) { System.out.println( ex.getMessage() ); }
+		}
+
+		// commit updates
+		try
+		{
+			long start = System.currentTimeMillis();
+			commit();
+			long dur = System.currentTimeMillis() - start;
+			totalDur += dur;
+		}
+		catch ( Exception ex )
+		{
+			System.err.println("Error committing updates");
+			ex.printStackTrace();
+		}
+		System.out.println(
+			"indexing time: " + ((float)totalDur/1000) + " sec"
+		);
+		if ( errors.size() > 0 ) { System.out.println("errors:"); }
+		for ( int i = 0; i < errors.size(); i++ )
+		{
+			System.out.println( errors.get(i) );
 		}
 	}
 }

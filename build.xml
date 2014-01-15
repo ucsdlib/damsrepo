@@ -269,6 +269,7 @@
     <!-- compiled classes -->
     <copy todir="${tomcat.home}/dams/classes">
       <fileset dir="${webapp}/WEB-INF/classes"/>
+      <fileset dir="${props}" includes="**/*.properties, jhove.conf"/>
     </copy>
 
     <!-- sample files -->

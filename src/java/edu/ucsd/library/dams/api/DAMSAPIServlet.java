@@ -462,6 +462,7 @@ public class DAMSAPIServlet extends HttpServlet
 					queueSession.createTopic(queueName)
 				);
 				queueProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+				log.info("JMS Queue: " + queueUrl + "/" + queueName);
 			}
 		}
 		catch ( Exception ex )

@@ -30,6 +30,10 @@ if [ ! "$URL" ]; then
 	SOLR_URL="http://localhost:8080/solr"
 fi
 
+if [ ! "$DAMSPAS_URL" ]; then
+	DAMSPAS_URL="http://localhost/dc"
+fi
+
 # solr indexing
 if [ "$DAMSPAS_HOME" -a -d $DAMSPAS_HOME ]; then
 	export INDEXER=$DAMSPAS_HOME
