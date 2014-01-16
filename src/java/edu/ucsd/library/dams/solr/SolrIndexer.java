@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.jms.Connection;
@@ -46,6 +48,9 @@ public class SolrIndexer implements MessageListener
 	private SolrServer solr;
 	private static int BUFFER_SIZE = 10 * 1024 * 1024; // 10 MB buffer
 	private static int THREAD_COUNT = 2; // worker threads
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat(
+		"yyyy-MM-dd'T'hh:mm:ssZ"
+	);
 
 	/**
 	 * Constructor with supplied base URLs for Solr and retrieving the XML for
@@ -164,12 +169,12 @@ public class SolrIndexer implements MessageListener
 			long start = System.currentTimeMillis();
 			if ( method.equals("purgeObject") )
 			{
-				System.out.print("delete: " + pid);
+				System.out.print( timestamp() + " delete: " + pid);
 				deleteObject(pid);
 			}
 			else
 			{
-				System.out.print("update: " + pid);
+				System.out.print( timestamp() + " update: " + pid);
 				updateObject(pid);
 			}
 			long dur = System.currentTimeMillis() - start;
@@ -225,7 +230,9 @@ public class SolrIndexer implements MessageListener
 			MessageConsumer consumer = session.createConsumer(topic);
 			consumer.setMessageListener( new SolrIndexer(xmlBaseURL,solr) );
 
-			System.out.println("SolrIndexer listening for events...");
+			System.out.println(
+				timestamp() + " SolrIndexer listening for events..."
+			);
 			InputStreamReader in = new InputStreamReader( System.in );
 			while ( ((char)in.read()) != 'c' ) { }
 		}
@@ -250,7 +257,7 @@ public class SolrIndexer implements MessageListener
 		{
 			long start = System.currentTimeMillis();
 			String ark = ids.get(i);
-			System.out.print( "SolrIndexer: " + ark );
+			System.out.print( timestamp() + "SolrIndexer: " + ark );
 			boolean success = false;
 			Exception ex = null;
 			try
@@ -302,5 +309,9 @@ public class SolrIndexer implements MessageListener
 		{
 			System.out.println( errors.get(i) );
 		}
+	}
+	private static String timestamp()
+	{
+		return dateFormat.format( new Date() );
 	}
 }
