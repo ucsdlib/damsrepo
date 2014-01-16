@@ -49,7 +49,7 @@ public class SolrIndexer implements MessageListener
 	private static int BUFFER_SIZE = 10 * 1024 * 1024; // 10 MB buffer
 	private static int THREAD_COUNT = 2; // worker threads
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat(
-		"yyyy-MM-dd'T'hh:mm:ssZ"
+		"yyyy-MM-dd HH:mm:ss"
 	);
 
 	/**
@@ -257,7 +257,7 @@ public class SolrIndexer implements MessageListener
 		{
 			long start = System.currentTimeMillis();
 			String ark = ids.get(i);
-			System.out.print( timestamp() + "SolrIndexer: " + ark );
+			System.out.print( timestamp() + " SolrIndexer: " + ark );
 			boolean success = false;
 			Exception ex = null;
 			try

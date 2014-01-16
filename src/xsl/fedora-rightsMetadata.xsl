@@ -40,9 +40,6 @@
             <group><xsl:value-of select="$adminGroup"/></group>
           </xsl:if>
           <group><xsl:value-of select="$superGroup"/></group>
-          <xsl:for-each select="/rdf:RDF/dams:Unit|/rdf:RDF/dams:ProvenanceCollection|/rdf:RDF/dams:AssembledCollction">
-            <group><xsl:value-of select="$accessGroup"/></group>
-          </xsl:for-each>
         </machine>
       </access>
       <access type="read">
