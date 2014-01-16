@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -279,50 +278,46 @@ public class OpenStackStore implements FileStore
 	{
 		write( objectID, null, "manifest.txt", data );
 	}
-	public void write( String objectID, String componentID, String fileID,
-		File f ) throws FileStoreException
-	{
-		try
-		{
-			long len = f.length();
-			if ( len > client.segmentSize() )
-			{
-				// create container if it doesn't already exist
-				if ( !client.exists(cn(orgCode,objectID),null) )
-				{
-					client.createContainer(cn(orgCode,objectID));
-				}
 
-				// upload in segments
-				int status = 0;
-				for ( int i = 0; i <= retryCount; i++ )
+	/**
+	 * Break up large files into segments and save to the OpenStack store
+	 * separately.
+	**/
+	private void writeSegmented( String objectID, String componentID,
+		String fileID, InputStream in, long len ) throws FileStoreException
+	{
+		// upload in segments
+		int status = 0;
+		for ( int i = 0; status != 201 && i <= retryCount; i++ )
+		{
+			try
+			{
+				status = client.uploadSegmented(
+					cn(orgCode,objectID),
+					fn(orgCode,objectID,componentID,fileID),
+					in, len
+				);
+			}
+			catch ( Exception ex )
+			{
+				log.warn("Error uploading file",ex);
+				if ( i < retryCount )
 				{
-					try
+					log.warn("Retrying upload (" + i + ")...");
+				}
+				else
+				{
+					log.warn("Max retries exceeded, failing...");
+					if ( ex instanceof FileStoreException)
 					{
-						status = client.uploadSegmented(
-							cn(orgCode,objectID),
-							fn(orgCode,objectID,componentID,fileID),
-							new FileInputStream(f), len
-						);
+						throw (FileStoreException)ex;
 					}
-					catch ( Exception ex )
+					else
 					{
-						log.warn("Error uploading file",ex);
-						if ( i < retryCount )
-						{
-							log.warn("Retrying upload (" + i + ")...");
-						}
+						throw new FileStoreException(ex);
 					}
 				}
 			}
-			else
-			{
-				write( objectID, componentID, fileID, new FileInputStream(f) );
-			}
-		}
-		catch ( IOException ex )
-		{
-			throw new FileStoreException(ex);
 		}
 	}
 	public void write( String objectID, String componentID, String fileID,
@@ -336,13 +331,28 @@ public class OpenStackStore implements FileStore
 				client.createContainer(cn(orgCode,objectID));
 			}
 
-			// don't know how large the source is, just try to upload the
-			// whole object and throw an error if the 5GB limit is reached
-			client.upload(
-				cn(orgCode,objectID),
-				fn(orgCode,objectID,componentID,fileID),
-				in, -1
-			);
+			long len = 0;
+			if ( in instanceof FileInputStream )
+			{
+				FileInputStream fis = (FileInputStream)in;
+				len = fis.getChannel().size();
+			}
+
+			if ( len > client.segmentSize() )
+			{
+				// upload in segments
+				writeSegmented( objectID, componentID, fileID, in, len );
+			}
+			else
+			{
+				// don't know how large the source is, just try to upload the
+				// whole object and throw an error if the 5GB limit is reached
+				client.upload(
+					cn(orgCode,objectID),
+					fn(orgCode,objectID,componentID,fileID),
+					in, -1
+				);
+			}
 		}
 		catch ( IOException ex )
 		{
