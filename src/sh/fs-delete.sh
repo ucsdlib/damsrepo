@@ -6,7 +6,11 @@ source $BASE/common.sh
 
 OBJID=$1
 FILEID=$2
-curl -u $USER:$PASS -i -X DELETE $URL/api/files/$OBJID/$FILEID
+FS=$3
+if [ "$FS" ]; then
+	OPT="?fs=$FS"
+fi
+curl -u $USER:$PASS -i -X DELETE $URL/api/files/$OBJID/$FILEID$OPT
 if [ $? != 0 ]; then
     exit 1
 fi

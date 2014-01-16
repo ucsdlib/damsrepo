@@ -20,6 +20,8 @@ import java.util.Properties;
 
 import javax.activation.FileDataSource;
 
+import org.apache.log4j.Logger;
+
 import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.file.FileStoreException;
 import edu.ucsd.library.dams.file.FileStoreUtil;
@@ -31,8 +33,11 @@ import edu.ucsd.library.dams.file.FileStoreUtil;
 **/
 public class OpenStackStore implements FileStore
 {
+	private static Logger log = Logger.getLogger(OpenStackStore.class);
+
 	private SwiftClient client = null;
 	private String orgCode = null;
+	private int retryCount = 0;
 
 /*****************************************************************************/
 /********** Constructors *****************************************************/
@@ -42,7 +47,7 @@ public class OpenStackStore implements FileStore
 	 * Create an OpenStackStore object, getting parameters from a Properties
 	 *   object.
 	 * @param props Properties object containing the following properties:
-	 *  authUser, authToken, authURL, orgCode, timeout.
+	 *  authUser, authToken, authURL, orgCode, retryCount.
 	**/
 	public OpenStackStore( Properties props ) throws FileStoreException
 	{
@@ -56,6 +61,16 @@ public class OpenStackStore implements FileStore
 			}
 			client = new SwiftClient( props, out );
 			orgCode = props.getProperty("orgCode");
+			String retryCountString = props.getProperty("retryCount");
+			try { retryCount = Integer.parseInt(retryCountString); }
+			catch ( Exception ex )
+			{
+				retryCount = 0;
+				System.out.println(
+					"Unable to parse retryCount: '"+ retryCountString
+					+ "', disabling retries"
+				);
+			}
 		}
 		catch ( IOException ex )
 		{
@@ -253,8 +268,8 @@ public class OpenStackStore implements FileStore
 		}
 		return in;
 	}
-	public void write( String objectID, String componentID, String fileID, byte[] data )
-		throws FileStoreException
+	public void write( String objectID, String componentID, String fileID,
+		byte[] data ) throws FileStoreException
 	{
 		write( objectID, componentID, fileID, new ByteArrayInputStream(data) );
 	}
@@ -263,41 +278,80 @@ public class OpenStackStore implements FileStore
 	{
 		write( objectID, null, "manifest.txt", data );
 	}
-	public void write( String objectID, String componentID, String fileID, InputStream in )
-		throws FileStoreException
+
+	/**
+	 * Break up large files into segments and save to the OpenStack store
+	 * separately.
+	**/
+	private void writeSegmented( String objectID, String componentID,
+		String fileID, InputStream in, long len ) throws FileStoreException
+	{
+		// upload in segments
+		int status = 0;
+		for ( int i = 0; status != 201 && i <= retryCount; i++ )
+		{
+			try
+			{
+				status = client.uploadSegmented(
+					cn(orgCode,objectID),
+					fn(orgCode,objectID,componentID,fileID),
+					in, len
+				);
+			}
+			catch ( Exception ex )
+			{
+				log.warn("Error uploading file",ex);
+				if ( i < retryCount )
+				{
+					log.warn("Retrying upload (" + i + ")...");
+				}
+				else
+				{
+					log.warn("Max retries exceeded, failing...");
+					if ( ex instanceof FileStoreException)
+					{
+						throw (FileStoreException)ex;
+					}
+					else
+					{
+						throw new FileStoreException(ex);
+					}
+				}
+			}
+		}
+	}
+	public void write( String objectID, String componentID, String fileID,
+		InputStream in ) throws FileStoreException
 	{
 		try
 		{
-			// determine mime type
-			String contentType = new FileDataSource(fileID).getContentType();
-
 			// create container if it doesn't already exist
 			if ( !client.exists(cn(orgCode,objectID),null) )
 			{
 				client.createContainer(cn(orgCode,objectID));
 			}
 
-			// check inputstream type
+			long len = 0;
 			if ( in instanceof FileInputStream )
 			{
-				// if the stream is from a file, check file's size
 				FileInputStream fis = (FileInputStream)in;
-				long size = fis.getChannel().size();
-				if ( size > client.segmentSize() )
-				{
-					client.uploadSegmented( cn(orgCode,objectID), fn(orgCode,objectID,componentID,fileID), fis, size );
-				}
-				else
-				{
-					// under single-segment upload limit, just upload normally
-					client.upload( cn(orgCode,objectID), fn(orgCode,objectID,componentID,fileID), in, -1 );
-				}
+				len = fis.getChannel().size();
+			}
+
+			if ( len > client.segmentSize() )
+			{
+				// upload in segments
+				writeSegmented( objectID, componentID, fileID, in, len );
 			}
 			else
 			{
 				// don't know how large the source is, just try to upload the
 				// whole object and throw an error if the 5GB limit is reached
-				client.upload( cn(orgCode,objectID), fn(orgCode,objectID,componentID,fileID), in, -1 );
+				client.upload(
+					cn(orgCode,objectID),
+					fn(orgCode,objectID,componentID,fileID),
+					in, -1
+				);
 			}
 		}
 		catch ( IOException ex )
