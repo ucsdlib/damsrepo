@@ -452,8 +452,8 @@ public class SwiftClient
 		return in;
 	}
 
-	public int uploadSegmented( String container, String object,
-		InputStream in, long len ) throws IOException
+	public int uploadSegmented( String container, String object, InputStream in,
+		long len ) throws IOException
 	{
 		try
 		{
@@ -464,6 +464,9 @@ public class SwiftClient
 			Map<String,String> metadata = new HashMap<String,String>();
 			for ( int i = 0; sis != null; i++ )
 			{
+				// check auth
+				checkConnection();
+
 				long thisLen = Math.min( segmentSize, len - (i*segmentSize) );
 				String segName = object + "/" + nf.format(i);
 				if ( exists(container, segName) )
@@ -477,11 +480,6 @@ public class SwiftClient
 				}
 				else
 				{
-					// check auth
-					if ( i > 0 )
-					{
-						checkConnection();
-					}
 
 					// upload segment using regular upload
 					message(segName + ": " + thisLen);
