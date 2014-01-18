@@ -882,7 +882,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				Document doc = DocumentHelper.parseText(rdfxml);
 				String accessGroup = accessGroup( doc );
 				String adminGroup = doc.valueOf(
-					"/rdf:RDF/dams:Object//dams:unitGroup"
+					"//dams:unitGroup"
 				);
 				// use default admin group if none specified
 				if ( adminGroup == null )
