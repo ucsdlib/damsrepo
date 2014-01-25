@@ -134,10 +134,12 @@ public class SolrIndexer implements MessageListener
 			Element n = (Element)fields.get(i);
 			String name = n.attributeValue("name");
 			solrdoc.addField( name, n.getText() );
+/*
 			if ( name.equals("id") )
 			{
 				solrdoc.addField( "id_t", n.getText() );
 			}
+*/
 		}
 
 		// add the doc to solr

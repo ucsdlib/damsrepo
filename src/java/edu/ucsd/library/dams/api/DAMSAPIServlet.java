@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -29,6 +30,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 import java.net.URLEncoder;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 // naming
 import javax.activation.FileDataSource;
@@ -97,6 +100,7 @@ import org.xml.sax.ContentHandler;
 // dams
 import edu.ucsd.library.dams.file.Checksum;
 import edu.ucsd.library.dams.file.FileStore;
+import edu.ucsd.library.dams.file.FileStoreException;
 import edu.ucsd.library.dams.file.FileStoreUtil;
 import edu.ucsd.library.dams.file.ImageMagick;
 import edu.ucsd.library.dams.file.impl.LocalStore;
@@ -748,12 +752,47 @@ public class DAMSAPIServlet extends HttpServlet
 					path[2], path[3], path[4], false, fs, null, null, new HashMap<String, String[]>()
 				);
 			}
+			// GET /files/bb1234567x/1.tif/contents
+			else if ( path.length == 5 && path[1].equals("files")
+				&& path[4].equals("contents") )
+			{
+				fs = filestore(req);
+				info = archiveList( path[2], null, path[3], fs );
+			}
+			// GET /files/bb1234567x/1/1.tif/contents
+			else if ( path.length == 6 && path[1].equals("files")
+				&& path[5].equals("contents") && isNumber(path[3]) )
+			{
+				fs = filestore(req);
+				info = archiveList( path[2], path[3], path[4], fs );
+			}
+			// GET /files/bb1234567x/1.tif/contents/X/Y/Z
+			else if ( path.length > 5 && path[1].equals("files")
+				&& path[4].equals("contents") )
+			{
+				fs = filestore(req);
+				archiveFile(
+					path[2], null, path[3], pathspec(path,5), fs, res
+				);
+				outputRequired = false;
+			}
+			// GET /files/bb1234567x/1/1.tif/contents/X/Y/Z
+			else if ( path.length > 6 && path[1].equals("files")
+				&& path[5].equals("contents") && isNumber(path[3]) )
+			{
+				fs = filestore(req);
+				archiveFile(
+					path[2], path[3], path[4], pathspec(path,6), fs, res
+				);
+				outputRequired = false;
+			}
 			// GET /files/bb1234567x/1.tif/exists
 			else if ( path.length == 5 && path[1].equals("files")
 				&& path[4].equals("exists") )
 			{
 				fs = filestore(req);
 				info = fileExists( path[2], null, path[3], fs );
+				outputRequired = false;
 			}
 			// GET /files/bb1234567x/1/1.tif/exists
 			else if ( path.length == 6 && path[1].equals("files")
@@ -2528,6 +2567,118 @@ public class DAMSAPIServlet extends HttpServlet
 			val += arr[i];
 		}
 		return val;
+	}
+
+	/**
+ 	 * List the contents of an archive file.
+	**/
+	public Map archiveList( String objid, String cmpid, String fileid,
+		FileStore fs ) throws FileStoreException
+	{
+		try
+		{
+			ZipInputStream archive = readArchive(objid,cmpid,fileid,fs);
+
+			// list file (ArchiveEntry (?))
+			List contents = new ArrayList();
+			for ( ZipEntry entry = null; (entry=archive.getNextEntry()) != null; )
+			{
+				Map finfo = new HashMap();
+				finfo.put("filename",entry.getName());
+				finfo.put("size",String.valueOf(entry.getSize()) );
+				if ( entry.getTime() != -1 )
+				{
+					finfo.put("modified",String.valueOf(entry.getTime()) );
+				}
+				if ( entry.getComment() != null )
+				{
+					finfo.put("comment",entry.getComment() );
+				}
+				contents.add(finfo);
+			}
+
+			// bundle as a map
+			Map m = new HashMap();
+			m.put("contents",contents);
+			return m;
+		}
+		catch ( IOException ex )
+		{
+			throw new FileStoreException(ex);
+		}
+	}
+	/**
+	 * Extract a file from an archive file.
+	**/
+	public void archiveFile( String objid, String cmpid, String fileid,
+		String pathspec, FileStore fs, HttpServletResponse res )
+		throws FileStoreException
+	{
+		try
+		{
+			// open zip file for reading
+			ZipInputStream archive = readArchive(objid,cmpid,fileid,fs);
+
+			// find zip entry for specified file
+			ZipEntry fileEntry = null;
+			for ( ZipEntry entry = null; fileEntry == null && (entry=archive.getNextEntry()) != null; )
+			{
+				if ( entry.getName().equals(pathspec) )
+				{
+					fileEntry = entry;
+				}
+			}
+
+			// error if file entry not found
+			if ( fileEntry == null )
+			{
+				throw new FileStoreException("Unable to find file: " + pathspec);
+			}
+
+			OutputStream out = res.getOutputStream();
+			FileStoreUtil.copy(archive,out);
+		}
+		catch ( IOException ex )
+		{
+			throw new FileStoreException(ex);
+		}
+	}
+	// convert subset of path array to a pathstring
+	private String pathspec( String[] path, int offset )
+	{
+		StringBuffer buf = new StringBuffer();
+		for ( int i = offset; i < path.length; i++ )
+		{
+			buf.append(path[i]);
+			if ( (i+1) < path.length ) { buf.append("/"); }
+		}
+		return buf.toString();
+	}
+	// figure out what kind of archive file
+	private ZipInputStream readArchive( String objid, String cmpid,
+		String fileid, FileStore fs ) throws FileStoreException
+	{
+		ZipInputStream archive = null;
+		if ( fileid.endsWith(".zip") )
+		{
+			archive = new ZipInputStream(
+				fs.getInputStream( objid, cmpid, fileid )
+			);
+		}
+		else if ( fileid.endsWith(".tar") )
+		{
+			// XXX
+		}
+
+		// error if we can't figure out how to read the archive
+		if ( archive == null )
+		{
+			throw new FileStoreException(
+				"Can't determine archive type: " + fileid
+			);
+		}
+
+		return archive;
 	}
 	public Map fileDerivatives( String objid, String cmpid, String fileid,
 		boolean overwrite, FileStore fs, TripleStore ts, TripleStore es,
