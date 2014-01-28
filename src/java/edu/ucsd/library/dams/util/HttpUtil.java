@@ -24,6 +24,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpParams;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -91,6 +92,16 @@ public class HttpUtil
 	}
 	public int exec() throws IOException
 	{
+		return exec(-1);
+	}
+	public int exec( int timeout ) throws IOException
+	{
+		if ( timeout != -1 )
+		{
+			// XXX set so timeout...
+			HttpParams params = request.getParams();
+			params.setIntParameter( "SO_TIMEOUT", timeout );
+		}
 		response = client.execute( request );
 		return status();
 	}

@@ -114,7 +114,7 @@ public class SolrIndexer implements MessageListener
 	{
 		// fetch solr xml
 		HttpUtil http = new HttpUtil( xmlBaseURL + pid );
-		int status = http.exec();
+		int status = http.exec(60);
 		if ( status != 200 )
 		{
 			throw new IOException(
