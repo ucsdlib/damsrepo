@@ -314,7 +314,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				outputTransform(
 					stripPrefix(path[2]), null, null, RECURSIVE_OBJ,
 					objectContentTransform, null, "application/xml",
-					res.SC_OK, ts, es, res
+					res.SC_OK, ts, null, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fulltextPrefix][dsid]/content
