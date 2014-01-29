@@ -8,6 +8,7 @@
   <xsl:param name="objid"/>
   <xsl:param name="accessGroup"/>
   <xsl:param name="adminGroup"/>
+  <xsl:param name="adminGroup2"/>
   <xsl:param name="superGroup"/>
   <xsl:template match="/">
     <rightsMetadata xsi:schemaLocation="http://hydra-collab.stanford.edu/schemas/rightsMetadata/v1 http://github.com/projecthydra/schemas/tree/v1/rightsMetadata.xsd">
@@ -36,10 +37,7 @@
           <xsl:if test="$accessGroup != '' and $accessGroup != $adminGroup">
             <group><xsl:value-of select="$accessGroup"/></group>
           </xsl:if>
-          <xsl:if test="$adminGroup != ''">
-            <group><xsl:value-of select="$adminGroup"/></group>
-          </xsl:if>
-          <group><xsl:value-of select="$superGroup"/></group>
+          <xsl:call-template name="admin-groups"/>
         </machine>
       </access>
       <access type="read">
@@ -47,18 +45,17 @@
           <xsl:if test="$accessGroup != '' and $accessGroup != $adminGroup">
             <group><xsl:value-of select="$accessGroup"/></group>
           </xsl:if>
-          <xsl:if test="$adminGroup != ''">
-            <group><xsl:value-of select="$adminGroup"/></group>
-          </xsl:if>
-          <group><xsl:value-of select="$superGroup"/></group>
+          <xsl:call-template name="admin-groups"/>
         </machine>
       </access>
       <access type="edit">
         <machine>
           <xsl:for-each select="//dams:Unit/dams:unitGroup">
-            <group><xsl:value-of select="."/></group>
+            <xsl:if test="text() != $adminGroup and text() != $adminGroup2">
+              <group><xsl:value-of select="."/></group>
+            </xsl:if>
           </xsl:for-each>
-          <group><xsl:value-of select="$superGroup"/></group>
+          <xsl:call-template name="admin-groups"/>
         </machine>
       </access>
 <!-- copyrightPurposeNote?
@@ -77,5 +74,14 @@
 -->
     </rightsMetadata>
 
+  </xsl:template>
+  <xsl:template name="admin-groups">
+    <xsl:if test="$adminGroup != ''">
+      <group><xsl:value-of select="$adminGroup"/></group>
+    </xsl:if>
+    <xsl:if test="$adminGroup2 != ''">
+      <group><xsl:value-of select="$adminGroup2"/></group>
+    </xsl:if>
+    <group><xsl:value-of select="$superGroup"/></group>
   </xsl:template>
 </xsl:stylesheet>

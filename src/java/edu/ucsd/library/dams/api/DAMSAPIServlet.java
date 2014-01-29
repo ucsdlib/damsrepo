@@ -174,6 +174,7 @@ public class DAMSAPIServlet extends HttpServlet
 	protected String roleSuper;           // superuser role
 	protected String roleLocal;           // local-user role
 	protected String roleAdmin;           // default admin role
+	protected String roleAdmin2;          // secondary admin role
 	protected String roleDefault;         // default role if not matching
 	protected String localCopyright;      // local copyright owner
 	private Map<String,String[]> roleMap; // map of roles to IP addresses
@@ -356,6 +357,7 @@ public class DAMSAPIServlet extends HttpServlet
 			roleDefault = props.getProperty("role.default");
 			roleLocal = props.getProperty("role.local");
 			roleAdmin = props.getProperty("role.admin");
+			roleAdmin2 = props.getProperty("role.admin2");
 			roleSuper = props.getProperty("role.super");
 			String roleList = props.getProperty("role.list");
 			String[] roles = roleList.split(",");

@@ -884,16 +884,21 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				String adminGroup = doc.valueOf(
 					"//dams:unitGroup"
 				);
-				// use default admin group if none specified
-				if ( adminGroup == null )
+				if ( adminGroup != null && !adminGroup.equals("") )
 				{
-					adminGroup = roleAdmin;
+					// use linked admin group if available
+					params.put("adminGroup", new String[]{adminGroup});
+				}
+				else
+				{
+					// use default admin group2 if none specified
+					params.put("adminGroup", new String[]{roleAdmin});
+					params.put("adminGroup2", new String[]{roleAdmin2});
 				}
 				if ( !accessGroup.equals(adminGroup) )
 				{
 					params.put("accessGroup",new String[]{accessGroup});
 				}
-				params.put("adminGroup", new String[]{adminGroup});
 				params.put("superGroup", new String[]{roleSuper});
 			}
 			catch ( Exception ex )
@@ -944,6 +949,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 		// make sure values are not null
 		if ( roleAdmin    == null ) { roleAdmin    = "admin";   }
+		if ( roleAdmin2   == null ) { roleAdmin    = "admin2";  }
 		if ( roleLocal    == null ) { roleLocal    = "local";   }
 		if ( roleDefault  == null ) { roleDefault  = "public";  }
 		if ( copyright    == null ) { copyright    = "unknown"; }
