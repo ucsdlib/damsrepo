@@ -362,13 +362,20 @@ public class DAMSAPIServlet extends HttpServlet
 			String roleList = props.getProperty("role.list");
 			String[] roles = roleList.split(",");
 			roleMap = new HashMap<String,String[]>();
-			for ( int i = 0; i < roles.length; i++ )
+            try
 			{
-				String ipList = props.getProperty(
-					"role." + roles[i] + ".iplist"
-				);
-				String[] ipArray = ipList.split(",");
-				roleMap.put( roles[i], ipArray );
+				for ( int i = 0; i < roles.length; i++ )
+				{
+					String ipList = props.getProperty(
+						"role." + roles[i] + ".iplist"
+					);
+					String[] ipArray = ipList.split(",");
+					roleMap.put( roles[i], ipArray );
+				}
+			}
+			catch ( Exception ex )
+			{
+				System.err.println("Error parsing roles: " + ex.toString());
 			}
 
 			// triplestores
