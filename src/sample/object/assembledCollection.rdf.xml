@@ -5,7 +5,6 @@
   <dams:AssembledCollection rdf:about="http://library.ucsd.edu/ark:/20775/bd3516400n">
     <!-- collection links -->
     <dams:hasProvenanceCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd48133407"/>
-    <dams:relatedCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905379f"/>
     <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb02020202"/>
 
     <!-- resource common -->

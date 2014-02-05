@@ -138,7 +138,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 	private String fulltextPrefix = "fulltext";
 
-	private boolean RECURSIVE_OBJ = true;
+	private boolean RECURSIVE_OBJ = false;
 
     // initialize servlet parameters
     public void init( ServletConfig config ) throws ServletException

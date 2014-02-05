@@ -6,6 +6,18 @@ source $BASE/common.sh
 
 IDS="$@"
 if [ ! "$IDS" ]; then
+	IDS="$IDS bb01010101" # complex objects
+	IDS="$IDS bb80808080"
+	IDS="$IDS bb52572546"
+	IDS="$IDS bd0922518w" # format sampler complex object
+	IDS="$IDS bd5939745h" #   simple object, format= audio
+	IDS="$IDS bd46428055" #   simple object, format=data
+	IDS="$IDS bd3379993m" #   simple object, format=image
+	IDS="$IDS bd2083054q" #   simple object, format=text
+	IDS="$IDS bd0786115s" #   simple object, format=video
+	IDS="$IDS bd51895934" # provenance collection member
+	IDS="$IDS bd64524003" # provenance collection part member
+	IDS="$IDS bd22194583" # simple object
 	IDS="$IDS bb02020202" # units
 	IDS="$IDS bb48484848"
 	IDS="$IDS bb07070707" # event
@@ -25,29 +37,6 @@ if [ ! "$IDS" ]; then
 	IDS="$IDS bd91134949" # language=French
 	IDS="$IDS bb05050505" # copyright=under copyright
 	IDS="$IDS bd0513099p" # copyright=public domain
-	IDS="$IDS bd5905379f" # carousel
-	IDS="$IDS bd3413814d"
-	IDS="$IDS bd21510035"
-	IDS="$IDS bd08540633"
-	IDS="$IDS bd95572101"
-	IDS="$IDS bd82602702"
-	IDS="$IDS bd6963330m"
-	IDS="$IDS bd4369453c"
-	IDS="$IDS bd5666392f"
-	IDS="$IDS bd3106642r"
-	IDS="$IDS bd18097029"
-	IDS="$IDS bb01010101" # complex objects
-	IDS="$IDS bb80808080"
-	IDS="$IDS bb52572546"
-	IDS="$IDS bd0922518w" # format sampler complex object
-	IDS="$IDS bd5939745h" #   simple object, format= audio
-	IDS="$IDS bd46428055" #   simple object, format=data
-	IDS="$IDS bd3379993m" #   simple object, format=image
-	IDS="$IDS bd2083054q" #   simple object, format=text
-	IDS="$IDS bd0786115s" #   simple object, format=video
-	IDS="$IDS bd51895934" # provenance collection member
-	IDS="$IDS bd64524003" # provenance collection part member
-	IDS="$IDS bd22194583" # simple object
 fi
 
 # solr indexing
