@@ -91,6 +91,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+// xml streaming
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
+
 // json
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -617,6 +621,21 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				ts = triplestore(req);
 				info = recordsList( ts, path[2] );
+			}
+			// GET /records
+			else if ( path.length == 2 && path[1].equals("recordStream") )
+			{
+				ts = triplestore(req);
+				recordStream( ts, null, req.getPathInfo(), res );
+				outputRequired = false; // suppress map output
+			}
+			// GET /records/[type]
+			else if ( path.length == 3 && path[1].equals("recordStream")
+				&& !path[2].equals("") )
+			{
+				ts = triplestore(req);
+				recordStream( ts, path[2], req.getPathInfo(), res );
+				outputRequired = false; // suppress map output
 			}
 			// GET /objects
 			else if ( path.length == 2 && path[1].equals("objects") )
@@ -1795,6 +1814,7 @@ public class DAMSAPIServlet extends HttpServlet
 				sparql += " . FILTER(?type = '\"" + type + "\"')";
 			}
 			sparql += "}";
+			log.warn("sparql: " + sparql);
 			BindingIterator objs = ts.sparqlSelect(sparql);
 			List<Map<String,String>> objects = bindings(objs);
 
@@ -1828,6 +1848,81 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			return error( "Error listing objects: " + ex.toString() );
+		}
+	}
+	private void recordStream( TripleStore ts, String type, String pathInfo,
+		HttpServletResponse res )
+	{
+		try
+		{
+
+			// build sparql query
+			String sparql = "select ?obj ?type where { ?obj <" + rdfNS + "type> ?t . ?t <" + rdfNS + "label> ?type";
+			if ( type != null )
+			{
+				sparql += " . FILTER(?type = '\"" + type + "\"')";
+			}
+			sparql += "}";
+
+			// start output
+			res.setContentType("application/xml");
+			PrintWriter out = new PrintWriter(
+				new OutputStreamWriter(res.getOutputStream(), "UTF-8")
+			);
+			OutputStreamer stream = new OutputStreamer( "records", out );
+
+			// iterate over records
+			log.warn("sparql: " + sparql);
+			BindingIterator objs = ts.sparqlSelect(sparql);
+			int records = 0;
+			while ( objs.hasNext() )
+			{
+				// build map of key/value pairs
+				Map<String,String> binding = objs.nextBinding();
+				Iterator<String> it = binding.keySet().iterator();
+				while ( it.hasNext() )
+				{
+					String k = it.next();
+					String v = binding.get(k);
+
+					// remove redundant quotes in map
+					if ( v.startsWith("\"") && v.endsWith("\"") )
+					{
+						v = v.substring(1,v.length()-1);
+						binding.put(k,v);
+					}
+				}
+
+			 	if ( binding.get("obj").startsWith("_") )
+				{
+					// suppress blank nodes
+				}
+				else if ( type == null &&
+					(  binding.get("type").equals("dams:File")
+					|| binding.get("type").equals("dams:Component")
+					|| binding.get("type").equals("dams:DAMSEvent")) )
+				{
+					// suppress child records unless specifically asked for
+				}
+				else
+				{
+					// otherwise, write the record out
+					stream.output( binding );
+					records++;
+				}
+			}
+
+			// add meta info
+			Map info = new HashMap();
+			info.put( "status", "OK" );
+			info.put( "statusCode", "200" );
+			info.put( "request", pathInfo );
+			info.put( "count", String.valueOf(records) );
+			stream.finish( info );
+		}
+		catch ( Exception ex )
+		{
+			ex.printStackTrace();
 		}
 	}
 	public Map objectsListAll( TripleStore ts )
@@ -4463,4 +4558,62 @@ class InputBundle
 	}
 	Map<String,String[]> getParams() { return params; }
 	InputStream getInputStream() { return in; }
+}
+class OutputStreamer
+{
+	/*
+		XXX to support JSON:
+		- manual header
+		- use json api for each output() call
+		- use json api for final info call
+		- manual footer
+	*/
+	private String groupName;
+	private XMLStreamWriter stream;
+	private PrintWriter out;
+	OutputStreamer( String groupName, PrintWriter out ) throws Exception
+	{
+		this.groupName = groupName;
+		this.out = out;
+		XMLOutputFactory factory = XMLOutputFactory.newInstance();
+		this.stream = factory.createXMLStreamWriter(out);
+
+		// start document
+		stream.writeStartDocument();
+		stream.writeStartElement("response");
+		stream.writeStartElement(groupName);
+	}
+	void output( Map<String,String> record ) throws Exception
+	{
+		stream.writeStartElement("value");
+		inner( record );
+		stream.writeEndElement();
+	}
+	void inner( Map<String,String> record ) throws Exception
+	{
+		for ( Iterator<String> it = record.keySet().iterator(); it.hasNext(); )
+		{
+			String key = it.next();
+			String val = record.get(key);
+			stream.writeStartElement(key);
+			stream.writeCharacters( val );
+			stream.writeEndElement();
+		}
+	}
+	void finish( Map<String,String> info ) throws Exception
+	{
+		// finish records
+		stream.writeEndElement();
+
+		// write request metadata
+		inner( info );
+
+		// finish response
+		stream.writeEndElement();
+
+		// cleanup
+		stream.writeEndDocument();
+		stream.flush();
+		stream.close();
+	}
 }
