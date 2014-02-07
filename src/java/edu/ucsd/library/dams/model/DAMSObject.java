@@ -371,9 +371,12 @@ public class DAMSObject
 			rootType = null;
 			try
 			{
-				Resource typeResource = (Resource)typeSt.getObject();
-				rootType = typeResource;
-				recordType = typeResource.toString();
+				if ( typeSt != null )
+				{
+					Resource typeResource = (Resource)typeSt.getObject();
+					rootType = typeResource;
+					recordType = typeResource.toString();
+				}
 			}
 			catch ( Exception ex ) { log.warn("Error determining type",ex); }
 			if ( recordType != null && ( recordType.endsWith("Collection")

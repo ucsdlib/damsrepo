@@ -22,7 +22,7 @@
     <dams:typeOfResource>still image</dams:typeOfResource>
 
     <!-- rights -->
-    <dams:rightsHolder>
+    <dams:rightsHolderPersonal>
       <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd2356107f">
         <mads:authoritativeLabel>Smithee, Alan, 1968-</mads:authoritativeLabel>
         <mads:elementList rdf:parseType="Collection">
@@ -31,7 +31,7 @@
           </mads:FullNameElement>
         </mads:elementList>
       </mads:PersonalName>
-    </dams:rightsHolder>
+    </dams:rightsHolderPersonal>
     <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
     <dams:license>
       <dams:License rdf:about="http://library.ucsd.edu/ark:/20775/bb22222222">

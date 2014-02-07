@@ -138,7 +138,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 	private String fulltextPrefix = "fulltext";
 
-	private boolean RECURSIVE_OBJ = true;
+	private boolean RECURSIVE_OBJ = false;
 
     // initialize servlet parameters
     public void init( ServletConfig config ) throws ServletException
@@ -314,7 +314,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				outputTransform(
 					stripPrefix(path[2]), null, null, RECURSIVE_OBJ,
 					objectContentTransform, null, "application/xml",
-					res.SC_OK, ts, es, res
+					res.SC_OK, ts, null, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fulltextPrefix][dsid]/content
@@ -882,18 +882,23 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				Document doc = DocumentHelper.parseText(rdfxml);
 				String accessGroup = accessGroup( doc );
 				String adminGroup = doc.valueOf(
-					"/rdf:RDF/dams:Object//dams:unitGroup"
+					"//dams:unitGroup"
 				);
-				// use default admin group if none specified
-				if ( adminGroup == null )
+				if ( adminGroup != null && !adminGroup.equals("") )
 				{
-					adminGroup = roleAdmin;
+					// use linked admin group if available
+					params.put("adminGroup", new String[]{adminGroup});
+				}
+				else
+				{
+					// use default admin group2 if none specified
+					params.put("adminGroup", new String[]{roleAdmin});
+					params.put("adminGroup2", new String[]{roleAdmin2});
 				}
 				if ( !accessGroup.equals(adminGroup) )
 				{
 					params.put("accessGroup",new String[]{accessGroup});
 				}
-				params.put("adminGroup", new String[]{adminGroup});
 				params.put("superGroup", new String[]{roleSuper});
 			}
 			catch ( Exception ex )
@@ -944,6 +949,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 		// make sure values are not null
 		if ( roleAdmin    == null ) { roleAdmin    = "admin";   }
+		if ( roleAdmin2   == null ) { roleAdmin    = "admin2";  }
 		if ( roleLocal    == null ) { roleLocal    = "local";   }
 		if ( roleDefault  == null ) { roleDefault  = "public";  }
 		if ( copyright    == null ) { copyright    = "unknown"; }
@@ -1150,18 +1156,24 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			SAXReader parser = new SAXReader();
 			doc = parser.read(in);
 
-			// fix rdf:about
-			Element objElem = (Element)doc.selectSingleNode("/rdf:RDF/*");
-			if ( objElem != null )
+			// suppress elements with different rdf:about
+			QName rdfAbout = new QName("about",new Namespace("rdf",rdfNS));
+			List elems = doc.selectNodes("/rdf:RDF/*");
+			for ( int i = 0; i < elems.size(); i++ )
 			{
-				QName rdfAbout = new QName("about",new Namespace("rdf",rdfNS));
-				Attribute aboutAttrib = objElem.attribute( rdfAbout );
-				if ( !aboutAttrib.getValue().equals("objURI") )
+				Element e = (Element)elems.get(i);
+				Attribute att = e.attribute( rdfAbout );
+				if ( att != null && !att.getValue().equals(objURI) )
 				{
-					aboutAttrib.setValue( objURI );
+					log.info( "Suppressing " + att.getValue() );
+					e.detach();
 				}
 			}
 			xml = doc.asXML();
+			if ( fedoraDebug )
+			{
+				log.info("Pruned input: " + xml);
+			}
 		}
 		catch ( Exception ex )
 		{

@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.net.URLEncoder;
 
@@ -104,7 +106,6 @@ import edu.ucsd.library.dams.jhove.JhoveInfo;
 import edu.ucsd.library.dams.jhove.MyJhoveBase;
 import edu.ucsd.library.dams.model.DAMSObject;
 import edu.ucsd.library.dams.model.Event;
-import edu.ucsd.library.dams.solr.SolrFormat;
 import edu.ucsd.library.dams.triple.ArkTranslator;
 import edu.ucsd.library.dams.triple.BindingIterator;
 import edu.ucsd.library.dams.triple.Identifier;
@@ -174,9 +175,10 @@ public class DAMSAPIServlet extends HttpServlet
 	protected String roleSuper;           // superuser role
 	protected String roleLocal;           // local-user role
 	protected String roleAdmin;           // default admin role
+	protected String roleAdmin2;          // secondary admin role
 	protected String roleDefault;         // default role if not matching
 	protected String localCopyright;      // local copyright owner
-	private Map<String,String[]> roleMap; // map of roles to IP addresses
+	private SortedMap<String,String[]> roleMap; // map of roles to IP addresses
 
 	// fedora compat
 	protected String fedoraObjectDS;  // datastream id that maps to object RDF
@@ -186,6 +188,7 @@ public class DAMSAPIServlet extends HttpServlet
 	protected String sampleObject;    // sample object for fedora demo
 	protected String adminEmail;      // email address of system admin
 	protected String fedoraCompat;    // fedora version emulated
+	protected boolean fedoraDebug;    // debug output of ds PUT/POST content
 
 	// derivatives creation
 	private Map<String, String> derivativesRes; // derivatives resolution map
@@ -350,22 +353,30 @@ public class DAMSAPIServlet extends HttpServlet
 			xslBase = props.getProperty("solr.xslDir");
 			solrXslFile = new File( xslBase, "solrindexer.xsl" );
 
-			// access control/filters
+			// access control
 			localCopyright = props.getProperty("role.localCopyright");
 			roleDefault = props.getProperty("role.default");
 			roleLocal = props.getProperty("role.local");
 			roleAdmin = props.getProperty("role.admin");
+			roleAdmin2 = props.getProperty("role.admin2");
 			roleSuper = props.getProperty("role.super");
 			String roleList = props.getProperty("role.list");
 			String[] roles = roleList.split(",");
-			roleMap = new HashMap<String,String[]>();
-			for ( int i = 0; i < roles.length; i++ )
+			roleMap = new TreeMap<String,String[]>();
+            try
 			{
-				String ipList = props.getProperty(
-					"role." + roles[i] + ".iplist"
-				);
-				String[] ipArray = ipList.split(",");
-				roleMap.put( roles[i], ipArray );
+				for ( int i = 0; i < roles.length; i++ )
+				{
+					String ipList = props.getProperty(
+						"role." + roles[i] + ".iplist"
+					);
+					String[] ipArray = ipList.split(",");
+					roleMap.put( roles[i], ipArray );
+				}
+			}
+			catch ( Exception ex )
+			{
+				System.err.println("Error parsing roles: " + ex.toString());
 			}
 
 			// triplestores
@@ -400,6 +411,10 @@ public class DAMSAPIServlet extends HttpServlet
 			sampleObject = props.getProperty("fedora.samplePID");
 			adminEmail = props.getProperty("fedora.adminEmail");
 			fedoraCompat = props.getProperty("fedora.compatVersion");
+			if ( props.getProperty("fedora.debug") != null )
+			{
+				fedoraDebug = props.getProperty("fedora.debug").equals("true");
+			}
 
 			// derivative list
 			derivativesExt  = props.getProperty("derivatives.ext");
@@ -457,6 +472,7 @@ public class DAMSAPIServlet extends HttpServlet
 					queueSession.createTopic(queueName)
 				);
 				queueProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+				log.info("JMS Queue: " + queueUrl + "/" + queueName);
 			}
 		}
 		catch ( Exception ex )
@@ -503,37 +519,8 @@ public class DAMSAPIServlet extends HttpServlet
 			// parse request URI
 			String[] path = path( req );
 
-			// GET /index
-			if ( path.length == 2 && path[1].equals("index") )
-			{
-				// make sure char encoding is specified
-				if ( req.getCharacterEncoding() == null )
-				{
-					try
-					{
-						req.setCharacterEncoding( encodingDefault );
-						log.debug(
-							"Setting character encoding: " + encodingDefault
-						);
-					}
-					catch ( UnsupportedEncodingException ex )
-					{
-						log.warn("Unable to set chararacter encoding", ex);
-					}
-				}
-				else
-				{
-					log.debug(
-						"Browser specified character encoding: "
-							+ req.getCharacterEncoding()
-					);
-				}
-
-				indexSearch( req.getParameterMap(), req.getPathInfo(), res );
-				outputRequired = false;
-			}
 			// GET /collections
-			else if ( path.length == 2 && path[1].equals("collections") )
+			if ( path.length == 2 && path[1].equals("collections") )
 			{
 				ts = triplestore(req);
 				info = collectionListAll( ts );
@@ -3443,210 +3430,6 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			log.warn( "Error sending redirect", ex );
 		}
 	}
-	public void indexSearch( Map<String,String[]> params, String pathInfo,
-		HttpServletResponse res )
-	{
-		// load profile
-		String profileFilter = null;
-		String profile = getParamString(params,"profile",null);
-		if ( profile != null )
-		{
-			try
-			{
-				profileFilter = props.getProperty( "solr.profile." + profile );
-			}
-			catch ( Exception ex )
-			{
-				log.warn(
-					"Error looking up profile filter (" + profile + ")", ex
-				);
-			}
-		}
-
-		// check ip and username
-		// XXX integrate with clientInfo
-/*
-		String username = req.getRemoteUser();
-		if ( username == null ) { username = "anonymous"; }
-		String roleFilter = null;
-		if ( username == null || username.equals("") )
-		{
-			// not logged in, check ip addr role
-			String role = getRole( req.getRemoteAddr() );
-			try
-			{
-				roleFilter = props.getProperty( "role." + role + ".filter" );
-			}
-			catch ( Exception ex )
-			{
-				log.warn("Error looking up role filter (" + role + ")", ex );
-			}
-		}
-*/
-
-		// reformatting
-		String xsl = getParamString(params,"xsl",null);  // XSL takes precedence
-		String format = getParamString(params,"format",null); // JSON conversion
-
-		// velocity
-		String name = "select";
-		String contentType = mimeDefault;
-		String v_template = getParamString(params,"v.template", null);
-		if ( (v_template != null && !v_template.equals("")) || (profileFilter != null && profileFilter.indexOf("v.template") != -1) )
-		{
-			name = "velo";
-			contentType = "text/html";
-		}
-
-		// datasource param
-		String ds = getParamString(params,"ts",tsDefault);
-		ds = ds.replaceAll(".*\\/","");
-
-		// build URL
-		String queryString = null;
-		try
-		{
-			queryString = queryString(params);
-		}
-		catch ( Exception ex ) { log.error("Unsupported encoding", ex); }
-
-		String url = solrBase + "/" + name + "?" + queryString;
-		if ( xsl != null && !xsl.equals("") )
-		{
-			url += "&wt=xml";
-		}
-/* ZZZ: auth
-		if ( roleFilter != null && !roleFilter.equals("") )
-		{
-			url += "&fq=" + roleFilter;
-		}
-*/
-		if ( profileFilter != null && !profileFilter.equals("") )
-		{
-			url += "&fq=" + profileFilter;
-		}
-		log.info("url: " + url);
-
-		// perform search
-		try
-		{
-			String output = null;
-			HttpUtil http = new HttpUtil(url);
-			try
-			{
-				http.exec();
-				if ( http.status() == 200 )
-				{
-					output = http.contentBodyAsString();
-				}
-			}
-			catch ( IOException ex )
-			{
-				log.info(
-					"Parsing error performing Solr search, url: " + url, ex
-				);
-				if ( ex.getMessage().endsWith("400 Bad Request") )
-				{
-					log.warn( "Parsing error", ex );
-					error(
-						"Parsing error: " + ex.toString()
-					);
-				}
-			}
-			finally
-			{
-				if ( http != null )
-				{
-					http.shutdown();
-				}
-			}
-
-			// output reformatting
-			Exception formatEx = null;
-			if ( output != null && xsl != null && !xsl.equals("") )
-			{
-				try
-				{
-					output = xslt( output, xsl, null, queryString(params) );
-					contentType = "application/xml";
-				}
-				catch ( Exception ex )
-				{
-					formatEx = ex;
-				}
-			}
-			else if ( output != null && format != null
-				&& format.equals("curator") )
-			{
-				// reformat json
-				try
-				{
-					output = SolrFormat.jsonFormatText(
-						output, ds, null, getParamString( params,"q",null)
-					);
-					contentType = "application/json";
-				}
-				catch ( Exception ex )
-				{
-					formatEx = ex;
-				}
-			}
-			else if ( output != null && format != null
-				&& format.equals("grid") )
-			{
-				// reformat json
-				int PAGE_SIZE = 20;
-				int rows = getParamInt( params, "rows", PAGE_SIZE );
-				int page = getParamInt( params, "page", 1 );
-				try
-				{
-					output = SolrFormat.jsonGridFormat( output, page, rows );
-					contentType = "application/json";
-				}
-				catch ( Exception ex )
-				{
-					formatEx = ex;
-				}
-			}
-
-			// check for null xml
-			if ( output == null )
-			{
-				log.warn(
-					"Processing error performing Solr search, url: " + url,
-					formatEx
-				);
-				String msg = (formatEx != null) ?
-					formatEx.toString() : "unknown";
-				output(error("Processing error: " + msg), params, pathInfo, res );
-				return;
-			}
-
-			if ( contentType.indexOf("; charset=") == -1 )
-			{
-				contentType += "; charset=" + encodingDefault;
-			}
-
-			// override content type
-			if ( params.get("contentType") != null )
-			{
-				contentType = getParamString(params,"contentType",null);
-			}
-
-			// send output to client
-			res.setContentType( contentType );
-			PrintWriter out = res.getWriter();
-			out.println( output );
-			out.flush();
-			out.close();
-		}
-		catch ( Exception ex )
-		{
-			Map err = error( "Error performing Solr search: " + ex.toString());
-			output(err, params, pathInfo, res);
-			log.warn( "Error performing Solr search", ex );
-		}
-	}
 
 	/**
 	 * Build querystring for Solr.
@@ -4201,13 +3984,13 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 				{
 					if ( ip.startsWith(ipranges[i]) )
 					{
-						return role;
+						return role.replaceAll(".*\\.","");
 					}
 				}
 				// otherwise, require exact match
 				else if ( ip.equals(ipranges[i]) )
 				{
-					return role;
+					return role.replaceAll(".*\\.","");
 				}
 			}
 		}
@@ -4518,7 +4301,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		{
 			// if there is a POST/PUT body, then use it
 			InputStream in = req.getInputStream();
-			input = new InputBundle( req.getParameterMap(), in );
+			input = new InputBundle(req.getParameterMap(), in, fedoraDebug);
 		}
 		else
 		{
@@ -4653,8 +4436,30 @@ class InputBundle
 	InputStream in;
 	InputBundle( Map<String,String[]> params, InputStream in )
 	{
+		this( params, in, false );
+	}
+	InputBundle( Map<String,String[]> params, InputStream in, boolean debug )
+	{
 		this.params = params;
-		this.in = in;
+		if ( debug )
+		{
+			try
+			{
+				StringBuffer buf = new StringBuffer();
+				for ( int i = -1; (i=in.read()) != -1; )
+				{
+					buf.append( (char)i );
+				}
+				in.close();
+				System.out.println("raw input: " + buf.toString() );
+				this.in = new ByteArrayInputStream( buf.toString().getBytes() );
+			}
+			catch ( Exception ex ) { ex.printStackTrace(); }
+		}
+		else
+		{
+			this.in = in;
+		}
 	}
 	Map<String,String[]> getParams() { return params; }
 	InputStream getInputStream() { return in; }

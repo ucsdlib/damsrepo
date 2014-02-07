@@ -5,6 +5,7 @@
     xmlns:mads="http://www.loc.gov/mads/rdf/v1#"
     xmlns:damsid="http://library.ucsd.edu/ark:/20775/">
   <dams:ProvenanceCollection rdf:about="http://library.ucsd.edu/ark:/20775/bd5905304g">
+    <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb48484848"/>
     <dams:visibility>public</dams:visibility>
     <dams:typeOfResource>still image</dams:typeOfResource>
     <dams:typeOfResource>moving image</dams:typeOfResource>
@@ -83,8 +84,8 @@
         </dams:role>
       </dams:Relationship>
     </dams:relationship>
-    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd6860945s"/>
-    <dams:rightsHolder>
+    <dams:rightsHolderPersonal rdf:resource="http://library.ucsd.edu/ark:/20775/bd6860945s"/>
+    <dams:rightsHolderPersonal>
       <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd07175448">
         <mads:authoritativeLabel>Norman, Michael L.</mads:authoritativeLabel>
         <mads:isMemberOfMADSScheme rdf:resource="http://library.ucsd.edu/ark:/20775/bd0683587d"/>
@@ -97,7 +98,7 @@
           </mads:GivenNameElement>
         </mads:elementList>
       </mads:PersonalName>
-    </dams:rightsHolder>
+    </dams:rightsHolderPersonal>
     <dams:corporateName>
       <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bd8806354w">
         <mads:isMemberOfMADSScheme rdf:resource="http://library.ucsd.edu/ark:/20775/bd0683587d"/>
@@ -230,7 +231,7 @@ The entire collection was arranged into thirty-one components and described comp
         </dams:name>
       </dams:Relationship>
     </dams:relationship>
-    <dams:rightsHolder>
+    <dams:rightsHolderPersonal>
       <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd93182924">
         <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/authorities/names/n90694888"/>
         <mads:isMemberOfMADSScheme rdf:resource="http://library.ucsd.edu/ark:/20775/bd0683587d"/>
@@ -245,7 +246,7 @@ The entire collection was arranged into thirty-one components and described comp
         <mads:authoritativeLabel>Burns, Jack O.</mads:authoritativeLabel>
         <mads:isMemberOfMADSScheme rdf:resource="http://library.ucsd.edu/ark:/20775/bd0683587d"/>
       </mads:PersonalName>
-    </dams:rightsHolder>
+    </dams:rightsHolderPersonal>
     <dams:language>
       <mads:Language rdf:about="http://library.ucsd.edu/ark:/20775/bd0410344f">
         <mads:authoritativeLabel>English</mads:authoritativeLabel>
@@ -299,7 +300,7 @@ The entire collection was arranged into thirty-one components and described comp
         <rdf:value>Rick Wagner, 2012.</rdf:value>
       </dams:Note>
     </dams:note>
-    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd94548235"/>
+    <dams:rightsHolderPersonal rdf:resource="http://library.ucsd.edu/ark:/20775/bd94548235"/>
     <dams:title>
       <mads:Title> 
         <mads:authoritativeLabel>Santa Fe Light Cone Simulation research project files 2005-2012, Bulk 2005-2007</mads:authoritativeLabel> 
@@ -387,7 +388,7 @@ The contents of each project component labeled RD00## are the same:
         <dams:displayLabel>Scope and Contents</dams:displayLabel>
       </dams:Note>
     </dams:note>
-    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd8157884g"/>
+    <dams:rightsHolderPersonal rdf:resource="http://library.ucsd.edu/ark:/20775/bd8157884g"/>
     <dams:relationship>
       <dams:Relationship>
         <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bd55639754"/>
@@ -410,7 +411,7 @@ The contents of each project component labeled RD00## are the same:
         </mads:elementList>
       </mads:Topic>
     </dams:topic>
-    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd2014484q"/>
+    <dams:rightsHolderPersonal rdf:resource="http://library.ucsd.edu/ark:/20775/bd2014484q"/>
     <dams:topic>
       <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bd49496632">
         <mads:authoritativeLabel>Cosmic background radiation</mads:authoritativeLabel>
@@ -421,7 +422,7 @@ The contents of each project component labeled RD00## are the same:
         </mads:elementList>
       </mads:Topic>
     </dams:topic>
-    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bd3311426z"/>
+    <dams:rightsHolderPersonal rdf:resource="http://library.ucsd.edu/ark:/20775/bd3311426z"/>
   </dams:ProvenanceCollection>
   <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bd60418237">
     <mads:authoritativeLabel>University of California, San Diego.. Center for Astrophysics and Space Sciences.</mads:authoritativeLabel>

@@ -240,6 +240,7 @@ _:bn22n01 <http://library.ucsd.edu/ontology/dams#beginDate> "2010-01-01" .
 
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#ProvenanceCollection> .
 <http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#title> _:bn24n03 .
+<http://library.ucsd.edu/ark:/20775/bb24242424> <http://library.ucsd.edu/ontology/dams#unit> <http://library.ucsd.edu/ark:/20775/bb02020202> .
 _:bn24n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Title> .
 _:bn24n03 <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Historical Dissertations" .
 _:bn24n03 <http://www.loc.gov/mads/rdf/v1#elementList> _:bn24n04 .
@@ -265,6 +266,7 @@ _:bn24n10 <http://library.ucsd.edu/ontology/dams#uri> "http://pontos.ucsd.edu/im
 
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#ProvenanceCollectionPart> .
 <http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#title> _:bn25n03 .
+<http://library.ucsd.edu/ark:/20775/bb25252525> <http://library.ucsd.edu/ontology/dams#unit> <http://library.ucsd.edu/ark:/20775/bb02020202> .
 _:bn25n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Title> .
 _:bn25n03 <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "May 2009" .
 _:bn25n03 <http://www.loc.gov/mads/rdf/v1#elementList> _:bn25n04 .
