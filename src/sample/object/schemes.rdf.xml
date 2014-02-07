@@ -1,0 +1,40 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:mads="http://www.loc.gov/mads/rdf/v1#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  <mads:MADSScheme rdf:about="http://library.ucsd.edu/ark:/20775/bd45402766">
+    <rdfs:label>Cultural Context</rdfs:label>
+  </mads:MADSScheme>
+  <mads:MADSScheme rdf:about="http://library.ucsd.edu/ark:/20775/bd32433374">
+    <rdfs:label>Functions</rdfs:label>
+  </mads:MADSScheme>
+  <mads:MADSScheme rdf:about="http://library.ucsd.edu/ark:/20775/bd1980525k">
+    <rdfs:label>Iconography</rdfs:label>
+  </mads:MADSScheme>
+  <mads:MADSScheme rdf:about="http://library.ucsd.edu/ark:/20775/bd0683587d">
+    <rdfs:label>Library of Congress Name Authority File</rdfs:label>
+    <mads:code>naf</mads:code>
+  </mads:MADSScheme>
+  <mads:MADSScheme rdf:about="http://library.ucsd.edu/ark:/20775/bd9386739x">
+    <rdfs:label>Library of Congress Subject Headings</rdfs:label>
+    <mads:code>lcsh</mads:code>
+  </mads:MADSScheme>
+  <mads:MADSScheme rdf:about="http://library.ucsd.edu/ark:/20775/bd80897986">
+    <rdfs:label>Occupations</rdfs:label>
+  </mads:MADSScheme>
+  <mads:MADSScheme rdf:about="http://library.ucsd.edu/ark:/20775/bd71341600">
+    <rdfs:label>ISO 639 Languages</rdfs:label>
+  </mads:MADSScheme>
+  <mads:MADSScheme rdf:about="http://library.ucsd.edu/ark:/20775/bd6792855f">
+    <rdfs:label>Scientific Names</rdfs:label>
+  </mads:MADSScheme>
+  <mads:MADSScheme rdf:about="http://library.ucsd.edu/ark:/20775/bd5495914b">
+    <rdfs:label>Style/Period</rdfs:label>
+  </mads:MADSScheme>
+  <mads:MADSScheme rdf:about="http://library.ucsd.edu/ark:/20775/bd4198975n">
+    <rdfs:label>Technique</rdfs:label>
+  </mads:MADSScheme>
+  <mads:MADSScheme rdf:about="http://library.ucsd.edu/ark:/20775/bd2936165m">
+    <rdfs:label>Built Work Place</rdfs:label>
+  </mads:MADSScheme>
+</rdf:RDF>

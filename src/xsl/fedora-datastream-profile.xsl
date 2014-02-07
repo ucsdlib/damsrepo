@@ -5,14 +5,15 @@
   <xsl:output method="xml" indent="yes"/>
   <xsl:param name="objid"/>
   <xsl:param name="fileid"/>
-  <xsl:param name="objectDS"/>
+  <xsl:param name="dsName"/>
   <xsl:param name="objectSize"/>
   <xsl:variable name="dsid">
     <xsl:choose>
       <xsl:when test="$fileid != ''"><xsl:value-of select="translate($fileid,'/','_')"/></xsl:when>
-      <xsl:otherwise><xsl:value-of select="$objectDS"/></xsl:otherwise>
+      <xsl:otherwise><xsl:value-of select="$dsName"/></xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
+  <xsl:variable name="unknownDate">1999-12-31T23:59:59-0800</xsl:variable>
 
   <xsl:template match="/">
     <datastreamProfile pid="{$objid}" dsID="{$dsid}"
@@ -31,8 +32,15 @@
       <dsState>A</dsState>
       <xsl:choose>
         <xsl:when test="$fileid != ''">
-          <xsl:for-each select="//dams:File[contains(@rdf:about,$fileid)][1]">
-            <dsCreateDate><xsl:value-of select="dams:dateCreated"/></dsCreateDate>
+          <xsl:for-each select="//dams:File[contains(@rdf:about,$fileid) and substring-after(@rdf:about,$fileid) = ''][1]">
+            <xsl:choose>
+              <xsl:when test="dams:dateCreated">
+                <dsCreateDate><xsl:value-of select="dams:dateCreated"/></dsCreateDate>
+              </xsl:when>
+              <xsl:otherwise>
+                <dsCreateDate><xsl:value-of select="$unknownDate"/></dsCreateDate>
+              </xsl:otherwise>
+            </xsl:choose>
             <dsMIME><xsl:value-of select="dams:mimeType"/></dsMIME>
             <dsSize><xsl:value-of select="dams:size"/></dsSize>
             <xsl:choose>
@@ -65,14 +73,17 @@
           <dsChecksumType>DISABLED</dsChecksumType>
           <dsChecksum>none</dsChecksum>
           <xsl:choose>
-            <xsl:when test="//dams:Object/dams:event/dams:Event[dams:type='object modification']">
+            <xsl:when test="//dams:Object/dams:event/dams:DAMSEvent[dams:type='record edited']">
               <!-- XXX find latest date if there are multiple modification events -->
-              <dsCreateDate><xsl:value-of select="//dams:Object/dams:event/dams:Event[dams:type='object modification']/dams:endDate"/></dsCreateDate>
+              <dsCreateDate><xsl:value-of select="//dams:Object/dams:event/dams:DAMSEvent[dams:type='record edited']/dams:eventDate"/></dsCreateDate>
             </xsl:when>
-            <xsl:when test="//dams:Object/dams:event/dams:Event[dams:type='object creation']">
-              <dsCreateDate><xsl:value-of select="//dams:Object/dams:event/dams:Event[dams:type='object creation']/dams:endDate"/></dsCreateDate>
+            <xsl:when test="//dams:Object/dams:event/dams:DAMSEvent[dams:type='record created']">
+              <dsCreateDate><xsl:value-of select="//dams:Object/dams:event/dams:DAMSEvent[dams:type='record created']/dams:eventDate"/></dsCreateDate>
             </xsl:when>
-            <xsl:otherwise><dsCreateDate>ERROR</dsCreateDate></xsl:otherwise>
+            <xsl:when test="//dams:eventDate">
+              <dsCreateDate><xsl:value-of select="//dams:eventDate"/></dsCreateDate>
+            </xsl:when>
+            <xsl:otherwise><dsCreateDate><xsl:value-of select="$unknownDate"/></dsCreateDate></xsl:otherwise>
           </xsl:choose>
         </xsl:otherwise>
       </xsl:choose>

@@ -6,6 +6,8 @@
   <xsl:param name="objid"/>
   <xsl:param name="baseURL"/>
   <xsl:param name="objectDS"/>
+  <xsl:param name="rdfxmlDS"/>
+  <xsl:param name="fulltextPrefix"/>
   <xsl:template match="/">
     <objectDatastreams pid="{$objid}" baseURL="{$baseURL}"
         xmlns="http://www.fedora.info/definitions/1/0/access/"
@@ -18,9 +20,15 @@
       <datastream dsid="RELS-EXT" label="Fedora Object-to-Object Relationship Metadata" mimeType="application/rdf+xml" />
       <datastream dsid="rightsMetadata" label="" mimeType="text/xml" />
       <datastream dsid="{$objectDS}" label="DAMS RDF metadata" mimeType="application/rdf+xml" />
+      <xsl:if test="$rdfxmlDS != ''">
+        <datastream dsid="{$rdfxmlDS}" label="DAMS RDF serialized metadata" mimeType="application/rdf+xml" />
+      </xsl:if>
       <xsl:for-each select="//dams:File">
         <xsl:variable name="dsid" select="translate(substring-after(@rdf:about,concat($objid,'/')),'/','_')"/>
         <datastream dsid="_{$dsid}" label="" mimeType="{dams:mimeType}"/>
+        <xsl:if test="dams:mimeType = 'application/pdf'">
+          <datastream dsid="{$fulltextPrefix}_{$dsid}" label="text extracted from {$dsid}" mimeType="text/plain"/>
+        </xsl:if>
       </xsl:for-each>
     </objectDatastreams>
   </xsl:template>

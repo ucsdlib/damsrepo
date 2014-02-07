@@ -26,6 +26,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 import javax.naming.InitialContext;
+import javax.naming.NoInitialContextException;
 import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
@@ -68,6 +69,7 @@ public class RelationalTripleStore implements TripleStore
 	protected boolean logIngest = false;
 	protected boolean logUpdates = true;
 	private String columnDef = null;
+	private String implClass = null;
 
 	/***********************************************************************/
 	/*** Constructor Core **************************************************/
@@ -77,7 +79,8 @@ public class RelationalTripleStore implements TripleStore
 		try
 		{
 			columnDef = props.getProperty("columnDef");
-			Class c = Class.forName( props.getProperty("driverClass") );
+			implClass = props.getProperty("driverClass");
+			Class c = Class.forName( implClass );
 			Driver driver = (Driver)c.newInstance();
 			connect( props, driver );
 		}
@@ -104,6 +107,7 @@ public class RelationalTripleStore implements TripleStore
 		String dsURL  = props.getProperty("dataSourceURL"); // direct
 		String dsUser = props.getProperty("dataSourceUser");
 		String dsPass = props.getProperty("dataSourcePass");
+		Exception dsex = null;
 		if ( dsName != null )
 		{
 			try
@@ -117,18 +121,10 @@ public class RelationalTripleStore implements TripleStore
 					con = ds.getConnection();
 				}
 			}
+			catch ( NoInitialContextException ex ) {}
 			catch ( Exception ex )
 			{
-				if ( dsURL == null || dsUser == null || dsPass == null )
-				{
-					// log exception if not enough info for direct connection
-					log.error("Unable to get datasource connection", ex);
-				}
-				else
-				{
-					// just log status if we can make direct connection
-					log.info("Unable to get datasource connection");
-				}
+				dsex = ex;
 				con = null;
 			}
 		}
@@ -143,8 +139,16 @@ public class RelationalTripleStore implements TripleStore
 			}
 			catch ( Exception ex )
 			{
+				if ( dsex != null )
+				{
+					log.error( "Unable to get datasource connection", dsex );
+				}
 				log.error( "Unable to get direct connection", ex );
 			}
+		}
+		else if ( con == null && dsex != null )
+		{
+			log.error( "Unable to get datasource connection, direct connection parameters not found", dsex );
 		}
 
 		// setup ark/uri translation
@@ -229,7 +233,7 @@ public class RelationalTripleStore implements TripleStore
 		try
 		{
 			FileInputStream in = new FileInputStream(filename);
-			TripleStoreUtil.loadRDFXML( in, this, idNS );
+			TripleStoreUtil.loadRDFXML( in, true, this, idNS );
 		}
 		catch ( TripleStoreException ex )
 		{
@@ -245,7 +249,7 @@ public class RelationalTripleStore implements TripleStore
 		try
 		{
 			FileInputStream in = new FileInputStream(filename);
-			TripleStoreUtil.loadNTriples( in, this, idNS );
+			TripleStoreUtil.loadNTriples( in, true, this, idNS );
 		}
 		catch ( TripleStoreException ex )
 		{
@@ -321,7 +325,7 @@ public class RelationalTripleStore implements TripleStore
 			int result = stmt.executeUpdate( sql );
 			if(logUpdates && result == 0)
 			{
-				log.warn("Failed to delete: sql=" + sql);
+				log.debug("Failed to delete: sql=" + sql);
 			}
 		}
 		catch ( Exception ex )
@@ -477,20 +481,18 @@ public class RelationalTripleStore implements TripleStore
 	}
 	protected static boolean isLiteral( String s )
 	{
+		boolean isLiteral = true;
 		if ( s != null && s.startsWith("_:") )
 		{
 			// blank node
-			return false;
+			isLiteral = false;
 		}
 		else if (s != null && (s.startsWith("<") && s.indexOf(" ") == -1))
 		{
 			// URI
-			return false;
+			isLiteral = false;
 		}
-		else
-		{
-			return true;
-		}
+		return isLiteral;
 	}
 	/**
 	 * Select all triples for an object, including blank-node children

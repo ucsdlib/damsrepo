@@ -26,15 +26,23 @@ public class FileStoreList
 		// get TripleStore instance
 		FileStore fs = FileStoreUtil.getFileStore( props, fsName );
 
+		// if we don't have a comp specified, list all
+		String[] comps = null;
+		if ( cmpid != null ) { comps = new String[]{ cmpid }; }
+		else { comps = fs.listComponents( objid ); }
+
 		// list files
-		String[] files = fs.listFiles( objid, cmpid );
-		for ( int i = 0; i < files.length; i++ )
+		for ( int i = 0; i < comps.length; i++ )
 		{
-			System.out.println( i + ": " + files[i] );
+			String[] files = fs.listFiles( objid, comps[i] );
+			for ( int j = 0; j < files.length; j++ )
+			{
+				long len = fs.length( objid, comps[i], files[j] );
+				System.out.println( comps[i] + " " + files[j] + " " + len );
+			}
 		}
 
-		// close the model and database connection
-		System.out.println("closing connection");
+		// close filestore
 		fs.close();
 	}
 }

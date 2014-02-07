@@ -88,15 +88,23 @@ public class Identifier
 		if ( isBlankNode() ) { return "_:" + id; }
 		else { return "<" + id + ">"; }
 	}
-	public boolean equals( Identifier otherId )
+	public boolean equals( Object o )
 	{
-		if ( this.isBlankNode() != otherId.isBlankNode() )
+		if ( o instanceof Identifier )
 		{
-			return false;
+			Identifier otherId = (Identifier)o;
+			if ( this.isBlankNode() != otherId.isBlankNode() )
+			{
+				return false;
+			}
+			else
+			{
+				return id.equals( otherId.id );
+			}
 		}
 		else
 		{
-			return id.equals( otherId.id );
+			return false;
 		}
 	}
 	public int hashCode()

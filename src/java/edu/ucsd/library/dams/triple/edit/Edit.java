@@ -292,30 +292,35 @@ public class Edit
 	{
 		try
 		{
-			Identifier parent = identifier(ark);
-			Identifier pred = predicate(predicate);
+			Identifier sub = null;
+			if (subject instanceof Identifier )
+			{
+				sub = (Identifier)subject;
+			}
 			if( subject instanceof String )
 			{
 				String s = subject.toString();
 				if(s.startsWith("_:"))
 				{
-					subject = ts.blankNode(identifier(ark), s);
+					sub = ts.blankNode(identifier(ark), s);
 				}
 				else
 				{
-					subject = identifier(s);
+					sub = identifier(s);
 				}
 			}
+			Identifier parent = identifier(ark);
+			Identifier pred = predicate(predicate);
 			if( object instanceof String )
 			{
 				ts.addLiteralStatement(
-					(Identifier)subject, pred, object.toString(), parent
+					sub, pred, object.toString(), parent
 				);
 			}
 			else
 			{
 				ts.addStatement(
-					(Identifier)subject, pred, (Identifier)object, parent
+					sub, pred, (Identifier)object, parent
 				);
 			}
 		}

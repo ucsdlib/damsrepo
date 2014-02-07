@@ -2,8 +2,17 @@
 
 # update a metadata record
 
-OBJID=bb01010101
-JSON='[{"subject":"bb01010101","predicate":"dams:note","object":"node1"},{"subject":"node1","predicate":"dams:type","object":"abstract"},{"subject":"node1","predicate":"rdf:value","object":"test"}]'
+OBJID=$1
+FILE=$2
+if [ "$3" ]; then
+	TS="?ts=$3"
+fi
 
-curl -X PUT -F adds=$JSON http://localhost:8080/dams/api/objects/$OBJID
+BASE=`dirname $0`
+source $BASE/common.sh
+
+curl -k -u $USER:$PASS -X PUT -F file=@$FILE $URL/api/objects/$OBJID$TS
+if [ $? != 0 ]; then
+    exit 1
+fi
 echo

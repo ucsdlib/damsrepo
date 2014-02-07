@@ -1,6 +1,7 @@
 package edu.ucsd.library.dams.model;
 
 import java.util.Date;
+import java.util.TimeZone;
 import java.text.SimpleDateFormat;
 
 import edu.ucsd.library.dams.triple.Identifier;
@@ -13,6 +14,21 @@ import edu.ucsd.library.dams.triple.TripleStoreException;
 **/
 public class Event
 {
+	public static String CHECKSUM_CALCULATED = "checksum calculated";
+	public static String CHECKSUM_VERIFIED   = "checksum verified";
+	public static String DERIVATIVE_CREATED  = "derivative created";
+	public static String FILE_ADDED          = "file added";
+	public static String FILE_DELETED        = "file deleted";
+	public static String FILE_MODIFIED       = "file modified";
+	public static String FILE_VIRUS_CHECKED  = "file virus checked ";
+	public static String RECORD_CREATED      = "record created";
+	public static String RECORD_EDITED       = "record edited";
+	public static String RECORD_DELETED      = "record deleted";
+	public static String RECORD_INDEXED      = "record indexed";
+	public static String RECORD_TRANSFORMED  = "record transformed";
+	public static String OBJECT_REPLICATED   = "object replicated";
+	public static String OBJECT_VALIDATED    = "object validated";
+
 	private Identifier eventID;
 	private Identifier parent;
 	private Identifier subject;
@@ -23,9 +39,7 @@ public class Event
 	private String outcomeNote;
 	private Date eventDate;
 
-	private SimpleDateFormat fmt = new SimpleDateFormat(
-		"yyyy-MM-dd'T'hh:mm:ssZ"
-	);
+	private SimpleDateFormat fmt = null;
 
 	public Event( Identifier eventID, Identifier parent, Identifier subject,
 		Identifier userID, boolean success, String type, String detail,
@@ -40,6 +54,10 @@ public class Event
 		this.detail      = detail;
 		this.outcomeNote = outcomeNote;
 		eventDate = new Date();
+
+		// setup time format
+		fmt = new SimpleDateFormat( "yyyy-MM-dd'T'hh:mm:ssZ" );
+	    fmt.setTimeZone( TimeZone.getTimeZone("UTC") );
 	}
 	public void save( TripleStore ts, TripleStore es )
 		throws TripleStoreException
@@ -48,11 +66,17 @@ public class Event
 		ts.addStatement( subject, id("dams:event"), eventID, parent );
 
 		// insert event metadata
+		es.addStatement( eventID, id("rdf:type"), id("dams:DAMSEvent"), eventID );
 		es.addLiteralStatement( eventID, id("dams:type"), q(type), eventID );
-		es.addLiteralStatement( eventID, id("dams:detail"), q(detail), eventID );
 		es.addLiteralStatement(
 			eventID, id("dams:eventDate"), q(fmt.format(eventDate)), eventID
 		);
+		if ( detail != null && !detail.equals("") )
+		{
+			es.addLiteralStatement(
+				eventID, id("dams:detail"), q(detail), eventID
+			);
+		}
 		if ( outcomeNote != null && !outcomeNote.equals("") )
 		{
 			es.addLiteralStatement(

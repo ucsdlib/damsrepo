@@ -1,5 +1,11 @@
-.DS_Store
-catalog-v001.xml
+# build files
 build.properties
 tmp
 dist
+
+# temp files
+.DS_Store
+.*swp
+
+# protege
+catalog-v001.xml

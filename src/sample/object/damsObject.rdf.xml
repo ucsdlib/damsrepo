@@ -1,0 +1,362 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dams="http://library.ucsd.edu/ontology/dams#"
+    xmlns:mads="http://www.loc.gov/mads/rdf/v1#">
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd22194583">
+    <!-- collection links -->
+    <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd3516400n"/>
+    <dams:provenanceCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd48133407"/>
+    <dams:provenanceCollectionPart rdf:resource="http://library.ucsd.edu/ark:/20775/bd6110278b"/>
+
+    <!-- object only -->
+    <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb02020202"/>
+    <dams:cartographics>
+      <dams:Cartographics rdf:about="http://library.ucsd.edu/ark:/20775/bb20202020">
+        <dams:scale>1:20000</dams:scale>
+        <dams:projection>equirectangular</dams:projection>
+        <dams:referenceSystem>WGS84</dams:referenceSystem>
+        <dams:point>29.67459,-82.37873</dams:point>
+      </dams:Cartographics>
+    </dams:cartographics>
+
+    <dams:typeOfResource>still image</dams:typeOfResource>
+
+    <!-- rights -->
+    <dams:rightsHolder>
+      <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd2356107f">
+        <mads:authoritativeLabel>Smithee, Alan, 1968-</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:FullNameElement>
+            <mads:elementValue>Smithee, Alan, 1968-</mads:elementValue>
+          </mads:FullNameElement>
+        </mads:elementList>
+      </mads:PersonalName>
+    </dams:rightsHolder>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
+    <dams:license>
+      <dams:License rdf:about="http://library.ucsd.edu/ark:/20775/bb22222222">
+        <dams:licenseNote>License note text here...</dams:licenseNote>
+        <dams:licenseURI rdf:resource="http://library.ucsd.edu/licenses/lic12341.pdf"/>
+        <dams:permission>
+          <dams:Permission>
+            <dams:beginDate>2010-01-01</dams:beginDate>
+            <dams:type>display</dams:type>
+          </dams:Permission>
+        </dams:permission>
+      </dams:License>
+    </dams:license>
+    <dams:otherRights>
+      <dams:OtherRights rdf:about="http://library.ucsd.edu/ark:/20775/bd1059166q">
+        <dams:otherRightsBasis>Other Rights Basis value</dams:otherRightsBasis>
+        <dams:otherRightsNote>Other Rights Note value</dams:otherRightsNote>
+        <dams:otherRightsURI>http://bar.com</dams:otherRightsURI>
+        <dams:permission>
+          <dams:Permission>
+            <dams:beginDate>2012-12-31</dams:beginDate>
+            <dams:endDate>2062-12-31</dams:endDate>
+            <dams:type>display</dams:type>
+          </dams:Permission>
+        </dams:permission>
+      </dams:OtherRights>
+    </dams:otherRights>
+    <dams:statute>
+      <dams:Statute rdf:about="http://library.ucsd.edu/ark:/20775/bd97964489">
+        <dams:statuteNote>Statute Note</dams:statuteNote>
+        <dams:statuteCitation>Statute Citation value</dams:statuteCitation>
+        <dams:statuteJurisdiction>us</dams:statuteJurisdiction>
+        <dams:restriction>
+          <dams:Restriction>
+            <dams:beginDate>2015-01-01</dams:beginDate>
+            <dams:endDate>2015-12-31</dams:endDate>
+            <dams:type>display</dams:type>
+          </dams:Restriction>
+        </dams:restriction>
+      </dams:Statute>
+    </dams:statute>
+
+    <!-- resource common -->
+    <dams:language rdf:resource="http://library.ucsd.edu/ark:/20775/bd0410344f"/>
+    <dams:date>
+      <dams:Date>
+        <dams:type>creation</dams:type>
+        <rdf:value>Easter 2012</rdf:value>
+        <dams:beginDate>2012-04-08</dams:beginDate>
+        <dams:endDate>2012-04-08</dams:endDate>
+      </dams:Date>
+    </dams:date>
+    <dams:title>
+      <mads:Title> 
+        <mads:authoritativeLabel>Sample Simple Object, The: An Image Object, Allegro, 1</mads:authoritativeLabel> 
+        <mads:elementList rdf:parseType="Collection"> 
+          <mads:MainTitleElement> 
+            <mads:elementValue>Sample Simple Object</mads:elementValue> 
+          </mads:MainTitleElement> 
+          <mads:NonSortElement> 
+            <mads:elementValue>The</mads:elementValue> 
+          </mads:NonSortElement> 
+          <mads:SubTitleElement> 
+            <mads:elementValue>An Image Object</mads:elementValue> 
+          </mads:SubTitleElement> 
+          <mads:PartNameElement> 
+            <mads:elementValue>Allegro</mads:elementValue> 
+          </mads:PartNameElement> 
+          <mads:PartNumberElement> 
+            <mads:elementValue>1</mads:elementValue> 
+          </mads:PartNumberElement> 
+        </mads:elementList> 
+      </mads:Title> 
+    </dams:title>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bd0785823z"/>
+        <dams:personalName rdf:resource="http://library.ucsd.edu/ark:/20775/bd6860945s"/>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:relatedResource>
+      <dams:RelatedResource>
+        <dams:uri>http://relatedresource.com/</dams:uri>
+        <dams:type>exhibit</dams:type>
+        <dams:description>Related Resource value</dams:description>
+      </dams:RelatedResource>
+    </dams:relatedResource>
+
+    <!-- notes -->
+    <dams:note>
+      <dams:Note>
+        <dams:displayLabel>ARK ID</dams:displayLabel>
+        <rdf:value>http://library.ucsd.edu/ark:/20775/bd22194583</rdf:value>
+        <dams:type>identifier</dams:type>
+      </dams:Note>
+    </dams:note>
+    <dams:custodialResponsibilityNote>
+      <dams:CustodialResponsibilityNote>
+        <dams:displayLabel>Custodial Resonsibility</dams:displayLabel>
+        <rdf:value>CustodialResponsibilityNote value</rdf:value>
+        <dams:type>custodialResponsibility</dams:type>
+      </dams:CustodialResponsibilityNote>
+    </dams:custodialResponsibilityNote>
+    <dams:preferredCitationNote>
+      <dams:PreferredCitationNote>
+        <dams:displayLabel>Custodial Resonsibility</dams:displayLabel>
+        <rdf:value>PreferredCitationNote value</rdf:value>
+        <dams:type>preferredCitationNote</dams:type>
+      </dams:PreferredCitationNote>
+    </dams:preferredCitationNote>
+    <dams:scopeContentNote>
+      <dams:ScopeContentNote>
+        <dams:displayLabel>Custodial Resonsibility</dams:displayLabel>
+        <rdf:value>ScopeContentNote value</rdf:value>
+        <dams:type>scopeContentNote</dams:type>
+      </dams:ScopeContentNote>
+    </dams:scopeContentNote>
+
+    <!-- mads complex subjects -->
+    <dams:complexSubject>
+      <mads:ComplexSubject rdf:about="http://library.ucsd.edu/ark:/20775/bd8499506p">
+        <mads:authoritativeLabel>mads:Topic value--mads:Temporal value</mads:authoritativeLabel>
+        <mads:componentList rdf:parseType="Collection">
+          <mads:Topic>
+            <mads:authoritativeLabel>mads:Topic value</mads:authoritativeLabel>
+            <mads:elementList rdf:parseType="Collection">
+              <mads:TopicElement>
+                <mads:elementValue>mads:Topic value</mads:elementValue>
+              </mads:TopicElement>
+            </mads:elementList>
+          </mads:Topic>
+          <mads:Temporal>
+            <mads:authoritativeLabel>mads:Temporal value</mads:authoritativeLabel>
+            <mads:elementList rdf:parseType="Collection">
+              <mads:TemporalElement>
+                <mads:elementValue>mads:Temporal value</mads:elementValue>
+              </mads:TemporalElement>
+            </mads:elementList>
+          </mads:Temporal>
+        </mads:componentList>
+      </mads:ComplexSubject>
+    </dams:complexSubject>
+
+    <!-- mads names -->
+    <dams:name>
+      <mads:Name rdf:about="http://library.ucsd.edu/ark:/20775/bd72025647">
+        <mads:authoritativeLabel>mads:Name value</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:NameElement>
+            <mads:elementValue>mads:Name value</mads:elementValue>
+          </mads:NameElement>
+        </mads:elementList>
+      </mads:Name>
+    </dams:name>
+    <dams:conferenceName>
+      <mads:ConferenceName rdf:about="http://library.ucsd.edu/ark:/20775/bd8840806s">
+        <mads:authoritativeLabel>mads:ConferenceName value</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:NameElement>
+            <mads:elementValue>mads:ConferenceName value</mads:elementValue>
+          </mads:NameElement>
+        </mads:elementList>
+      </mads:ConferenceName>
+    </dams:conferenceName>
+    <dams:corporateName>
+      <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bd7543866k">
+        <mads:authoritativeLabel>mads:CorporateName value</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:NameElement>
+            <mads:elementValue>mads:CorporateName value</mads:elementValue>
+          </mads:NameElement>
+        </mads:elementList>
+      </mads:CorporateName>
+    </dams:corporateName>
+    <dams:familyName>
+      <mads:FamilyName rdf:about="http://library.ucsd.edu/ark:/20775/bd6246923f">
+        <mads:authoritativeLabel>mads:FamilyName value</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:FamilyNameElement>
+            <mads:elementValue>mads:FamilyName value</mads:elementValue>
+          </mads:FamilyNameElement>
+        </mads:elementList>
+      </mads:FamilyName>
+    </dams:familyName>
+    <dams:personalName>
+      <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bd4949983c">
+        <mads:authoritativeLabel>Smith, John, Dr., 1965-</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:FamilyNameElement>
+            <mads:elementValue>Smith</mads:elementValue>
+          </mads:FamilyNameElement>
+          <mads:GivenNameElement>
+            <mads:elementValue>John</mads:elementValue>
+          </mads:GivenNameElement>
+          <mads:TermsOfAddressNameElement>
+            <mads:elementValue>Dr.</mads:elementValue>
+          </mads:TermsOfAddressNameElement>
+          <mads:DateNameElement>
+            <mads:elementValue>1965-</mads:elementValue>
+          </mads:DateNameElement>
+        </mads:elementList>
+      </mads:PersonalName>
+    </dams:personalName>
+
+    <!-- mads simple subjects -->
+    <dams:builtWorkPlace>
+      <dams:BuiltWorkPlace rdf:about="http://library.ucsd.edu/ark:/20775/bd5905624s">
+        <mads:authoritativeLabel>dams:BuiltWorkPlace value</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <dams:BuiltWorkPlaceElement>
+            <mads:elementValue>dams:BuiltWorkPlace value</mads:elementValue>
+          </dams:BuiltWorkPlaceElement>
+        </mads:elementList>
+      </dams:BuiltWorkPlace>
+    </dams:builtWorkPlace>
+    <dams:culturalContext>
+      <dams:CulturalContext rdf:about="http://library.ucsd.edu/ark:/20775/bd46086853">
+        <mads:authoritativeLabel>dams:CulturalContext value</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <dams:CulturalContextElement>
+            <mads:elementValue>dams:CulturalContext value</mads:elementValue>
+          </dams:CulturalContextElement>
+        </mads:elementList>
+      </dams:CulturalContext>
+    </dams:culturalContext>
+    <dams:function>
+      <dams:Function rdf:about="http://library.ucsd.edu/ark:/20775/bd3311747s">
+        <mads:authoritativeLabel>dams:Function value</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <dams:FunctionElement>
+            <mads:elementValue>dams:Function value</mads:elementValue>
+          </dams:FunctionElement>
+        </mads:elementList>
+      </dams:Function>
+    </dams:function>
+    <dams:genreForm>
+      <mads:GenreForm rdf:about="http://library.ucsd.edu/ark:/20775/bd2048936c">
+        <mads:authoritativeLabel>mads:GenreForm value</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:GenreFormElement>
+            <mads:elementValue>mads:GenreForm value</mads:elementValue>
+          </mads:GenreFormElement>
+        </mads:elementList>
+      </mads:GenreForm>
+    </dams:genreForm>
+    <dams:geographic>
+      <mads:Geographic rdf:about="http://library.ucsd.edu/ark:/20775/bd0751998k">
+        <mads:authoritativeLabel>mads:Geographic value</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:GeographicElement>
+            <mads:elementValue>mads:Geographic value</mads:elementValue>
+          </mads:GeographicElement>
+        </mads:elementList>
+      </mads:Geographic>
+    </dams:geographic>
+    <dams:iconography>
+      <dams:Iconography rdf:about="http://library.ucsd.edu/ark:/20775/bd9455146z">
+        <mads:authoritativeLabel>dams:Iconography value</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <dams:IconographyElement>
+            <mads:elementValue>dams:Iconography value</mads:elementValue>
+          </dams:IconographyElement>
+        </mads:elementList>
+      </dams:Iconography>
+    </dams:iconography>
+    <dams:occupation>
+      <mads:Occupation rdf:about="http://library.ucsd.edu/ark:/20775/bd8158205v">
+        <mads:authoritativeLabel>mads:Occupation value</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:OccupationElement>
+            <mads:elementValue>mads:Occupation value</mads:elementValue>
+          </mads:OccupationElement>
+        </mads:elementList>
+      </mads:Occupation>
+    </dams:occupation>
+    <dams:scientificName>
+      <dams:ScientificName rdf:about="http://library.ucsd.edu/ark:/20775/bd68612651">
+        <mads:authoritativeLabel>dams:ScientificName value</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <dams:ScientificNameElement>
+            <mads:elementValue>dams:ScientificName value</mads:elementValue>
+          </dams:ScientificNameElement>
+        </mads:elementList>
+      </dams:ScientificName>
+    </dams:scientificName>
+    <dams:stylePeriod>
+      <dams:StylePeriod rdf:about="http://library.ucsd.edu/ark:/20775/bd5564326z">
+        <mads:authoritativeLabel>dams:StylePeriod value</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <dams:StylePeriodElement>
+            <mads:elementValue>dams:StylePeriod value</mads:elementValue>
+          </dams:StylePeriodElement>
+        </mads:elementList>
+      </dams:StylePeriod>
+    </dams:stylePeriod>
+    <dams:technique>
+      <dams:Technique rdf:about="http://library.ucsd.edu/ark:/20775/bd42673899">
+        <mads:authoritativeLabel>dams:Technique value</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <dams:TechniqueElement>
+            <mads:elementValue>dams:Technique value</mads:elementValue>
+          </dams:TechniqueElement>
+        </mads:elementList>
+      </dams:Technique>
+    </dams:technique>
+    <dams:temporal>
+      <mads:Temporal rdf:about="http://library.ucsd.edu/ark:/20775/bd3004576n">
+        <mads:authoritativeLabel>mads:Temporal value</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:TemporalElement>
+            <mads:elementValue>mads:Temporal value</mads:elementValue>
+          </mads:TemporalElement>
+        </mads:elementList>
+      </mads:Temporal>
+    </dams:temporal>
+    <dams:topic>
+      <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bd1707637q">
+        <mads:authoritativeLabel>mads:Topic value</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:TopicElement>
+            <mads:elementValue>mads:Topic value</mads:elementValue>
+          </mads:TopicElement>
+        </mads:elementList>
+      </mads:Topic>
+    </dams:topic>
+
+  </dams:Object>
+</rdf:RDF>

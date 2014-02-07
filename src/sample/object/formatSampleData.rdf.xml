@@ -1,0 +1,60 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dams="http://library.ucsd.edu/ontology/dams#"
+    xmlns:mads="http://www.loc.gov/mads/rdf/v1#">
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd46428055">
+    <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb48484848"/>
+    <dams:language rdf:resource="http://library.ucsd.edu/ark:/20775/bd0410344f"/>
+    <dams:cartographics>
+      <dams:Cartographics>
+        <dams:scale>1:20000</dams:scale>
+        <dams:projection>equirectangular</dams:projection>
+        <dams:referenceSystem>WGS84</dams:referenceSystem>
+        <dams:polygon>29.60,-82.37 30.30,-80.00 27.00,-79.00</dams:polygon>
+      </dams:Cartographics>
+    </dams:cartographics>
+
+    <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5905304g"/>
+    <dams:rightsHolder>
+      <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bd92162495">
+        <mads:authoritativeLabel>UC Regents</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:NameElement><mads:elementValue>UC Regents</mads:elementValue></mads:NameElement>
+        </mads:elementList>
+        <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/authorities/names/n85088322"/>
+      </mads:CorporateName>
+    </dams:rightsHolder>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:name rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX1"/>
+        <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bd55639754"/>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:note>
+      <dams:Note>
+        <dams:displayLabel>Local ID</dams:displayLabel>
+        <rdf:value>b6700311</rdf:value>
+        <dams:type>identifier</dams:type>
+      </dams:Note>
+    </dams:note>
+    <dams:note>
+      <dams:Note>
+        <dams:displayLabel>ARK ID</dams:displayLabel>
+        <rdf:value>http://library.ucsd.edu/ark:/20775/bd46428055</rdf:value>
+        <dams:type>identifier</dams:type>
+      </dams:Note>
+    </dams:note>
+    <dams:typeOfResource>software, multimedia</dams:typeOfResource>
+    <dams:title>
+      <mads:Title>
+        <mads:authoritativeLabel>Sample Data Object</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:MainTitleElement>
+            <mads:elementValue>Sample Data Object</mads:elementValue>
+          </mads:MainTitleElement>
+        </mads:elementList>
+      </mads:Title>
+    </dams:title>
+  </dams:Object>
+</rdf:RDF>

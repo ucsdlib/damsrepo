@@ -24,11 +24,11 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+
+import org.apache.log4j.Logger;
 
 /**
  * Utility class to obscure HttpClient 4.x API.
@@ -40,6 +40,8 @@ public class HttpUtil
 	HttpRequestBase request;
 	HttpResponse response;
 
+	private static Logger log = Logger.getLogger(HttpUtil.class);
+
 	public HttpUtil( String url )
 	{
 		this.client = new DefaultHttpClient();
@@ -49,6 +51,21 @@ public class HttpUtil
 	{
 		this.client = client;
 		this.request = request;
+	}
+	public void shutdown()
+	{
+		try
+		{
+			request.releaseConnection();
+			client.getConnectionManager().shutdown();
+			client = null;
+			request = null;
+			response = null;
+		}
+		catch ( Exception ex )
+		{
+			log.info("Error shutting down httpclient",ex);
+		}
 	}
 
 	public static String post( String url, String content, String mimeType,
@@ -68,7 +85,9 @@ public class HttpUtil
 	{
 		HttpUtil http = new HttpUtil( new DefaultHttpClient(), req );
 		http.exec();
-		return http.contentBodyAsString();
+		String content = http.contentBodyAsString();
+		http.shutdown();
+		return content;
 	}
 	public int exec() throws IOException
 	{
@@ -86,10 +105,6 @@ public class HttpUtil
 	public HttpResponse response()
 	{
 		return response;
-	}
-	public void releaseConnection()
-	{
-		request.releaseConnection();
 	}
 
 	/**

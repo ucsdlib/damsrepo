@@ -61,9 +61,9 @@ public class FileStoreUtil
             String key = (String)e.nextElement();
             if ( key.startsWith(prefix) )
             {
-                fprops.put(
-                    key.substring(prefix.length()), props.getProperty(key)
-                );
+				String key2 = key.substring(prefix.length());
+				String val = props.getProperty(key);
+                fprops.put( key2, val );
             }
         }
 
@@ -180,10 +180,10 @@ public class FileStoreUtil
 	/**
 	 * Copy data from an input stream to an output stream.
 	**/
-    public static int copy( InputStream in, OutputStream out )
+    public static long copy( InputStream in, OutputStream out )
         throws FileStoreException
     {
-		int bytesRead = 0;
+		long bytesRead = 0;
         try
         {
             BufferedInputStream bufin = new BufferedInputStream(in);

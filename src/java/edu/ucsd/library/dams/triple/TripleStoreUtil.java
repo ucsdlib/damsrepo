@@ -2,7 +2,6 @@ package edu.ucsd.library.dams.triple;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.text.NumberFormat;
@@ -16,11 +15,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.naming.NoInitialContextException;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -31,6 +29,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 //import com.hp.hpl.jena.rdf.model.Statement;// statement ns conflict
 import com.hp.hpl.jena.rdf.model.AnonId;
+import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -40,6 +39,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.datatypes.BaseDatatype;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import edu.ucsd.library.dams.solr.SolrHelper;
@@ -102,7 +102,14 @@ public class TripleStoreUtil
 		}
 
 		// load the filestore
-		return TripleStoreUtil.getTripleStore( fprops );
+		if ( fprops.getProperty("className") != null )
+		{
+			return TripleStoreUtil.getTripleStore( fprops );
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	/**
@@ -130,86 +137,7 @@ public class TripleStoreUtil
 		return nsmap;
 	}
 
-	/**
-	 * Output a set of Statements as RDF/XML.
-	**/
-	public static void outputRDFXML( StatementIterator iter, Writer writer,
-		Map<String,String> nsmap ) throws TripleStoreException
-	{
-		outputRDF( iter, writer, "RDF/XML-ABBREV", nsmap );
-	}
-	/**
-	 * Output a set of Statements as NTriples.
-	**/
-	public static void outputNTriples( StatementIterator iter, Writer writer,
-		Map<String,String> nsmap ) throws TripleStoreException
-	{
-		outputRDF( iter, writer, "N-TRIPLE", nsmap );
-	}
-	private static void outputRDF( StatementIterator it, Writer writer,
-		String format, Map<String,String> nsmap ) throws TripleStoreException
-	{
-		Model model = ModelFactory.createDefaultModel();
-		try
-		{
-			// load statements into a jena model
-			for ( int i = 0; it.hasNext(); i++ )
-			{
-				model.add( jenaStatement(model,it.nextStatement()) );
-			}
-
-			// register namespace prefixes
-			for (Iterator<String> i2 = nsmap.keySet().iterator(); i2.hasNext();)
-			{
-				String prefix = i2.next();
-				if ( prefix.indexOf(":") == -1 )
-				{
-					model.setNsPrefix( prefix, nsmap.get(prefix) );
-				}
-			}
-
-			model.write( writer, format );
-		}
-		catch ( Exception ex )
-		{
-			throw new TripleStoreException( ex );
-		}
-	}
-	private static com.hp.hpl.jena.rdf.model.Statement jenaStatement(
-		Model m, edu.ucsd.library.dams.triple.Statement stmt )
-		throws TripleStoreException
-	{
-		Resource s = toResource( m, stmt.getSubject() );
-		Property p = toProperty( m, stmt.getPredicate() );
-		RDFNode  o = stmt.hasLiteralObject() ?
-			toLiteral(m,stmt.getLiteral()) : toResource(m,stmt.getObject());
-		return m.createStatement(s, p, o);
-	}
-	private static Resource toResource( Model m, Identifier id )
-	{
-		Resource res = null;
-		if ( id != null && id.isBlankNode() )
-		{
-			res = m.createResource( new AnonId(id.getId()) );
-		}
-		else if ( id != null )
-		{
-			res = m.createResource( id.getId() );
-		}
-		return res;
-	}
-	private static Property toProperty( Model m, Identifier id )
-		throws TripleStoreException
-	{
-		Property prop = null;
-		if ( id != null && !id.isBlankNode() )
-		{
-			String ark = id.getId();
-			prop = m.createProperty( ark );
-		}
-		return prop;
-	}
-	private static Literal toLiteral( Model m, String s )
+	public static Literal toLiteral( Model m, String s )
 	{
 		if ( m == null ) { m = staticModel; }
 		// literal with language tag
@@ -218,6 +146,7 @@ public class TripleStoreUtil
 			int idx = s.lastIndexOf("\"@");
 			String val = s.substring(1,idx);
 			String lng = s.substring(idx+2);
+			val = StringEscapeUtils.unescapeJava(val);
 			return m.createLiteral( val, lng );
 		}
 		// literal with datatype
@@ -226,6 +155,7 @@ public class TripleStoreUtil
 			int idx = s.lastIndexOf("\"^^");
 			String val = s.substring(1,idx);
 			String typ = s.substring(idx+4,s.length()-1);
+			val = StringEscapeUtils.unescapeJava(val);
 			try
 			{
 				return m.createTypedLiteral( val, new BaseDatatype(typ) );
@@ -239,6 +169,7 @@ public class TripleStoreUtil
 		else if ( s != null )
 		{
 			String val = s.substring(1,s.length()-1);
+			val = StringEscapeUtils.unescapeJava(val);
 			return m.createLiteral( val );
 		}
 		else
@@ -247,18 +178,18 @@ public class TripleStoreUtil
 		}
 	}
 
-	public static void loadNTriples( InputStream in, TripleStore ts,
-		String idNS ) throws TripleStoreException
+	public static void loadNTriples( InputStream in, boolean deleteFirst,
+		TripleStore ts, String idNS ) throws TripleStoreException
 	{
-		loadRDF( in, ts, "N-TRIPLE", idNS );
+		loadRDF( in, deleteFirst, ts, "N-TRIPLE", idNS );
 	}
-	public static void loadRDFXML( InputStream in, TripleStore ts, String idNS )
-		throws TripleStoreException
+	public static void loadRDFXML( InputStream in, boolean deleteFirst,
+		TripleStore ts, String idNS ) throws TripleStoreException
 	{
-		loadRDF( in, ts, "RDF/XML", idNS );
+		loadRDF( in, deleteFirst, ts, "RDF/XML", idNS );
 	}
-	private static void loadRDF( InputStream in, TripleStore ts, String format,
-		String idNS ) throws TripleStoreException
+	private static void loadRDF( InputStream in, boolean deleteFirst,
+		TripleStore ts, String format, String idNS ) throws TripleStoreException
 	{
 		// bnode parent tracking
 		Map<String,Identifier> bnodes = new HashMap<String,Identifier>();
@@ -274,6 +205,32 @@ public class TripleStoreUtil
 		catch ( Exception ex )
 		{
 			throw new TripleStoreException("Error reading RDF data", ex);
+		}
+
+		// list and delete subjects in the model
+		if ( deleteFirst )
+		{
+			Resource res = null;
+			try
+			{
+				ResIterator subjects = model.listSubjects();
+				while ( subjects.hasNext() )
+				{
+					res = subjects.nextResource();
+					if ( !res.isAnon() )
+					{
+						Identifier id = toIdentifier(res);
+						log.debug("removing subject: " + id.toString() );
+						ts.removeObject(id);
+					}
+				}
+
+			}
+			catch ( Exception ex )
+			{
+				log.warn("error removing id: " + res, ex );
+				//throw new TripleStoreException("Error removing RDF data", ex);
+			}
 		}
 
 		// iterate over all statements and load into triplestore
@@ -315,25 +272,12 @@ public class TripleStoreUtil
 				{
 					// parent in cache
 
-					// strip file and component parts of parents to keep
-					// them in the same graph as main object
-					String objectSubj = parent;
-					if ( idNS != null && objectSubj.startsWith(idNS) )
-					{
-						String id = objectSubj.substring(idNS.length());
-						if ( id.indexOf("/") > 0 )
-						{
-							id = id.substring(0,id.indexOf("/"));
-						}
-						else if ( id.indexOf("-") > 0 )
-						{
-							id = id.substring(0,id.indexOf("-"));
-						}
-						objectSubj = idNS + id;
-					}
+					// strip file/component part to keep in same graph as object
+					Identifier objectSubj = objectSubject(parent,idNS);
 
 					// add triple
-					ts.addStatement( stmt, toIdentifier(objectSubj) );
+					log.debug( "s3: " + stmt.toString() );
+					ts.addStatement( stmt, objectSubj );
 				}
 				else
 				{
@@ -359,12 +303,12 @@ public class TripleStoreUtil
 			}
 
 			// process orphans
-			processOrphans( parents, orphans, ts );
+			processOrphans( parents, orphans, idNS, ts );
 
 			// warn about unclaimed orphans?
 			for ( int i = 0; i < orphans.size(); i++ )
 			{
-				System.err.println("orphan: " + orphans.get(i).toString());
+				log.warn("orphan: " + orphans.get(i).toString());
 			}
 			if ( bnodes.size() > 0 )
 			{
@@ -376,6 +320,29 @@ public class TripleStoreUtil
 		{
 			throw new TripleStoreException( "Error processing triples", ex );
 		}
+	}
+
+	/**
+	 * Strip any component or file parts from the parent URI to keep component
+	 * and file metadata in the same named graph as the object record.
+	**/
+	private static Identifier objectSubject( String parent, String idNS )
+	{
+		String objectSubj = parent;
+		if ( idNS != null && objectSubj.startsWith(idNS) )
+		{
+			String id = objectSubj.substring(idNS.length());
+			if ( id.indexOf("/") > 0 )
+			{
+				id = id.substring(0,id.indexOf("/"));
+			}
+			else if ( id.indexOf("-") > 0 )
+			{
+				id = id.substring(0,id.indexOf("-"));
+			}
+			objectSubj = idNS + id;
+		}
+		return Identifier.publicURI( objectSubj );
 	}
 
 	/**
@@ -401,7 +368,8 @@ public class TripleStoreUtil
 	 * @param orphans List of statements with unknown parents
 	**/
 	private static void processOrphans( Map<String,String> parents,
-		List<Statement> orphans, TripleStore ts ) throws TripleStoreException
+		List<Statement> orphans, String idNS, TripleStore ts )
+		throws TripleStoreException
 	{
 		for ( int i = 0; i < orphans.size(); i++ )
 		{
@@ -410,7 +378,12 @@ public class TripleStoreUtil
 			String parent = findParent(parents, orphan.getSubject().toString());
 			if ( parent != null && !parent.startsWith("_:") )
 			{
-				ts.addStatement( orphan, toIdentifier(parent) );
+				// strip file/component parts to keep in same graph as object
+				Identifier objectSubj = objectSubject(parent,idNS);
+
+				// add statement and remove from orphans list
+				log.debug( "s2: " + orphan.toString() );
+				ts.addStatement( orphan, objectSubj );
 				orphans.remove( orphan );
 				i--;
 			}
@@ -423,8 +396,8 @@ public class TripleStoreUtil
 	private static Identifier toIdentifier( Resource res )
 		throws TripleStoreException
 	{
-		String pre = res.getURI();
-		return Identifier.publicURI( pre );
+		String id = res.getURI();
+		return Identifier.publicURI( id );
 	}
 
 	/**
@@ -695,13 +668,14 @@ public class TripleStoreUtil
 	 *     for deleting file or component records, or one out of several
 	 *     blank node trees with the same predicate.
 	**/
-	public static void recursiveDelete( Identifier sub, Identifier pre,
-		Identifier obj, TripleStore ts ) throws TripleStoreException
+	public static void recursiveDelete( Identifier parent, Identifier sub,
+		Identifier pre, Identifier obj, TripleStore ts )
+		throws TripleStoreException
 	{
 		// iterate through all statements for the object & classify by subject
 		Map<String,List<Statement>> map
 			= new HashMap<String,List<Statement>>();
-		for ( StatementIterator st = ts.sparqlDescribe( sub ); st.hasNext(); )
+		for ( StatementIterator st = ts.sparqlDescribe(parent); st.hasNext(); )
 		{
 			Statement s = st.nextStatement();
 			List<Statement> children = map.get(s.getSubject().getId());
@@ -716,8 +690,8 @@ public class TripleStoreUtil
 		// recursively remove statements
 		recursiveDelete( sub, pre, obj, map, ts );
 
-		// if obj is public URI, also delete all children of it
-		if ( !obj.isBlankNode() )
+		// if obj is public URI, delete all children of it *within this object*
+		if ( obj != null && !obj.isBlankNode() )
 		{
 			recursiveDelete( obj, null, null, map, ts );
 		}
@@ -736,7 +710,7 @@ public class TripleStoreUtil
 			Statement s = list.get(i);
 			if ( pre == null || s.getPredicate().equals(pre) )
 			{
-				if ( obj == null || s.getObject().equals(pre) )
+				if ( obj == null || s.getObject().equals(obj) )
 				{
 					// remove the statement
 					removeStatement( ts, s );

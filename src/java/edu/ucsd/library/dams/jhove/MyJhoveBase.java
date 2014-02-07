@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -21,6 +22,9 @@ import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.Node;
 import org.dom4j.QName;
+import org.dom4j.XPath;
+
+import org.apache.log4j.Logger;
 
 import edu.harvard.hul.ois.jhove.App;
 import edu.harvard.hul.ois.jhove.JhoveBase;
@@ -37,6 +41,8 @@ import edu.harvard.hul.ois.jhove.handler.XmlHandler;
  */
 public class MyJhoveBase extends JhoveBase {
 	
+	private static Logger log = Logger.getLogger(MyJhoveBase.class);
+
 	//private MyJhoveBase _jebase = null;
 	private static List<MyJhoveBase> myJhoves = new ArrayList<MyJhoveBase>();
 	public static boolean shellMode = false;
@@ -48,11 +54,11 @@ public class MyJhoveBase extends JhoveBase {
 	"the President and Fellows of Harvard College. " +
 	"Released under the GNU Lesser General Public License.";
 	
-	private static final String _moduleNames[] = {"PDF-hul","ASCII-hul","GIF-hul","TIFF-hul","WAVE-hul","XML-hul","HTML-hul","BYTESTREAM"};
-	private static final String _fileExten[]   = {".pdf",".txt",".gif",".tif",".wav",".xml",".html",".mov"};
+	private static final String _moduleNames[] = {"PDF-hul","ASCII-hul","GIF-hul","TIFF-hul","WAVE-hul","XML-hul","HTML-hul","BYTESTREAM","BYTESTREAM"};
+	private static final String _fileExten[]   = {".pdf",".txt",".gif",".tif",".wav",".xml",".html",".mov",".hierarchy"};
 	private static HashMap _moduleMap;
 	private static String ffmpegCommand = "ffmpeg";
-	public static final String MEDIA_FILES = ".wav .mp3 .mov .mp4 .avi";
+	public static final String MEDIA_FILES = ".wav .mp3 .mov .mp4 .avi .png";
 
 
 	private MyJhoveBase() throws Exception {
@@ -64,7 +70,7 @@ public class MyJhoveBase extends JhoveBase {
 		MyJhoveBase jebase = null;
 		if(myJhoves.size() == 0){
 			if(jhoveconf == null || !new File(jhoveconf).exists()){
-				jhoveconf = System.getProperty("catalina.base") + "/webapps/dams/WEB-INF/classes/jhove.conf";
+				jhoveconf = "dams/jhove.conf";
 				if(!new File(jhoveconf).exists())
 					throw new Exception("Configuration file was not found: " + jhoveconf);
 			}
@@ -164,59 +170,120 @@ public class MyJhoveBase extends JhoveBase {
     public void parseXml(JhoveInfo kobj, StringWriter swriter) throws DocumentException, ParseException {
     	StringBuffer xmldata = new StringBuffer(swriter.toString());
     	kobj.setMetaxml(xmldata);
-       	//Log.console("JHOVE xml:");
-    	//Log.console(xmldata.toString());
-		//try {
-			Document jdoc = DocumentHelper.parseText(xmldata.toString());
-		    Element root = jdoc.getRootElement();
-		    removeNS(root);
-		    String statusstr = jdoc.valueOf("/jhove/repInfo/status"); 
-		    //kobj.setStatus(statusstr);
-		    if (/*statusstr.indexOf("not valid") != -1 || */statusstr.indexOf("Not well-formed") != -1) {
-		    	kobj.setValid(false);
-		    }
-		    else {
-		    	kobj.setValid(true);
-		    }
-		    kobj.setCheckSum_CRC32(jdoc.valueOf("/jhove/repInfo/checksums/checksum[@type='CRC32']"));
-		    kobj.setChecksum_MD5(jdoc.valueOf("/jhove/repInfo/checksums/checksum[@type='MD5']"));
-		    kobj.setChecksum_SHA(jdoc.valueOf("/jhove/repInfo/checksums/checksum[@type='SHA-1']"));
-		    kobj.setMIMEtype(jdoc.valueOf("/jhove/repInfo/mimeType"));
-		    kobj.setSize(Long.parseLong(jdoc.valueOf("/jhove/repInfo/size")));
-		    //try {
-		    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-		    	kobj.setDateModified(sdf.parse(jdoc.valueOf("/jhove/repInfo/lastModified")));
-		   
-		    String format = jdoc.valueOf("/jhove/repInfo/format"); 
-		    kobj.setFormat(format);
-		    if (format.equalsIgnoreCase("MP3")) {
-		    	String layer = jdoc.valueOf("/jhove/repInfo/properties/property/values/property[name='LayerDescription']/values/value");
-		    	String version = jdoc.valueOf("/jhove/repInfo/properties/property/values/property[name='MPEG Audio Version ID']/values/value");
-		    	kobj.setVersion(version + ", Layer " + layer);
-		    }
-		    else {
-		    	kobj.setVersion(jdoc.valueOf("/jhove/repInfo/version"));
-		    }
-		    kobj.setReportingModule(jdoc.valueOf("/jhove/repInfo/reportingModule"));
-		    String status = kobj.getStatus();
-		    if((status == null || status.length() == 0) || !"BYTESTREAM".equalsIgnoreCase(format))
-		    	kobj.setStatus(statusstr);
-		    
-		    String imageWidth = jdoc.valueOf("//imageWidth");
-		    String imageLength = jdoc.valueOf("//imageHeight");
-		    if(imageWidth != null && imageLength != null && imageWidth.length() > 0)
-		    	kobj.setQuality(imageWidth + "x" + imageLength);
+		Document jdoc = DocumentHelper.parseText(xmldata.toString());
+	    Element root = jdoc.getRootElement();
+	    removeNS(root);
+	    String statusstr = jdoc.valueOf("/jhove/repInfo/status"); 
+	    //kobj.setStatus(statusstr);
+	    if (/*statusstr.indexOf("not valid") != -1 || */statusstr.indexOf("Not well-formed") != -1) {
+	    	kobj.setValid(false);
+	    }
+	    else {
+	    	kobj.setValid(true);
+	    }
+	    kobj.setCheckSum_CRC32(jdoc.valueOf("/jhove/repInfo/checksums/checksum[@type='CRC32']"));
+	    kobj.setChecksum_MD5(jdoc.valueOf("/jhove/repInfo/checksums/checksum[@type='MD5']"));
+	    kobj.setChecksum_SHA(jdoc.valueOf("/jhove/repInfo/checksums/checksum[@type='SHA-1']"));
+	    kobj.setMIMEtype(jdoc.valueOf("/jhove/repInfo/mimeType"));
+	    kobj.setSize(Long.parseLong(jdoc.valueOf("/jhove/repInfo/size")));
+	    //try {
+	    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	    	kobj.setDateModified(sdf.parse(jdoc.valueOf("/jhove/repInfo/lastModified")));
+	   
+	    String format = jdoc.valueOf("/jhove/repInfo/format"); 
+	    kobj.setFormat(format);
+	    if (format.equalsIgnoreCase("MP3")) {
+	    	String layer = jdoc.valueOf("/jhove/repInfo/properties/property/values/property[name='LayerDescription']/values/value");
+	    	String version = jdoc.valueOf("/jhove/repInfo/properties/property/values/property[name='MPEG Audio Version ID']/values/value");
+	    	kobj.setVersion(version + ", Layer " + layer);
+	    }
+	    else {
+	    	kobj.setVersion(jdoc.valueOf("/jhove/repInfo/version"));
+	    }
+	    kobj.setReportingModule(jdoc.valueOf("/jhove/repInfo/reportingModule"));
+	    String status = kobj.getStatus();
+	    if((status == null || status.length() == 0) || !"BYTESTREAM".equalsIgnoreCase(format))
+	    	kobj.setStatus(statusstr);
+	    
+		// image resolution
+	    String imageWidth = jdoc.valueOf("//imageWidth");
+	    String imageLength = jdoc.valueOf("//imageHeight");
+	    if(imageWidth != null && imageLength != null && imageWidth.length() > 0)
+		{
+	    	kobj.setQuality(imageWidth + "x" + imageLength);
+		}
 
-			List resultnodes = jdoc.selectNodes("/jhove/repInfo/messages/message[@severity='error']");
-			for (int r = 0; resultnodes != null && r < resultnodes.size(); r++) {
-				Object noderesult = resultnodes.get(r);
-				if (noderesult instanceof Node) {
-					Node nt = (Node)noderesult;
-					kobj.setMessage(nt.getStringValue());
-				}
-			}				
+		// WAV bit/sample/channels
+		String abits1 = jdoc.valueOf( "//bitDepth" );
+		String afreq1 = jdoc.valueOf( "//sampleRate" );
+		String achan1 = jdoc.valueOf( "//numChannels" );
+		if ( nblank(abits1) || nblank(afreq1) || nblank(achan1) )
+		{
+			String qual = audioQuality(abits1, afreq1, "Hz", achan1 );
+			kobj.setQuality( qual );
+		}
+
+		// MP3 bit/sample/channels
+		String abits2 = valueOf( jdoc, "Bitrate Index" );
+		String afreq2 = valueOf( jdoc, "Sampling rate frequency Index" );
+      		String achan2 = valueOf( jdoc, "Channel Mode" );
+		if (nblank(abits2) || nblank(afreq2) || nblank(achan2))
+		{
+			String qual = audioQuality(abits2, afreq2, "kHz", achan2 );
+			kobj.setQuality( qual );
+		}
+
+		List resultnodes = jdoc.selectNodes("/jhove/repInfo/messages/message[@severity='error']");
+		for (int r = 0; resultnodes != null && r < resultnodes.size(); r++)
+		{
+			Object noderesult = resultnodes.get(r);
+			if (noderesult instanceof Node) {
+				Node nt = (Node)noderesult;
+				kobj.setMessage(nt.getStringValue());
+			}
+		}				
     }
+	private static String valueOf( Document doc, String property )
+	{
+		return doc.valueOf("//property[name='" + property + "']/values/value");
+	}
+	private static boolean nblank( String s )
+	{
+		return s != null && !s.trim().equals("");
+	}
+	private static String audioQuality( String bits, String freq, String units,
+		String chan )
+	{
+		String qual = "";
+		if ( bits != null ) { qual += bits + "-bit"; }
+		if ( freq != null )
+		{
+			if ( !qual.equals("") ) { qual += ", "; }
+			qual += freq + " " + units;
+		}
+		if ( chan != null )
+		{
+			if ( !qual.equals("") ) { qual += ", "; }
+			if ( chan.equals("1") )
+			{
+				qual += "Single channel (Mono)";
+			}
+			else if ( chan.equals("2") )
+			{
+				qual += "Dual channel (Stereo)";
+			}
+			else if ( chan.indexOf("channel") == -1 )
+			{
+				qual += chan + " channel";
+			}
+			else
+			{
+				qual += chan;
+			}
+		}
 
+		return qual;
+	}
 	
 	private static synchronized void initModuleMap() throws Exception {
 		if(_moduleMap == null){
@@ -319,9 +386,11 @@ public class MyJhoveBase extends JhoveBase {
 				parseXml(dataObj, swriter);
 			}
 		}
-		catch (Exception e) {
-			System.out.println("Jhove analysis error: " + e.toString());
-			if(srcFileName.endsWith(".pdf") || srcFileName.endsWith(".PDF")){
+		catch (Exception e)
+		{
+			log.warn("Jhove analysis error", e);
+			if(srcFileName.endsWith(".pdf") || srcFileName.endsWith(".PDF"))
+			{
 				//Accept PDF file.
 				swriter.close();
 				kwriter.close();
@@ -345,10 +414,41 @@ public class MyJhoveBase extends JhoveBase {
 		if (!dataObj.getValid())
 			throw new Exception("Unable to extract file: " + srcFileName);
 
-		String fileExt = srcFileName.substring(srcFileName.lastIndexOf('.'));
-		if(MEDIA_FILES.indexOf(fileExt.toLowerCase()) >= 0){
-			String duration = FfmpegUtil.getDuration(srcFileName, ffmpegCommand);
-			dataObj.setDuration(duration);
+		if(indx > 0){
+			String fileExt = srcFileName.substring(indx);
+			if(MEDIA_FILES.indexOf(fileExt.toLowerCase()) >= 0)
+			{
+				Map<String,String> ffmpegInfo = FfmpegUtil.executeInquiry(
+					srcFileName, ffmpegCommand
+				);
+				dataObj.setDuration( ffmpegInfo.get("duration") );
+
+				String audioFormat = ffmpegInfo.get("audio");
+				String videoFormat = ffmpegInfo.get("video");
+				if ( dataObj.getQuality() == null
+					|| dataObj.getQuality().equals("") )
+				{
+					if ( audioFormat != null && videoFormat != null )
+					{
+						dataObj.setQuality(
+							"video: " + videoFormat + "; audio: " + audioFormat
+						);
+					}
+					else if ( audioFormat != null )
+					{
+						dataObj.setQuality( audioFormat );
+					}
+					else if ( videoFormat != null
+						&& videoFormat.startsWith("png, ") )
+					{
+						dataObj.setQuality( videoFormat.substring(5) );
+					}
+					else if ( videoFormat != null )
+					{
+						dataObj.setQuality( videoFormat );
+					}
+				}
+			}
 		}
 		return dataObj;
 	}

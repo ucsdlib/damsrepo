@@ -91,7 +91,8 @@ public class ArkTranslator
 	public Identifier toARK( Identifier uri, boolean strict )
 		throws TripleStoreException
 	{
-		if ( uri.isBlankNode() ) { return uri; }
+		if ( uri == null ) { return null; }
+		else if ( uri.isBlankNode() ) { return uri; }
 		else { return Identifier.publicURI( toARK(uri.getId(), strict) ); }
 	}
 	public String toARK( String uri, boolean strict )

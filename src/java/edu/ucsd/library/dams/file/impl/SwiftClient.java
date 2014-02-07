@@ -23,7 +23,20 @@ import java.util.Properties;
 import javax.activation.FileDataSource;
 import javax.security.auth.login.LoginException;
 
+// ssl
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 // http client 4.x
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -31,6 +44,10 @@ import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
@@ -59,7 +76,10 @@ public class SwiftClient
 	private NumberFormat nf   = null; // format segment names
 
 	// segmented input stream params
-	private static long SEGMENT_SIZE = 1073741824L; // 1 GB
+	private static long DEFAULT_SEGMENT_SIZE = 1073741824L; // 1 GB
+	private static int DEFAULT_SEGMENT_NAME_LENGTH = 4;
+	private int segmentNameLength;
+	private long segmentSize;
 	private String manifestContainer = null;
 	private String manifestObject = null;
 	private int manifestCount = 0;
@@ -76,20 +96,48 @@ public class SwiftClient
 	{
 		this.props = props;
 		this.out = out;
-		// disable retries and timeouts
+
+
+		// accept all SSL certs
+        ClientConnectionManager ccm = new PoolingClientConnectionManager();
+		try
+		{
+        	X509TrustManager tm = new X509TrustManager() {
+            	public void checkClientTrusted(X509Certificate[] xcs, String string) throws CertificateException { }
+            	public void checkServerTrusted(X509Certificate[] xcs, String string) throws CertificateException { }
+            	public X509Certificate[] getAcceptedIssuers() { return null; }
+        	};
+
+			SSLContext ctx = SSLContext.getInstance("TLS");
+        	ctx.init(null, new TrustManager[]{tm}, null);
+
+        	SSLSocketFactory ssf = new SSLSocketFactory(ctx,SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        	SchemeRegistry sr = ccm.getSchemeRegistry();
+        	sr.register(new Scheme("https", 443, ssf));
+
+			//ctx.init(new KeyManager[0], new TrustManager[] {tm}, new SecureRandom());
+			SSLContext.setDefault(ctx);
+		}
+		catch ( Exception ex )
+		{
+			ex.printStackTrace();
+		}
+
+		// disable timeouts
 		BasicHttpParams params = new BasicHttpParams();
 		params.setParameter( "http.socket.timeout",     new Integer(0) );
 		params.setParameter( "http.connection.timeout", new Integer(0) );
+      
+		client = new DefaultHttpClient( ccm, params );
+
+		// disable retries
 		DefaultHttpRequestRetryHandler x = new DefaultHttpRequestRetryHandler(
 			0, false
-		);
-		client = new DefaultHttpClient(
-			new PoolingClientConnectionManager(), params
 		);
 		client.setHttpRequestRetryHandler( x );
 
 		String user = props.getProperty("username");
-		String pass = props.getProperty("plaintextPassword");
+		String pass = props.getProperty("password");
 		String authURL = props.getProperty("authURL");
 
 		HttpGet get = new HttpGet( authURL );
@@ -119,15 +167,40 @@ public class SwiftClient
 			get.reset();
 		}
 
-		// init
-		nf = NumberFormat.getIntegerInstance();
-		nf.setMinimumIntegerDigits(4);
-		nf.setGroupingUsed(false);
+		init(props);
 
-		//message("auth: OK");
-		//message("  Auth Token.: " + authToken );
-		//message("  Storage URL: " + storageURL);
 	}
+	private void init( Properties props )
+	{
+
+		// segment size
+		try
+		{
+			segmentNameLength = Integer.parseInt(
+				props.getProperty("segmentNameLength")
+			);
+			segmentSize       = Long.parseLong(
+				props.getProperty("segmentSize")
+			);
+		}
+		catch ( Exception ex )
+		{
+			segmentNameLength = DEFAULT_SEGMENT_NAME_LENGTH;
+			segmentSize = DEFAULT_SEGMENT_SIZE;
+		}
+
+		// segment name formatting
+		nf = NumberFormat.getIntegerInstance();
+		nf.setMinimumIntegerDigits(segmentNameLength);
+		nf.setGroupingUsed(false);
+	}
+
+	/**
+	 * Return the current segment-size.  Uploads longer than this should be
+	 * broken up into segments, and then joined into a virtual file using a
+	 * manifest.
+	**/
+	public long segmentSize() { return segmentSize; }
 
 	/**
 	 * Create a SwiftClient object using the provided authentication token and
@@ -141,11 +214,7 @@ public class SwiftClient
 		this.authToken = authToken;
 		this.storageURL = storageURL;
 		this.out = out;
-
-		// init
-		nf = NumberFormat.getIntegerInstance();
-		nf.setMinimumIntegerDigits(4);
-		nf.setGroupingUsed(false);
+		init( null );
 	}
 
 	/**
@@ -308,7 +377,7 @@ public class SwiftClient
 		BufferedOutputStream out = new BufferedOutputStream(
 			new FileOutputStream(fn)
 		);
-		int bytesRead = -1;
+		long bytesRead = -1L;
 		try
 		{
 			bytesRead = FileStoreUtil.copy( in, out );
@@ -367,13 +436,13 @@ public class SwiftClient
 		try
 		{
 			SegmentedInputStream sis = new SegmentedInputStream(
-				in, SEGMENT_SIZE
+				in, segmentSize
 			);
 			String contentType = new FileDataSource(object).getContentType();
 			Map<String,String> metadata = new HashMap<String,String>();
 			for ( int i = 0; sis != null; i++ )
 			{
-				long thisLen = Math.min( SEGMENT_SIZE, len - (i*SEGMENT_SIZE) );
+				long thisLen = Math.min( segmentSize, len - (i*segmentSize) );
 				String segName = object + "/" + nf.format(i);
 				if ( exists(container, segName) )
 				{
@@ -394,9 +463,9 @@ public class SwiftClient
 				}
 
 				// check whether we've reached the end of the stream
-				if ( ! sis.exhausted() || (i+1)*SEGMENT_SIZE == len )
+				if ( ! sis.exhausted() || (i+1)*segmentSize == len )
 				{
-					sis.close(); sis = null;
+					sis.close(true); sis = null;
 				}
 				else
 				{
@@ -434,18 +503,27 @@ public class SwiftClient
 		int status = -1;
 		try
 		{
-			HttpUtil http = new HttpUtil( client, put );
-			status = http.exec();
+			//HttpUtil http = new HttpUtil( client, put );
+			//status = http.exec();
+			HttpClient client = new DefaultHttpClient();
+			HttpResponse response = client.execute(put);
+			status = response.getStatusLine().getStatusCode();
 			if ( status == 201 )
 			{
 				message( "uploaded " + container + "/" + object );
 			}
+			else if ( status == 401 || status == 403 )
+			{
+				throw new FileStoreAuthException(
+					new LoginException("HTTP Status: " + status)
+				);
+			}
 			else
 			{
-				http.debug(out);
+				//http.debug(out);
+				out.println("Error uploading file");
 			}
 		}
-		catch ( LoginException ex ) { throw new FileStoreAuthException(ex); }
 		finally
 		{
 			put.reset();
@@ -467,7 +545,7 @@ public class SwiftClient
 		manifestAfterSegments( dstContainer, dstObject );
 
 		int status = -1;
-		if ( len > SEGMENT_SIZE )
+		if ( len > segmentSize )
 		{
 			// don't copy, just need to create manifest, but after segments
 			manifestObject = dstObject;
@@ -481,7 +559,7 @@ public class SwiftClient
 			HttpPut put = new HttpPut( url );
 			put.addHeader( "X-Auth-Token", authToken );
 			put.addHeader( "X-Copy-From", "/" + srcContainer + "/" + srcObject);
-			put.addHeader( "Content-Length" , "0" );
+			//put.addHeader( "Content-Length" , "0" );
 			try
 			{
 				HttpUtil http = new HttpUtil( client, put );
@@ -645,6 +723,26 @@ public class SwiftClient
 		{
 			del.reset();
 		}
+		return status;
+	}
+
+	/**
+	 * Recursively delete a container.
+	**/
+	public int deleteContainerRecursive( String container )
+		throws FileStoreException, IOException
+	{
+		List<String> files = listObjects( null, container, null );
+		int status = -1;
+		for ( int i = 0; i < files.size(); i++ )
+		{
+			status = delete( container, files.get(i) );
+			if ( status != 204 )
+			{
+				return status;
+			}
+		}
+		status = deleteContainer( container );
 		return status;
 	}
 
@@ -827,6 +925,11 @@ public class SwiftClient
 			String container = args[2];
 			swift.output( swift.deleteContainer(container) );
 		}
+		else if ( op.equals("deleteContainerRecursive") )
+		{
+			String container = args[2];
+			swift.output( swift.deleteContainerRecursive(container) );
+		}
 		else if ( op.equals("listObjects") )
 		{
 			String user = null;
@@ -944,7 +1047,7 @@ public class SwiftClient
 					in = new FileInputStream(args[3]);
 					len = new File(args[3]).length();
 				}
-				if ( len > SEGMENT_SIZE )
+				if ( len > swift.segmentSize() )
 				{
 					swift.output( swift.uploadSegmented(container,object,in,len) );
 				}

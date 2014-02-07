@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:dams="http://library.ucsd.edu/ontology/dams#"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:mads="http://www.loc.gov/mads/rdf/v1#">
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd16050239">
+    <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bb03030303"/>
+    <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb02020202"/>
+    <dams:rightsHolder rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX1"/>
+    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
+    <dams:typeOfResource>text</dams:typeOfResource>
+    <dams:title>
+      <mads:Title>
+        <mads:authoritativeLabel>Chicano and black radical activism of the 1960s: embargoed dissertation sample record</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:MainTitleElement>
+            <mads:elementValue>Chicano and black radical activism of the 1960s</mads:elementValue>
+          </mads:MainTitleElement>
+          <mads:SubTitleElement>
+            <mads:elementValue>embargoed dissertation sample record</mads:elementValue>
+          </mads:SubTitleElement>
+        </mads:elementList>
+      </mads:Title>
+    </dams:title>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:name rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX1"/>
+        <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bd55639754"/>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:date>
+      <dams:Date>
+        <rdf:value>2010</rdf:value>
+        <dams:encoding>ISO8601</dams:encoding>
+        <dams:type>creation</dams:type>
+        <dams:endDate>2010</dams:endDate>
+        <dams:beginDate>2010</dams:beginDate>
+      </dams:Date>
+    </dams:date>
+    <dams:license>
+      <dams:License>
+        <dams:licenseNote>embargo</dams:licenseNote>
+        <dams:permission>
+          <dams:Permission>
+            <dams:type>display</dams:type>
+          </dams:Permission>
+        </dams:permission>
+        <dams:restriction>
+          <dams:Restriction>
+            <dams:type>display</dams:type>
+            <dams:endDate>2013-03-34</dams:endDate>
+          </dams:Restriction>
+        </dams:restriction>
+      </dams:License> 
+    </dams:license>
+  </dams:Object>
+</rdf:RDF>

@@ -13,14 +13,17 @@
     <!-- XXX find latest date if there are multiple modification events -->
     <xsl:variable name="timestamp">
       <xsl:choose>
-        <xsl:when test="//dams:Event[contains(dams:type,'modification')]">
-          <xsl:value-of select="//dams:Event[contains(dams:type,'modification')]/dams:endDate"/>
+        <xsl:when test="//dams:DAMSEvent[contains(dams:type,'modification')]">
+          <xsl:value-of select="//dams:DAMSEvent[contains(dams:type,'modification')]/dams:eventDate"/>
         </xsl:when>
-        <xsl:when test="//dams:Event[contains(dams:type,'creation')]">
-          <xsl:value-of select="//dams:Event[contains(dams:type,'creation')]/dams:endDate"/>
+        <xsl:when test="//dams:DAMSEvent[contains(dams:type,'creation')]">
+          <xsl:value-of select="//dams:DAMSEvent[contains(dams:type,'creation')]/dams:eventDate"/>
+        </xsl:when>
+        <xsl:when test="//dams:DAMSEvent/dams:eventDate">
+          <xsl:value-of select="//dams:DAMSEvent/dams:eventDate"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:text>ERROR</xsl:text>
+          <xsl:text>1999-12-31T23:59:59-0800</xsl:text>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>

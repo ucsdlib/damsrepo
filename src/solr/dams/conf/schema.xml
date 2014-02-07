@@ -10,8 +10,8 @@
    <field name="lang"                     type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
    <field name="type"                     type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
    <field name="collection"               type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
-   <field name="repository"               type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
-   <field name="repository_uri"           type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <field name="unit"                     type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <field name="unit_uri"                 type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
    <field name="title"                    type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
    <dynamicField name="title_*"           type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
    <field name="subject"                  type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 

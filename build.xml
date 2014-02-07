@@ -11,31 +11,54 @@
   <property name="root"      value="${src}/root"/>
   <property name="metainf"   value="${src}/metainf"/>
   <property name="props"     value="${src}/properties"/>
+  <property name="test"      value="${src}/test"/>
   <property name="webinf"    value="${src}/webinf"/>
   <property name="xsl"       value="${src}/xsl"/>
   <property name="tmp"       value="${basedir}/tmp"/>
   <property name="webapp"    value="${tmp}/webapp"/>
+  <property name="testexec"  value="${tmp}/test"/>
+  <property name="swiftclient" value="${tmp}/swiftclient"/>
   <property name="dist"      value="${basedir}/dist"/>
 
   <tstamp>
-    <format property="build_date" pattern="yyyy-MM-dd"/>
-    <format property="build_time" pattern="HH:mm:ss"/>
+    <format property="build.timestamp" pattern="yyyy-MM-dd'T'HH:mm:ssZ"/>
   </tstamp>
 
   <!-- version numbering -->
   <target name="version">
-    <propertyfile file="version.properties" comment="${comment}">
-      <entry key="major.version" default="0"/>
-      <entry key="minor.version" default="0"/>
-      <entry key="build.number" type="int" operation="+" value="1"
-          pattern="#####"/>
-      <entry key="user.version" default=""/>
-    </propertyfile>
-    <property file="version.properties"/>
-    <property name="version_string"
-          value="${major.version}.${minor.version}.${build.number}"/>
-    <echo level="info" message="app version: ${version_string}"/>
-    <echo level="info" message="user version: ${user.version}"/>
+    <!-- app version from properties files -->
+    <property file="${props}/version.properties"/>
+    <property name="app.version"
+          value="${major.version}.${minor.version}"/>
+
+    <!-- src version from 'git describe' -->
+    <exec executable="git" outputproperty="src.version"
+        failifexecutionfails="false" errorproperty="">
+      <arg value="describe"/>
+      <arg value="--all"/>
+      <arg value="--always"/>
+      <arg value="--long"/>
+      <arg value="--abbrev=40"/>
+      <arg value="HEAD"/>
+    </exec>
+    <condition property="src.version" value="${src.version}" else="unknown">
+      <and>
+        <isset property="git.revision"/>
+        <length string="${git.revision}" trim="yes" length="0" when="greater"/>
+      </and>
+    </condition>
+
+    <!-- filters -->
+    <filterset id="version-filters">
+      <filter token="app_version"     value="${app.version}"/>
+      <filter token="src_version"     value="${src.version}"/>
+      <filter token="build_timestamp" value="${build.timestamp}"/>
+    </filterset>
+
+    <echo level="info" message="app ver..: ${app.version}"/>
+    <echo level="info" message="src ver..: ${src.version}"/>
+    <echo level="info" message="timestamp: ${build.timestamp}"/>
+
   </target>
 
   <path id="classpath">
@@ -73,10 +96,11 @@
       depends="prepare,version">
     <!-- compile -->
     <javac destdir="${webapp}/WEB-INF/classes" srcdir="${java}"
-        deprecation="on" debug="true" debuglevel="lines,source" target="1.5"
-        includeantruntime="false" source="1.5">
+        deprecation="on" debug="true" debuglevel="lines,source" target="1.6"
+        includeantruntime="false" source="1.6">
       <classpath refid="classpath"/>
       <!-- <compilerarg line="-Xlint:unchecked"/> -->
+      <!-- <compilerarg line="-Xlint:all"/> -->
     </javac>
 
     <!-- setup command-line scripts -->
@@ -84,6 +108,29 @@
       <fileset dir="${sh}"/>
     </copy>
     <chmod dir="${tmp}/commands" perm="ugo+rx" includes="**/*.sh"/>
+
+    <!-- jars -->
+    <copy todir="${tmp}/lib">
+      <fileset dir="${lib}"/>
+      <fileset dir="${lib2}"/>
+    </copy>
+
+    <!-- compiled classes -->
+    <copy todir="${tmp}/classes">
+      <fileset dir="${webapp}/WEB-INF/classes"/>
+    </copy>
+
+    <!-- sample files -->
+    <copy todir="${tmp}/sample">
+      <fileset dir="${src}/sample"/>
+    </copy>
+
+  </target>
+
+  <target name="jar" depends="compile">
+    <!-- jar up classes -->
+    <jar destfile="${dist}/dams-${app.version}.jar"
+         basedir="${webapp}/WEB-INF/classes"/>
   </target>
 
   <!-- build webapp -->
@@ -104,6 +151,7 @@
     </copy>
     <copy todir="${webapp}/WEB-INF/">
       <fileset dir="${webinf}" excludes="context.xml"/>
+      <filterset refid="version-filters"/>
     </copy>
     <copy todir="${webapp}/META-INF/">
       <fileset dir="${webinf}" includes="context.xml"/>
@@ -128,8 +176,154 @@
   </target>
 
   <!-- deploy webapp -->
-  <target name="local-deploy" description="Deploy webapp to local dir (farm)">
+  <target name="local-deploy" description="Deploy webapp to local dir"
+      depends="xsl">
     <echo level="info" message="war = 'file://${dist}/${appName}.war'"/>
     <copy file="${dist}/${appName}.war" todir="${deploy.home}"/>
+  </target>
+
+  <!-- remote deployment -->
+  <taskdef name="undeploy" classname="org.apache.catalina.ant.UndeployTask"
+      classpathref="classpath"/>
+  <taskdef name="deploy" classname="org.apache.catalina.ant.DeployTask"
+      classpathref="classpath"/>
+  <target name="remote-redeploy"
+      description="Undeploy and then redeploy webapp to remote tomcat">
+    <antcall target="remote-undeploy"/>
+    <waitfor maxwait="1000" maxwaitunit="millisecond">
+      <equals arg1="1" arg2="2"/>
+    </waitfor>
+    <antcall target="remote-deploy"/>
+  </target>
+  <target name="remote-deploy" description="Deploy webapp to remote tomcat">
+    <echo level="info" message="war = 'file://${dist}/${appName}.war'"/>
+    <deploy url="http://${manager.host}:8080/manager/text" path="/${appName}"
+        username="${manager.user}" password="${manager.pass}"
+        war="file://${dist}/${appName}.war"/>
+  </target>
+  <target name="remote-undeploy" description="Remove webapp from remote tomcat">
+    <undeploy url="http://${manager.host}:8080/manager/text" path="/${appName}"
+          username="${manager.user}" password="${manager.pass}" failonerror="false"/>
+  </target>
+
+  <!-- tomcat -->
+  <target name="tomcat" description="Update scripts and files in tomcat"
+      depends="compile,tomcat-files">
+
+    <!-- move old war file out of the way -->
+    <move file="${dist}/${appName}.war" tofile="${dist}/${appName}.bak"
+      failonerror="false"/>
+
+    <!-- copy files -->
+    <copy todir="${webapp}">
+      <fileset dir="${root}" includes="**/*"/>
+    </copy>
+    <copy todir="${webapp}/WEB-INF/lib">
+      <fileset refid="lib"/>
+    </copy>
+    <copy todir="${webapp}/WEB-INF/classes">
+      <fileset dir="${props}" includes="**/*.properties, jhove.conf"/>
+    </copy>
+    <copy file="${webinf}/web.xml" tofile="${webapp}/WEB-INF/web.xml">
+      <filterset refid="version-filters"/>
+    </copy>
+    <copy todir="${webapp}/META-INF/">
+      <fileset dir="${webinf}" includes="context.xml"/>
+    </copy>
+
+    <!-- generate new war file -->
+    <war destfile="${dist}/${appName}.war"
+        webxml="${webapp}/WEB-INF/web.xml">
+      <fileset dir="${webapp}">
+        <exclude name="WEB-INF/**"/>
+        <exclude name="META-INF/**"/>
+      </fileset>
+      <webinf dir="${webapp}/WEB-INF" excludes="web.xml"/>
+      <metainf dir="${webapp}/META-INF"/>
+    </war>
+
+    <!-- copy webapp -->
+    <copy file="${dist}/${appName}.war" todir="${tomcat.home}/tomcat/webapps"/>
+
+    <!-- copy database driver -->
+    <copy file="${lib2}/hsqldb.jar" tofile="${tomcat.home}/tomcat/lib/hsqldb.jar"/>
+  </target>
+  <target name="tomcat-files" description="Update tomcat scripts, sample files">
+    <!-- command-line scripts -->
+    <copy todir="${tomcat.home}/dams/bin">
+      <fileset dir="${sh}"/>
+    </copy>
+    <chmod dir="${tomcat.home}/dams/bin" perm="ugo+rx" includes="**/*.sh"/>
+
+    <!-- jars -->
+    <copy todir="${tomcat.home}/dams/lib">
+      <fileset dir="${lib}"/>
+      <fileset dir="${lib2}"/>
+    </copy>
+
+    <!-- xsl stylesheets -->
+    <copy todir="${tomcat.home}/dams/xsl">
+      <fileset dir="${xsl}"/>
+    </copy>
+
+    <!-- compiled classes -->
+    <copy todir="${tomcat.home}/dams/classes">
+      <fileset dir="${webapp}/WEB-INF/classes"/>
+    </copy>
+
+    <!-- sample files -->
+    <copy todir="${tomcat.home}/dams/sample">
+      <fileset dir="${src}/sample"/>
+    </copy>
+  </target>
+
+  <!-- test-compile -->
+  <target name="test-compile" description="Compile test Java classes.">
+    <mkdir dir="${testexec}"/>
+    <javac destdir="${testexec}" srcdir="${test}"
+        deprecation="on" debug="true" debuglevel="lines,source" target="1.6"
+        includeantruntime="false" source="1.6">
+      <classpath refid="classpath"/>
+    </javac>
+  </target>
+  <target name="test-exec" description="Run test Java classes.">
+    <junit>
+      <classpath refid="classpath"/>
+      <classpath>
+        <pathelement path="${testexec}"/>
+      </classpath>
+      <test name="edu.ucsd.library.dams.integration.D4IntegrationTest"
+          outfile="tmp/result">
+        <formatter type="plain"/>
+      </test>
+    </junit>
+  </target>
+
+  <!-- package swiftclient and deps -->
+  <target name="swiftclient" description="Package SwiftClient" depends="jar">
+    <!-- create directories -->
+    <mkdir dir="${swiftclient}"/>
+    <mkdir dir="${swiftclient}/lib"/>
+
+    <!-- copy files -->
+    <copy file="${sh}/swiftclient.sh" todir="${swiftclient}"/>
+    <copy file="${props}/swiftclient.properties.sample" tofile="${swiftclient}/swiftclient.properties"/>
+    <copy file="${dist}/dams-${app.version}.jar" todir="${swiftclient}/lib"/>
+    <copy file="${lib}/commons-logging-1.1.1.jar" todir="${swiftclient}/lib"/>
+    <copy file="${lib}/httpclient-4.2.1.jar" todir="${swiftclient}/lib"/>
+    <copy file="${lib}/httpcore-4.2.1.jar" todir="${swiftclient}/lib"/>
+    <copy file="${lib}/httpmime-4.2.1.jar" todir="${swiftclient}/lib"/>
+    <copy file="${lib}/log4j-1.2.16.jar" todir="${swiftclient}/lib"/>
+
+    <!-- make scripts executable -->
+    <chmod dir="${swiftclient}" perm="ugo+rx" includes="*.sh"/>
+
+    <!-- create tarball -->
+    <tar destfile="${dist}/swiftclient.tar.gz" compression="gzip"
+         basedir="${tmp}" includes="swiftclient/**" excludes="**/*.sh">
+      <tarfileset dir="${tmp}" filemode="755">
+        <include name="swiftclient/swiftclient.sh"/>
+      </tarfileset>
+    </tar>
   </target>
 </project>

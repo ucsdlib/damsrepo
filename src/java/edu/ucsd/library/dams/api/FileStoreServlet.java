@@ -86,7 +86,15 @@ public class FileStoreServlet extends HttpServlet
 		try
 		{
             InitialContext ctx = new InitialContext();
-            String damsHome = (String)ctx.lookup("java:comp/env/dams/home");
+            String damsHome = null;
+			try
+			{
+				damsHome = (String)ctx.lookup("java:comp/env/dams/home");
+			}
+			catch ( Exception ex )
+			{
+				damsHome = "dams";
+			}
             File f = new File( damsHome, "dams.properties" );
             props = new Properties();
             props.load( new FileInputStream(f) );
@@ -96,7 +104,7 @@ public class FileStoreServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			ex.printStackTrace();
+			log.warn("Unable to lookup default filestore", ex );
 			throw new ServletException("Unable to lookup default filestore");
 		}
 		/* end ucsd changes */
@@ -421,7 +429,7 @@ public class FileStoreServlet extends HttpServlet
 			}
 			catch ( Exception ex )
 			{
-				log.info("Error reading " + fullFilename );
+				log.info("Error reading " + fullFilename, ex );
 			}
 			finally
 			{
