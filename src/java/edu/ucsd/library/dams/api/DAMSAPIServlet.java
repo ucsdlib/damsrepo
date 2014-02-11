@@ -118,6 +118,9 @@ import edu.ucsd.library.dams.triple.edit.Edit;
 import edu.ucsd.library.dams.util.HttpUtil;
 import edu.ucsd.library.dams.util.LDAPUtil;
 import edu.ucsd.library.dams.util.PDFParser;
+import edu.ucsd.library.dams.util.OutputStreamer;
+import edu.ucsd.library.dams.util.JSONOutputStreamer;
+import edu.ucsd.library.dams.util.XMLOutputStreamer;
 
 /**
  * Servlet implementing the DAMS REST API.
@@ -617,6 +620,21 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				ts = triplestore(req);
 				info = recordsList( ts, path[2] );
+			}
+			// GET /records
+			else if ( path.length == 2 && path[1].equals("recordStream") )
+			{
+				ts = triplestore(req);
+				recordStream( ts, req.getParameterMap(), null, req.getPathInfo(), res );
+				outputRequired = false; // suppress map output
+			}
+			// GET /records/[type]
+			else if ( path.length == 3 && path[1].equals("recordStream")
+				&& !path[2].equals("") )
+			{
+				ts = triplestore(req);
+				recordStream( ts, req.getParameterMap(), path[2], req.getPathInfo(), res );
+				outputRequired = false; // suppress map output
 			}
 			// GET /objects
 			else if ( path.length == 2 && path[1].equals("objects") )
@@ -1828,6 +1846,94 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			return error( "Error listing objects: " + ex.toString() );
+		}
+	}
+	private void recordStream( TripleStore ts, Map<String,String[]> params,
+		String type, String pathInfo, HttpServletResponse res )
+	{
+		try
+		{
+			// build sparql query
+			String sparql = "select ?obj ?type where { ?obj <" + rdfNS + "type> ?t . ?t <" + rdfNS + "label> ?type";
+			if ( type != null )
+			{
+				sparql += " . FILTER(?type = '\"" + type + "\"')";
+			}
+			sparql += "}";
+
+			// select format
+			OutputStreamer stream = null;
+			String format = getParamString(params,"format",formatDefault);
+			if ( format.equals("xml") )
+			{
+				stream = new XMLOutputStreamer( res );
+			}
+			else if ( format.equals("json") )
+			{
+				stream = new JSONOutputStreamer( res );
+			}
+			else
+			{
+				Map err = error(
+					HttpServletResponse.SC_BAD_REQUEST,
+					"Unsupported format: " + format
+				);
+				output( err, params, pathInfo, res );
+				return;
+			}
+
+			// iterate over records
+			stream.start("records");
+			BindingIterator objs = ts.sparqlSelect(sparql);
+			int records = 0;
+			while ( objs.hasNext() )
+			{
+				// build map of key/value pairs
+				Map<String,String> binding = objs.nextBinding();
+				Iterator<String> it = binding.keySet().iterator();
+				while ( it.hasNext() )
+				{
+					String k = it.next();
+					String v = binding.get(k);
+
+					// remove redundant quotes in map
+					if ( v.startsWith("\"") && v.endsWith("\"") )
+					{
+						v = v.substring(1,v.length()-1);
+						binding.put(k,v);
+					}
+				}
+
+			 	if ( binding.get("obj").startsWith("_") )
+				{
+					// suppress blank nodes
+				}
+				else if ( type == null &&
+					(  binding.get("type").equals("dams:File")
+					|| binding.get("type").equals("dams:Component")
+					|| binding.get("type").equals("dams:DAMSEvent")) )
+				{
+					// suppress child records unless specifically asked for
+				}
+				else
+				{
+					// otherwise, write the record out
+					stream.output( binding );
+					records++;
+				}
+			}
+
+			// add meta info
+			Map info = new HashMap();
+			info.put( "status", "OK" );
+			info.put( "statusCode", "200" );
+			info.put( "request", pathInfo );
+			info.put( "count", String.valueOf(records) );
+			stream.finish( info );
+		}
+		catch ( Exception ex )
+		{
+			ex.printStackTrace();
 		}
 	}
 	public Map objectsListAll( TripleStore ts )
