@@ -7,6 +7,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONObject;
 
+/**
+ * OutputStreamer implementation for JSON.
+ * @author escowles
+**/
 public class JSONOutputStreamer implements OutputStreamer
 {
 	PrintWriter out = null;

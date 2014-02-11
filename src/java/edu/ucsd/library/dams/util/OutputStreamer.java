@@ -4,6 +4,7 @@ import java.util.Map;
 
 /**
  * Interface for streaming output utilities.
+ * @author escowles
 **/
 public interface OutputStreamer
 {

@@ -10,6 +10,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
+/**
+ * OutputStreamer implementationf or XML.
+ * @author escowles
+**/
 public class XMLOutputStreamer implements OutputStreamer
 {
     private XMLStreamWriter stream;
