@@ -612,29 +612,20 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 2 && path[1].equals("records") )
 			{
 				ts = triplestore(req);
-				info = recordsList( ts, null );
+				recordsList(
+					ts, req.getParameterMap(), null, req.getPathInfo(), res
+				);
+				outputRequired = false; // streaming output
 			}
 			// GET /records/[type]
 			else if ( path.length == 3 && path[1].equals("records")
 				&& !path[2].equals("") )
 			{
 				ts = triplestore(req);
-				info = recordsList( ts, path[2] );
-			}
-			// GET /records
-			else if ( path.length == 2 && path[1].equals("recordStream") )
-			{
-				ts = triplestore(req);
-				recordStream( ts, req.getParameterMap(), null, req.getPathInfo(), res );
-				outputRequired = false; // suppress map output
-			}
-			// GET /records/[type]
-			else if ( path.length == 3 && path[1].equals("recordStream")
-				&& !path[2].equals("") )
-			{
-				ts = triplestore(req);
-				recordStream( ts, req.getParameterMap(), path[2], req.getPathInfo(), res );
-				outputRequired = false; // suppress map output
+				recordsList(
+					ts, req.getParameterMap(), path[2], req.getPathInfo(), res
+				);
+				outputRequired = false; // streaming output
 			}
 			// GET /objects
 			else if ( path.length == 2 && path[1].equals("objects") )
@@ -1802,53 +1793,7 @@ public class DAMSAPIServlet extends HttpServlet
 			return error( "Error listing events: " + ex.toString() );
 		}
 	}
-	private Map recordsList( TripleStore ts, String type )
-	{
-		try
-		{
-			// find all objects
-			String sparql = "select ?obj ?type where { ?obj <" + rdfNS + "type> ?t . ?t <" + rdfNS + "label> ?type";
-			if ( type != null )
-			{
-				sparql += " . FILTER(?type = '\"" + type + "\"')";
-			}
-			sparql += "}";
-			BindingIterator objs = ts.sparqlSelect(sparql);
-			List<Map<String,String>> objects = bindings(objs);
-
-			// remove unwanted values
-			for ( int i = 0; i < objects.size(); i++ )
-			{
-				Map<String,String> rec = objects.get(i);
-			 	if ( rec.get("obj").startsWith("_") )
-				{
-					// always remove blank nodes
-					objects.remove(i);
-					i--;
-				}
-				else if ( type == null &&
-					(  rec.get("type").equals("dams:File")
-					|| rec.get("type").equals("dams:Component")
-					|| rec.get("type").equals("dams:DAMSEvent")) )
-				{
-					// remove dependent types, unless specifically requested
-					objects.remove(i);
-					i--;
-				}
-			}
-
-			// return map
-			Map info = new HashMap();
-			info.put( "records", objects );
-			info.put( "count", objects.size() );
-			return info;
-		}
-		catch ( Exception ex )
-		{
-			return error( "Error listing objects: " + ex.toString() );
-		}
-	}
-	private void recordStream( TripleStore ts, Map<String,String[]> params,
+	private void recordsList( TripleStore ts, Map<String,String[]> params,
 		String type, String pathInfo, HttpServletResponse res )
 	{
 		try
