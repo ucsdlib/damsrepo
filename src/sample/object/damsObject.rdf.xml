@@ -128,6 +128,21 @@
         <dams:type>identifier</dams:type>
       </dams:Note>
     </dams:note>
+    <dams:note>
+      <dams:Note>
+        <rdf:value>XYZ 123-abc</rdf:value>
+        <dams:displayLabel>sample number</dams:displayLabel>
+        <dams:type>identifier</dams:type>
+      </dams:Note>
+    </dams:note>
+    <dams:note>
+      <dams:Note>
+        <rdf:value>This is a generic note.
+Now with a couple of line breaks.
+To see what displays.</rdf:value>
+        <dams:type>other</dams:type>
+      </dams:Note>
+    </dams:note>
     <dams:custodialResponsibilityNote>
       <dams:CustodialResponsibilityNote>
         <dams:displayLabel>Custodial Resonsibility</dams:displayLabel>
@@ -145,7 +160,8 @@
     <dams:scopeContentNote>
       <dams:ScopeContentNote>
         <dams:displayLabel>Custodial Resonsibility</dams:displayLabel>
-        <rdf:value>ScopeContentNote value</rdf:value>
+        <rdf:value>ScopeContentNote value
+Now with linebreaks.</rdf:value>
         <dams:type>scopeContentNote</dams:type>
       </dams:ScopeContentNote>
     </dams:scopeContentNote>

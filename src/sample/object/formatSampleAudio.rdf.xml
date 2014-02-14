@@ -36,10 +36,10 @@
     <dams:typeOfResource>audio</dams:typeOfResource>
     <dams:title>
       <mads:Title> 
-        <mads:authoritativeLabel>Sample Audio Object: I need another green form</mads:authoritativeLabel> 
+        <mads:authoritativeLabel>The Sample Audio Object: I need another green form</mads:authoritativeLabel> 
         <mads:elementList rdf:parseType="Collection"> 
           <mads:MainTitleElement> 
-            <mads:elementValue>Sample Audio Object</mads:elementValue> 
+            <mads:elementValue>The Sample Audio Object</mads:elementValue> 
           </mads:MainTitleElement> 
           <mads:SubTitleElement> 
             <mads:elementValue>I need another green form</mads:elementValue> 
