@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -90,6 +91,10 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
+// xml streaming
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
 
 // json
 import org.json.simple.JSONObject;
@@ -627,6 +632,15 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 				outputRequired = false; // streaming output
 			}
+			// GET /sparql
+			else if ( path.length == 2 && path[1].equals("sparql") )
+			{
+				Map<String,String[]> params = req.getParameterMap();
+				ts = triplestore(params);
+				String query = getParamString(params,"query",null);
+				sparqlQuery( query, ts, params, req.getPathInfo(), res );
+				outputRequired = false;
+			}
 			// GET /objects
 			else if ( path.length == 2 && path[1].equals("objects") )
 			{
@@ -1113,6 +1127,16 @@ public class DAMSAPIServlet extends HttpServlet
 				params2.put( "frame", getParamArray(params,"frame",null) );
 				cacheRemove(path[2]);
 				info = fileDerivatives( path[2], path[3], path[4], false, fs, ts, es, params );
+			}
+			// POST /sparql
+			else if ( path.length == 2 && path[1].equals("sparql") )
+			{
+				InputBundle bundle = input( req );
+				params = bundle.getParams();
+				ts = triplestore(params);
+				String query = getParamString(params,"query",null);
+				sparqlQuery( query, ts, params, req.getPathInfo(), res );
+				outputRequired = false;
 			}
 			else
 			{
@@ -3480,6 +3504,96 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			log.error("Error sending redirect: " + ex.toString());
 			log.warn( "Error sending redirect", ex );
 		}
+	}
+	private void sparqlQuery( String sparql, TripleStore ts,
+		Map<String,String[]> params, String pathInfo,
+		HttpServletResponse res ) throws Exception
+	{
+		if ( sparql == null )
+		{
+                Map err = error(
+                    HttpServletResponse.SC_BAD_REQUEST, "No query specified."
+                );
+                output( err, params, pathInfo, res );
+                return;
+		}
+		else
+		{
+			log.info("sparql: " + sparql);
+		}
+
+		// sparql query
+		BindingIterator objs = ts.sparqlSelect(sparql);
+
+		// start output
+		String sparqlNS = "http://www.w3.org/2005/sparql-results#";
+		res.setContentType("application/sparql-results+xml");
+		OutputStream out = res.getOutputStream();
+		XMLOutputFactory factory = XMLOutputFactory.newInstance();
+		XMLStreamWriter stream = factory.createXMLStreamWriter(out);
+		stream.setDefaultNamespace( sparqlNS );
+		stream.writeStartDocument();
+		stream.writeStartElement( "sparql" );
+
+		// output bindings
+		boolean headerWritten = false;
+		while ( objs.hasNext() )
+		{
+			Map<String,String> binding = objs.nextBinding();
+
+			// write header on first binding
+			if ( !headerWritten )
+			{
+				Iterator<String> it = binding.keySet().iterator();
+				stream.writeStartElement("head");
+				while ( it.hasNext() )
+				{
+					String k = it.next();
+					stream.writeStartElement( "variable");
+					stream.writeAttribute("name",k);
+					stream.writeEndElement();
+				}
+				stream.writeEndElement();
+				stream.writeStartElement( "results"); // ordered='false' distinct='false'
+				headerWritten = true;
+			}
+
+			stream.writeStartElement( "result");
+			Iterator<String> it = binding.keySet().iterator();
+			while ( it.hasNext() )
+			{
+				String k = it.next();
+				String v = binding.get(k);
+				stream.writeStartElement( "binding");
+				stream.writeAttribute("name",k);
+				String type = null;
+				if ( v.startsWith("\"") && v.endsWith("\"") )
+				{
+					type = "literal";
+					v = v.substring(1,v.length()-1);
+				}
+				else if ( v.startsWith("_:") )
+				{
+					type = "bnode";
+					v = v.substring(2);
+				}
+				else
+				{
+					type = "uri";
+				}
+				stream.writeStartElement(type);
+				stream.writeCharacters(v);
+				stream.writeEndElement();
+				stream.writeEndElement();
+			}
+			stream.writeEndElement();
+		}
+
+		// finish output
+		stream.writeEndElement();
+		stream.writeEndDocument();
+		stream.flush();
+		stream.close();
 	}
 
 	/**
