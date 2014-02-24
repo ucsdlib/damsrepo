@@ -6,6 +6,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <xsl:output method="xml" indent="yes"/>
   <xsl:param name="objid"/>
+  <xsl:param name="discoverGroup"/>
   <xsl:param name="accessGroup"/>
   <xsl:param name="adminGroup"/>
   <xsl:param name="adminGroup2"/>
@@ -34,8 +35,8 @@
       </copyright>
       <access type="discover">
         <machine>
-          <xsl:if test="$accessGroup != '' and $accessGroup != $adminGroup">
-            <group><xsl:value-of select="$accessGroup"/></group>
+          <xsl:if test="$discoverGroup != '' and $discoverGroup != $adminGroup">
+            <group><xsl:value-of select="$discoverGroup"/></group>
           </xsl:if>
           <xsl:call-template name="admin-groups"/>
         </machine>

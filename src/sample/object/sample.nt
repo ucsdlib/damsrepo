@@ -136,6 +136,18 @@ _:bn06n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd
 _:bn06n02 <http://library.ucsd.edu/ontology/dams#type> "display" .
 _:bn06n02 <http://library.ucsd.edu/ontology/dams#beginDate> "2011-09-24" .
 
+<http://library.ucsd.edu/ark:/20775/bd32112015> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#OtherRights> .
+<http://library.ucsd.edu/ark:/20775/bd32112015> <http://library.ucsd.edu/ontology/dams#otherRightsBasis> "fair use" .
+<http://library.ucsd.edu/ark:/20775/bd32112015> <http://library.ucsd.edu/ontology/dams#otherRightsNote> "Please contact Bob at bob@ucsd.edu or 858-534-5678 for more information about this object." .
+<http://library.ucsd.edu/ark:/20775/bd32112015> <http://library.ucsd.edu/ontology/dams#relationship> _:bn06n03 .
+_:bn06n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Relationship> .
+_:bn06n03 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ark:/20775/bd3004227d> .
+_:bn06n03 <http://library.ucsd.edu/ontology/dams#personalName> <http://library.ucsd.edu/ark:/20775/bb09090909> .
+<http://library.ucsd.edu/ark:/20775/bd32112015> <http://library.ucsd.edu/ontology/dams#permission> _:bn06n04 .
+_:bn06n04 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Permission> .
+_:bn06n04 <http://library.ucsd.edu/ontology/dams#type> "metadataDisplay" .
+_:bn06n04 <http://library.ucsd.edu/ontology/dams#beginDate> "2011-09-24" .
+
 <http://library.ucsd.edu/ark:/20775/bb08080808> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#PersonalName> .
 <http://library.ucsd.edu/ark:/20775/bb08080808> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Artist, Alice, 1966-"@en .
 <http://library.ucsd.edu/ark:/20775/bb08080808> <http://www.loc.gov/mads/rdf/v1#elementList> _:bn08n01 .
