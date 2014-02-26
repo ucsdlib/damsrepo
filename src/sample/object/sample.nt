@@ -130,7 +130,7 @@ _:bn05n01 <http://library.ucsd.edu/ontology/dams#beginDate> "1993-12-31" .
 <http://library.ucsd.edu/ark:/20775/bb06060606> <http://library.ucsd.edu/ontology/dams#relationship> _:bn06n01 .
 _:bn06n01 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Relationship> .
 _:bn06n01 <http://library.ucsd.edu/ontology/dams#role> <http://library.ucsd.edu/ark:/20775/bd3004227d> .
-_:bn06n01 <http://library.ucsd.edu/ontology/dams#name> <http://library.ucsd.edu/ark:/20775/bb09090909> .
+_:bn06n01 <http://library.ucsd.edu/ontology/dams#personalName> <http://library.ucsd.edu/ark:/20775/bb09090909> .
 <http://library.ucsd.edu/ark:/20775/bb06060606> <http://library.ucsd.edu/ontology/dams#permission> _:bn06n02 .
 _:bn06n02 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Permission> .
 _:bn06n02 <http://library.ucsd.edu/ontology/dams#type> "display" .

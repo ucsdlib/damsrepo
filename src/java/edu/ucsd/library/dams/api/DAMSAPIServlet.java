@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -91,6 +92,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+// xml streaming
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
+
 // json
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -118,6 +123,9 @@ import edu.ucsd.library.dams.triple.edit.Edit;
 import edu.ucsd.library.dams.util.HttpUtil;
 import edu.ucsd.library.dams.util.LDAPUtil;
 import edu.ucsd.library.dams.util.PDFParser;
+import edu.ucsd.library.dams.util.OutputStreamer;
+import edu.ucsd.library.dams.util.JSONOutputStreamer;
+import edu.ucsd.library.dams.util.XMLOutputStreamer;
 
 /**
  * Servlet implementing the DAMS REST API.
@@ -609,14 +617,29 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 2 && path[1].equals("records") )
 			{
 				ts = triplestore(req);
-				info = recordsList( ts, null );
+				recordsList(
+					ts, req.getParameterMap(), null, req.getPathInfo(), res
+				);
+				outputRequired = false; // streaming output
 			}
 			// GET /records/[type]
 			else if ( path.length == 3 && path[1].equals("records")
 				&& !path[2].equals("") )
 			{
 				ts = triplestore(req);
-				info = recordsList( ts, path[2] );
+				recordsList(
+					ts, req.getParameterMap(), path[2], req.getPathInfo(), res
+				);
+				outputRequired = false; // streaming output
+			}
+			// GET /sparql
+			else if ( path.length == 2 && path[1].equals("sparql") )
+			{
+				Map<String,String[]> params = req.getParameterMap();
+				ts = triplestore(params);
+				String query = getParamString(params,"query",null);
+				sparqlQuery( query, ts, params, req.getPathInfo(), res );
+				outputRequired = false;
 			}
 			// GET /objects
 			else if ( path.length == 2 && path[1].equals("objects") )
@@ -1104,6 +1127,16 @@ public class DAMSAPIServlet extends HttpServlet
 				params2.put( "frame", getParamArray(params,"frame",null) );
 				cacheRemove(path[2]);
 				info = fileDerivatives( path[2], path[3], path[4], false, fs, ts, es, params );
+			}
+			// POST /sparql
+			else if ( path.length == 2 && path[1].equals("sparql") )
+			{
+				InputBundle bundle = input( req );
+				params = bundle.getParams();
+				ts = triplestore(params);
+				String query = getParamString(params,"query",null);
+				sparqlQuery( query, ts, params, req.getPathInfo(), res );
+				outputRequired = false;
 			}
 			else
 			{
@@ -1784,50 +1817,92 @@ public class DAMSAPIServlet extends HttpServlet
 			return error( "Error listing events: " + ex.toString() );
 		}
 	}
-	private Map recordsList( TripleStore ts, String type )
+	private void recordsList( TripleStore ts, Map<String,String[]> params,
+		String type, String pathInfo, HttpServletResponse res )
 	{
 		try
 		{
-			// find all objects
+			// build sparql query
 			String sparql = "select ?obj ?type where { ?obj <" + rdfNS + "type> ?t . ?t <" + rdfNS + "label> ?type";
 			if ( type != null )
 			{
 				sparql += " . FILTER(?type = '\"" + type + "\"')";
 			}
 			sparql += "}";
-			BindingIterator objs = ts.sparqlSelect(sparql);
-			List<Map<String,String>> objects = bindings(objs);
 
-			// remove unwanted values
-			for ( int i = 0; i < objects.size(); i++ )
+			// select format
+			OutputStreamer stream = null;
+			String format = getParamString(params,"format",formatDefault);
+			if ( format.equals("xml") )
 			{
-				Map<String,String> rec = objects.get(i);
-			 	if ( rec.get("obj").startsWith("_") )
+				stream = new XMLOutputStreamer( res );
+			}
+			else if ( format.equals("json") )
+			{
+				stream = new JSONOutputStreamer( res );
+			}
+			else
+			{
+				Map err = error(
+					HttpServletResponse.SC_BAD_REQUEST,
+					"Unsupported format: " + format
+				);
+				output( err, params, pathInfo, res );
+				return;
+			}
+
+			// iterate over records
+			stream.start("records");
+			BindingIterator objs = ts.sparqlSelect(sparql);
+			int records = 0;
+			while ( objs.hasNext() )
+			{
+				// build map of key/value pairs
+				Map<String,String> binding = objs.nextBinding();
+				Iterator<String> it = binding.keySet().iterator();
+				while ( it.hasNext() )
 				{
-					// always remove blank nodes
-					objects.remove(i);
-					i--;
+					String k = it.next();
+					String v = binding.get(k);
+
+					// remove redundant quotes in map
+					if ( v.startsWith("\"") && v.endsWith("\"") )
+					{
+						v = v.substring(1,v.length()-1);
+						binding.put(k,v);
+					}
+				}
+
+			 	if ( binding.get("obj").startsWith("_") )
+				{
+					// suppress blank nodes
 				}
 				else if ( type == null &&
-					(  rec.get("type").equals("dams:File")
-					|| rec.get("type").equals("dams:Component")
-					|| rec.get("type").equals("dams:DAMSEvent")) )
+					(  binding.get("type").equals("dams:File")
+					|| binding.get("type").equals("dams:Component")
+					|| binding.get("type").equals("dams:DAMSEvent")) )
 				{
-					// remove dependent types, unless specifically requested
-					objects.remove(i);
-					i--;
+					// suppress child records unless specifically asked for
+				}
+				else
+				{
+					// otherwise, write the record out
+					stream.output( binding );
+					records++;
 				}
 			}
 
-			// return map
+			// add meta info
 			Map info = new HashMap();
-			info.put( "records", objects );
-			info.put( "count", objects.size() );
-			return info;
+			info.put( "status", "OK" );
+			info.put( "statusCode", "200" );
+			info.put( "request", pathInfo );
+			info.put( "count", String.valueOf(records) );
+			stream.finish( info );
 		}
 		catch ( Exception ex )
 		{
-			return error( "Error listing objects: " + ex.toString() );
+			ex.printStackTrace();
 		}
 	}
 	public Map objectsListAll( TripleStore ts )
@@ -3429,6 +3504,96 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			log.error("Error sending redirect: " + ex.toString());
 			log.warn( "Error sending redirect", ex );
 		}
+	}
+	private void sparqlQuery( String sparql, TripleStore ts,
+		Map<String,String[]> params, String pathInfo,
+		HttpServletResponse res ) throws Exception
+	{
+		if ( sparql == null )
+		{
+                Map err = error(
+                    HttpServletResponse.SC_BAD_REQUEST, "No query specified."
+                );
+                output( err, params, pathInfo, res );
+                return;
+		}
+		else
+		{
+			log.info("sparql: " + sparql);
+		}
+
+		// sparql query
+		BindingIterator objs = ts.sparqlSelect(sparql);
+
+		// start output
+		String sparqlNS = "http://www.w3.org/2005/sparql-results#";
+		res.setContentType("application/sparql-results+xml");
+		OutputStream out = res.getOutputStream();
+		XMLOutputFactory factory = XMLOutputFactory.newInstance();
+		XMLStreamWriter stream = factory.createXMLStreamWriter(out);
+		stream.setDefaultNamespace( sparqlNS );
+		stream.writeStartDocument();
+		stream.writeStartElement( "sparql" );
+
+		// output bindings
+		boolean headerWritten = false;
+		while ( objs.hasNext() )
+		{
+			Map<String,String> binding = objs.nextBinding();
+
+			// write header on first binding
+			if ( !headerWritten )
+			{
+				Iterator<String> it = binding.keySet().iterator();
+				stream.writeStartElement("head");
+				while ( it.hasNext() )
+				{
+					String k = it.next();
+					stream.writeStartElement( "variable");
+					stream.writeAttribute("name",k);
+					stream.writeEndElement();
+				}
+				stream.writeEndElement();
+				stream.writeStartElement( "results"); // ordered='false' distinct='false'
+				headerWritten = true;
+			}
+
+			stream.writeStartElement( "result");
+			Iterator<String> it = binding.keySet().iterator();
+			while ( it.hasNext() )
+			{
+				String k = it.next();
+				String v = binding.get(k);
+				stream.writeStartElement( "binding");
+				stream.writeAttribute("name",k);
+				String type = null;
+				if ( v.startsWith("\"") && v.endsWith("\"") )
+				{
+					type = "literal";
+					v = v.substring(1,v.length()-1);
+				}
+				else if ( v.startsWith("_:") )
+				{
+					type = "bnode";
+					v = v.substring(2);
+				}
+				else
+				{
+					type = "uri";
+				}
+				stream.writeStartElement(type);
+				stream.writeCharacters(v);
+				stream.writeEndElement();
+				stream.writeEndElement();
+			}
+			stream.writeEndElement();
+		}
+
+		// finish output
+		stream.writeEndElement();
+		stream.writeEndDocument();
+		stream.flush();
+		stream.close();
 	}
 
 	/**
