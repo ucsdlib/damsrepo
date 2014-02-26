@@ -38,7 +38,6 @@ import com.hp.hpl.jena.sparql.syntax.ElementBind;
 import com.hp.hpl.jena.sparql.syntax.ElementData;
 import com.hp.hpl.jena.sparql.syntax.ElementDataset;
 import com.hp.hpl.jena.sparql.syntax.ElementExists;
-// XXX import com.hp.hpl.jena.sparql.syntax.ElementFetch;
 import com.hp.hpl.jena.sparql.syntax.ElementFilter;
 import com.hp.hpl.jena.sparql.syntax.ElementGroup;
 import com.hp.hpl.jena.sparql.syntax.ElementMinus;
@@ -53,6 +52,7 @@ import com.hp.hpl.jena.sparql.syntax.ElementUnion;
 import com.hp.hpl.jena.sparql.syntax.ElementVisitor;
 
 import edu.ucsd.library.dams.triple.convertor.STSTableSchema.DataBaseType;
+// XXX import com.hp.hpl.jena.sparql.syntax.ElementFetch;
 //XXX import com.hp.hpl.jena.sparql.syntax.ElementUnsaid;
 
 /**
@@ -489,8 +489,10 @@ public class SQLQueryVisitor implements QueryVisitor{
 							if(literalWhere.indexOf(matchsClause) < 0)
 								literalWhere += (literalWhere.length()>0?" AND ":"") + matchsClause;
 						}
-					}else
-						literalWhere += ((literalWhere.length()>0)?" AND ":"") + tAlias + "." + COLUMN_OBJECT + "='" + obj.getLiteralValue() + "'";
+					}else{
+						String literalValue = (String) obj.getLiteralValue();
+						literalWhere += ((literalWhere.length()>0)?" AND ":"") + tAlias + "." + COLUMN_OBJECT + (literalValue==null||literalValue.length()==0?" IS NULL":"='"+escapeSQL(literalValue)+"'");
+					}
 				}else if (obj.isURI()){
 					matchsVars = getMatchVars(obj, position);
 					int varSize = matchsVars.size();
@@ -596,6 +598,18 @@ public class SQLQueryVisitor implements QueryVisitor{
 		}
 		
 		/**
+		 * SQL syntax escaping 
+		 * @param value
+		 * @return
+		 */
+		public static String escapeSQL(String value){
+			if(value == null)
+				return value;
+			return value.replace("'", "''");
+		}
+		
+		
+		/**
 		 * SQLExprVisitor convert SPARQL expression to Oracle SQL expression
 		 * @author lsitu@ucsd.edu
 		 *
@@ -667,7 +681,7 @@ public class SQLQueryVisitor implements QueryVisitor{
 			}
 
 			public void visit(NodeValue node) {	
-				sqlExpr += "'" + node.getString() + "'";
+				sqlExpr += "'" + escapeSQL(node.getString()) + "'";
 			}
 
 			public void visit(ExprVar var) {
