@@ -647,6 +647,34 @@ public class DAMSAPIServlet extends HttpServlet
 				ts = triplestore(req);
 				info = objectsListAll( ts );
 			}
+			// GET /objects/export?id=bb1111111x&id=bb2222222y&id=bb3333333z
+			else if ( path.length == 3 && path[1].equals("objects") 
+				&& path[2].equals("export") )
+			{
+				ts = triplestore(req);
+				es = events(req);
+				String[] ids = req.getParameterValues("id");
+				List<String> objids = new ArrayList<String>();
+				for ( int i = 0; i < ids.length; i++ )
+				{
+					if ( ids[i] != null && !ids[i].trim().equals("") )
+					{
+						objids.add( ids[i].trim() );
+					}
+				}
+				try
+				{
+					String xml = objectBatch( objids, ts, es );
+					output( res.SC_OK, xml, "application/xml", res );
+					outputRequired = false;
+				}
+				catch ( Exception ex )
+				{
+					info = error(
+						"Error processing batch retrieval: " + ex.getMessage()
+					);
+				}
+			}
 			// GET /objects/bb1234567x
 			else if ( path.length == 3 && path[1].equals("objects") )
 			{
@@ -3156,6 +3184,84 @@ public class DAMSAPIServlet extends HttpServlet
 			);} catch ( Exception ex2 ) {}
 			return error( "Error deleting predicates: " + ex.toString() );
 		}
+	}
+	public String objectBatch( List<String> objids, TripleStore ts,
+		TripleStore es ) throws Exception
+	{
+		ArrayList<String> docs = new ArrayList<String>();
+		ArrayList<String> errors = new ArrayList<String>();
+
+		// retrieve rdf/xml for each record
+		for ( int i = 0; i < objids.size(); i++ )
+		{
+			try
+			{
+				Identifier id = createID( objids.get(i), null, null );
+				if ( ts.exists(id) )
+				{
+					DAMSObject obj = new DAMSObject(ts, es, objids.get(i), nsmap);
+					docs.add( obj.getRDFXML(true) );
+				}
+				else if ( es != null && es.exists(id) )
+				{
+					DAMSObject obj = new DAMSObject(es, null, objids.get(i), nsmap);
+					docs.add( obj.getRDFXML(true) );
+				}
+				else
+				{
+					errors.add( objids.get(i) + ": not found" );
+				}
+			}
+			catch ( Exception ex )
+			{
+				errors.add( objids.get(i) + ": " + ex.toString() );
+			}
+		}
+
+		// combine xml documents
+		String xml = null;
+		if ( docs.size() == 1 )
+		{
+			xml = docs.get(0);
+		}
+		else if ( docs.size() > 1 )
+		{
+			try
+			{
+				Document doc = DocumentHelper.parseText(docs.get(0));
+				Element rdf = doc.getRootElement();
+				for ( int i = 1; i < docs.size(); i++ )
+				{
+					Document doc2 = DocumentHelper.parseText(docs.get(i));
+					Iterator it = doc2.getRootElement().elementIterator();
+					if ( it.hasNext() )
+					{
+						Element e = (Element)it.next();
+						rdf.add( e.detach() );
+					}
+				}
+				xml = doc.asXML();
+			}
+			catch ( Exception ex )
+			{
+				errors.add(
+					"Error combining records into a batch: " + ex.toString()
+				);
+			}
+		}
+
+		// check errors
+		if ( errors.size() > 0 )
+		{
+			String msg = errors.get(0);
+			for ( int i = 1; i < errors.size(); i++ )
+			{
+				msg += "; " + errors.get(i);
+			}
+			throw new Exception( msg );
+		}
+
+		return xml;
 	}
 	public Map objectShow( String objid, TripleStore ts, TripleStore es )
 	{
