@@ -114,14 +114,14 @@ public class SQLQueryVisitor implements QueryVisitor{
 		}
 
 		public void visitOffset(Query query) {
-			if(query.hasOffset()){
-				if(dbType.equals(DataBaseType.ORACLE))
-					sqlQuery += " AND (ROWNUM > " + query.getOffset() + " AND ROWNUM <= " + (query.getLimit() + query.getOffset()) + ")";
-				else
-					sqlQuery += " LIMIT " + query.getLimit()  + " OFFSET " + query.getOffset();
+			if(query.hasOffset() && dbType.equals(DataBaseType.ORACLE)){
+				sqlQuery += " AND (ROWNUM > " + query.getOffset() + " AND ROWNUM <= " + (query.getLimit() + query.getOffset()) + ")";
 			}
 			postVisitGroupBy(query);
 			postVisitOrderBy(query);
+			if(query.hasOffset() && !dbType.equals(DataBaseType.ORACLE)){
+				sqlQuery += " LIMIT " + query.getLimit()  + " OFFSET " + query.getOffset();
+			}
 		}
 
 		public void visitOrderBy(Query query) {}
@@ -164,17 +164,17 @@ public class SQLQueryVisitor implements QueryVisitor{
 				List orderBys = query.getOrderBy();
 				for(int i=0; i<orderBys.size(); i++){
 					SortCondition sort = (SortCondition)orderBys.get(i);
-					if(i==0){
-						direction = (sort.direction==Query.ORDER_DESCENDING)?" DESC":"";
-					}
+					//if(i==0){
+					direction = (sort.direction==Query.ORDER_DESCENDING)?" DESC":"";
+					//}
 					
 					String orderByField = columnsMap.get(sort.getExpression().getVarName());
 					if(isUnion){
 						orderByField = orderByField.substring(orderByField.indexOf('.')+1);
 					}
-					varStr += (varStr.length()>0?", ":"") + orderByField;
+					varStr += (varStr.length()>0?", ":"") + orderByField + direction;
 				}
-				sqlQuery += "\n ORDER BY " + varStr + direction;
+				sqlQuery += "\n ORDER BY " + varStr;
 			}	
 		
 		}
@@ -653,19 +653,22 @@ public class SQLQueryVisitor implements QueryVisitor{
 					}
 					finishVisit();
 				}else{
-					if(funcName.equalsIgnoreCase("not"))
-						sqlExpr += " " + convertSymbol(funcName) + " ";
+					//if(funcName.equalsIgnoreCase("not"))
+					//	sqlExpr += " " + convertSymbol(funcName) + " ";
 					
 					if(funcName.equalsIgnoreCase("or") || funcName.equalsIgnoreCase("and") )
 						startVisit();	
-				
-					for(int i=0;i<args.size(); i++){
+					
+					int argsSize = args.size();
+					for(int i=0;i<argsSize; i++){
 						Object obj = args.get(i);
 						
-						if(i==1){					
+						if(i==1 || argsSize == 1){					
 							sqlExpr += " " + convertSymbol(funcName) + " ";
 						}
 						
+						if(argsSize == 1)
+							startVisit();
 						if(obj instanceof ExprVar)
 							visit((ExprVar)obj);
 						else if(obj instanceof NodeValue)
@@ -673,7 +676,9 @@ public class SQLQueryVisitor implements QueryVisitor{
 						else if(obj instanceof ExprFunction)
 							visit((ExprFunction)obj);
 						else
-							System.out.println("    - Unhandle: " + obj.getClass().getName());			
+							System.out.println("    - Unhandle: " + obj.getClass().getName());	
+						if(argsSize == 1)
+							finishVisit();
 					}
 					if(funcName.equalsIgnoreCase("or") || funcName.equalsIgnoreCase("and"))
 						finishVisit();
@@ -694,9 +699,14 @@ public class SQLQueryVisitor implements QueryVisitor{
 			}
 			public void visit(ExprFunctionN expr)
 			{
-				sqlExpr += convertSymbol(expr.getFunctionSymbol().getSymbol());
+				String funcSymbol = convertSymbol(expr.getFunctionSymbol().getSymbol());
+				if(!funcSymbol.equals("~"))
+					sqlExpr += convertSymbol(expr.getFunctionSymbol().getSymbol());
 				List<Expr> args = expr.getArgs();
 				startVisit();
+				
+				if(args.size() > 2)
+					log.warn("Function expr: " + expr.toString() + " is not supported.");
 				for(int i=0;i<args.size(); i++){
 					Object obj = args.get(i);
 					if(obj instanceof ExprVar){
@@ -708,9 +718,16 @@ public class SQLQueryVisitor implements QueryVisitor{
 					else
 						System.out.println("    - Unhandle: " + obj.getClass().getName());
 					
-					if(i<args.size() - 1)
+					if(funcSymbol.equals("~")){
+						if(i == 0)
+							sqlExpr += " " + funcSymbol + " ";
+						else if(i == 1){
+							break;
+						}
+					}else if(i<args.size() - 1)
 						sqlExpr += ", ";
 				}
+				
 				finishVisit();	
 			}
 			public void visit(ExprFunction0 expr)
@@ -727,19 +744,22 @@ public class SQLQueryVisitor implements QueryVisitor{
 			{
 				String funcName = expr.getFunctionSymbol().getSymbol();
 				List<Expr> args = expr.getArgs();
-				if(funcName.equalsIgnoreCase("not"))
-					sqlExpr += " " + convertSymbol(funcName) + " ";
+				//if(funcName.equalsIgnoreCase("not"))
+				//	sqlExpr += " " + convertSymbol(funcName) + " ";
 				
 				if(funcName.equalsIgnoreCase("or") || funcName.equalsIgnoreCase("and") )
 					startVisit();	
 			
-				for(int i=0;i<args.size(); i++){
+				int argsSize = args.size();
+				for(int i=0;i<argsSize; i++){
 					Object obj = args.get(i);
 					
-					if(i==1){					
+					if(i==1 || argsSize == 1){					
 						sqlExpr += " " + convertSymbol(funcName) + " ";
 					}
 					
+					if( argsSize == 1 )
+						startVisit();
 					if(obj instanceof ExprVar)
 						visit((ExprVar)obj);
 					else if(obj instanceof NodeValue)
@@ -747,7 +767,9 @@ public class SQLQueryVisitor implements QueryVisitor{
 					else if(obj instanceof ExprFunction)
 						visit((ExprFunction)obj);
 					else
-						System.out.println("    - Unhandle: " + obj.getClass().getName());
+						System.out.println("    - Unhandle: " + obj.getClass().getName());	
+					if( argsSize == 1 )
+						finishVisit();
 				}
 				if(funcName.equalsIgnoreCase("or") || funcName.equalsIgnoreCase("and"))
 					finishVisit();
@@ -819,13 +841,17 @@ public class SQLQueryVisitor implements QueryVisitor{
 					sqlOp = "<=";
 				else if("NE".equalsIgnoreCase(symbol))
 					sqlOp = "<>";
-				else if("regex".equalsIgnoreCase(symbol))
+				else if("regex".equalsIgnoreCase(symbol)){
 					if(dbType.equals(DataBaseType.ORACLE))
 						sqlOp = "REGEXP_LIKE";
 					else if(dbType.equals(DataBaseType.POSTGRESQL))
 						sqlOp = "~";
 					else
 						sqlOp = "REGEXP";
+				}else if("LCASE".equalsIgnoreCase(symbol))
+					sqlOp = "LOWER";
+				else if("UCASE".equalsIgnoreCase(symbol))
+					sqlOp = "UPPER";
 				else
 					sqlOp = symbol;
 				return sqlOp;
