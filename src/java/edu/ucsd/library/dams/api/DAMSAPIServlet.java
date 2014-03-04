@@ -2106,9 +2106,6 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				sit = ts.listStatements(parent, hasFile, fid);
 				if(sit.hasNext()){
-					// there is no PUT for characterization, what is the use
-					// case for tech md redo?  when a new file is uploaded,
-					// tech md should already be deleted in fileUpload...
 					return error(
 						HttpServletResponse.SC_FORBIDDEN,
 						"Characterization for file " + fid.getId()
@@ -2218,7 +2215,7 @@ public class DAMSAPIServlet extends HttpServlet
 				if ( overwrite )
 				{
 					// delete existing metadata
-					fileDeleteMetadata( objid, cmpid, fileid, ts );
+					fileDeleteMetadata( objid, cmpid, fileid, ts, true );
 				}
 				else
 				{
@@ -2491,7 +2488,7 @@ public class DAMSAPIServlet extends HttpServlet
 				// delete any existing metadata when replacing files
 				if ( overwrite )
 				{
-					Map delInfo = fileDeleteMetadata(objid, cmpid, fileid, ts);
+					Map delInfo = fileDeleteMetadata(objid, cmpid, fileid, ts, false);
 					int delStat = getParamInt(delInfo,"statusCode",200);
 					if ( delStat > 299 )
 					{
@@ -2582,7 +2579,7 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 
 				// FILE_META: update file metadata
-				fileDeleteMetadata( objid, cmpid, fileid, ts );
+				fileDeleteMetadata( objid, cmpid, fileid, ts, false );
 
 				return status( "File deleted successfully" );
 			}
@@ -3165,7 +3162,7 @@ public class DAMSAPIServlet extends HttpServlet
 			for ( int i = 0; i < predicates.length; i++ )
 			{
 				Identifier pre = createPred( predicates[i] );
-				TripleStoreUtil.recursiveDelete( id, sub, pre, null, ts );
+				TripleStoreUtil.recursiveDelete( id, sub, pre, null, null, ts );
 			}
 
 			//indexQueue(objid,"modifyObject");
@@ -3438,7 +3435,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 	}
 
 	private Map fileDeleteMetadata( String objid, String cmpid, String fileid,
-		TripleStore ts ) throws TripleStoreException
+		TripleStore ts, boolean keepSourceCapture ) throws TripleStoreException
 	{
 		try
 		{
@@ -3447,14 +3444,24 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			Identifier sub = createID( objid, cmpid, null );
 			Identifier fileID = createID( objid, cmpid, fileid );
 			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
+			Identifier sourceCapture = null;
+			if ( keepSourceCapture )
+			{
+				sourceCapture = Identifier.publicURI( prNS + "sourceCapture" );
+			}
 
 			// delete file metadata (n.b. first arg is object identifer, not
 			// the subject of the triple, so this works for files attached
 			// to components, etc.)
-			TripleStoreUtil.recursiveDelete( parent, sub, hasFile, fileID, ts );
+			TripleStoreUtil.recursiveDelete(
+				parent, sub, hasFile, fileID, sourceCapture, ts
+			);
 
 			// delete links from object/components
-			ts.removeStatements( null, null, fileID );
+			if ( !keepSourceCapture )
+			{
+				ts.removeStatements( null, null, fileID );
+			}
 
 			return status("File metadata deleted successfully");
 		}
