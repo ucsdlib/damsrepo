@@ -1007,9 +1007,11 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				// overriden: local-only
 				accessGroup = roleLocal;
 			}
-			else if ( !displayRestriction && metadataPermission && discover )
+			else if ( metadataPermission && discover )
 			{
 				// overriden: public metadata-only display
+				// n.b., this is the only circumstance where a permission
+				// will override a restriction
 				accessGroup = roleDefault;
 			}
 			else
