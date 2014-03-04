@@ -13,6 +13,7 @@ if [ ! "$IDS" ]; then
 	IDS="$IDS bd5939745h" #   simple object, format= audio
 	IDS="$IDS bd46428055" #   simple object, format=data
 	IDS="$IDS bd3379993m" #   simple object, format=image
+	IDS="$IDS bd86037516" #   simple object, format=image(local access)
 	IDS="$IDS bd2083054q" #   simple object, format=text
 	IDS="$IDS bd0786115s" #   simple object, format=video
 	IDS="$IDS bd51895934" # provenance collection member
