@@ -18,6 +18,11 @@ $BASE/fs-post.sh bd3379993m 1.tif $BASE/../sample/files/20775-bb01010101-1-1.tif
 $BASE/ts-put.sh bd3379993m $BASE/../sample/object/formatSampleImage.rdf.xml
 $BASE/fs-derivatives.sh bd3379993m 1.tif
 
+# image (tif master, jpeg derivatives)
+$BASE/fs-post.sh bd86037516 1.tif $BASE/../sample/files/20775-bb01010101-1-1.tif
+$BASE/ts-put.sh bd86037516 $BASE/../sample/object/formatSampleImage.rdf.xml
+$BASE/fs-derivatives.sh bd86037516 1.tif
+
 # text (pdf master, jpeg derivatives)
 $BASE/fs-post.sh bd2083054q 1.pdf $BASE/../sample/files/20775-bb01034796-1-1.pdf
 $BASE/ts-put.sh bd2083054q $BASE/../sample/object/formatSampleText.rdf.xml

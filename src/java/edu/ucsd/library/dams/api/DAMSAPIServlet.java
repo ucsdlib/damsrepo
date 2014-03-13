@@ -647,6 +647,34 @@ public class DAMSAPIServlet extends HttpServlet
 				ts = triplestore(req);
 				info = objectsListAll( ts );
 			}
+			// GET /objects/export?id=bb1111111x&id=bb2222222y&id=bb3333333z
+			else if ( path.length == 3 && path[1].equals("objects") 
+				&& path[2].equals("export") )
+			{
+				ts = triplestore(req);
+				es = events(req);
+				String[] ids = req.getParameterValues("id");
+				List<String> objids = new ArrayList<String>();
+				for ( int i = 0; i < ids.length; i++ )
+				{
+					if ( ids[i] != null && !ids[i].trim().equals("") )
+					{
+						objids.add( ids[i].trim() );
+					}
+				}
+				try
+				{
+					String xml = objectBatch( objids, ts, es );
+					output( res.SC_OK, xml, "application/xml", res );
+					outputRequired = false;
+				}
+				catch ( Exception ex )
+				{
+					info = error(
+						"Error processing batch retrieval: " + ex.getMessage()
+					);
+				}
+			}
 			// GET /objects/bb1234567x
 			else if ( path.length == 3 && path[1].equals("objects") )
 			{
@@ -2078,9 +2106,6 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				sit = ts.listStatements(parent, hasFile, fid);
 				if(sit.hasNext()){
-					// there is no PUT for characterization, what is the use
-					// case for tech md redo?  when a new file is uploaded,
-					// tech md should already be deleted in fileUpload...
 					return error(
 						HttpServletResponse.SC_FORBIDDEN,
 						"Characterization for file " + fid.getId()
@@ -2190,7 +2215,7 @@ public class DAMSAPIServlet extends HttpServlet
 				if ( overwrite )
 				{
 					// delete existing metadata
-					fileDeleteMetadata( objid, cmpid, fileid, ts );
+					fileDeleteMetadata( objid, cmpid, fileid, ts, true );
 				}
 				else
 				{
@@ -2463,7 +2488,7 @@ public class DAMSAPIServlet extends HttpServlet
 				// delete any existing metadata when replacing files
 				if ( overwrite )
 				{
-					Map delInfo = fileDeleteMetadata(objid, cmpid, fileid, ts);
+					Map delInfo = fileDeleteMetadata(objid, cmpid, fileid, ts, false);
 					int delStat = getParamInt(delInfo,"statusCode",200);
 					if ( delStat > 299 )
 					{
@@ -2554,7 +2579,7 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 
 				// FILE_META: update file metadata
-				fileDeleteMetadata( objid, cmpid, fileid, ts );
+				fileDeleteMetadata( objid, cmpid, fileid, ts, false );
 
 				return status( "File deleted successfully" );
 			}
@@ -3137,7 +3162,7 @@ public class DAMSAPIServlet extends HttpServlet
 			for ( int i = 0; i < predicates.length; i++ )
 			{
 				Identifier pre = createPred( predicates[i] );
-				TripleStoreUtil.recursiveDelete( id, sub, pre, null, ts );
+				TripleStoreUtil.recursiveDelete( id, sub, pre, null, null, ts );
 			}
 
 			//indexQueue(objid,"modifyObject");
@@ -3156,6 +3181,84 @@ public class DAMSAPIServlet extends HttpServlet
 			);} catch ( Exception ex2 ) {}
 			return error( "Error deleting predicates: " + ex.toString() );
 		}
+	}
+	public String objectBatch( List<String> objids, TripleStore ts,
+		TripleStore es ) throws Exception
+	{
+		ArrayList<String> docs = new ArrayList<String>();
+		ArrayList<String> errors = new ArrayList<String>();
+
+		// retrieve rdf/xml for each record
+		for ( int i = 0; i < objids.size(); i++ )
+		{
+			try
+			{
+				Identifier id = createID( objids.get(i), null, null );
+				if ( ts.exists(id) )
+				{
+					DAMSObject obj = new DAMSObject(ts, es, objids.get(i), nsmap);
+					docs.add( obj.getRDFXML(true) );
+				}
+				else if ( es != null && es.exists(id) )
+				{
+					DAMSObject obj = new DAMSObject(es, null, objids.get(i), nsmap);
+					docs.add( obj.getRDFXML(true) );
+				}
+				else
+				{
+					errors.add( objids.get(i) + ": not found" );
+				}
+			}
+			catch ( Exception ex )
+			{
+				errors.add( objids.get(i) + ": " + ex.toString() );
+			}
+		}
+
+		// combine xml documents
+		String xml = null;
+		if ( docs.size() == 1 )
+		{
+			xml = docs.get(0);
+		}
+		else if ( docs.size() > 1 )
+		{
+			try
+			{
+				Document doc = DocumentHelper.parseText(docs.get(0));
+				Element rdf = doc.getRootElement();
+				for ( int i = 1; i < docs.size(); i++ )
+				{
+					Document doc2 = DocumentHelper.parseText(docs.get(i));
+					Iterator it = doc2.getRootElement().elementIterator();
+					if ( it.hasNext() )
+					{
+						Element e = (Element)it.next();
+						rdf.add( e.detach() );
+					}
+				}
+				xml = doc.asXML();
+			}
+			catch ( Exception ex )
+			{
+				errors.add(
+					"Error combining records into a batch: " + ex.toString()
+				);
+			}
+		}
+
+		// check errors
+		if ( errors.size() > 0 )
+		{
+			String msg = errors.get(0);
+			for ( int i = 1; i < errors.size(); i++ )
+			{
+				msg += "; " + errors.get(i);
+			}
+			throw new Exception( msg );
+		}
+
+		return xml;
 	}
 	public Map objectShow( String objid, TripleStore ts, TripleStore es )
 	{
@@ -3332,7 +3435,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 	}
 
 	private Map fileDeleteMetadata( String objid, String cmpid, String fileid,
-		TripleStore ts ) throws TripleStoreException
+		TripleStore ts, boolean keepSourceCapture ) throws TripleStoreException
 	{
 		try
 		{
@@ -3341,14 +3444,24 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			Identifier sub = createID( objid, cmpid, null );
 			Identifier fileID = createID( objid, cmpid, fileid );
 			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
+			Identifier sourceCapture = null;
+			if ( keepSourceCapture )
+			{
+				sourceCapture = Identifier.publicURI( prNS + "sourceCapture" );
+			}
 
 			// delete file metadata (n.b. first arg is object identifer, not
 			// the subject of the triple, so this works for files attached
 			// to components, etc.)
-			TripleStoreUtil.recursiveDelete( parent, sub, hasFile, fileID, ts );
+			TripleStoreUtil.recursiveDelete(
+				parent, sub, hasFile, fileID, sourceCapture, ts
+			);
 
 			// delete links from object/components
-			ts.removeStatements( null, null, fileID );
+			if ( !keepSourceCapture )
+			{
+				ts.removeStatements( null, null, fileID );
+			}
 
 			return status("File metadata deleted successfully");
 		}

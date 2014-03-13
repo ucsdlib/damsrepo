@@ -2,13 +2,22 @@
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:dams="http://library.ucsd.edu/ontology/dams#"
     xmlns:mads="http://www.loc.gov/mads/rdf/v1#">
-  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd2083054q">
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bd86037516">
     <dams:unit rdf:resource="http://library.ucsd.edu/ark:/20775/bb02020202"/>
     <dams:language rdf:resource="http://library.ucsd.edu/ark:/20775/bd0410344f"/>
     <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bb03030303"/>
-    <dams:otherRights rdf:resource="http://library.ucsd.edu/ark:/20775/bd32112015"/>
     <dams:rightsHolderPersonal rdf:resource="http://library.ucsd.edu/ark:/20775/bb09090909"/>
     <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb05050505"/>
+    <dams:otherRights>
+      <dams:OtherRights rdf:about="http://library.ucsd.edu/ark:/20775/bd73068103">
+        <dams:otherRightsBasis>local only test</dams:otherRightsBasis>
+        <dams:permission>
+          <dams:Permission>
+            <dams:type>localDisplay</dams:type>
+          </dams:Permission>
+        </dams:permission>
+      </dams:OtherRights>
+    </dams:otherRights>
     <dams:relationship>
       <dams:Relationship>
         <dams:name rdf:resource="http://library.ucsd.edu/ark:/20775/bbXXXXXXX1"/>
@@ -25,21 +34,28 @@
     <dams:note>
       <dams:Note>
         <dams:displayLabel>ARK ID</dams:displayLabel>
-        <rdf:value>http://library.ucsd.edu/ark:/20775/bd2083054q</rdf:value>
+        <rdf:value>http://library.ucsd.edu/ark:/20775/bd86037516</rdf:value>
         <dams:type>identifier</dams:type>
       </dams:Note>
     </dams:note>
-    <dams:typeOfResource>text</dams:typeOfResource>
+    <dams:typeOfResource>still image</dams:typeOfResource>
     <dams:title>
       <mads:Title> 
-        <mads:authoritativeLabel>Sample Document Object</mads:authoritativeLabel> 
+        <mads:authoritativeLabel>Local Image Test Object</mads:authoritativeLabel> 
         <mads:elementList rdf:parseType="Collection"> 
           <mads:MainTitleElement> 
-            <mads:elementValue>Sample Document Object</mads:elementValue> 
+            <mads:elementValue>Local Image Test Object</mads:elementValue> 
           </mads:MainTitleElement> 
         </mads:elementList> 
       </mads:Title> 
-
     </dams:title>
+    <dams:cartographics>
+      <dams:Cartographics rdf:about="http://library.ucsd.edu/ark:/20775/bd1810042r">
+        <dams:scale>1:20000</dams:scale>
+        <dams:projection>equirectangular</dams:projection>
+        <dams:referenceSystem>WGS84</dams:referenceSystem>
+        <dams:line>29.67459,-82.37873 20.39032,-85.59203</dams:line>
+      </dams:Cartographics>
+    </dams:cartographics> 
   </dams:Object>
 </rdf:RDF>
