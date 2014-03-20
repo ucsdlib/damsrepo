@@ -49,7 +49,10 @@
 								<div class="title">UC San Diego DAMS 4 Data Review</div>
 								<div class="propertyBox" >
 									<xsl:call-template name="damsResource"/>
-									<xsl:for-each select="*[local-name()!='event' and not(contains(name(), 'Component') or contains(name(), 'File') or contains(name(), 'Collection'))]">
+									<xsl:for-each select="*[name()='mads:authoritativeLabel']">
+										<xsl:call-template name="damsTopElement"/>
+									</xsl:for-each>
+									<xsl:for-each select="*[local-name()!='event' and not(contains(name(), 'Component') or contains(name(), 'File') or contains(name(), 'Collection') or contains(name(), 'mads:authoritativeLabel'))]">
 										<xsl:sort select="name()" order="descending"/>
 										<xsl:sort select="*/dams:order" order="ascending"/>
 										<xsl:sort select="*/@rdf:about" order="ascending"/>
@@ -153,7 +156,13 @@
 						</tr>
 					</table>
 				</li>
-				<xsl:for-each select="*[local-name() != 'event']">
+				<xsl:for-each select="*[local-name() != 'event' and name() = 'mads:authoritativeLabel']">
+					<xsl:call-template name="prop">
+						<xsl:with-param name="propNode" select="."/>
+						<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select=".."/></xsl:call-template></xsl:with-param>
+					</xsl:call-template>
+				</xsl:for-each>
+				<xsl:for-each select="*[local-name() != 'event' and name() != 'mads:authoritativeLabel']">
 					<xsl:sort select="name()" order="descending"/>
 					<xsl:sort select="dams:order" order="ascending"/>
 					<xsl:sort select="*/@rdf:about" order="ascending"/>
