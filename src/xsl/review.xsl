@@ -46,7 +46,7 @@
 					<table>
 						<tr>
 							<td align="center">
-								<div class="title">UC San Diego DAMS 4 Data Review</div>
+								<div class="title">UC San Diego Library DAMS Data View</div>
 								<div class="propertyBox" >
 									<xsl:call-template name="damsResource"/>
 									<xsl:for-each select="*[name()='mads:authoritativeLabel']">
