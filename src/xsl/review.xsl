@@ -49,67 +49,30 @@
 								<div class="title">UC San Diego DAMS 4 Data Review</div>
 								<div class="propertyBox" >
 									<xsl:call-template name="damsResource"/>
-									<xsl:for-each select="*[local-name()!='event' and not (*)]">
+									<xsl:for-each select="*[local-name()!='event' and not(contains(name(), 'Component') or contains(name(), 'File') or contains(name(), 'Collection'))]">
 										<xsl:sort select="name()" order="descending"/>
 										<xsl:sort select="*/dams:order" order="ascending"/>
 										<xsl:sort select="*/@rdf:about" order="ascending"/>
-										<ul style="border: none;padding-top: 10px;padding-left: 0;">
-											<xsl:call-template name="prop">
-												<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select="."/></xsl:call-template></xsl:with-param>
-								  				<xsl:with-param name="propNode" select="."/>
-											</xsl:call-template>
-											<xsl:if test="@rdf:resource">
-												<xsl:variable name="resid"><xsl:value-of select="@rdf:resource"/></xsl:variable>
-												<xsl:for-each select="//*[@rdf:about=$resid]">
-													<li>
-														<ul class="subGroup" onmouseover="javascript:this.className='subGroup_hl';" onmouseout="javascript:this.className='subGroup';">
-															<xsl:call-template name="damsThing">
-																	<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select=".."/></xsl:call-template></xsl:with-param>
-															</xsl:call-template>
-														</ul>
-													</li>
-												</xsl:for-each>
-											</xsl:if>
-											<xsl:for-each select="*">
-												<li>
-													<ul class="subGroup" onmouseover="javascript:this.className='subGroup_hl';" onmouseout="javascript:this.className='subGroup';">
-														<xsl:call-template name="damsThing"/>
-													</ul>
-												</li>
-											</xsl:for-each>
-										</ul>
+										<xsl:call-template name="damsTopElement"/>
 									</xsl:for-each>
-									<xsl:for-each select="*[local-name()!='event' and (*)]">
-										<xsl:sort select="name(*)" order="descending"/>
+									<xsl:for-each select="*[contains(name(), 'Collection')]">
+										<xsl:sort select="name()" order="descending"/>
 										<xsl:sort select="*/dams:order" order="ascending"/>
 										<xsl:sort select="*/@rdf:about" order="ascending"/>
-										<ul style="border: none;padding-top: 10px;padding-left: 0;">
-											<xsl:call-template name="prop">
-												<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select="."/></xsl:call-template></xsl:with-param>
-								  				<xsl:with-param name="propNode" select="."/>
-											</xsl:call-template>
-											<xsl:if test="@rdf:resource">
-												<xsl:variable name="resid"><xsl:value-of select="@rdf:resource"/></xsl:variable>
-												<xsl:for-each select="//*[@rdf:about=$resid]">
-													<li>
-														<ul class="subGroup" onmouseover="javascript:this.className='subGroup_hl';" onmouseout="javascript:this.className='subGroup';">
-															<xsl:call-template name="damsThing">
-																	<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select=".."/></xsl:call-template></xsl:with-param>
-															</xsl:call-template>
-														</ul>
-													</li>
-												</xsl:for-each>
-											</xsl:if>
-											<xsl:for-each select="*">
-												<li>
-													<ul class="subGroup" onmouseover="javascript:this.className='subGroup_hl';" onmouseout="javascript:this.className='subGroup';">
-														<xsl:call-template name="damsThing"/>
-													</ul>
-												</li>
-											</xsl:for-each>
-										</ul>
-									</xsl:for-each>	
-								
+										<xsl:call-template name="damsTopElement"/>
+									</xsl:for-each>
+									<xsl:for-each select="*[contains(name(), 'File')]">
+										<xsl:sort select="name()" order="descending"/>
+										<xsl:sort select="*/dams:order" order="ascending"/>
+										<xsl:sort select="*/@rdf:about" order="ascending"/>
+										<xsl:call-template name="damsTopElement"/>
+									</xsl:for-each>
+									<xsl:for-each select="*[contains(name(), 'Component')]">
+										<xsl:sort select="name()" order="descending"/>
+										<xsl:sort select="*/dams:order" order="ascending"/>
+										<xsl:sort select="*/@rdf:about" order="ascending"/>
+										<xsl:call-template name="damsTopElement"/>
+									</xsl:for-each>
 								</div>
 							</td>
 						</tr>
@@ -129,6 +92,33 @@
 				</tr>
 			</table>
 		</div>
+	</xsl:template>
+	<xsl:template name="damsTopElement">
+		<ul style="border: none;padding-top: 10px;padding-left: 0;">
+			<xsl:call-template name="prop">
+				<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select="."/></xsl:call-template></xsl:with-param>
+  				<xsl:with-param name="propNode" select="."/>
+			</xsl:call-template>
+			<xsl:if test="@rdf:resource">
+				<xsl:variable name="resid"><xsl:value-of select="@rdf:resource"/></xsl:variable>
+				<xsl:for-each select="//*[@rdf:about=$resid]">
+					<li>
+						<ul class="subGroup" onmouseover="javascript:this.className='subGroup_hl';" onmouseout="javascript:this.className='subGroup';">
+							<xsl:call-template name="damsThing">
+									<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select=".."/></xsl:call-template></xsl:with-param>
+							</xsl:call-template>
+						</ul>
+					</li>
+				</xsl:for-each>
+			</xsl:if>
+			<xsl:for-each select="*">
+				<li>
+					<ul class="subGroup" onmouseover="javascript:this.className='subGroup_hl';" onmouseout="javascript:this.className='subGroup';">
+						<xsl:call-template name="damsThing"/>
+					</ul>
+				</li>
+			</xsl:for-each>
+		</ul>
 	</xsl:template>
 	<xsl:template name="damsThing">
 		<xsl:param name="parentPath"/>
@@ -178,7 +168,7 @@
 								<xsl:choose>
 									<xsl:when test="@rdf:resource">
 										<xsl:variable name="resid"><xsl:value-of select="@rdf:resource"/></xsl:variable>
-										<xsl:for-each select="//*[@rdf:about=$resid]">
+										<xsl:for-each select="//*[@rdf:about=$resid and not (contains(name(), 'Collection'))]">
 											<li>
 												<ul>
 													<xsl:call-template name="damsThing">
@@ -287,7 +277,7 @@
 		  	<xsl:variable name="propValue">
 			  	<xsl:choose>
 			    		<xsl:when test="$propNode/text() | @rdf:about"><xsl:value-of select="$propNode/text() | @rdf:about"/></xsl:when>
-			    		<xsl:when test="//*[@rdf:about=$resid]"></xsl:when>
+			    		<xsl:when test="//*[@rdf:about=$resid and not (contains(name(), 'Collection'))]"></xsl:when>
 			    		<xsl:otherwise><xsl:value-of select="$resid"/></xsl:otherwise>
 			    	</xsl:choose>
 		  	</xsl:variable>
