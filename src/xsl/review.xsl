@@ -52,7 +52,25 @@
 									<xsl:for-each select="*[name()='mads:authoritativeLabel']">
 										<xsl:call-template name="damsTopElement"/>
 									</xsl:for-each>
-									<xsl:for-each select="*[local-name()!='event' and not(contains(name(), 'Component') or contains(name(), 'File') or contains(name(), 'Collection') or contains(name(), 'mads:authoritativeLabel'))]">
+									<xsl:for-each select="*[name()='dams:visibility']">
+										<xsl:call-template name="damsTopElement"/>
+									</xsl:for-each>
+									<xsl:for-each select="*[name()='dams:unit']">
+										<xsl:call-template name="damsTopElement"/>
+									</xsl:for-each>
+									<xsl:for-each select="*[name()='dams:typeOfResource']">
+										<xsl:call-template name="damsTopElement"/>
+									</xsl:for-each>
+									<xsl:for-each select="*[name()='dams:title']">
+										<xsl:call-template name="damsTopElement"/>
+									</xsl:for-each>
+									<xsl:for-each select="*[name()='dams:relationship']">
+										<xsl:call-template name="damsTopElement"/>
+									</xsl:for-each>
+									<xsl:for-each select="*[name()='dams:date']">
+										<xsl:call-template name="damsTopElement"/>
+									</xsl:for-each>
+									<xsl:for-each select="*[local-name()!='event' and not(name()='mads:authoritativeLabel' or name()='dams:visibility' or name()='dams:unit' or name()='dams:typeOfResource' or name()='dams:title' or name()='dams:relationship' or name()='dams:date' or contains(name(), 'Component') or contains(name(), 'File') or contains(name(), 'Collection'))]">
 										<xsl:sort select="name()" order="descending"/>
 										<xsl:sort select="*/dams:order" order="ascending"/>
 										<xsl:sort select="*/@rdf:about" order="ascending"/>
