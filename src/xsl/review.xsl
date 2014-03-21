@@ -32,7 +32,7 @@
 					.subGroup_hl{margin-bottom:5px;border: 2px solid #FF6633;}
 					.damsResource {font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: normal;}
 					.popertyLabel_1_value {font-size: 12px;font-weight: bold;text-align: left;background-color: #bbb;padding-left: 5px;vertical-align: top;min-width: 100px;white-space:nowrap;}					
-					.popertyLabel_1 {font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: bold;text-align: left;background-color: #bbb;padding-left: 5px;vertical-align: top;width: 132px;}
+					.popertyLabel_1 {font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: bold;text-align: left;background-color: #bbb;padding-left: 5px;vertical-align: top;width: 132px;color: #003399;}
 					.popertyLabel_2 {margin-left:15;font-family: Arial, Helvetica, sans-serif;font-size: 12px;text-align: left;background-color: #D4D4D4;width: 120px;vertical-align: top;color: #003399;}
 					.propertyIcon {width:16px;height:16px;background-image: url("http://library.ucsd.edu/dc/images/glyphicons-halflings-white.png");background-position:  -46px  -118px;}
 					.popertyValue {font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: normal;text-align: left;background-color: #D4D4D4;padding-left: 3px;font-weight: bold;vertical-align: top;}	
