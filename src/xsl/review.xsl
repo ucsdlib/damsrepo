@@ -31,11 +31,11 @@
 					.subGroup{margin-bottom:5px;border-bottom: 1px solid #bbb;border-right: 1px solid #bbb;}
 					.subGroup_hl{margin-bottom:5px;border: 2px solid #FF6633;}
 					.damsResource {font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: normal;}
-					.popertyLabel_1_value {font-size: 12px;font-weight: bold;text-align: left;background-color: #bbb;color:#003399;padding-left: 5px;vertical-align: top;min-width: 100px;white-space:nowrap;}					
-					.popertyLabel_1 {font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: bold;text-align: left;background-color: #bbb;padding-left: 5px;vertical-align: top;width: 132px;color: #003399;}
-					.popertyLabel_2 {margin-left:15;font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: bold;text-align: left;background-color: #D4D4D4;width: 120px;vertical-align: top;}
+					.popertyLabel_1_value {font-size: 12px;font-weight: bold;text-align: left;background-color: #bbb;padding-left: 5px;vertical-align: top;min-width: 100px;white-space:nowrap;}					
+					.popertyLabel_1 {font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: bold;text-align: left;background-color: #bbb;padding-left: 5px;vertical-align: top;width: 132px;}
+					.popertyLabel_2 {margin-left:15;font-family: Arial, Helvetica, sans-serif;font-size: 12px;text-align: left;background-color: #D4D4D4;width: 120px;vertical-align: top;color: #003399;}
 					.propertyIcon {width:16px;height:16px;background-image: url("http://library.ucsd.edu/dc/images/glyphicons-halflings-white.png");background-position:  -46px  -118px;}
-					.popertyValue {font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: normal;text-align: left;background-color: #D4D4D4;padding-left: 3px;color: #003399;vertical-align: top;}	
+					.popertyValue {font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: normal;text-align: left;background-color: #D4D4D4;padding-left: 3px;font-weight: bold;vertical-align: top;}	
 					.title {font-family: Arial, Helvetica, sans-serif;font-size: 24px;font-weight: bold;text-align: center;padding: 20px;color: #333;}
 					
 				</style>
@@ -118,6 +118,7 @@
 		<ul style="border: none;padding-top: 10px;padding-left: 0;">
 			<xsl:call-template name="prop">
 				<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select="."/></xsl:call-template></xsl:with-param>
+				<xsl:with-param name="propName" select="local-name()"/>
   				<xsl:with-param name="propNode" select="."/>
 			</xsl:call-template>
 			<xsl:if test="@rdf:resource">
@@ -126,7 +127,7 @@
 					<li>
 						<ul class="subGroup" onmouseover="javascript:this.className='subGroup_hl';" onmouseout="javascript:this.className='subGroup';">
 							<xsl:call-template name="damsThing">
-									<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select=".."/></xsl:call-template></xsl:with-param>
+									<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select="../.."/></xsl:call-template></xsl:with-param>
 							</xsl:call-template>
 						</ul>
 					</li>
