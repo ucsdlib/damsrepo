@@ -106,6 +106,7 @@ import edu.ucsd.library.dams.file.Checksum;
 import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.file.FileStoreUtil;
 import edu.ucsd.library.dams.file.ImageMagick;
+import edu.ucsd.library.dams.file.Ffmpeg;
 import edu.ucsd.library.dams.file.impl.LocalStore;
 import edu.ucsd.library.dams.jhove.JhoveInfo;
 import edu.ucsd.library.dams.jhove.MyJhoveBase;
@@ -450,6 +451,11 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( magickCommand == null )
 				magickCommand = "convert";
 
+			// Ffmpeg convert command
+			ffmpegCommand = props.getProperty("ffmpeg");
+			if ( ffmpegCommand == null )
+				ffmpegCommand = "ffmpeg";
+			
 			// Jhove configuration
 			String jhoveConf = props.getProperty("jhove.conf");
 			if ( jhoveConf != null )
@@ -2698,6 +2704,7 @@ public class DAMSAPIServlet extends HttpServlet
 				frame = Integer.parseInt( frameNo[0] );
 			}
 			ImageMagick magick = new ImageMagick( magickCommand );
+			Ffmpeg ffmpeg = new Ffmpeg(ffmpegCommand);
 			String[] sizewh = null;
 			String derid = null;
 			for ( int i=0; i<sizes.length; i++ )
@@ -2706,12 +2713,17 @@ public class DAMSAPIServlet extends HttpServlet
 				derName = sizes[i];
 				sizewh = derivativesRes.get(derName).split("x");
 				derid = derName + derivativesExt;
-
-				successful = magick.makeDerivative(
-					fs, objid, cmpid, fileid, derid,
-					Integer.parseInt(sizewh[0]),
-					Integer.parseInt(sizewh[1]), frame
-				);
+				if(fileid.endsWith(".mp3") || fileid.endsWith(".wav")) {
+					successful = ffmpeg.makeDerivative(
+								fs, objid, cmpid, fileid, derName+".mp3"
+					);
+				} else {
+					successful = magick.makeDerivative(
+					    fs, objid, cmpid, fileid, derid,
+						Integer.parseInt(sizewh[0]),
+						Integer.parseInt(sizewh[1]), frame
+					);
+				}
 				if(! successful )
 				{
 					errorMessage += "Error derivatives creation: "
