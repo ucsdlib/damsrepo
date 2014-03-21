@@ -135,13 +135,16 @@
 			<xsl:for-each select="*">
 				<li>
 					<ul class="subGroup" onmouseover="javascript:this.className='subGroup_hl';" onmouseout="javascript:this.className='subGroup';">
-						<xsl:call-template name="damsThing"/>
+						<xsl:call-template name="damsThing">
+							<xsl:with-param name="depth">1</xsl:with-param>
+						</xsl:call-template>
 					</ul>
 				</li>
 			</xsl:for-each>
 		</ul>
 	</xsl:template>
 	<xsl:template name="damsThing">
+		<xsl:param name="depth"/>
 		<xsl:param name="parentPath"/>
 	  	<xsl:variable name="xPath">
 		  	<xsl:call-template name="xPath">
@@ -153,6 +156,12 @@
 			<xsl:choose>
 	    		<xsl:when test="$parentPath"><xsl:value-of select="$parentPath"/></xsl:when>
 	    		<xsl:otherwise><xsl:value-of select="$xPath"/></xsl:otherwise>
+	    	</xsl:choose>
+		</xsl:variable>
+		<xsl:variable name="curDepth">
+			<xsl:choose>
+	    		<xsl:when test="$depth"><xsl:value-of select="$depth+1"/></xsl:when>
+	    		<xsl:otherwise>1</xsl:otherwise>
 	    	</xsl:choose>
 		</xsl:variable>
 		<xsl:choose>
@@ -198,9 +207,33 @@
 										<xsl:for-each select="//*[@rdf:about=$resid and not (contains(name(), 'Collection'))]">
 											<li>
 												<ul>
-													<xsl:call-template name="damsThing">
-															<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select="../.."/></xsl:call-template></xsl:with-param>
-													</xsl:call-template>
+													<xsl:choose>
+														<xsl:when test="$curDepth &lt; 10">
+															<xsl:call-template name="damsThing">
+																<xsl:with-param name="depth" select="$curDepth"/>
+																<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select="../.."/></xsl:call-template></xsl:with-param>
+															</xsl:call-template>
+														</xsl:when>
+														<xsl:otherwise>
+															<li>
+																<table>
+																	<tr>
+																		<td class="popertyLabel_1" style="background-color: #FFFF00;"><xsl:value-of select="local-name()"/></td>
+																		<td class="popertyLabel_1_value" style="background-color: #FFFF00;"><xsl:text>Warning: Potential Looping rdf:resource </xsl:text><xsl:value-of select="@rdf:about"/><xsl:text> (Depth &gt; 10)</xsl:text></td>
+																		<td style="background-color: #FFFF00;">
+																			<span class="damsPath">
+																		    	<xsl:choose>
+																		    		<xsl:when test="$parentPath"><xsl:value-of select="substring-after($xPath, concat($parentPath,'/'))"/></xsl:when>
+																		    		<xsl:otherwise><xsl:value-of select="$xPath"/></xsl:otherwise>
+																		    	</xsl:choose>
+																	    	<xsl:text> </xsl:text>
+																	    	</span>				
+																		</td>
+																	</tr>
+																</table>
+															</li>
+														</xsl:otherwise>
+													</xsl:choose>
 												</ul>
 											</li>
 										</xsl:for-each>
@@ -210,6 +243,7 @@
 											<li>
 												<ul>
 													<xsl:call-template name="damsThing">
+														<xsl:with-param name="depth" select="$curDepth"/>
 														<xsl:with-param name="parentPath"><xsl:value-of select="$curParentPath"/></xsl:with-param>
 													</xsl:call-template>
 												</ul>
@@ -244,6 +278,7 @@
 												<li>
 													<ul>
 														<xsl:call-template name="damsThing">
+															<xsl:with-param name="depth" select="$curDepth"/>
 															<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select="../.."/></xsl:call-template></xsl:with-param>
 														</xsl:call-template>
 													</ul>
@@ -264,6 +299,7 @@
 									<li>
 										<ul>
 											<xsl:call-template name="damsThing">
+												<xsl:with-param name="depth" select="$curDepth"/>
 												<xsl:with-param name="parentPath"><xsl:value-of select="$curParentPath"/></xsl:with-param>
 											</xsl:call-template>
 										</ul>
@@ -277,7 +313,8 @@
 				<!-- Empty linked resource -->
 				<xsl:for-each select="//*[@rdf:about=$resid and ./*]">
 					<xsl:call-template name="damsThing">
-							<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select="../.."/></xsl:call-template></xsl:with-param>
+						<xsl:with-param name="depth" select="$curDepth"/>
+						<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select="../.."/></xsl:call-template></xsl:with-param>
 					</xsl:call-template>
 				</xsl:for-each>
 			</xsl:otherwise>
