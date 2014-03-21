@@ -24,7 +24,7 @@
 					
 					h4 {margin-bottom: 0.25em; }
 					
-					.damsPath {font-family: Arial, Helvetica, sans-serif;color: #C00;text-align: right;font-size: 12px;white-space: nowrap;float: right;display: inline;padding-right: 5px;}
+					.damsPath {font-family: Arial, Helvetica, sans-serif;color: #C00;font-weight: normal;text-align: right;font-size: 12px;white-space: nowrap;float: right;display: inline;padding-right: 5px;}
 					.propertyBox {width: 1200px;align: center;}
 					.record {font-family: Arial, Helvetica, sans-serif;font-size: 16px;font-weight: bold;text-align: left;background-color: #444;padding-left: 5px;color: #FFF;width: 140px;height:24px;}
 					.recordValue {background-color: #444;color: #FFF;width: 500px;padding-left:10px;}
@@ -335,7 +335,7 @@
 		  	<xsl:variable name="propLabel">
 			  	<xsl:choose>
 			    		<xsl:when test="$propName"><xsl:value-of select="$propName"/></xsl:when>
-			    		<xsl:otherwise><xsl:value-of select="name($propNode/.)"/></xsl:otherwise>
+			    		<xsl:otherwise><xsl:value-of select="local-name($propNode/.)"/></xsl:otherwise>
 			    	</xsl:choose>
 		  	</xsl:variable>
 		  	<xsl:variable name="resid"><xsl:value-of select="@rdf:resource"/></xsl:variable>
@@ -357,15 +357,9 @@
 								<xsl:otherwise><xsl:value-of select="$propValue" disable-output-escaping="yes"/></xsl:otherwise>
 						    </xsl:choose>
 						</td>
-					    <!-- 
-					    <td class="damsPath">
-					    	<xsl:choose>
-					    		<xsl:when test="$parentPath"><xsl:value-of select="substring-after($xPath, concat($parentPath,'/'))"/></xsl:when>
-					    		<xsl:otherwise><xsl:value-of select="$xPath"/></xsl:otherwise>
-					    	</xsl:choose>
-					    	<xsl:text> </xsl:text>
+					    <td class="popertyValue">
+							<span class="damsPath"><xsl:value-of select="name()"/></span>
 					    </td>
-					     -->
 				    </tr>
 				 </table>
 		  	 </li>
