@@ -2818,7 +2818,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// extract text
 			in = fs.getInputStream( objid, cmpid, fileid );
 			//String text = PDFParser.getContent( in, objid );
-			ContentHandler contentHandler = new BodyContentHandler();
+			ContentHandler contentHandler = new BodyContentHandler((int)maxUploadSize*4);
 			Metadata metadata = new Metadata();
 			metadata.set(Metadata.RESOURCE_NAME_KEY, fileid);
 			Parser parser = new AutoDetectParser();
