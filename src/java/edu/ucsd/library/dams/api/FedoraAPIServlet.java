@@ -285,6 +285,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					|| path[4].equals(fedoraRightsDS)
 					|| path[4].equals(fedoraLinksDS)
 					|| path[4].equals(fedoraSystemDS)
+					|| path[4].startsWith(fulltextPrefix)
 					|| fs.exists(path[2],cmpid(path[4]),fileid(path[4])) )
 				{
 					// if the file exists, send profile
