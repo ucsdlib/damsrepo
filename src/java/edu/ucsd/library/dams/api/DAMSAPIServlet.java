@@ -997,6 +997,14 @@ public class DAMSAPIServlet extends HttpServlet
 					info = error("Error uploading file");
 				}
 			}
+			// POST /objects/bb1234567x/merge
+			else if ( path.length == 4 && path[1].equals("objects") )
+			{
+		   		error(
+	   				res.SC_BAD_REQUEST,
+			   		"Please use PUT to merge records."
+			   	);
+			}
 			// POST /objects/bb1234567x/transform
 			else if ( path.length == 4 && path[1].equals("objects")
 				&& path[3].equals("transform") )
@@ -1247,6 +1255,26 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					log.warn( "Error updating object", ex );
 					info = error( "Error updating object" );
+				}
+			} 
+			// PUT /objects/bb1234567x/merge
+			else if ( path.length == 4 && path[1].equals("objects") )
+			{
+				try
+				{
+					InputBundle bundle = input( req );
+					params = bundle.getParams();
+					ts = triplestore(req);
+					es = events(req);
+					fs = filestore(req);
+					info = mergeRecords(
+						path[2], params, ts, es, fs
+					);
+				}
+				catch ( Exception ex )
+				{
+					log.warn( "Error merging records to " + path[2], ex );
+					info = error( "Error merging records(s) to " + path[2] );
 				}
 			}
 			// PUT /files/bb1234567x/1.tif
