@@ -998,9 +998,10 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 			}
 			// POST /objects/bb1234567x/merge
-			else if ( path.length == 4 && path[1].equals("objects") )
+			else if ( path.length == 4 && path[1].equals("objects") 
+					&& path[3].equals("merge"))
 			{
-		   		error(
+		   		info = error(
 	   				res.SC_BAD_REQUEST,
 			   		"Please use PUT to merge records."
 			   	);
