@@ -3720,6 +3720,304 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		stream.flush();
 		stream.close();
 	}
+	
+	/**
+	 * Merge records in the id parameter to record objid
+	 * @param oid
+	 * @param params
+	 * @throws TripleStoreException 
+	 */
+	private Map mergeRecords(String objid, Map<String,String[]> params, TripleStore ts, TripleStore es, FileStore fs) throws TripleStoreException
+	{
+		
+		// make sure an identifier is specified
+		if ( objid == null || objid.trim().equals("") )
+		{
+			return error(
+				HttpServletResponse.SC_BAD_REQUEST, "No subject provided"
+			);
+		}
+
+   		// make sure the target record exists for merging
+		Identifier id = createID( objid, null, null );
+		if ( !ts.exists(id) )
+		{
+	   		return error(
+		   		HttpServletResponse.SC_FORBIDDEN,
+		   		"The selected record does not exist: " + objid
+	  		);
+		}
+		
+		
+		Map info = null;	
+		String message = null;
+		String tmpid = null;
+		String[] ids = params.get("id");
+		List<String> recordsAffected = new ArrayList<String>();
+		List<String> records2merge = new ArrayList<String>();
+		for ( int i=0; i<ids.length; i++ )
+		{
+			tmpid = ids[i];
+			String[] mids = tmpid.split(",");
+			for ( int j=0; j<mids.length; j++ )
+			{
+				tmpid = mids[j].trim();
+				if ( tmpid.length() > 0 )
+				{
+					if ( !ts.exists( createID(tmpid, null, null)) )
+					{
+				   		return error(
+					   		HttpServletResponse.SC_FORBIDDEN,
+					   		"Record for merging does not exist: " + tmpid
+				  		);
+					}
+					records2merge.add( tmpid );
+				}
+			}
+		}
+		
+		boolean successful = true;
+		String merid = null;
+		String records2MergeStr = "";
+		Statement stmt  = null;
+		StatementIterator sit = null;
+		int idNSLength = idNS.length();
+		
+		for ( Iterator<String> it=records2merge.iterator(); it.hasNext(); )
+		{	
+			merid = it.next();
+			records2MergeStr += ( records2MergeStr.length()>0?", ":"" ) + merid;
+			boolean merged = true;
+			
+			Identifier mergedID = createID( merid, null, null );
+			try {
+				
+				sit = ts.listStatements( null, null, mergedID );
+				while ( sit.hasNext() )
+				{
+					stmt = sit.nextStatement();
+					
+					Identifier tmpID = stmt.getSubject();
+					List<String> subs = new ArrayList<String>();
+					
+					tmpid = tmpID.getId();
+					if(tmpid.startsWith(idNS))
+					{
+						tmpid = tmpid.substring(idNSLength);
+						if(tmpid.indexOf("/") > 0) // Component, File etc.
+							tmpid = tmpid.substring(0, tmpid.indexOf("/"));
+						subs.add(tmpid);
+					}
+					else
+					{
+						//Internal class instances, BlankNodes or other unknown nodes
+						retrieveSubject( tmpID, ts, subs );
+					}
+					
+					if( subs.size() == 0 )
+					{
+						merged = false;
+						//Unbound record or other unknown nodes?
+						message = "Unable to find subject parent " + stmt.getObject() + ": " + stmt.toString();
+						log.warn( message );
+						updateErrorInfo( info, message );
+					}
+					else if( subs.size() == 1 )
+					{
+						//Parent subject
+						String subAffected = subs.get(0);
+						
+						//Change the linked records to link to objid choosen
+						Identifier parentID = createID( subAffected, null, null );
+						//Update the linking
+						updateResource(stmt, ts, id, parentID);
+						createEvent(
+								ts, es, fs, subAffected, null, null, Event.RECORD_EDITED, true, null, null
+						);
+						
+						log.info("Updated record " + parentID.getId() + " to link to " + id.getId() + ".");
+						
+						//Looking up records that are affected
+						processAffectedRecords( subs, recordsAffected );
+						while(subs.size() > 0)
+						{
+							recordsAffected.addAll( subs );
+							List<String> subAs = new ArrayList<String>();
+							for(Iterator<String> itSubs=subs.iterator(); itSubs.hasNext();)
+							{
+								String subTmp = itSubs.next();
+								retrieveSubject( createID( subTmp, null, null ), ts, subAs);
+							}
+							processAffectedRecords( subAs, recordsAffected );
+							subs = subAs;
+						}
+					}
+					else
+					{
+						merged = false;
+						message = "";
+						for(Iterator<String> itTmp=subs.iterator(); itTmp.hasNext();)
+							message = (message.length()>0?", ":"") + message;
+						message = "Failed to merge " +  mergedID.getId() + " to " + objid + ". multiple parent object found for " + mergedID.getId() + ": " + message;
+						log.error( message );
+						updateErrorInfo( info, message );
+					}
+				}
+				
+				sit.close();
+				sit = null;
+				
+				//Delete the merged record from the triplestore if there are no records linked to it
+				sit = ts.listStatements( null, null, mergedID );
+				if( !sit.hasNext() )
+				{
+					ts.removeObject(mergedID);
+					
+					log.info("Merging " + records2MergeStr + " to " + objid + " deleted " + mergedID.getId()  + " from the triplestore.");
+					if ( ! ts.exists(id) )
+					{
+						createEvent(
+								ts, es, fs, merid, null, null, Event.RECORD_DELETED, true, null, null
+						);
+					}
+					else
+					{
+						createEvent(
+								ts, es, fs, merid, null, null, Event.RECORD_DELETED, false, null, null
+						);
+						updateErrorInfo( info, "Object deletion failed: " +  mergedID.getId());
+					}
+				}
+				else
+				{
+					successful = false;
+					message = "Can't delete the merged records " + mergedID.getId() + " from the triplestore. The following triples link to it: " + sit.nextStatement().toString();
+					updateErrorInfo( info, message );
+					log.error( message );
+				}
+			}
+			finally
+			{
+				if ( sit != null )
+				{
+					sit.close();
+					sit = null;
+				}
+			}
+
+			//Remove the merged record from SOLR
+			if ( merged )
+			{
+				message = indexQueue( merid.replace(idNS, ""), "purgeObject" );
+				if ( message != null && message.length() > 0 )
+				{
+					successful = false;
+					updateErrorInfo( info, message );
+				}
+				log.info("Records merging deleted record " + merid.replace(idNS, "") + " from SOLR.");
+			}
+			else
+			{
+				successful = false;
+			}
+			
+			//Update SOLR for records affected
+			for ( Iterator<String> ita=recordsAffected.iterator(); ita.hasNext(); )
+			{
+				message = indexQueue( ita.next(), "modifyObject" );
+				if ( message != null && message.length() > 0 )
+					updateErrorInfo( info, message );
+			}
+			log.info("Updated affected records in solr for merging " + records2MergeStr + " to " + objid + ": Total records updated " +  recordsAffected.size());
+		}
+		if ( successful &&  info == null )
+			info = status( 201, "Successfully merged records (" + records2MergeStr + ") to " + objid + ". Total records updated in solr " + recordsAffected.size());
+		else if ( info == null )
+			updateErrorInfo( info, "Failed to merge records2MergeStr to " + objid + ".");
+		
+		return info;
+	}
+	
+	private void processAffectedRecords( List<String> subs, List<String> recordsAffected ) throws TripleStoreException
+	{
+		//Skip those records that are processed previously 
+		Object[] subsArr = subs.toArray();
+		for(int i=0; i<subsArr.length; i++)
+		{
+			if ( recordsAffected.contains(subsArr[i]) )
+			{
+				subs.remove(subsArr[i]);
+			}
+		}
+	}
+	
+	private void retrieveSubject(Identifier objID, TripleStore ts, List<String> subjects) throws TripleStoreException
+	{
+		
+		StatementIterator sit = null;
+		Statement stmt = null;
+		List<Identifier> ids = new ArrayList<Identifier>();
+		try{
+			sit = ts.listStatements( null, null, objID );
+			while(sit.hasNext())
+			{
+				stmt = sit.nextStatement();
+				Identifier tmpID = stmt.getSubject();
+				String predicate = stmt.getPredicate().getId();
+				//Skip looking up the linking for collections and objects
+				if ( !(predicate.toLowerCase().endsWith("collection") || predicate.toLowerCase().endsWith("collectionpart") || predicate.toLowerCase().endsWith("haspart") || predicate.toLowerCase().endsWith("object")) )
+					ids.add(tmpID);
+			}
+		}
+		finally
+		{
+			if(sit != null)
+			{
+				sit.close();
+				sit = null;
+			}
+		}
+		
+		for ( Iterator<Identifier> it= ids.iterator(); it.hasNext(); )
+		{
+			int idNSLength = idNS.length();
+			
+			Identifier id = it.next();
+			String tmpid =id.getId();
+			if ( tmpid.startsWith(idNS) )
+			{
+				tmpid = tmpid.substring(idNSLength);
+				if ( tmpid.indexOf("/") > 0 ) // Component, File etc.
+					tmpid = tmpid.substring(0, tmpid.indexOf("/"));
+				
+				if ( !subjects.contains(tmpid) )
+					subjects.add(tmpid);
+			}
+			else
+			{
+				//Internal class instance, BlankNodes or other unknown nodes
+				retrieveSubject( id, ts, subjects );
+			}
+		}
+	}
+	
+	private void updateResource(Statement stmt, TripleStore ts, Identifier newID, Identifier parent) throws TripleStoreException
+	{   
+		Identifier objID = stmt.getObject();
+		//Add statement for the new linking.
+		stmt.setObject(newID);
+		ts.addStatement(stmt, parent);
+		//Remove the original linked record statement
+		ts.removeStatements(stmt.getSubject(), stmt.getPredicate(), objID);
+	}
+	
+	private void updateErrorInfo(Map info, String message)
+	{
+		if(info == null)
+			info = error( 500, message);
+		else
+			info = error( 500, info.get("message") + " ; " + message);
+	}
 
 	/**
 	 * Build querystring for Solr.
