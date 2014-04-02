@@ -3806,6 +3806,14 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			}
 		}
 		
+		// make sure an identifier(s) for merging is specified
+		if ( records2merge.size() == 0 )
+		{
+			return error(
+				HttpServletResponse.SC_BAD_REQUEST, "No subject for merging provided in id parameter"
+			);
+		}
+		
 		boolean successful = true;
 		String merid = null;
 		String records2MergeStr = "";
@@ -3859,6 +3867,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 						
 						//Change the linked records to link to objid choosen
 						Identifier parentID = createID( subAffected, null, null );
+						cacheRemove(subAffected);
 						//Update the linking
 						updateResource(stmt, ts, id, parentID);
 						createEvent(
@@ -3901,6 +3910,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 				sit = ts.listStatements( null, null, mergedID );
 				if( !sit.hasNext() )
 				{
+					cacheRemove(merid);
 					ts.removeObject(mergedID);
 					
 					log.info("Merging " + records2MergeStr + " to " + objid + " deleted " + mergedID.getId()  + " from the triplestore.");
