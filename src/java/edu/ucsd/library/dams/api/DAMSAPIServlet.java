@@ -1259,7 +1259,8 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 			} 
 			// PUT /objects/bb1234567x/merge
-			else if ( path.length == 4 && path[1].equals("objects") )
+			else if ( path.length == 4 && path[1].equals("objects") 
+					&& path[3].equals("merge") )
 			{
 				try
 				{
