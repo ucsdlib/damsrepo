@@ -143,7 +143,7 @@ public class DAMSObject
 				{
 					model = model.substring(1,model.length()-1);
 				}
-				links.add( new Statement( id, hasModel, model ) );
+				links.add( new Statement( id, hasModel, model, id ) );
 			}
 		}
 		it.close();

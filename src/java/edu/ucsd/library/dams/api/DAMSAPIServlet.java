@@ -3455,7 +3455,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 	{
 		return null; // DAMS_MGR
 	}
-	// XXX: probably don't need this with automatic ARK/URI translation
+	// probably don't need this with automatic ARK/URI translation
 	public Map predicateList( TripleStore ts )
 	{
 		try
@@ -3834,23 +3834,11 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 				while ( sit.hasNext() )
 				{
 					stmt = sit.nextStatement();
+					Identifier parent = stmt.getParent();
 					
 					Identifier tmpID = stmt.getSubject();
 					List<String> subs = new ArrayList<String>();
-					
-					tmpid = tmpID.getId();
-					if(tmpid.startsWith(idNS))
-					{
-						tmpid = tmpid.substring(idNSLength);
-						if(tmpid.indexOf("/") > 0) // Component, File etc.
-							tmpid = tmpid.substring(0, tmpid.indexOf("/"));
-						subs.add(tmpid);
-					}
-					else
-					{
-						//Internal class instances, BlankNodes or other unknown nodes
-						retrieveSubject( tmpID, ts, subs );
-					}
+					subs.add( parent );
 					
 					if( subs.size() == 0 )
 					{
@@ -4666,7 +4654,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			formatVersion		jhove
 			dateCreated			jhove
 			quality				jhove
-			crc32checksum		jhove XXX: do we want other checksum algorithms?
+			crc32checksum		jhove
 			md5checksum			jhove
 			sha1checksum		jhove
 			preservationLevel	fixed=full

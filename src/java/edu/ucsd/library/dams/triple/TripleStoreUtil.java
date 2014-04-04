@@ -248,12 +248,12 @@ public class TripleStoreUtil
 				if ( s.getObject().isLiteral() )
 				{
 					obj = literalString(s.getLiteral());
-					stmt = new Statement( sub, pre, obj );
+					stmt = new Statement( sub, pre, obj, null );
 				}
 				else
 				{
 					objId = toIdentifier( s.getResource(), bnodes, ts );
-					stmt = new Statement( sub, pre, objId );
+					stmt = new Statement( sub, pre, objId, null );
 				}
 
 				// find blank node parent
