@@ -106,6 +106,7 @@ import edu.ucsd.library.dams.file.Checksum;
 import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.file.FileStoreUtil;
 import edu.ucsd.library.dams.file.ImageMagick;
+import edu.ucsd.library.dams.file.Ffmpeg;
 import edu.ucsd.library.dams.file.impl.LocalStore;
 import edu.ucsd.library.dams.jhove.JhoveInfo;
 import edu.ucsd.library.dams.jhove.MyJhoveBase;
@@ -450,6 +451,11 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( magickCommand == null )
 				magickCommand = "convert";
 
+			// Ffmpeg convert command
+			ffmpegCommand = props.getProperty("ffmpeg");
+			if ( ffmpegCommand == null )
+				ffmpegCommand = "ffmpeg";
+			
 			// Jhove configuration
 			String jhoveConf = props.getProperty("jhove.conf");
 			if ( jhoveConf != null )
@@ -646,6 +652,34 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				ts = triplestore(req);
 				info = objectsListAll( ts );
+			}
+			// GET /objects/export?id=bb1111111x&id=bb2222222y&id=bb3333333z
+			else if ( path.length == 3 && path[1].equals("objects") 
+				&& path[2].equals("export") )
+			{
+				ts = triplestore(req);
+				es = events(req);
+				String[] ids = req.getParameterValues("id");
+				List<String> objids = new ArrayList<String>();
+				for ( int i = 0; i < ids.length; i++ )
+				{
+					if ( ids[i] != null && !ids[i].trim().equals("") )
+					{
+						objids.add( ids[i].trim() );
+					}
+				}
+				try
+				{
+					String xml = objectBatch( objids, ts, es );
+					output( res.SC_OK, xml, "application/xml", res );
+					outputRequired = false;
+				}
+				catch ( Exception ex )
+				{
+					info = error(
+						"Error processing batch retrieval: " + ex.getMessage()
+					);
+				}
 			}
 			// GET /objects/bb1234567x
 			else if ( path.length == 3 && path[1].equals("objects") )
@@ -963,6 +997,15 @@ public class DAMSAPIServlet extends HttpServlet
 					info = error("Error uploading file");
 				}
 			}
+			// POST /objects/bb1234567x/merge
+			else if ( path.length == 4 && path[1].equals("objects") 
+					&& path[3].equals("merge"))
+			{
+		   		info = error(
+	   				res.SC_BAD_REQUEST,
+			   		"Please use PUT to merge records."
+			   	);
+			}
 			// POST /objects/bb1234567x/transform
 			else if ( path.length == 4 && path[1].equals("objects")
 				&& path[3].equals("transform") )
@@ -1213,6 +1256,27 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					log.warn( "Error updating object", ex );
 					info = error( "Error updating object" );
+				}
+			} 
+			// PUT /objects/bb1234567x/merge
+			else if ( path.length == 4 && path[1].equals("objects") 
+					&& path[3].equals("merge") )
+			{
+				try
+				{
+					InputBundle bundle = input( req );
+					params = bundle.getParams();
+					ts = triplestore(req);
+					es = events(req);
+					fs = filestore(req);
+					info = mergeRecords(
+						path[2], params, ts, es, fs
+					);
+				}
+				catch ( Exception ex )
+				{
+					log.warn( "Error merging records to " + path[2], ex );
+					info = error( "Error merging records(s) to " + path[2] );
 				}
 			}
 			// PUT /files/bb1234567x/1.tif
@@ -2078,9 +2142,6 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				sit = ts.listStatements(parent, hasFile, fid);
 				if(sit.hasNext()){
-					// there is no PUT for characterization, what is the use
-					// case for tech md redo?  when a new file is uploaded,
-					// tech md should already be deleted in fileUpload...
 					return error(
 						HttpServletResponse.SC_FORBIDDEN,
 						"Characterization for file " + fid.getId()
@@ -2190,7 +2251,7 @@ public class DAMSAPIServlet extends HttpServlet
 				if ( overwrite )
 				{
 					// delete existing metadata
-					fileDeleteMetadata( objid, cmpid, fileid, ts );
+					fileDeleteMetadata( objid, cmpid, fileid, ts, true );
 				}
 				else
 				{
@@ -2463,7 +2524,7 @@ public class DAMSAPIServlet extends HttpServlet
 				// delete any existing metadata when replacing files
 				if ( overwrite )
 				{
-					Map delInfo = fileDeleteMetadata(objid, cmpid, fileid, ts);
+					Map delInfo = fileDeleteMetadata(objid, cmpid, fileid, ts, false);
 					int delStat = getParamInt(delInfo,"statusCode",200);
 					if ( delStat > 299 )
 					{
@@ -2554,7 +2615,7 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 
 				// FILE_META: update file metadata
-				fileDeleteMetadata( objid, cmpid, fileid, ts );
+				fileDeleteMetadata( objid, cmpid, fileid, ts, false );
 
 				return status( "File deleted successfully" );
 			}
@@ -2673,6 +2734,7 @@ public class DAMSAPIServlet extends HttpServlet
 				frame = Integer.parseInt( frameNo[0] );
 			}
 			ImageMagick magick = new ImageMagick( magickCommand );
+			Ffmpeg ffmpeg = new Ffmpeg(ffmpegCommand);
 			String[] sizewh = null;
 			String derid = null;
 			for ( int i=0; i<sizes.length; i++ )
@@ -2681,12 +2743,17 @@ public class DAMSAPIServlet extends HttpServlet
 				derName = sizes[i];
 				sizewh = derivativesRes.get(derName).split("x");
 				derid = derName + derivativesExt;
-
-				successful = magick.makeDerivative(
-					fs, objid, cmpid, fileid, derid,
-					Integer.parseInt(sizewh[0]),
-					Integer.parseInt(sizewh[1]), frame
-				);
+				if(fileid.endsWith(".mp3") || fileid.endsWith(".wav")) {
+					successful = ffmpeg.makeDerivative(
+								fs, objid, cmpid, fileid, derName+".mp3"
+					);
+				} else {
+					successful = magick.makeDerivative(
+					    fs, objid, cmpid, fileid, derid,
+						Integer.parseInt(sizewh[0]),
+						Integer.parseInt(sizewh[1]), frame
+					);
+				}
 				if(! successful )
 				{
 					errorMessage += "Error derivatives creation: "
@@ -2781,7 +2848,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// extract text
 			in = fs.getInputStream( objid, cmpid, fileid );
 			//String text = PDFParser.getContent( in, objid );
-			ContentHandler contentHandler = new BodyContentHandler();
+			ContentHandler contentHandler = new BodyContentHandler((int)maxUploadSize*4);
 			Metadata metadata = new Metadata();
 			metadata.set(Metadata.RESOURCE_NAME_KEY, fileid);
 			Parser parser = new AutoDetectParser();
@@ -3137,7 +3204,7 @@ public class DAMSAPIServlet extends HttpServlet
 			for ( int i = 0; i < predicates.length; i++ )
 			{
 				Identifier pre = createPred( predicates[i] );
-				TripleStoreUtil.recursiveDelete( id, sub, pre, null, ts );
+				TripleStoreUtil.recursiveDelete( id, sub, pre, null, null, ts );
 			}
 
 			//indexQueue(objid,"modifyObject");
@@ -3156,6 +3223,84 @@ public class DAMSAPIServlet extends HttpServlet
 			);} catch ( Exception ex2 ) {}
 			return error( "Error deleting predicates: " + ex.toString() );
 		}
+	}
+	public String objectBatch( List<String> objids, TripleStore ts,
+		TripleStore es ) throws Exception
+	{
+		ArrayList<String> docs = new ArrayList<String>();
+		ArrayList<String> errors = new ArrayList<String>();
+
+		// retrieve rdf/xml for each record
+		for ( int i = 0; i < objids.size(); i++ )
+		{
+			try
+			{
+				Identifier id = createID( objids.get(i), null, null );
+				if ( ts.exists(id) )
+				{
+					DAMSObject obj = new DAMSObject(ts, es, objids.get(i), nsmap);
+					docs.add( obj.getRDFXML(true) );
+				}
+				else if ( es != null && es.exists(id) )
+				{
+					DAMSObject obj = new DAMSObject(es, null, objids.get(i), nsmap);
+					docs.add( obj.getRDFXML(true) );
+				}
+				else
+				{
+					errors.add( objids.get(i) + ": not found" );
+				}
+			}
+			catch ( Exception ex )
+			{
+				errors.add( objids.get(i) + ": " + ex.toString() );
+			}
+		}
+
+		// combine xml documents
+		String xml = null;
+		if ( docs.size() == 1 )
+		{
+			xml = docs.get(0);
+		}
+		else if ( docs.size() > 1 )
+		{
+			try
+			{
+				Document doc = DocumentHelper.parseText(docs.get(0));
+				Element rdf = doc.getRootElement();
+				for ( int i = 1; i < docs.size(); i++ )
+				{
+					Document doc2 = DocumentHelper.parseText(docs.get(i));
+					Iterator it = doc2.getRootElement().elementIterator();
+					if ( it.hasNext() )
+					{
+						Element e = (Element)it.next();
+						rdf.add( e.detach() );
+					}
+				}
+				xml = doc.asXML();
+			}
+			catch ( Exception ex )
+			{
+				errors.add(
+					"Error combining records into a batch: " + ex.toString()
+				);
+			}
+		}
+
+		// check errors
+		if ( errors.size() > 0 )
+		{
+			String msg = errors.get(0);
+			for ( int i = 1; i < errors.size(); i++ )
+			{
+				msg += "; " + errors.get(i);
+			}
+			throw new Exception( msg );
+		}
+
+		return xml;
 	}
 	public Map objectShow( String objid, TripleStore ts, TripleStore es )
 	{
@@ -3310,7 +3455,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 	{
 		return null; // DAMS_MGR
 	}
-	// XXX: probably don't need this with automatic ARK/URI translation
+	// probably don't need this with automatic ARK/URI translation
 	public Map predicateList( TripleStore ts )
 	{
 		try
@@ -3332,7 +3477,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 	}
 
 	private Map fileDeleteMetadata( String objid, String cmpid, String fileid,
-		TripleStore ts ) throws TripleStoreException
+		TripleStore ts, boolean keepSourceCapture ) throws TripleStoreException
 	{
 		try
 		{
@@ -3341,14 +3486,24 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			Identifier sub = createID( objid, cmpid, null );
 			Identifier fileID = createID( objid, cmpid, fileid );
 			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
+			Identifier sourceCapture = null;
+			if ( keepSourceCapture )
+			{
+				sourceCapture = Identifier.publicURI( prNS + "sourceCapture" );
+			}
 
 			// delete file metadata (n.b. first arg is object identifer, not
 			// the subject of the triple, so this works for files attached
 			// to components, etc.)
-			TripleStoreUtil.recursiveDelete( parent, sub, hasFile, fileID, ts );
+			TripleStoreUtil.recursiveDelete(
+				parent, sub, hasFile, fileID, sourceCapture, ts
+			);
 
 			// delete links from object/components
-			ts.removeStatements( null, null, fileID );
+			if ( !keepSourceCapture )
+			{
+				ts.removeStatements( null, null, fileID );
+			}
 
 			return status("File metadata deleted successfully");
 		}
@@ -3594,6 +3749,302 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		stream.writeEndDocument();
 		stream.flush();
 		stream.close();
+	}
+	
+	/**
+	 * Merge records in the id parameter to record objid
+	 * @param oid
+	 * @param params
+	 * @throws TripleStoreException 
+	 */
+	private Map mergeRecords(String objid, Map<String,String[]> params, TripleStore ts, TripleStore es, FileStore fs) throws TripleStoreException
+	{
+		
+		// make sure an identifier is specified
+		if ( objid == null || objid.trim().equals("") )
+		{
+			return error(
+				HttpServletResponse.SC_BAD_REQUEST, "No subject provided"
+			);
+		}
+
+   		// make sure the target record exists for merging
+		Identifier id = createID( objid, null, null );
+		if ( !ts.exists(id) )
+		{
+	   		return error(
+		   		HttpServletResponse.SC_FORBIDDEN,
+		   		"The selected record does not exist: " + objid
+	  		);
+		}
+		
+		
+		Map info = null;	
+		String message = null;
+		String tmpid = null;
+		String[] ids = params.get("id");
+		List<String> recordsAffected = new ArrayList<String>();
+		List<String> records2merge = new ArrayList<String>();
+		for ( int i=0; i<ids.length; i++ )
+		{
+			tmpid = ids[i];
+			String[] mids = tmpid.split(",");
+			for ( int j=0; j<mids.length; j++ )
+			{
+				tmpid = mids[j].trim();
+				if ( tmpid.length() > 0 )
+				{
+					if ( !ts.exists( createID(tmpid, null, null)) )
+					{
+				   		return error(
+					   		HttpServletResponse.SC_FORBIDDEN,
+					   		"Record for merging does not exist: " + tmpid
+				  		);
+					}
+					records2merge.add( tmpid );
+				}
+			}
+		}
+		
+		// make sure an identifier(s) for merging is specified
+		if ( records2merge.size() == 0 )
+		{
+			return error(
+				HttpServletResponse.SC_BAD_REQUEST, "No subject for merging provided in id parameter"
+			);
+		}
+		
+		boolean successful = true;
+		String merid = null;
+		String records2MergeStr = "";
+		Statement stmt  = null;
+		StatementIterator sit = null;
+		int idNSLength = idNS.length();
+		
+		for ( Iterator<String> it=records2merge.iterator(); it.hasNext(); )
+		{	
+			merid = it.next();
+			records2MergeStr += ( records2MergeStr.length()>0?", ":"" ) + merid;
+			boolean merged = true;
+			
+			Identifier mergedID = createID( merid, null, null );
+			try {
+				
+				sit = ts.listStatements( null, null, mergedID );
+				while ( sit.hasNext() )
+				{
+					stmt = sit.nextStatement();
+					Identifier parent = stmt.getParent();
+					
+					Identifier tmpID = stmt.getSubject();
+					List<String> subs = new ArrayList<String>();
+					subs.add( parent.getId() );
+					
+					if( subs.size() == 0 )
+					{
+						merged = false;
+						//Unbound record or other unknown nodes?
+						message = "Unable to find subject parent " + stmt.getObject() + ": " + stmt.toString();
+						log.warn( message );
+						updateErrorInfo( info, message );
+					}
+					else if( subs.size() == 1 )
+					{
+						//Parent subject
+						String subAffected = subs.get(0);
+						
+						//Change the linked records to link to objid choosen
+						Identifier parentID = createID( subAffected, null, null );
+						cacheRemove(subAffected);
+						//Update the linking
+						updateResource(stmt, ts, id, parentID);
+						createEvent(
+								ts, es, fs, subAffected, null, null, Event.RECORD_EDITED, true, null, null
+						);
+						
+						log.info("Updated record " + parentID.getId() + " to link to " + id.getId() + ".");
+						
+						//Looking up records that are affected
+						processAffectedRecords( subs, recordsAffected );
+						while(subs.size() > 0)
+						{
+							recordsAffected.addAll( subs );
+							List<String> subAs = new ArrayList<String>();
+							for(Iterator<String> itSubs=subs.iterator(); itSubs.hasNext();)
+							{
+								String subTmp = itSubs.next();
+								retrieveSubject( createID( subTmp, null, null ), ts, subAs);
+							}
+							processAffectedRecords( subAs, recordsAffected );
+							subs = subAs;
+						}
+					}
+					else
+					{
+						merged = false;
+						message = "";
+						for(Iterator<String> itTmp=subs.iterator(); itTmp.hasNext();)
+							message = (message.length()>0?", ":"") + message;
+						message = "Failed to merge " +  mergedID.getId() + " to " + objid + ". multiple parent object found for " + mergedID.getId() + ": " + message;
+						log.error( message );
+						updateErrorInfo( info, message );
+					}
+				}
+				
+				sit.close();
+				sit = null;
+				
+				//Delete the merged record from the triplestore if there are no records linked to it
+				sit = ts.listStatements( null, null, mergedID );
+				if( !sit.hasNext() )
+				{
+					cacheRemove(merid);
+					ts.removeObject(mergedID);
+					
+					log.info("Merging " + records2MergeStr + " to " + objid + " deleted " + mergedID.getId()  + " from the triplestore.");
+					if ( ! ts.exists(id) )
+					{
+						createEvent(
+								ts, es, fs, merid, null, null, Event.RECORD_DELETED, true, null, null
+						);
+					}
+					else
+					{
+						createEvent(
+								ts, es, fs, merid, null, null, Event.RECORD_DELETED, false, null, null
+						);
+						updateErrorInfo( info, "Object deletion failed: " +  mergedID.getId());
+					}
+				}
+				else
+				{
+					successful = false;
+					message = "Can't delete the merged records " + mergedID.getId() + " from the triplestore. The following triples link to it: " + sit.nextStatement().toString();
+					updateErrorInfo( info, message );
+					log.error( message );
+				}
+			}
+			finally
+			{
+				if ( sit != null )
+				{
+					sit.close();
+					sit = null;
+				}
+			}
+
+			//Remove the merged record from SOLR
+			if ( merged )
+			{
+				message = indexQueue( merid.replace(idNS, ""), "purgeObject" );
+				if ( message != null && message.length() > 0 )
+				{
+					successful = false;
+					updateErrorInfo( info, message );
+				}
+				log.info("Records merging deleted record " + merid.replace(idNS, "") + " from SOLR.");
+			}
+			else
+			{
+				successful = false;
+			}
+			
+			//Update SOLR for records affected
+			for ( Iterator<String> ita=recordsAffected.iterator(); ita.hasNext(); )
+			{
+				message = indexQueue( ita.next(), "modifyObject" );
+				if ( message != null && message.length() > 0 )
+					updateErrorInfo( info, message );
+			}
+			log.info("Updated affected records in solr for merging " + records2MergeStr + " to " + objid + ": Total records updated " +  recordsAffected.size());
+		}
+		if ( successful &&  info == null )
+			info = status( 201, "Successfully merged records (" + records2MergeStr + ") to " + objid + ". Total records updated in solr " + recordsAffected.size());
+		else if ( info == null )
+			updateErrorInfo( info, "Failed to merge records2MergeStr to " + objid + ".");
+		
+		return info;
+	}
+	
+	private void processAffectedRecords( List<String> subs, List<String> recordsAffected ) throws TripleStoreException
+	{
+		//Skip those records that are processed previously 
+		Object[] subsArr = subs.toArray();
+		for(int i=0; i<subsArr.length; i++)
+		{
+			if ( recordsAffected.contains(subsArr[i]) )
+			{
+				subs.remove(subsArr[i]);
+			}
+		}
+	}
+	
+	private void retrieveSubject(Identifier objID, TripleStore ts, List<String> subjects) throws TripleStoreException
+	{
+		
+		StatementIterator sit = null;
+		Statement stmt = null;
+		List<Identifier> ids = new ArrayList<Identifier>();
+		try{
+			sit = ts.listStatements( null, null, objID );
+			while(sit.hasNext())
+			{
+				stmt = sit.nextStatement();
+				Identifier tmpID = stmt.getSubject();
+				String predicate = stmt.getPredicate().getId();
+				//Skip looking up the linking for collections and objects
+				if ( !(predicate.toLowerCase().endsWith("collection") || predicate.toLowerCase().endsWith("collectionpart") || predicate.toLowerCase().endsWith("haspart") || predicate.toLowerCase().endsWith("object")) )
+					ids.add(tmpID);
+			}
+		}
+		finally
+		{
+			if(sit != null)
+			{
+				sit.close();
+				sit = null;
+			}
+		}
+		
+		for ( Iterator<Identifier> it= ids.iterator(); it.hasNext(); )
+		{
+			int idNSLength = idNS.length();
+			
+			Identifier id = it.next();
+			String tmpid =id.getId();
+			if ( tmpid.startsWith(idNS) )
+			{
+				tmpid = tmpid.substring(idNSLength);
+				if ( tmpid.indexOf("/") > 0 ) // Component, File etc.
+					tmpid = tmpid.substring(0, tmpid.indexOf("/"));
+				
+				if ( !subjects.contains(tmpid) )
+					subjects.add(tmpid);
+			}
+			else
+			{
+				//Internal class instance, BlankNodes or other unknown nodes
+				retrieveSubject( id, ts, subjects );
+			}
+		}
+	}
+	
+	private void updateResource(Statement stmt, TripleStore ts, Identifier newID, Identifier parent) throws TripleStoreException
+	{   
+		Identifier objID = stmt.getObject();
+		//Add statement for the new linking.
+		stmt.setObject(newID);
+		ts.addStatement(stmt, parent);
+		//Remove the original linked record statement
+		ts.removeStatements(stmt.getSubject(), stmt.getPredicate(), objID);
+	}
+	
+	private void updateErrorInfo(Map info, String message)
+	{
+		if(info == null)
+			info = error( 500, message);
+		else
+			info = error( 500, info.get("message") + " ; " + message);
 	}
 
 	/**
@@ -4203,7 +4654,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			formatVersion		jhove
 			dateCreated			jhove
 			quality				jhove
-			crc32checksum		jhove XXX: do we want other checksum algorithms?
+			crc32checksum		jhove
 			md5checksum			jhove
 			sha1checksum		jhove
 			preservationLevel	fixed=full

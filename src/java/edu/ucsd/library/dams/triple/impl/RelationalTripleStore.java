@@ -991,19 +991,21 @@ class RelationalStatementIterator extends StatementIterator
 				String sub = rs.getString("subject");
 				String pre = rs.getString("predicate");
 				String obj = rs.getString("object");
+				String par = rs.getString("parent");
 				Identifier subId = RelationalTripleStore.toIdentifier(sub);
 				Identifier preId = RelationalTripleStore.toIdentifier(pre);
+				Identifier parId = RelationalTripleStore.toIdentifier(par);
 				preId = trans.toURI( preId, true );
 				boolean lit = RelationalTripleStore.isLiteral(obj);
 				if ( lit )
 				{
-					stmt = new Statement( subId, preId, obj );
+					stmt = new Statement( subId, preId, obj, parId );
 				}
 				else
 				{
 					Identifier objId = RelationalTripleStore.toIdentifier(obj);
 					objId = trans.toURI( objId, false );
-					stmt = new Statement( subId, preId, objId );
+					stmt = new Statement( subId, preId, objId, parId );
 				}
 
 				// add id

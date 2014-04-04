@@ -9,6 +9,7 @@ public class Statement
 	Identifier subject;
 	Identifier predicate;
 	Identifier object;
+	Identifier parent;
 	String literal;
 	long id = -1L;
 	boolean literalObject;
@@ -19,42 +20,31 @@ public class Statement
 		predicate = null;
 		object = null;
 		literalObject = false;
+		parent = null;
 	}
 	public Statement( Identifier subject, Identifier predicate,
-		Identifier object )
+		Identifier object, Identifier parent )
 	{
 		this.subject       = subject;
 		this.predicate     = predicate;
 		this.object        = object;
 		this.literalObject = false;
+		this.parent        = parent;
 	}
 	public Statement( Identifier subject, Identifier predicate,
-		String literal )
+		String literal, Identifier parent )
 	{
 		this.subject       = subject;
 		this.predicate     = predicate;
 		this.literal       = literal;
 		this.literalObject = true;
-	}
-	public Statement( String subject, String predicate, String object,
-		boolean literalObject )
-	{
-		this.subject       = Identifier.publicURI(subject);
-		this.predicate     = Identifier.publicURI(predicate);
-		this.literalObject = literalObject;
-		if ( literalObject )
-		{
-			this.literal   = object;
-		}
-		else
-		{
-			this.object    = Identifier.publicURI(object);;
-		}
+		this.parent        = parent;
 	}
 
 	public Identifier getSubject()    { return subject;       }
 	public Identifier getPredicate()  { return predicate;     }
 	public Identifier getObject()     { return object;        }
+	public Identifier getParent()     { return parent;       }
 	public String getLiteral()        { return literal;       }
 	public long getId()               { return id;            }
 	public boolean hasLiteralObject() { return literalObject; }
@@ -62,6 +52,7 @@ public class Statement
 	public void setSubject( Identifier id )   { subject       = id; }
 	public void setPredicate( Identifier id ) { predicate     = id; }
 	public void setObject( Identifier id )    { object        = id; }
+	public void setParent( Identifier id )    { parent        = id; }
 	public void setLiteral( String s )        { literal       = s;  }
 	public void setId( long l )               { id            = l;  }
 	public void setLiteralObject( boolean b ) { literalObject = b;  }

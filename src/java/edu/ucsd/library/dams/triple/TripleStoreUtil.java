@@ -248,12 +248,12 @@ public class TripleStoreUtil
 				if ( s.getObject().isLiteral() )
 				{
 					obj = literalString(s.getLiteral());
-					stmt = new Statement( sub, pre, obj );
+					stmt = new Statement( sub, pre, obj, null );
 				}
 				else
 				{
 					objId = toIdentifier( s.getResource(), bnodes, ts );
-					stmt = new Statement( sub, pre, objId );
+					stmt = new Statement( sub, pre, objId, null );
 				}
 
 				// find blank node parent
@@ -667,9 +667,10 @@ public class TripleStoreUtil
 	 * @param pre If not null, only delete triples with this object -- useful
 	 *     for deleting file or component records, or one out of several
 	 *     blank node trees with the same predicate.
+	 * @param keepPre If not null, do not delete triples with this predicate.
 	**/
 	public static void recursiveDelete( Identifier parent, Identifier sub,
-		Identifier pre, Identifier obj, TripleStore ts )
+		Identifier pre, Identifier obj, Identifier keepPre, TripleStore ts )
 		throws TripleStoreException
 	{
 		// iterate through all statements for the object & classify by subject
@@ -688,12 +689,12 @@ public class TripleStoreUtil
 		}
 
 		// recursively remove statements
-		recursiveDelete( sub, pre, obj, map, ts );
+		recursiveDelete( sub, pre, obj, keepPre, map, ts );
 
 		// if obj is public URI, delete all children of it *within this object*
 		if ( obj != null && !obj.isBlankNode() )
 		{
-			recursiveDelete( obj, null, null, map, ts );
+			recursiveDelete( obj, null, null, keepPre, map, ts );
 		}
 	}
 
@@ -701,14 +702,16 @@ public class TripleStoreUtil
 	 * Recursively delete statements.
 	**/
 	private static void recursiveDelete( Identifier sub, Identifier pre,
-		Identifier obj, Map<String,List<Statement>> map, TripleStore ts )
-		throws TripleStoreException
+		Identifier obj, Identifier keepPre, Map<String,List<Statement>> map,
+		TripleStore ts ) throws TripleStoreException
 	{
 		List<Statement> list = map.get( sub.getId() );
 		for ( int i = 0; list != null && i < list.size(); i++ )
 		{
 			Statement s = list.get(i);
-			if ( pre == null || s.getPredicate().equals(pre) )
+			Identifier currPre = s.getPredicate();
+			if ( (keepPre == null || !currPre.equals(keepPre))
+				&& (pre == null || currPre.equals(pre) ) )
 			{
 				if ( obj == null || s.getObject().equals(obj) )
 				{
@@ -721,7 +724,7 @@ public class TripleStoreUtil
 						Identifier o = s.getObject();
 						if ( o.isBlankNode() )
 						{
-							recursiveDelete( o, null, null, map, ts );
+							recursiveDelete( o, null, null, keepPre, map, ts );
 						}
 					}
 				}

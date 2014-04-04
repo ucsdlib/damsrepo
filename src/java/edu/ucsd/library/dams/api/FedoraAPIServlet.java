@@ -285,6 +285,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					|| path[4].equals(fedoraRightsDS)
 					|| path[4].equals(fedoraLinksDS)
 					|| path[4].equals(fedoraSystemDS)
+					|| path[4].startsWith(fulltextPrefix)
 					|| fs.exists(path[2],cmpid(path[4]),fileid(path[4])) )
 				{
 					// if the file exists, send profile
@@ -880,7 +881,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			{
 				params.remove("rightsDS"); // remove dummy param
 				Document doc = DocumentHelper.parseText(rdfxml);
-				String accessGroup = accessGroup( doc );
+				String discoverGroup = accessGroup( doc, true );
+				String accessGroup = accessGroup( doc, false );
 				String adminGroup = doc.valueOf(
 					"//dams:unitGroup"
 				);
@@ -899,6 +901,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				{
 					params.put("accessGroup",new String[]{accessGroup});
 				}
+				params.put("discoverGroup",new String[]{discoverGroup});
 				params.put("superGroup", new String[]{roleSuper});
 			}
 			catch ( Exception ex )
@@ -924,7 +927,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	}
 
 	// determine access group
-	private String accessGroup( Document doc )
+	private String accessGroup( Document doc, boolean discover )
 	{
 		// relevant values
 		String roleEdit = doc.valueOf("/rdf:RDF/dams:Object//dams:unitGroup");
@@ -943,6 +946,9 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		boolean localPermission = findCurrent( doc,
 			"/rdf:RDF/dams:Object//dams:Permission[dams:type='localDisplay']"
 		);
+		boolean metadataPermission = findCurrent( doc,
+			"/rdf:RDF/dams:Object//dams:Permission[dams:type='metadataDisplay']"
+		);
 		String visibility = doc.valueOf(
 			"/rdf:RDF/dams:AssembledCollection/dams:visibility|/rdf:RDF/dams:ProvenanceCollection/dams:visibility|/rdf:RDF/dams:ProvenanceCollectionPart/dams:visibility"
 		);
@@ -960,17 +966,18 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 
 		// logic
+		String accessGroup = null;
 		if ( visibility != null && visibility.equals("curator") )
 		{
-			return roleEdit;
+			accessGroup = roleEdit;
 		}
 		else if ( visibility != null && visibility.equals("local") )
 		{
-			return roleLocal;
+			accessGroup = roleLocal;
 		}
 		else if ( visibility != null && visibility.equals("public") )
 		{
-			return roleDefault;
+			accessGroup = roleDefault;
 		}
 		else if (    copyright.equalsIgnoreCase("public domain") ||
 				( copyright.equalsIgnoreCase("under copyright") &&
@@ -980,12 +987,12 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			if ( displayRestriction )
 			{
 				// overridden: admin only
-				return roleEdit;
+				accessGroup = roleEdit;
 			}
 			else
 			{
 				// default: public
-				return roleDefault;
+				accessGroup = roleDefault;
 			}
 		}
 		else
@@ -994,19 +1001,29 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			if ( !displayRestriction && displayPermission )
 			{
 				// overriden: public
-				return roleDefault;
+				accessGroup = roleDefault;
 			}
 			else if ( !displayRestriction && localPermission )
 			{
 				// overriden: local-only
-				return roleLocal;
+				accessGroup = roleLocal;
+			}
+			else if ( metadataPermission && discover )
+			{
+				// overriden: public metadata-only display
+				// n.b., this is the only circumstance where a permission
+				// will override a restriction
+				accessGroup = roleDefault;
 			}
 			else
 			{
 				// default: admin-only
-				return roleEdit;
+				accessGroup = roleEdit;
 			}
 		}
+
+		log.info("accessGroup(" + discover + "): " + accessGroup);
+		return accessGroup;
 	}
 	private static boolean findCurrent( Document doc, String xpath )
 	{
