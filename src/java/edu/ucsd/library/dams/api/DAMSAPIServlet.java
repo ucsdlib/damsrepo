@@ -3838,7 +3838,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 					
 					Identifier tmpID = stmt.getSubject();
 					List<String> subs = new ArrayList<String>();
-					subs.add( parent );
+					subs.add( parent.getId() );
 					
 					if( subs.size() == 0 )
 					{
