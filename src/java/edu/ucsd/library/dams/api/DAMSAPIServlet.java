@@ -1035,6 +1035,27 @@ public class DAMSAPIServlet extends HttpServlet
 				String[] ids = new String[]{ path[2] };
 				info = indexQueue( ids, "modifyObject" );
 			}
+			// POST /objects/bb1234567x/serialize
+			else if ( path.length == 4 && path[1].equals("objects")
+				&& path[3].equals("serialize") )
+			{
+				String objid = path[2];
+				// serialize the record to disk
+				try
+				{
+					fs = filestore(params);
+					ts = triplestore(params);
+					es = events(params);
+					fs.write(
+							objid, null, "rdf.xml", cacheUpdate(objid,ts,es).getBytes()
+					);
+				}
+				catch ( Exception ex )
+				{
+					log.error("Error serializing RDF/XML on update", ex);
+					info = error("Failed to serialize record " + objid + " to filestore. Error: " + ex.getMessage());
+				}
+			}
 			// POST /files/bb1234567x/1.tif
 			else if ( path.length == 4 && path[1].equals("files") )
 			{
