@@ -128,7 +128,7 @@
 				<xsl:call-template name="damsElement"/>
 			</xsl:for-each>
 			<xsl:for-each select="*[contains(local-name(), 'hasFile')]">
-				<xsl:if test="contains(dams:File/dams:use, '-source') or contains(dams:File[@rdf:about], '/1.')">
+				<xsl:if test="contains(dams:File/dams:use, '-source') or contains(dams:File/@rdf:about, '/1.')">
 					<xsl:call-template name="damsElement"/>
 				</xsl:if>
 			</xsl:for-each>
