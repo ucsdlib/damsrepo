@@ -18,16 +18,18 @@
 				<title>DAMS4 Data Review</title>
 				
 				<style>
-					body {text-align: center}
+					body {text-align: center;font-family: Arial, Helvetica, sans-serif;font-size: 12px; font-weight: normal;}
 					div {margin-bottom: 12px;}
 					a {text:align: left;}
-					.property_1_label a {text:align: right; text-decoration: none; color: #880000}
-					.property_1_value {font-size: 14px;font-weight: bold;text-align: left;background-color: #cfcfcf;min-width: 100px;padding:3px 5px;}					
-					.property_1_label {font-family: Arial, Helvetica, sans-serif;font-size: 14px;font-weight: bold;text-align: right;background-color: #cfcfcf;padding: 3px 5px;width: 132px;color:#880000;}
-					.property_2_value {font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: normal;text-align: left;background-color: #eee;padding: 2px 5px;}
-					.property_2_label {margin-left:15;font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: normal;text-align: right;background-color: #eee;width: 132px;color:#880000;padding: 2px 5px;}
+					.property_1_label a {text:align: left; text-decoration: none;}
+					.property_1_value {text-align: left;background-color: #eee;min-width: 100px;padding:3px 5px;}					
+					.property_1_label {text-align: left;background-color: #eee;padding: 3px 5px;width: 132px;font-weight: bold;}
+					.property_2_value {text-align: left;padding: 2px 5px;}
+					.property_2_label {margin-left:15;text-align: left;width: 132px;padding: 2px 5px;white-space: nowrap;}
+					.property_3_value {text-align: left;padding: 2px 5px;}
+					.property_3_label {margin-left:15;text-align: left;width: 132px;padding: 2px 5px;font-weight: bold;}
 					.propertyBox {width: 1000px;align: center;}
-					.record {font-family: Arial, Helvetica, sans-serif;font-size: 16px;font-weight: bold;text-align: left;background-color: #444;padding-left: 5px;color: #FFF;width: 140px;height:24px;}
+					.record {font-size: 16px;font-weight: bold;text-align: left;background-color: #444;padding-left: 5px;color: #FFF;width: 140px;height:24px;}
 					.recordValue {background-color: #444;color: #FFF;width: 500px;padding-left:10px;}
 					.subGroup{margin-bottom:12px; padding: 0px;}
 										
@@ -38,9 +40,7 @@
 					td {border-left: 1px solid #bbb;}
 					h4 {margin-bottom: 0.25em; }
 
-					.damsResource {font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: normal;}
-					.popertyValue {font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: normal;text-align: left;background-color: #D4D4D4;padding-left: 3px;font-weight: bold;vertical-align: top;}	
-					.title {font-family: Arial, Helvetica, sans-serif;font-size: 24px;font-weight: bold;text-align: center;padding: 20px;color: #333;}
+					.title {font-size: 24px;text-align: center;padding: 20px;color: #333;}
 					
 				</style>
 			</head>
@@ -54,9 +54,26 @@
 								<div class="propertyBox" >
 									<xsl:call-template name="damsResource"/>
 									<ul style="border: none;padding-top: 10px;padding-left: 0;">
-										<xsl:call-template name="topElements">
-											<xsl:with-param name="depth">1</xsl:with-param>
-										</xsl:call-template>
+										<xsl:choose>
+											<xsl:when test="contains(local-name(), 'Collection')">
+												<xsl:variable name="collectionsUrlBase">
+											  		<xsl:choose>
+											  			<xsl:when test="string-length($baseurl) > 0 and starts-with($baseurl, 'http')"><xsl:value-of select="$baseurl" /></xsl:when>
+											  			<xsl:otherwise>http://localhost:8080/dams</xsl:otherwise>
+											  		</xsl:choose>
+											  	</xsl:variable>
+												<xsl:variable name="docCollections" select="document(concat($collectionsUrlBase, '/api/collections'))"/>
+												<xsl:call-template name="topElements">
+													<xsl:with-param name="collections" select="$docCollections/response/collections"/>
+													<xsl:with-param name="depth">1</xsl:with-param>
+												</xsl:call-template>
+											</xsl:when>
+											<xsl:otherwise>
+												<xsl:call-template name="topElements">
+													<xsl:with-param name="depth">1</xsl:with-param>
+												</xsl:call-template>
+											</xsl:otherwise>
+										</xsl:choose>
 									</ul>
 								</div>
 							</td>
@@ -79,8 +96,18 @@
 	</xsl:template>
 	<xsl:template name="topElements">
 		<xsl:param name="depth"/>
+		<xsl:param name="collections" />
 			<xsl:for-each select="*[name()='mads:authoritativeLabel']">
 				<xsl:call-template name="damsElement"/>
+			</xsl:for-each>
+			<xsl:for-each select="*[local-name()='isMemberOfMADSScheme']">
+				<xsl:call-template name="damsElement"/>
+			</xsl:for-each>
+			<xsl:for-each select="*[local-name()='componentList']">
+				<xsl:call-template name="damsElement"/>
+			</xsl:for-each>
+			<xsl:for-each select="*[local-name()='elementList']">
+					<xsl:call-template name="damsElement"/>
 			</xsl:for-each>
 			<xsl:if test="$depth = 1 or dams:label">
 				<xsl:for-each select="*[local-name()='title' or contains(local-name(), 'Title')]">
@@ -106,8 +133,10 @@
 			<xsl:for-each select="*[local-name()='language' or contains(local-name(), 'Language')]">
 				<xsl:call-template name="damsElement"/>
 			</xsl:for-each>
-			<xsl:for-each select="*[local-name() = 'collection' or contains(local-name(), 'Collection')]">
-				<xsl:call-template name="damsElement"/>
+			<xsl:for-each select="*[local-name() = 'collection' or contains(local-name(), 'Collection') or local-name() = 'hasPart']">
+				<xsl:call-template name="damsElement">
+					<xsl:with-param name="collections" select="$collections"/>
+				</xsl:call-template>
 			</xsl:for-each>	
 			<xsl:for-each select="*[local-name()='relatedResource' or contains(local-name(), 'RelatedResource')]">
 				<xsl:call-template name="damsElement"/>
@@ -125,6 +154,9 @@
 				<xsl:call-template name="damsElement"/>
 			</xsl:for-each>
 			<xsl:for-each select="*[local-name()='statute' or contains(local-name(), 'Statute')]">
+				<xsl:call-template name="damsElement"/>
+			</xsl:for-each>
+			<xsl:for-each select="*[local-name()='visibility' or contains(local-name(), 'visibility')]">
 				<xsl:call-template name="damsElement"/>
 			</xsl:for-each>
 			<xsl:for-each select="*[contains(local-name(), 'hasFile')]">
@@ -145,12 +177,13 @@
 			</xsl:for-each>
 	</xsl:template>
 	<xsl:template name="damsElement">
+		<xsl:param name="collections"/>
+		<xsl:variable name="resid"><xsl:value-of select="@rdf:resource | @rdf:about"/></xsl:variable>
 		<li>
 			<div>
 				<table>
 					<xsl:choose>
-						<xsl:when test="@rdf:resource | @rdf:about">
-							<xsl:variable name="resid"><xsl:value-of select="@rdf:resource"/></xsl:variable>
+						<xsl:when test="string-length($resid) > 0 and //*[@rdf:about=$resid]">
 							<xsl:for-each select="//*[@rdf:about=$resid]">
 								<xsl:if test="*">
 									<xsl:choose>
@@ -163,6 +196,9 @@
 									<xsl:when test="contains(local-name(), 'Note') and local-name() != 'Note'">
 										<xsl:call-template name="damsDerivedNote"/>
 									</xsl:when>
+									<xsl:when test="contains(local-name(),'MADSScheme')">
+										<xsl:apply-templates select=".."/>
+									</xsl:when>
 									<xsl:when test="starts-with(name(), 'mads')">
 										<xsl:call-template name="madsElement"/>
 									</xsl:when>
@@ -172,6 +208,18 @@
 								</xsl:choose>
 								</xsl:if>
 							</xsl:for-each>
+						</xsl:when>
+						<xsl:when test="@rdf:resource or @rdf:about">
+							<xsl:call-template name="unknownElement">
+								<xsl:with-param name="ark"><xsl:value-of select="substring-after(@rdf:resource|@rdf:about, '/20775/')"/></xsl:with-param>
+								<xsl:with-param name="propName"><xsl:value-of select="local-name()"/></xsl:with-param>
+								<xsl:with-param name="collections" select="$collections"/>
+							</xsl:call-template>
+						</xsl:when>
+						<xsl:when test="local-name() = 'elementList'">
+							<xsl:call-template name="madsElementList">
+								<xsl:with-param name="class">property_1</xsl:with-param>
+							</xsl:call-template>
 						</xsl:when>
 						<xsl:when test="*">
 							<xsl:for-each select="*">
@@ -185,6 +233,9 @@
 									<xsl:when test="contains(local-name(), 'Note') and local-name() != 'Note'">
 										<xsl:call-template name="damsDerivedNote"/>
 									</xsl:when>
+									<xsl:when test="contains(local-name(), 'MADSScheme')">
+										<xsl:apply-templates select=".."/>
+									</xsl:when>
 									<xsl:when test="starts-with(name(), 'mads')">
 										<xsl:call-template name="madsElement"/>
 									</xsl:when>
@@ -196,6 +247,9 @@
 									</xsl:otherwise>
 								</xsl:choose>
 							</xsl:for-each>
+						</xsl:when>
+						<xsl:when test="local-name() = 'visibility'">
+							<xsl:call-template name="damsVisibility"></xsl:call-template>
 						</xsl:when>
 						<xsl:otherwise>
 							<xsl:apply-templates select="."/>
@@ -236,6 +290,7 @@
 					<xsl:for-each select="*[local-name()='Authority']">
 						<xsl:call-template name="madsElement">
 							<xsl:with-param name="class">property_2</xsl:with-param>
+							<xsl:with-param name="propName">Role</xsl:with-param>
 						</xsl:call-template>
 					</xsl:for-each>
 				</xsl:otherwise>
@@ -329,8 +384,9 @@
 	<xsl:template name="damsCollection">
 		<xsl:call-template name="damsProperty">
 			<xsl:with-param name="ark"><xsl:value-of select="substring-after(@rdf:about, '/20775/')"/></xsl:with-param>
-			<xsl:with-param name="name"><xsl:value-of select="local-name()"/></xsl:with-param>
+			<xsl:with-param name="name"><xsl:value-of select="concat('Collection [', local-name(), ']')"/></xsl:with-param>
 			<xsl:with-param name="val"><xsl:value-of select="dams:title/mads:Title/mads:authoritativeLabel"/></xsl:with-param>
+			<xsl:with-param name="view">dataview</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 	<xsl:template name="damsRelatedResource" match="dams:RelatedResource">
@@ -341,9 +397,19 @@
 		</xsl:call-template>
 		<xsl:for-each select="dams:description">
 			<xsl:call-template name="damsProperty">
+				<xsl:with-param name="ark"><xsl:value-of select="substring-after(@rdf:about, '/20775/')"/></xsl:with-param>
 				<xsl:with-param name="name">description</xsl:with-param>
 				<xsl:with-param name="val"><xsl:value-of select="."/></xsl:with-param>
 				<xsl:with-param name="class">property_2</xsl:with-param>
+			</xsl:call-template>
+		</xsl:for-each>
+		<xsl:for-each select="dams:uri">
+			<xsl:call-template name="damsProperty">
+				<xsl:with-param name="ark"><xsl:value-of select="@rdf:resource|text()"/></xsl:with-param>
+				<xsl:with-param name="name">URI</xsl:with-param>
+				<xsl:with-param name="val"><xsl:value-of select="@rdf:resource|text()"/></xsl:with-param>
+				<xsl:with-param name="class">property_2</xsl:with-param>
+				<xsl:with-param name="view">xml</xsl:with-param>
 			</xsl:call-template>
 		</xsl:for-each>
 	</xsl:template>
@@ -455,23 +521,74 @@
 			<xsl:with-param name="val"><xsl:value-of select="."/></xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
+	<xsl:template name="damsVisibility" match="dams:visibility">
+		<xsl:call-template name="damsProperty">
+			<xsl:with-param name="name"><xsl:value-of select="local-name()"/></xsl:with-param>
+			<xsl:with-param name="val"><xsl:value-of select="."/></xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+	<xsl:template name="madsAuthoritativeLabel" match="mads:authoritativeLabel">
+		<xsl:call-template name="damsProperty">
+			<xsl:with-param name="name"><xsl:value-of select="local-name()"/></xsl:with-param>
+			<xsl:with-param name="val"><xsl:value-of select="."/></xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
 	<xsl:template name="damsFile" match="dams:File">
 		<xsl:param name="class"/>
 		<xsl:call-template name="damsProperty">
 			<xsl:with-param name="ark"><xsl:value-of select="@rdf:about"/></xsl:with-param>
 			<xsl:with-param name="name"><xsl:value-of select="local-name()"/></xsl:with-param>
 			<xsl:with-param name="val"><xsl:value-of select="dams:use"/></xsl:with-param>
-			<xsl:with-param name="class">property_1</xsl:with-param>
+			<xsl:with-param name="class">property_2</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>	
 	<xsl:template name="madsElement">
 		<xsl:param name="class"/>
+		<xsl:param name="propName"/>
 		<xsl:call-template name="damsProperty">
 			<xsl:with-param name="ark"><xsl:value-of select="substring-after(@rdf:about, '/20775/')"/></xsl:with-param>
-			<xsl:with-param name="name"><xsl:value-of select="local-name()"/></xsl:with-param>
+			<xsl:with-param name="name">
+				<xsl:choose>
+					<xsl:when test="$propName"><xsl:value-of select="$propName"/></xsl:when>
+					<xsl:otherwise><xsl:value-of select="local-name()"/></xsl:otherwise>
+				</xsl:choose>
+			</xsl:with-param>
 			<xsl:with-param name="val"><xsl:value-of select="mads:authoritativeLabel"/></xsl:with-param>
 			<xsl:with-param name="class"><xsl:value-of select="$class"/></xsl:with-param>
 		</xsl:call-template>
+	</xsl:template>
+	<xsl:template name="madsMADSScheme" match="mads:MADSScheme">
+		<xsl:param name="class"/>
+		<xsl:param name="propName"/>
+		<xsl:call-template name="damsProperty">
+			<xsl:with-param name="ark"><xsl:value-of select="substring-after(@rdf:about, '/20775/')"/></xsl:with-param>
+			<xsl:with-param name="name">
+				<xsl:choose>
+					<xsl:when test="$propName"><xsl:value-of select="$propName"/></xsl:when>
+					<xsl:otherwise><xsl:value-of select="local-name()"/></xsl:otherwise>
+				</xsl:choose>
+			</xsl:with-param>
+			<xsl:with-param name="val"><xsl:value-of select="mads:code"/></xsl:with-param>
+			<xsl:with-param name="class"><xsl:value-of select="$class"/></xsl:with-param>
+			<xsl:with-param name="view">xml</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+	<xsl:template name="madsElementList">
+		<xsl:param name="class"/>
+		<xsl:param name="propName"/>
+		<xsl:for-each select="*">
+			<xsl:call-template name="damsProperty">
+				<xsl:with-param name="ark"><xsl:value-of select="substring-after(@rdf:about, '/20775/')"/></xsl:with-param>
+				<xsl:with-param name="name">
+					<xsl:choose>
+						<xsl:when test="$propName"><xsl:value-of select="$propName"/></xsl:when>
+						<xsl:otherwise><xsl:value-of select="local-name()"/></xsl:otherwise>
+					</xsl:choose>
+				</xsl:with-param>
+				<xsl:with-param name="val"><xsl:value-of select="mads:elementValue"/></xsl:with-param>
+				<xsl:with-param name="class"><xsl:value-of select="$class"/></xsl:with-param>
+			</xsl:call-template>
+		</xsl:for-each>
 	</xsl:template>
 	<xsl:template name="rdfResource">
 		<xsl:param name="class"/>
@@ -513,7 +630,7 @@
 					<xsl:with-param name="ark"><xsl:value-of select="@rdf:about"/></xsl:with-param>
 					<xsl:with-param name="name"><xsl:value-of select="dams:order"/></xsl:with-param>
 					<xsl:with-param name="val"><xsl:value-of select="dams:label | dams:title/mads:Title/mads:authoritativeLabel"/></xsl:with-param>
-					<xsl:with-param name="class">property_2</xsl:with-param>
+					<xsl:with-param name="class">property_3</xsl:with-param>
 				</xsl:call-template>
 			</table>
 		</li>
@@ -526,6 +643,7 @@
 		<xsl:param name="name" />
 		<xsl:param name="val" />
 		<xsl:param name="class" />
+		<xsl:param name="view" />
 		<xsl:variable name="className">
 			<xsl:choose>
 				<xsl:when test="$class"><xsl:value-of select="$class"/></xsl:when>
@@ -535,7 +653,7 @@
 		<tr>
 			<td class="{$className}_label"><xsl:value-of select="$name"/></td>
 			
-			<xsl:variable name="xmlViewUrl">
+			<xsl:variable name="viewUrlBase">
 		  		<xsl:choose>
 		  			<xsl:when test="string-length($baseurl) > 0"><xsl:value-of select="$baseurl" /></xsl:when>
 		  			<xsl:otherwise>/dams</xsl:otherwise>
@@ -553,8 +671,15 @@
 					</td>
 				</xsl:when>
 				<xsl:when test="string-length($ark) > 0">
+					<xsl:variable name="xsl">
+						<xsl:choose>
+							<xsl:when test="$view = 'dataview'">review.xsl</xsl:when>
+							<xsl:otherwise>normalize.xsl</xsl:otherwise>
+						</xsl:choose>
+					</xsl:variable>
 					<td class="{$className}_value">
-						<a href="{$xmlViewUrl}/api/objects/{$ark}/transform?recursive=true&amp;xsl=normalize.xsl">
+					    <xsl:text> </xsl:text>
+						<a href="{$viewUrlBase}/api/objects/{$ark}/transform?recursive=true&amp;xsl={$xsl}">
 							<xsl:choose>
 						    	<xsl:when test="contains($val, '&amp;')"><xsl:text disable-output-escaping="yes"><xsl:value-of select="translate($val, '&amp;', '&amp;amp;')"/></xsl:text></xsl:when>
 								<xsl:otherwise><xsl:value-of select="$val" disable-output-escaping="yes"/></xsl:otherwise>
@@ -600,5 +725,41 @@
 			    </xsl:choose>
 			</td>
 		</tr>
+	</xsl:template>
+	<xsl:template name="unknownElement">
+		<xsl:param name="ark"/>
+		<xsl:param name="propName"/>
+		<xsl:param name="collections"/>
+		<xsl:variable name="collection" select="$collections/value[contains(collection,$ark)]"/>
+		<xsl:variable name="uTitle">
+			<xsl:choose>
+				<xsl:when test="$collection"><xsl:value-of select="$collection/title"/></xsl:when>
+				<xsl:otherwise><xsl:value-of select="$ark"/></xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:variable name="uType">
+			<xsl:choose>
+				<xsl:when test="$collection"><xsl:value-of select="$collection/type"/></xsl:when>
+				<xsl:when test="starts-with($propName, 'has')"><xsl:value-of select="substring-after(propName, 'has')"/></xsl:when>
+				<xsl:otherwise><xsl:value-of select="propName"/></xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:call-template name="damsProperty">
+			<xsl:with-param name="ark"><xsl:value-of select="$ark"/></xsl:with-param>
+			<xsl:with-param name="name">
+				<xsl:choose>
+					<xsl:when test="contains($uType, 'Collection') or contains(uType, 'collection')"><xsl:value-of select="concat('Collection [', $uType, ']')"/></xsl:when>
+					<xsl:otherwise><xsl:value-of select="$uType"/></xsl:otherwise>
+				</xsl:choose>
+			</xsl:with-param>
+			<xsl:with-param name="val"><xsl:value-of select="$uTitle"/></xsl:with-param>
+			<xsl:with-param name="class">property_1</xsl:with-param>
+			<xsl:with-param name="view">
+				<xsl:choose>
+					<xsl:when test="contains($uType, 'Collection') or contains(uType, 'collection')">dataview</xsl:when>
+					<xsl:otherwise>xml</xsl:otherwise>
+				</xsl:choose>
+			</xsl:with-param>
+		</xsl:call-template>
 	</xsl:template>
 </xsl:stylesheet>
