@@ -384,7 +384,7 @@
 	<xsl:template name="damsCollection">
 		<xsl:call-template name="damsProperty">
 			<xsl:with-param name="ark"><xsl:value-of select="substring-after(@rdf:about, '/20775/')"/></xsl:with-param>
-			<xsl:with-param name="name"><xsl:value-of select="concat('Collection [', local-name(), ']')"/></xsl:with-param>
+			<xsl:with-param name="name"><xsl:value-of select="local-name()"/></xsl:with-param>
 			<xsl:with-param name="val"><xsl:value-of select="dams:title/mads:Title/mads:authoritativeLabel"/></xsl:with-param>
 			<xsl:with-param name="view">dataview</xsl:with-param>
 		</xsl:call-template>
@@ -746,12 +746,7 @@
 		</xsl:variable>
 		<xsl:call-template name="damsProperty">
 			<xsl:with-param name="ark"><xsl:value-of select="$ark"/></xsl:with-param>
-			<xsl:with-param name="name">
-				<xsl:choose>
-					<xsl:when test="contains($uType, 'Collection') or contains(uType, 'collection')"><xsl:value-of select="concat('Collection [', $uType, ']')"/></xsl:when>
-					<xsl:otherwise><xsl:value-of select="$uType"/></xsl:otherwise>
-				</xsl:choose>
-			</xsl:with-param>
+			<xsl:with-param name="name"><xsl:value-of select="$uType"/></xsl:with-param>
 			<xsl:with-param name="val"><xsl:value-of select="$uTitle"/></xsl:with-param>
 			<xsl:with-param name="class">property_1</xsl:with-param>
 			<xsl:with-param name="view">
