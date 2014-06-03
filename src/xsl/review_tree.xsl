@@ -448,7 +448,7 @@
 		<xsl:param name="val" />
 	  	<xsl:variable name="viewUrl">
 			<xsl:choose>
-				<xsl:when test="string-length($controller) > 0"><xsl:value-of select="concat($controller, '/', $ark, '/data_view?xsl=review_tree.xsl')"/></xsl:when>
+				<xsl:when test="string-length($controller) > 0"><xsl:value-of select="concat('../', $ark, '/data_view?xsl=review_tree.xsl')"/></xsl:when>
 				<xsl:when test="string-length($baseurl) > 0"><xsl:value-of select="concat($baseurl, '/api/objects/', $ark, '/transform?recursive=true&amp;xsl=review_tree.xsl')" /></xsl:when>
 		  		<xsl:otherwise><xsl:value-of select="concat('/dams/api/objects/', $ark, '/transform?recursive=true&amp;xsl=review_tree.xsl')" /></xsl:otherwise>
 			</xsl:choose>

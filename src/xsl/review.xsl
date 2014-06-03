@@ -9,6 +9,7 @@
 	  exclude-result-prefixes="dams mads owl rdf rdfs">
   <xsl:output method="html" encoding="utf-8" version="4.0"/>
   	<xsl:param name="baseurl"/>
+  	<xsl:param name="controller"/>
 
 	<xsl:template match="/rdf:RDF">
 		<xsl:text disable-output-escaping="yes">&lt;!DOCTYPE HTML&gt;</xsl:text>
@@ -47,10 +48,19 @@
 		
 			<body>
 				<xsl:for-each select="*">
+					<xsl:variable name="ark"><xsl:value-of select="substring-after(@rdf:about, '/20775/')"/></xsl:variable>
+				  	<xsl:variable name="viewUrl">
+						<xsl:choose>
+							<xsl:when test="string-length($controller) > 0"><xsl:value-of select="concat('../', $ark, '/data_view?xsl=review_tree.xsl')"/></xsl:when>
+							<xsl:when test="string-length($baseurl) > 0"><xsl:value-of select="concat($baseurl, '/api/objects/', $ark, '/transform?recursive=true&amp;xsl=review_tree.xsl')" /></xsl:when>
+					  		<xsl:otherwise><xsl:value-of select="concat('/dams/api/objects/', $ark, '/transform?recursive=true&amp;xsl=review_tree.xsl')" /></xsl:otherwise>
+						</xsl:choose>
+					</xsl:variable>
 					<table>
 						<tr style="border: none;">
 							<td align="center">
 								<div class="title">UC San Diego Library DAMS Data View</div>
+								<div style="width: 1000px;"><a href="{$viewUrl}" target="_blank" style="float: right; font-weight: bold; font-size: 16px; text-decoration: none; padding: 5px 10px 2px 5px;">Tree View</a></div>
 								<div class="propertyBox" >
 									<xsl:call-template name="damsResource"/>
 									<ul style="border: none;padding-top: 10px;padding-left: 0;">
@@ -677,9 +687,16 @@
 							<xsl:otherwise>normalize.xsl</xsl:otherwise>
 						</xsl:choose>
 					</xsl:variable>
+					<xsl:variable name="viewUrl">
+						<xsl:choose>
+							<xsl:when test="string-length($controller) > 0 and $view = 'dataview'"><xsl:value-of select="concat('../', $ark, '/data_view?xsl=', $xsl)"/></xsl:when>
+							<xsl:when test="string-length($baseurl) > 0"><xsl:value-of select="concat($baseurl, '/api/objects/', $ark, '/transform?recursive=true&amp;xsl=', 'xsl')" /></xsl:when>
+					  		<xsl:otherwise><xsl:value-of select="concat('/dams/api/objects/', $ark, '/transform?recursive=true&amp;xsl=', 'xsl')" /></xsl:otherwise>
+						</xsl:choose>
+					</xsl:variable>
 					<td class="{$className}_value">
 					    <xsl:text> </xsl:text>
-						<a href="{$viewUrlBase}/api/objects/{$ark}/transform?recursive=true&amp;xsl={$xsl}">
+						<a href="{$viewUrl}">
 							<xsl:choose>
 						    	<xsl:when test="contains($val, '&amp;')"><xsl:text disable-output-escaping="yes"><xsl:value-of select="translate($val, '&amp;', '&amp;amp;')"/></xsl:text></xsl:when>
 								<xsl:otherwise><xsl:value-of select="$val" disable-output-escaping="yes"/></xsl:otherwise>
@@ -740,8 +757,8 @@
 		<xsl:variable name="uType">
 			<xsl:choose>
 				<xsl:when test="$collection"><xsl:value-of select="$collection/type"/></xsl:when>
-				<xsl:when test="starts-with($propName, 'has')"><xsl:value-of select="substring-after(propName, 'has')"/></xsl:when>
-				<xsl:otherwise><xsl:value-of select="propName"/></xsl:otherwise>
+				<xsl:when test="starts-with($propName, 'has')"><xsl:value-of select="substring-after($propName, 'has')"/></xsl:when>
+				<xsl:otherwise><xsl:value-of select="$propName"/></xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
 		<xsl:call-template name="damsProperty">
@@ -751,7 +768,7 @@
 			<xsl:with-param name="class">property_1</xsl:with-param>
 			<xsl:with-param name="view">
 				<xsl:choose>
-					<xsl:when test="contains($uType, 'Collection') or contains(uType, 'collection')">dataview</xsl:when>
+					<xsl:when test="contains($uType, 'Collection') or contains($uType, 'collection')">dataview</xsl:when>
 					<xsl:otherwise>xml</xsl:otherwise>
 				</xsl:choose>
 			</xsl:with-param>
