@@ -22,6 +22,7 @@
 					body {text-align: center;font-family: Arial, Helvetica, sans-serif;font-size: 12px; font-weight: normal;}
 					div {margin-bottom: 12px;}
 					a {text:align: left;}
+					.view {float: right; font-weight: bold; font-size: 16px; text-decoration: none;padding: 0px 5px;}
 					.property_1_label a {text:align: left; text-decoration: none;}
 					.property_1_value {text-align: left;background-color: #eee;min-width: 100px;padding:3px 5px;}					
 					.property_1_label {text-align: left;background-color: #eee;padding: 3px 5px;width: 132px;font-weight: bold;}
@@ -40,8 +41,9 @@
 					tr {border-bottom: 1px solid #bbb;border-top: 1px solid #bbb;border-right: 1px solid #bbb;}
 					td {border-left: 1px solid #bbb;}
 					h4 {margin-bottom: 0.25em; }
+					
 
-					.title {font-size: 24px;text-align: center;padding: 20px;color: #333;}
+					.title {font-size: 24px;text-align: center;color: #333;}
 					
 				</style>
 			</head>
@@ -60,7 +62,7 @@
 						<tr style="border: none;">
 							<td align="center">
 								<div class="title">UC San Diego Library DAMS Data View</div>
-								<div style="width: 1000px;"><a href="{$viewUrl}" target="_blank" style="float: right; font-weight: bold; font-size: 16px; text-decoration: none; padding: 5px 10px 2px 5px;">Tree View</a></div>
+								<div style="width: 1000px;padding-bottom:8px;"><a href="{$viewUrl}" target="_blank" class="view">Tree View</a></div>
 								<div class="propertyBox" >
 									<xsl:call-template name="damsResource"/>
 									<ul style="border: none;padding-top: 10px;padding-left: 0;">
