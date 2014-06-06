@@ -25,7 +25,10 @@
       </xsl:if>
       <xsl:for-each select="//dams:File">
         <xsl:variable name="dsid" select="translate(substring-after(@rdf:about,concat($objid,'/')),'/','_')"/>
-        <datastream dsid="_{$dsid}" label="" mimeType="{dams:mimeType}"/>
+        <xsl:variable name="prefix">
+          <xsl:if test="number(substring($dsid,1,1))">_</xsl:if>
+        </xsl:variable>
+        <datastream dsid="{$prefix}{$dsid}" label="" mimeType="{dams:mimeType}"/>
         <xsl:if test="dams:mimeType = 'application/pdf'">
           <datastream dsid="{$fulltextPrefix}_{$dsid}" label="text extracted from {$dsid}" mimeType="text/plain"/>
         </xsl:if>

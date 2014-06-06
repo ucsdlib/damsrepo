@@ -1208,7 +1208,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	}
 	private static String fileid( String s )
 	{
-		if ( s == null || !s.startsWith("_") ) { return null; }
+		if ( s == null || !s.startsWith("_") ) { return s; }
 		int idx = s.indexOf("_",1);
 		return (idx > 0) ? s.substring(idx+1) : s.substring(1);
 	}
