@@ -7,7 +7,7 @@
       xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
       xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	  exclude-result-prefixes="dams mads owl rdf rdfs">
-  <xsl:output method="html" encoding="utf-8" omit-xml-declaration="yes"/>
+  <xsl:output method="html" encoding="utf-8" version="4.0"/>
   	<xsl:param name="baseurl"/>
   	<xsl:param name="controller"/>
 
@@ -16,36 +16,13 @@
 		<html xmlns="http://www.w3.org/1999/xhtml">
 			<head>
 				<xsl:text disable-output-escaping="yes">&lt;/META&gt;</xsl:text>
-				<title>DAMS4 Data View</title>
-			    <xsl:text disable-output-escaping="yes">&lt;link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css"&gt;</xsl:text>
-			    <xsl:text disable-output-escaping="yes">&lt;/link&gt;</xsl:text>
-				<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.js"></script>
-				<script>
-       				function activateTab(obj){
-	       				if(obj == null) {
-	       					var $links = $(document).find('a');
-	       					obj = $links.filter('[href="' + document.location.hash + '"]')[0] || $links[0];
-	       				}
-	       				
-						var aStateTab = $('.ui-tabs-active')[0];
-						// Hide the previous active content
-						$(aStateTab).removeClass('ui-tabs-active');
-						$(aStateTab).removeClass('ui-state-active');
-						$($(aStateTab).children('a').attr('href')).hide();
-						
-						// Show the tab obj
-						$(obj).parent().addClass('ui-tabs-active ui-state-active');
-						var $content = $($(obj).attr('href'));
-						$content.show();
-       				}
-				</script>
+				<title>DAMS4 Data Review</title>
+				
 				<style>
-					#tabs { margin-top: 1em;  width:1040px;}
-
 					body {text-align: center;font-family: Arial, Helvetica, sans-serif;font-size: 12px; font-weight: normal;}
-					table {border-collapse:collapse;width:100%;cell-spacing:0px;cell-padding:0px;margin:0px;padding:0px;}
-					
-					.propertyBox a {text-align: left;color:blue}
+					div {margin-bottom: 12px;}
+					a {text:align: left;}
+					.view {float: right; font-weight: bold; font-size: 16px; text-decoration: none;padding: 0px 5px;}
 					.property_1_label a {text:align: left; text-decoration: none;}
 					.property_1_value {text-align: left;background-color: #eee;min-width: 100px;padding:3px 5px;}					
 					.property_1_label {text-align: left;background-color: #eee;padding: 3px 5px;width: 132px;font-weight: bold;}
@@ -56,125 +33,70 @@
 					.propertyBox {width: 1000px;align: center;}
 					.record {font-size: 16px;font-weight: bold;text-align: left;background-color: #444;padding-left: 5px;color: #FFF;width: 140px;height:24px;}
 					.recordValue {background-color: #444;color: #FFF;width: 500px;padding-left:10px;}
-					.title {font-size: 24px;text-align: center;color: #333;margin-top: 20px;}
+					.subGroup{margin-bottom:12px; padding: 0px;}
+										
+					ul {list-style-type: none; border-bottom: none; border-right: none; padding:0px 0px 0px 60px; margin: 0px;}
+					li {list-style-type: none;margin:0px;padding:0px;width:100%;border: none;}
+					table {border-collapse:collapse;width:100%;cell-spacing:0px;cell-padding:0px;margin:0px;padding:0px;}
+					tr {border-bottom: 1px solid #bbb;border-top: 1px solid #bbb;border-right: 1px solid #bbb;}
+					td {border-left: 1px solid #bbb;}
+					h4 {margin-bottom: 0.25em; }
 					
-					#dview tr {border-bottom: 1px solid #bbb;border-top: 1px solid #bbb;border-right: 1px solid #bbb;}
-					#dview td {border-left: 1px solid #bbb;}
-					#dview div {margin-bottom: 12px;}	
-					#dview .subGroup {margin-bottom:12px; padding: 0px 0px 0px 0px;}					
-					#dview ul {list-style-type: none; border-bottom: none; border-right: none; padding:0px 0px 0px 60px; margin: 0px;}
-					#dview li {list-style-type: none;margin:0px;padding:0px;width:100%;border: none;}		
 
-					.damsPath {font-family: Arial, Helvetica, sans-serif;color: #C00;font-weight: normal;text-align: right;font-size: 12px;white-space: nowrap;float: right;display: inline;padding-right: 5px;}
-					.subGroup_t {margin-bottom:5px;border-bottom: 1px solid #bbb;border-right: 1px solid #bbb;}
-					.subGroup_hl {margin-bottom:5px;border: 2px solid #FF6633;}
-					.damsResource {font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: normal;}
-					.popertyLabel_1_value {font-size: 12px;font-weight: bold;text-align: left;background-color: #bbb;padding-left: 5px;vertical-align: top;min-width: 100px;white-space:nowrap;}					
-					.popertyLabel_1 {font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: bold;text-align: left;background-color: #bbb;padding-left: 5px;vertical-align: top;width: 132px;color: #003399;}
-					.popertyLabel_2 {margin-left:15;font-family: Arial, Helvetica, sans-serif;font-size: 12px;text-align: left;background-color: #D4D4D4;width: 120px;vertical-align: top;color: #003399;}
-					.propertyIcon {width:16px;height:16px;background-image: url("http://library.ucsd.edu/dc/images/glyphicons-halflings-white.png");background-position:  -46px  -118px;}
-					.popertyValue {font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: normal;text-align: left;background-color: #D4D4D4;padding-left: 3px;font-weight: bold;vertical-align: top;}	
-					.propLink {white-space:nowrap;font-weight:bold;padding-left: 30px;}
-
-					#tview ul {list-style-type: none; border: 1px solid #bbb; border-bottom: none; border-right: none; padding-left:60px; padding-top: 0px;padding-bottom: 2px; margin: 0px;}
-					#tview li {list-style-type: none;margin:0px;padding:0px;width:100%;border: none;}
+					.title {font-size: 24px;text-align: center;color: #333;}
+					
 				</style>
 			</head>
 		
-			<body onload="activateTab()">
-				<table width="100%">
-					<tr style="border: none;">
-						<td align="center">
-							<div class="title">UC San Diego Library DAMS Data View</div>
-							<div id="tabs" class="ui-tabs ui-widget ui-widget-content ui-corner-all">
-								<ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-									<li class="ui-state-default ui-corner-top ui-tabs-active ui-state-active"><a href="#dview" class="ui-tabs-anchor" onclick="activateTab(this)">Data View</a></li>
-									<li class="ui-state-default ui-corner-top"><a href="#tview" class="ui-tabs-anchor" onclick="activateTab(this)">Tree View</a></li>
-								</ul>
-								<div id="dview" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
-									<xsl:for-each select="*">
-										<xsl:variable name="ark"><xsl:value-of select="substring-after(@rdf:about, '/20775/')"/></xsl:variable>
-									  	<xsl:variable name="viewUrl">
-											<xsl:choose>
-												<xsl:when test="string-length($controller) > 0"><xsl:value-of select="concat('../', $ark, '/data_view')"/></xsl:when>
-												<xsl:when test="string-length($baseurl) > 0"><xsl:value-of select="concat($baseurl, '/api/objects/', $ark, '/transform?recursive=true&amp;xsl=review.xsl')" /></xsl:when>
-										  		<xsl:otherwise><xsl:value-of select="concat('/dams/api/objects/', $ark, '/transform?recursive=true&amp;xsl=review.xsl')" /></xsl:otherwise>
-											</xsl:choose>
-										</xsl:variable>
-										<table>
-											<tr style="border: none;">
-												<td align="center" style="border-left: none;">
-													<div class="propertyBox" >
-														<xsl:call-template name="damsResource"/>
-														<ul style="border: none;padding-top: 10px;padding-left: 0;">
-															<xsl:choose>
-																<xsl:when test="contains(local-name(), 'Collection')">
-																	<xsl:variable name="collectionsUrlBase">
-																  		<xsl:choose>
-																  			<xsl:when test="string-length($baseurl) > 0 and starts-with($baseurl, 'http')"><xsl:value-of select="$baseurl" /></xsl:when>
-																  			<xsl:otherwise>http://localhost:8080/dams</xsl:otherwise>
-																  		</xsl:choose>
-																  	</xsl:variable>
-																	<xsl:variable name="docCollections" select="document(concat($collectionsUrlBase, '/api/collections'))"/>
-																	<xsl:call-template name="topElements">
-																		<xsl:with-param name="collections" select="$docCollections/response/collections"/>
-																		<xsl:with-param name="depth">1</xsl:with-param>
-																	</xsl:call-template>
-																</xsl:when>
-																<xsl:otherwise>
-																	<xsl:call-template name="topElements">
-																		<xsl:with-param name="depth">1</xsl:with-param>
-																	</xsl:call-template>
-																</xsl:otherwise>
-															</xsl:choose>
-														</ul>
-													</div>
-												</td>
-											</tr>
-										</table>
-									</xsl:for-each>
+			<body>
+				<xsl:for-each select="*">
+					<xsl:variable name="ark"><xsl:value-of select="substring-after(@rdf:about, '/20775/')"/></xsl:variable>
+				  	<xsl:variable name="viewUrl">
+						<xsl:choose>
+							<xsl:when test="string-length($controller) > 0"><xsl:value-of select="concat('../', $ark, '/data_view?xsl=review_tree.xsl')"/></xsl:when>
+							<xsl:when test="string-length($baseurl) > 0"><xsl:value-of select="concat($baseurl, '/api/objects/', $ark, '/transform?recursive=true&amp;xsl=review_tree.xsl')" /></xsl:when>
+					  		<xsl:otherwise><xsl:value-of select="concat('/dams/api/objects/', $ark, '/transform?recursive=true&amp;xsl=review_tree.xsl')" /></xsl:otherwise>
+						</xsl:choose>
+					</xsl:variable>
+					<table>
+						<tr style="border: none;">
+							<td align="center">
+								<div class="title">UC San Diego Library DAMS Data View</div>
+								<div style="width: 1000px;padding-bottom:8px;"><a href="{$viewUrl}" target="_blank" class="view">Tree View</a></div>
+								<div class="propertyBox" >
+									<xsl:call-template name="damsResource"/>
+									<ul style="border: none;padding-top: 10px;padding-left: 0;">
+										<xsl:choose>
+											<xsl:when test="contains(local-name(), 'Collection')">
+												<xsl:variable name="collectionsUrlBase">
+											  		<xsl:choose>
+											  			<xsl:when test="string-length($baseurl) > 0 and starts-with($baseurl, 'http')"><xsl:value-of select="$baseurl" /></xsl:when>
+											  			<xsl:otherwise>http://localhost:8080/dams</xsl:otherwise>
+											  		</xsl:choose>
+											  	</xsl:variable>
+												<xsl:variable name="docCollections" select="document(concat($collectionsUrlBase, '/api/collections'))"/>
+												<xsl:call-template name="topElements">
+													<xsl:with-param name="collections" select="$docCollections/response/collections"/>
+													<xsl:with-param name="depth">1</xsl:with-param>
+												</xsl:call-template>
+											</xsl:when>
+											<xsl:otherwise>
+												<xsl:call-template name="topElements">
+													<xsl:with-param name="depth">1</xsl:with-param>
+												</xsl:call-template>
+											</xsl:otherwise>
+										</xsl:choose>
+									</ul>
 								</div>
-								<div id="tview" class="ui-tabs-panel ui-widget-content ui-corner-bottom" style="display:none">
-									<xsl:for-each select="*">
-										<table>
-											<tr>
-												<td align="center">
-													<div class="propertyBox" >
-														<xsl:call-template name="damsResource"/>
-														<xsl:choose>
-															<xsl:when test="local-name() = 'collection' or contains(name(), 'Collection') or contains(name(), 'hasPart')">
-																<xsl:variable name="collectionsUrlBase">
-															  		<xsl:choose>
-															  			<xsl:when test="string-length($baseurl) > 0 and starts-with($baseurl, 'http')"><xsl:value-of select="$baseurl" /></xsl:when>
-															  			<xsl:otherwise>http://localhost:8080/dams</xsl:otherwise>
-															  		</xsl:choose>
-															  	</xsl:variable>
-																<xsl:variable name="docCollections" select="document(concat($collectionsUrlBase, '/api/collections'))"/>
-																<xsl:call-template name="topElements_t">
-																	<xsl:with-param name="collections" select="$docCollections/response/collections"/>
-																	<xsl:with-param name="depth">1</xsl:with-param>
-																</xsl:call-template>
-															</xsl:when>
-															<xsl:otherwise>
-																<xsl:call-template name="topElements_t">
-																	<xsl:with-param name="depth">1</xsl:with-param>
-																</xsl:call-template>
-															</xsl:otherwise>
-														</xsl:choose>
-													</div>
-												</td>
-											</tr>
-										</table>
-									</xsl:for-each>
-								</div>
-							</div>
-						</td>
-					</tr>
-				</table>
+							</td>
+						</tr>
+					</table>
+				</xsl:for-each>
 			</body>
 		</html>
 	</xsl:template>
-		<xsl:template name="damsResource">
+	 
+	<xsl:template name="damsResource">
 		<div>
 			<table>
 				<tr>
@@ -769,7 +691,7 @@
 					</xsl:variable>
 					<xsl:variable name="viewUrl">
 						<xsl:choose>
-							<xsl:when test="string-length($controller) > 0 and $view = 'dataview'"><xsl:value-of select="concat('../', $ark, '/data_view')"/></xsl:when>
+							<xsl:when test="string-length($controller) > 0 and $view = 'dataview'"><xsl:value-of select="concat('../', $ark, '/data_view?xsl=', $xsl)"/></xsl:when>
 							<xsl:when test="string-length($baseurl) > 0"><xsl:value-of select="concat($baseurl, '/api/objects/', $ark, '/transform?recursive=true&amp;xsl=', $xsl)" /></xsl:when>
 					  		<xsl:otherwise><xsl:value-of select="concat('/dams/api/objects/', $ark, '/transform?recursive=true&amp;xsl=', $xsl)" /></xsl:otherwise>
 						</xsl:choose>
@@ -853,411 +775,5 @@
 				</xsl:choose>
 			</xsl:with-param>
 		</xsl:call-template>
-	</xsl:template>
-	
-	
-		<xsl:template name="topElements_t">
-		<xsl:param name="depth"/>
-		<xsl:param name="collections" />
-									
-		<xsl:for-each select="*[name()='mads:authoritativeLabel']">
-			<xsl:call-template name="damsTopElement"/>
-		</xsl:for-each>
-		<xsl:for-each select="*[name()='dams:visibility']">
-			<xsl:call-template name="damsTopElement"/>
-		</xsl:for-each>
-		<xsl:for-each select="*[name()='dams:unit']">
-			<xsl:call-template name="damsTopElement"/>
-		</xsl:for-each>
-		<xsl:for-each select="*[name()='dams:typeOfResource']">
-			<xsl:call-template name="damsTopElement"/>
-		</xsl:for-each>
-		<xsl:for-each select="*[name()='dams:title']">
-			<xsl:call-template name="damsTopElement"/>
-		</xsl:for-each>
-		<xsl:for-each select="*[name()='dams:relationship']">
-			<xsl:call-template name="damsTopElement"/>
-		</xsl:for-each>
-		<xsl:for-each select="*[name()='dams:date']">
-			<xsl:call-template name="damsTopElement"/>
-		</xsl:for-each>
-		<xsl:for-each select="*[local-name()!='event' and not(name()='mads:authoritativeLabel' or name()='dams:visibility' or name()='dams:unit' or name()='dams:typeOfResource' or name()='dams:title' or name()='dams:relationship' or name()='dams:date' or contains(name(), 'Component') or contains(name(), 'File') or local-name() = 'collection' or contains(name(), 'Collection') or contains(name(), 'hasPart'))]">
-			<xsl:sort select="name()" order="descending"/>
-			<xsl:sort select="*/@rdf:about" order="ascending"/>
-			<xsl:call-template name="damsTopElement"/>
-		</xsl:for-each>
-		<xsl:for-each select="*[local-name() = 'collection' or contains(name(), 'Collection') or contains(name(), 'hasPart')]">
-			<xsl:sort select="name()" order="descending"/>
-			<xsl:call-template name="damsCollection_t">
-				<xsl:with-param name="collections" select="$collections"/>
-			</xsl:call-template>
-		</xsl:for-each>
-		<xsl:for-each select="*[contains(name(), 'File')]">
-			<xsl:sort select="name()" order="descending"/>
-			<xsl:sort select="*/@rdf:about" order="ascending"/>
-			<xsl:call-template name="damsTopElement"/>
-		</xsl:for-each>
-		<xsl:for-each select="*[contains(name(), 'Component')]">
-			<xsl:sort select="name()" order="descending"/>
-			<xsl:sort select="*/dams:order" data-type="number" order="ascending"/>
-			<xsl:sort select="*/@rdf:about" order="ascending"/>
-			<xsl:call-template name="damsTopElement"/>
-		</xsl:for-each>
-	</xsl:template>
-	<xsl:template name="damsTopElement">
-		<xsl:param name="collections"></xsl:param>
-		<ul style="border: none;padding-top: 10px;padding-left: 0;">
-			<xsl:call-template name="prop">
-				<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select="."/></xsl:call-template></xsl:with-param>
-				<xsl:with-param name="propName" select="local-name()"/>
-  				<xsl:with-param name="propNode" select="."/>
-			</xsl:call-template>
-			<xsl:if test="@rdf:resource">
-				<xsl:variable name="resid"><xsl:value-of select="@rdf:resource"/></xsl:variable>
-				<xsl:for-each select="//*[@rdf:about=$resid]">
-					<li>
-						<ul style="border: 1px solid #bbb;" onmouseover="javascript:this.style.border='1px solid #FF6633';" onmouseout="javascript:this.style.border='1px solid #bbb';">
-							<xsl:call-template name="damsThing">
-									<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select="../.."/></xsl:call-template></xsl:with-param>
-							</xsl:call-template>
-						</ul>
-					</li>
-				</xsl:for-each>
-			</xsl:if>
-			<xsl:for-each select="*">
-				<li>
-					<ul style="border: 1px solid #bbb;" onmouseover="javascript:this.style.border='1px solid #FF6633';" onmouseout="javascript:this.style.border='1px solid #bbb';">
-						<xsl:call-template name="damsThing">
-							<xsl:with-param name="depth">1</xsl:with-param>
-						</xsl:call-template>
-					</ul>
-				</li>
-			</xsl:for-each>
-		</ul>
-	</xsl:template>
-	<xsl:template name="damsThing">
-		<xsl:param name="depth"/>
-		<xsl:param name="parentPath"/>
-	  	<xsl:variable name="xPath">
-		  	<xsl:call-template name="xPath">
-		  		<xsl:with-param name="node" select="."/>
-		  	</xsl:call-template>
-	  	</xsl:variable>
-	  	<xsl:variable name="resid"><xsl:value-of select="@rdf:about"/></xsl:variable>
-		<xsl:variable name="curParentPath">
-			<xsl:choose>
-	    		<xsl:when test="$parentPath"><xsl:value-of select="$parentPath"/></xsl:when>
-	    		<xsl:otherwise><xsl:value-of select="$xPath"/></xsl:otherwise>
-	    	</xsl:choose>
-		</xsl:variable>
-		<xsl:variable name="curDepth">
-			<xsl:choose>
-	    		<xsl:when test="$depth"><xsl:value-of select="$depth+1"/></xsl:when>
-	    		<xsl:otherwise>1</xsl:otherwise>
-	    	</xsl:choose>
-		</xsl:variable>
-		<xsl:choose>
-			<xsl:when test="*">
-				<li>
-					<table>
-						<tr>
-							<td class="popertyLabel_1"><xsl:value-of select="local-name()"/></td>
-							<td class="popertyLabel_1_value"><xsl:value-of select="@rdf:about"/></td>
-							<td style="background-color: #bbb;">
-								<span class="damsPath">
-							    	<xsl:choose>
-							    		<xsl:when test="$parentPath"><xsl:value-of select="substring-after($xPath, concat($parentPath,'/'))"/></xsl:when>
-							    		<xsl:otherwise><xsl:value-of select="$xPath"/></xsl:otherwise>
-							    	</xsl:choose>
-						    	<xsl:text> </xsl:text>
-						    	</span>				
-							</td>
-						</tr>
-					</table>
-				</li>
-				<xsl:for-each select="*[local-name() != 'event' and name() = 'mads:authoritativeLabel']">
-					<xsl:call-template name="prop">
-						<xsl:with-param name="propNode" select="."/>
-						<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select=".."/></xsl:call-template></xsl:with-param>
-					</xsl:call-template>
-				</xsl:for-each>
-				<xsl:for-each select="*[local-name() != 'event' and name() != 'mads:authoritativeLabel']">
-					<xsl:sort select="name()" order="descending"/>
-					<xsl:sort select="dams:order" order="ascending"/>
-					<xsl:sort select="*/@rdf:about" order="ascending"/>
-						<xsl:choose>
-							<xsl:when test="string-length(*[@rdf:about])=0 and string-length(@rdf:parseType)=0">
-								<!-- properties, Instance -->
-								
-								<xsl:call-template name="prop">
-									<xsl:with-param name="propNode" select="."/>
-									<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select=".."/></xsl:call-template></xsl:with-param>
-								</xsl:call-template>
-								<xsl:choose>
-									<xsl:when test="@rdf:resource">
-										<xsl:variable name="resid"><xsl:value-of select="@rdf:resource"/></xsl:variable>
-										<xsl:for-each select="//*[@rdf:about=$resid and not (contains(name(), 'Collection'))]">
-											<li>
-												<ul>
-													<xsl:choose>
-														<xsl:when test="$curDepth &lt; 10">
-															<xsl:call-template name="damsThing">
-																<xsl:with-param name="depth" select="$curDepth"/>
-																<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select="../.."/></xsl:call-template></xsl:with-param>
-															</xsl:call-template>
-														</xsl:when>
-														<xsl:otherwise>
-															<li>
-																<table>
-																	<tr>
-																		<td class="popertyLabel_1" style="background-color: #FFFF00;"><xsl:value-of select="local-name()"/></td>
-																		<td class="popertyLabel_1_value" style="background-color: #FFFF00;"><xsl:text>Warning: Potential Looping rdf:resource </xsl:text><xsl:value-of select="@rdf:about"/><xsl:text> (Depth &gt; 10)</xsl:text></td>
-																		<td style="background-color: #FFFF00;">
-																			<span class="damsPath">
-																		    	<xsl:choose>
-																		    		<xsl:when test="$parentPath"><xsl:value-of select="substring-after($xPath, concat($parentPath,'/'))"/></xsl:when>
-																		    		<xsl:otherwise><xsl:value-of select="$xPath"/></xsl:otherwise>
-																		    	</xsl:choose>
-																	    	<xsl:text> </xsl:text>
-																	    	</span>				
-																		</td>
-																	</tr>
-																</table>
-															</li>
-														</xsl:otherwise>
-													</xsl:choose>
-												</ul>
-											</li>
-										</xsl:for-each>
-									</xsl:when>
-									<xsl:otherwise>
-										<xsl:for-each select="*">
-											<li>
-												<ul>
-													<xsl:call-template name="damsThing">
-														<xsl:with-param name="depth" select="$curDepth"/>
-														<xsl:with-param name="parentPath"><xsl:value-of select="$curParentPath"/></xsl:with-param>
-													</xsl:call-template>
-												</ul>
-											</li>
-										</xsl:for-each>
-									</xsl:otherwise>
-								</xsl:choose>
-							</xsl:when>
-							<xsl:when test="./*[@rdf:about] or @rdf:parseType">
-								<!-- linked subjects, blankNode, componentList-->
-								<xsl:call-template name="prop">
-									<xsl:with-param name="propNode" select="."/>
-									<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select=".."/></xsl:call-template></xsl:with-param>
-								</xsl:call-template>
-								
-								<xsl:choose>
-										<xsl:when test="@rdf:parseType='Resource'">
-											<!-- blankNode -->
-											<li>
-												<ul>
-													<xsl:for-each select="*">
-														<xsl:call-template name="prop">
-															<xsl:with-param name="propNode" select="."/>
-															<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select=".."/></xsl:call-template></xsl:with-param>
-														</xsl:call-template>
-													</xsl:for-each>
-												</ul>
-											</li>
-										</xsl:when>
-										<xsl:otherwise>
-											<xsl:for-each select="*">
-												<li>
-													<ul>
-														<xsl:call-template name="damsThing">
-															<xsl:with-param name="depth" select="$curDepth"/>
-															<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select="../.."/></xsl:call-template></xsl:with-param>
-														</xsl:call-template>
-													</ul>
-												</li>
-											</xsl:for-each>
-										</xsl:otherwise>
-									</xsl:choose>
-							</xsl:when>
-							
-							<xsl:when test="@rdf:parseType">
-								<!-- blankNode, componentList -->
-								<xsl:call-template name="prop">
-									<xsl:with-param name="propNode" select="."/>
-									<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select=".."/></xsl:call-template></xsl:with-param>
-								</xsl:call-template>
-								
-								<xsl:for-each select="*">
-									<li>
-										<ul>
-											<xsl:call-template name="damsThing">
-												<xsl:with-param name="depth" select="$curDepth"/>
-												<xsl:with-param name="parentPath"><xsl:value-of select="$curParentPath"/></xsl:with-param>
-											</xsl:call-template>
-										</ul>
-									</li>
-								</xsl:for-each>
-							</xsl:when>
-						</xsl:choose>
-				</xsl:for-each>
-			</xsl:when>
-			<xsl:otherwise>
-				<!-- Empty linked resource -->
-				<xsl:for-each select="//*[@rdf:about=$resid and ./*]">
-					<xsl:call-template name="damsThing">
-						<xsl:with-param name="depth" select="$curDepth"/>
-						<xsl:with-param name="parentPath"><xsl:call-template name="xPath"><xsl:with-param name="node" select="../.."/></xsl:call-template></xsl:with-param>
-					</xsl:call-template>
-				</xsl:for-each>
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:template>
-	
-	<xsl:template name="prop">
-		<xsl:param name="parentPath"/>
-		<xsl:param name="propName"/>
-	  	<xsl:param name="propNode"/>
-	  	<xsl:if test="$propNode">
-		  	<xsl:variable name="xPath">
-			  	<xsl:call-template name="xPath">
-			  		<xsl:with-param name="node" select="$propNode"/>
-			  	</xsl:call-template>
-		  	</xsl:variable>
-		  	<xsl:variable name="propLabel">
-			  	<xsl:choose>
-			    		<xsl:when test="$propName"><xsl:value-of select="$propName"/></xsl:when>
-			    		<xsl:otherwise><xsl:value-of select="local-name($propNode/.)"/></xsl:otherwise>
-			    	</xsl:choose>
-		  	</xsl:variable>
-		  	<xsl:variable name="resid"><xsl:value-of select="@rdf:resource"/></xsl:variable>
-		  	<xsl:variable name="propValue">
-			  	<xsl:choose>
-			    		<xsl:when test="$propNode/text() | @rdf:about"><xsl:value-of select="$propNode/text() | @rdf:about"/></xsl:when>
-			    		<xsl:when test="//*[@rdf:about=$resid and not (contains(name(), 'Collection'))]"></xsl:when>
-			    		<xsl:otherwise><xsl:value-of select="$resid"/></xsl:otherwise>
-			    	</xsl:choose>
-		  	</xsl:variable>
-		  	<li>
-			  	<table>
-			  		<tr>
-			  			<td class="popertyLabel_2" style="width:16px;"><div class="propertyIcon"></div></td>
-					    <td class="popertyLabel_2"><xsl:value-of select="$propLabel"/></td>
-					    <td class="popertyValue">
-					    	<xsl:choose>
-						    	<xsl:when test="contains($propValue, '&amp;')"><xsl:text disable-output-escaping="yes"><xsl:value-of select="translate($propValue, '&amp;', '&amp;amp;')"/></xsl:text></xsl:when>
-								<xsl:otherwise><xsl:value-of select="$propValue" disable-output-escaping="yes"/></xsl:otherwise>
-						    </xsl:choose>
-						</td>
-					    <td class="popertyValue">
-							<span class="damsPath"><xsl:value-of select="name()"/></span>
-					    </td>
-				    </tr>
-				 </table>
-		  	 </li>
-	  </xsl:if>
-	</xsl:template>
-	
-	<xsl:template name="xPath">
-		<xsl:param name="node"/>
-		<xsl:choose>
-		<xsl:when test="$node">
-		  <xsl:for-each select="$node/ancestor-or-self::*">
-		    <xsl:text>/</xsl:text><xsl:value-of select="name()" />
-		  </xsl:for-each>	
-		</xsl:when>
-		<xsl:otherwise>
-		  <xsl:for-each select="ancestor-or-self::*">
-		    <xsl:text>/</xsl:text><xsl:value-of select="name()" />
-		  </xsl:for-each>
-	  </xsl:otherwise>
-	  </xsl:choose>
-	</xsl:template>
-	
-	
-	<xsl:template name="damsCollection_t">
-		<xsl:param name="collections"/>
-		<xsl:variable name="propName" select="local-name()"/>
-		<li>
-			<ul style="border: none;padding-top: 10px;padding-left: 0;">
-				<xsl:choose>
-					<xsl:when test="@rdf:resource">
-						<xsl:variable name="ark"><xsl:value-of select="substring-after(@rdf:resource, '/20775/')"/></xsl:variable>
-						<xsl:variable name="collection" select="$collections/value[contains(collection,$ark)]"/>
-						<xsl:variable name="colTitle">
-							<xsl:choose>
-								<xsl:when test="$collection"><xsl:value-of select="$collection/title"/></xsl:when>
-								<xsl:otherwise><xsl:value-of select="$ark"/></xsl:otherwise>
-							</xsl:choose>
-						</xsl:variable>
-						<xsl:call-template name="damsPropLink">
-							<xsl:with-param name="ark"><xsl:value-of select="$ark"/></xsl:with-param>
-							<xsl:with-param name="propLabel"><xsl:value-of select="$propName"/></xsl:with-param>
-							<xsl:with-param name="val"><xsl:value-of select="$colTitle"/></xsl:with-param>
-						</xsl:call-template>
-					</xsl:when>
-					<xsl:otherwise>
-						<xsl:call-template name="damsPropLink">
-							<xsl:with-param name="ark"><xsl:value-of select="substring-after(*/@rdf:about, '/20775/')"/></xsl:with-param>
-							<xsl:with-param name="propLabel"><xsl:value-of select="$propName"/></xsl:with-param>
-							<xsl:with-param name="val"><xsl:value-of select="*/dams:title/mads:Title/mads:authoritativeLabel"/></xsl:with-param>
-						</xsl:call-template>
-					</xsl:otherwise>
-				</xsl:choose>
-			</ul>
-		</li>
-	</xsl:template>	
-	<xsl:template name="damsPropLink">
-		<xsl:param name="ark" />
-		<xsl:param name="propLabel" />
-		<xsl:param name="val" />
-	  	<xsl:variable name="viewUrl">
-			<xsl:choose>
-				<xsl:when test="string-length($controller) > 0"><xsl:value-of select="concat('../', $ark, '/data_view?#tview')"/></xsl:when>
-				<xsl:when test="string-length($baseurl) > 0"><xsl:value-of select="concat($baseurl, '/api/objects/', $ark, '/transform?recursive=true&amp;xsl=review.xsl#tview')" /></xsl:when>
-		  		<xsl:otherwise><xsl:value-of select="concat('/dams/api/objects/', $ark, '/transform?recursive=true&amp;xsl=review.xsl#tview')" /></xsl:otherwise>
-			</xsl:choose>
-		</xsl:variable>
-		<li>
-		  	<table>
-		  		<tr>
-		  			<td class="popertyLabel_2" style="width:16px;"><div class="propertyIcon"></div></td>
-				    <td class="popertyLabel_2"><xsl:value-of select="$propLabel"/></td>
-					<xsl:choose>
-						<xsl:when test="string-length($ark) > 0 and starts-with($ark, 'http')">
-							<td class="popertyLabel_2 propLink">
-								<a href="{$ark}">
-									<xsl:choose>
-								    	<xsl:when test="contains($val, '&amp;')"><xsl:text disable-output-escaping="yes"><xsl:value-of select="translate($val, '&amp;', '&amp;amp;')"/></xsl:text></xsl:when>
-										<xsl:otherwise><xsl:value-of select="$val" disable-output-escaping="yes"/></xsl:otherwise>
-								    </xsl:choose>
-								</a>
-							</td>
-						</xsl:when>
-						<xsl:when test="string-length($ark) > 0">
-							<td class="popertyLabel_2 propLink">
-							    <xsl:text> </xsl:text>
-								<a href="{$viewUrl}">
-									<xsl:choose>
-								    	<xsl:when test="contains($val, '&amp;')"><xsl:text disable-output-escaping="yes"><xsl:value-of select="translate($val, '&amp;', '&amp;amp;')"/></xsl:text></xsl:when>
-										<xsl:otherwise><xsl:value-of select="$val" disable-output-escaping="yes"/></xsl:otherwise>
-								    </xsl:choose>
-								</a>
-							</td>
-						</xsl:when>
-						<xsl:otherwise>
-							<td class="popertyLabel_2 propLink">
-								<xsl:choose>
-							    	<xsl:when test="contains($val, '&amp;')"><xsl:text disable-output-escaping="yes"><xsl:value-of select="translate($val, '&amp;', '&amp;amp;')"/></xsl:text></xsl:when>
-									<xsl:otherwise><xsl:value-of select="$val" disable-output-escaping="yes"/></xsl:otherwise>
-							    </xsl:choose>
-							</td>
-						</xsl:otherwise>
-					</xsl:choose>
-				    <td class="popertyValue">
-						<span class="damsPath"><xsl:value-of select="name()"/></span>
-				    </td>
-			    </tr>
-			 </table>
-	  	 </li>
 	</xsl:template>
 </xsl:stylesheet>
