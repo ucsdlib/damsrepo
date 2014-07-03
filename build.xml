@@ -13,7 +13,6 @@
   <property name="props"     value="${src}/properties"/>
   <property name="test"      value="${src}/test"/>
   <property name="webinf"    value="${src}/webinf"/>
-  <property name="xsl"       value="${src}/xsl"/>
   <property name="tmp"       value="${basedir}/tmp"/>
   <property name="webapp"    value="${tmp}/webapp"/>
   <property name="testexec"  value="${tmp}/test"/>
@@ -168,16 +167,8 @@
     </war>
   </target>
 
-  <!-- deploy stylesheets -->
-  <target name="xsl" description="Copy xsl stylesheets to deploy directory">
-    <copy todir="${xsl.home}">
-      <fileset dir="${xsl}"/>
-    </copy>
-  </target>
-
   <!-- deploy webapp -->
-  <target name="local-deploy" description="Deploy webapp to local dir"
-      depends="xsl">
+  <target name="local-deploy" description="Deploy webapp to local dir">
     <echo level="info" message="war = 'file://${dist}/${appName}.war'"/>
     <copy file="${dist}/${appName}.war" todir="${deploy.home}"/>
   </target>
@@ -259,11 +250,6 @@
     <copy todir="${tomcat.home}/dams/lib">
       <fileset dir="${lib}"/>
       <fileset dir="${lib2}"/>
-    </copy>
-
-    <!-- xsl stylesheets -->
-    <copy todir="${tomcat.home}/dams/xsl">
-      <fileset dir="${xsl}"/>
     </copy>
 
     <!-- compiled classes -->
