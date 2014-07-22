@@ -30,8 +30,10 @@ import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
 
 // logging
 import org.apache.log4j.Logger;
@@ -64,7 +66,8 @@ public class ProxyServlet extends HttpServlet
 		logHeaders = booleanParam( config, "logHeaders" );
 		logResponses = booleanParam( config, "logResponses" );
 		logContent = booleanParam( config, "logContent" );
-		client = new DefaultHttpClient();
+        ClientConnectionManager pool = new PoolingClientConnectionManager();
+		client = new DefaultHttpClient( pool );
 	}
 	private static boolean booleanParam( ServletConfig config, String name )
 	{
@@ -180,10 +183,17 @@ public class ProxyServlet extends HttpServlet
 		{
 			String name = (String)e.nextElement();
 			String value = orig.getHeader( name );
-			proxy.setHeader( name, value );
-			if ( logHeaders )
+			if ( name.equalsIgnoreCase("Content-Length") )
 			{
-				log.info( "    " + name + ": " + value );
+				log.info("supressing header: " + name + ": " + value);
+			}
+			else
+			{
+				proxy.setHeader( name, value );
+				if ( logHeaders )
+				{
+					log.info( "    " + name + ": " + value );
+				}
 			}
 		}
 	}
@@ -234,7 +244,10 @@ public class ProxyServlet extends HttpServlet
 		if ( entity != null )
 		{
 			Header mimeType = response.getFirstHeader("Content-Type");
-			res.setContentType( mimeType.getValue() );
+			if ( mimeType != null && mimeType.getValue() != null )
+			{
+				res.setContentType( mimeType.getValue() );
+			}
 			OutputStream out = res.getOutputStream();
 			FileStoreUtil.copy( entity.getContent(), out ); // XXX logContent
 			out.close();

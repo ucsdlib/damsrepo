@@ -118,12 +118,11 @@ public class DAMSObject
 	Set<Identifier> events = new HashSet<Identifier>();
 
 	/**
-	 * Get a list of links for an object.
+	 * Get a map of links for an object.
 	**/
-	public Set<Statement> getLinks() throws TripleStoreException
+	public Map<String,String> getLinks() throws TripleStoreException
 	{
-		Identifier hasModel = Identifier.publicURI(prNS + "hasModel");
-		Set<Statement> links = new HashSet<Statement>();
+		Map<String,String> links = new HashMap<String,String>();
 		StatementIterator it = getStatements(false);
 		while ( it.hasNext() )
 		{
@@ -131,19 +130,11 @@ public class DAMSObject
 			if ( !s.hasLiteralObject() && !s.getObject().isBlankNode()
 				&& s.getObject().getId().indexOf(idNS) != -1 )
 			{
-				log.warn("found link: " + s.getPredicate() +" "+ s.getObject());
-				links.add( s );
-			}
-			else if ( s.getLiteral() != null
-				&& s.getLiteral().indexOf("info:fedora/afmodel") != -1 )
-			{
-				log.warn("found model: " + s.getLiteral());
-				String model = s.getLiteral();
-				if ( model.startsWith("\"") && model.endsWith("\"") )
-				{
-					model = model.substring(1,model.length()-1);
-				}
-				links.add( new Statement( id, hasModel, model, id ) );
+				// XXX: better ns removal...
+				String obj = s.getObject().getId().replaceAll(".*/","");
+				String rel = s.getPredicate().getId().replaceAll(".*#","");
+				log.warn("oldLink: " + rel + " => " + obj);
+				links.put( obj, rel );
 			}
 		}
 		it.close();

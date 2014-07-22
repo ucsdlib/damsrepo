@@ -286,7 +286,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					|| path[4].equals(fedoraLinksDS)
 					|| path[4].equals(fedoraSystemDS)
 					|| path[4].startsWith(fulltextPrefix)
-					|| fs.exists(path[2],cmpid(path[4]),fileid(path[4])) )
+					|| fs.exists(stripPrefix(path[2]),cmpid(path[4]),fileid(path[4])) )
 				{
 					// if the file exists, send profile
 					ts = triplestore(req);
@@ -857,7 +857,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			params =  new HashMap<String,String[]>();
 		}
-		params.put("objid", new String[]{ objid } );
+		params.put("objid", new String[]{ stripPrefix(objid) } );
 		if ( fileid != null )
 		{
 			String dsid = dsid( cmpid, fileid );
@@ -1061,9 +1061,9 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 	private String stripPrefix( String id )
 	{
-		if (id != null && id.indexOf(":") > 0 && id.indexOf(":") < id.length())
+		if (id != null && id.lastIndexOf(":") > 0 && id.lastIndexOf(":") < id.length())
 		{
-			return id.substring( id.indexOf(":") + 1 );
+			return id.substring( id.lastIndexOf(":") + 1 );
 		}
 		else
 		{
@@ -1086,6 +1086,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		String hasModelURI = finfoURI + "hasModel";
 		QName hasModel = new QName( "hasModel", new Namespace("ns0",finfoURI) );
 		Set<String> oldModels = new HashSet<String>();
+		Map<String,String> oldLinks = new HashMap<String,String>();
 		if ( ts.exists(id) )
 		{
 			Map info = objectShow( stripPrefix(objid), ts, null );
@@ -1093,6 +1094,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			{
 				DAMSObject obj = (DAMSObject)info.get("obj");
 				oldModels = obj.getModels();
+				oldLinks = obj.getLinks();
 			}
 		}
 
@@ -1103,6 +1105,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 		// find models in input
 		Set<String> newModels = new HashSet<String>();
+		Map<String,String> newLinks = new HashMap<String,String>();
 		List linkNodes = doc.selectNodes("/rdf:RDF/rdf:Description/*");
 		for ( int i = 0; i < linkNodes.size(); i++ )
 		{
@@ -1117,13 +1120,14 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					newModels.add( uri );
 				}
 			}
-			else
+			else if ( oldLinks.get(stripPrefix(uri)) == null )
 			{
-				log.debug("Unhandled RELS-EXT link: " + rel + " " + uri);
+				log.info("newLink: " + rel + " " + uri);
+				newLinks.put( stripPrefix(uri), rel );
 			}
 		}
 
-		// add new models
+		// add new models and links
 		if ( newModels.size() > 0 )
 		{
 			Identifier relP = Identifier.publicURI(prNS + "relatedResource");
@@ -1145,6 +1149,15 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					ts.addStatement( bn1, rdfT, relT, id );
 					ts.addLiteralStatement( bn1, damsT, "'hydra-afmodel'", id );
 					ts.addLiteralStatement( bn1, damsU, "'" + model + "'", id );
+				}
+
+				for ( Iterator<String> it = newLinks.keySet().iterator(); it.hasNext(); )
+				{
+					String obj = it.next();
+					String rel = newLinks.get(obj);
+					Identifier relID = Identifier.publicURI(prNS + rel);
+					Identifier objID = Identifier.publicURI(idNS + obj);
+					ts.addStatement( id, relID, objID, id );
 				}
 			}
 			catch ( Exception ex )

@@ -4539,10 +4539,18 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			t.setParameter("casTest",casGroupTest);
 		}
 		StringWriter sw = new StringWriter();
-		t.transform(
-			new StreamSource( new StringReader(xml) ),
-			new StreamResult( sw )
-		);
+		try
+		{
+			t.transform(
+				new StreamSource( new StringReader(xml) ),
+				new StreamResult( sw )
+			);
+		}
+		catch ( TransformerException ex )
+		{
+			log.warn("Error transforming: " + xml);
+			throw ex;
+		}
 		return sw.toString();
 	}
 

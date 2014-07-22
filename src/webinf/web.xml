@@ -38,7 +38,8 @@
     <servlet-class>edu.ucsd.library.dams.api.ProxyServlet</servlet-class>
     <init-param>
       <param-name>baseURL</param-name>
-      <param-value>http://localhost:8983/fedora</param-value>
+      <param-value>http://localhost:8080/dams/fedora</param-value>
+      <!-- <param-value>http://localhost:8983/fedora</param-value> -->
     </init-param>
     <init-param>
       <param-name>logRequests</param-name>
