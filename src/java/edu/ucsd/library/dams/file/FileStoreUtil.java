@@ -75,17 +75,23 @@ public class FileStoreUtil
 	/**
 	 * Convert a string into a pairpath directory tree.
 	**/
-	public static String pairPath( String s )
-	{
-		if ( s == null ) { return null; }
-		String result = "";
-		for( int i = 0; i < (s.length() - 1); i += 2 )
+    public static String pairPath( String s )
+    {
+        if ( s == null ) { return null; }
+        String result = "";
+        int i = 0;
+        while( i < (s.length() - 1) )
+        {
+            result += s.substring(i,i+2);
+            result += "/";
+            i += 2;
+        }
+        if ( s.length() > i )
 		{
-			result += s.substring(i,i+2);
-			result += "/";
+			result += s.substring(i) + "/";
 		}
-		return result;
-	}
+        return result;
+    }
 
 	/**
 	 * Delete an object from a filestore (trashing existing files).

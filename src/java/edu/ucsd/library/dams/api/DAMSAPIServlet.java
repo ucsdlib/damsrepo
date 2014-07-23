@@ -190,6 +190,7 @@ public class DAMSAPIServlet extends HttpServlet
 	private SortedMap<String,String[]> roleMap; // map of roles to IP addresses
 
 	// fedora compat
+	protected String fedoraSufiaDS;   // datastream id that maps to Sufia NT
 	protected String fedoraObjectDS;  // datastream id that maps to object RDF
 	protected String fedoraRightsDS;  // datastream id that maps to rights
 	protected String fedoraLinksDS;   // datastream id that maps to links
@@ -414,6 +415,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// fedora compat
 			fedoraObjectDS = props.getProperty("fedora.objectDS");
+			fedoraSufiaDS = props.getProperty("fedora.sufiaDS","descMetadata");
 			fedoraRightsDS = props.getProperty("fedora.rightsDS");
 			fedoraLinksDS  = props.getProperty("fedora.linksDS");
 			fedoraSystemDS  = props.getProperty("fedora.systemDS");

@@ -44,6 +44,14 @@ import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
 import org.dom4j.xpath.DefaultXPath;
 
+// jena
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.RDFWriter;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
+
 // w3c
 import org.w3c.dom.NodeList;
 
@@ -55,8 +63,6 @@ import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.model.DAMSObject;
 import edu.ucsd.library.dams.model.Event;
 import edu.ucsd.library.dams.triple.Identifier;
-import edu.ucsd.library.dams.triple.Statement;
-import edu.ucsd.library.dams.triple.StatementIterator;
 import edu.ucsd.library.dams.triple.TripleStore;
 import edu.ucsd.library.dams.triple.TripleStoreException;
 
@@ -250,6 +256,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				es = events(req);
 				Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("objectDS",new String[]{fedoraObjectDS});
+				params.put("sufiaDS",new String[]{fedoraSufiaDS});
 				String baseURL = req.getScheme() + "://"
 					+ req.getServerName() + ":" + req.getServerPort()
 					+ req.getContextPath() + req.getServletPath() + "/";
@@ -282,6 +289,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				// check if file exists and send 404 if not
 				fs = filestore(req);
 				if (path[4].equals(fedoraObjectDS)
+					|| path[4].equals(fedoraSufiaDS)
 					|| path[4].equals(fedoraRightsDS)
 					|| path[4].equals(fedoraLinksDS)
 					|| path[4].equals(fedoraSystemDS)
@@ -317,6 +325,20 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					objectContentTransform, null, "application/xml",
 					res.SC_OK, ts, null, res
 				);
+			}
+			// GET /objects/[oid]/datastreams/[fedoraSufiaDS]/content
+			// STATUS: TEST
+			else if ( path.length == 6 && path[1].equals("objects")
+				&& path[3].equals("datastreams") && path[5].equals("content")
+				&& path[4].equals(fedoraSufiaDS) )
+			{
+                ts = triplestore(req);
+                es = events(req);
+				String objid = stripPrefix(path[2]);
+				DAMSObject obj = new DAMSObject(ts, es, objid, nsmap);
+				Map<String,String[]> params = new HashMap<String,String[]>();
+				params.put("format", new String[]{"nt"});
+				output( obj, false, params, req.getPathInfo(), res );
 			}
 			// GET /objects/[oid]/datastreams/[fulltextPrefix][dsid]/content
 			// STATUS: TEST
@@ -485,7 +507,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			}
 			// POST /objects/[oid]/datastreams/[fedoraObjectDS]
 			// STATUS: WORKING
-			if ( path.length == 5 && path[1].equals("objects")
+			else if ( path.length == 5 && path[1].equals("objects")
 				&& path[3].equals("datastreams")
 				&& path[4].equals(fedoraObjectDS) )
 			{
@@ -506,7 +528,36 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				);
 
 				Map<String,String[]> params = new HashMap<String,String[]>();
-				params.put("dsName",new String[]{fedoraObjectDS});
+				params.put("dsName",new String[]{path[4]});
+				outputTransform(
+					path[2], null, null, true, datastreamProfileTransform,
+					params, "application/xml", res.SC_CREATED, ts, es, res
+				);
+			}
+			// POST /objects/[oid]/datastreams/[fedoraSufiaDS]
+			// STATUS: WORKING
+			else if ( path.length == 5 && path[1].equals("objects")
+				&& path[3].equals("datastreams")
+				&& path[4].equals(fedoraSufiaDS) )
+			{
+				// update metadata with record
+				InputBundle bundle = input(req);
+				InputStream in = bundle.getInputStream();
+				ts = triplestore(req);
+				es = events(req);
+				fs = filestore(req);
+				String id = stripPrefix(path[2]);
+				cacheRemove(id);
+				Identifier id2 = Identifier.publicURI(idNS+id);
+				boolean exists = ts.exists(id2);
+				InputStream in2 = sufiaInput( in, id2.getId() );
+
+				objectEdit(
+					id, !exists, in2, "add", null, null, null, ts, es, fs
+				);
+
+				Map<String,String[]> params = new HashMap<String,String[]>();
+				params.put("dsName",new String[]{path[4]});
 				outputTransform(
 					path[2], null, null, true, datastreamProfileTransform,
 					params, "application/xml", res.SC_CREATED, ts, es, res
@@ -547,6 +598,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			else if ( path.length == 5 && path[1].equals("objects")
 				&& path[3].equals("datastreams") )
 			{
+log.warn("POST new file: " + path[2] + "/datastreams/" + path[4]);
 				InputBundle bundle = input( req );
 				InputStream in = bundle.getInputStream();
 				Map<String,String[]> params = new HashMap<String,String[]>();
@@ -556,6 +608,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				ts = triplestore(req);
 				es = events(req);
 				String id = stripPrefix(path[2]);
+log.warn("id: " + id + ", cmpid: " + cmpid(path[4]) + ", fileid: " + fileid(path[4]));
 				cacheRemove(id);
 
 				Map info = fileUpload(
@@ -618,7 +671,36 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				);
 
 				Map<String,String[]> params = new HashMap<String,String[]>();
-				params.put("dsName",new String[]{fedoraObjectDS});
+				params.put("dsName",new String[]{path[4]});
+				outputTransform(
+					path[2], null, null, true, datastreamProfileTransform,
+					params, "application/xml", res.SC_OK, ts, es, res
+				);
+			}
+			// PUT /objects/[oid]/datastreams/[fedoraSufiaDS]
+			// STATUS: WORKING
+			else if ( path.length == 5 && path[1].equals("objects")
+				&& path[3].equals("datastreams")
+				&& path[4].equals(fedoraSufiaDS) )
+			{
+				// update metadata with record
+				InputBundle bundle = input(req);
+				InputStream in = bundle.getInputStream();
+				ts = triplestore(req);
+				es = events(req);
+				fs = filestore(req);
+				String id = stripPrefix(path[2]);
+				cacheRemove(id);
+				Identifier id2 = createID( id, null, null );
+				boolean exists = ts.exists( id2 );
+				InputStream in2 = sufiaInput( in, id2.getId() );
+
+				objectEdit(
+					id, !exists, in2, "all", null, null, null, ts, es, fs
+				);
+
+				Map<String,String[]> params = new HashMap<String,String[]>();
+				params.put("dsName",new String[]{path[4]});
 				outputTransform(
 					path[2], null, null, true, datastreamProfileTransform,
 					params, "application/xml", res.SC_OK, ts, es, res
@@ -1179,7 +1261,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	{
 		Document doc = null;
 		String xml = null;
-		int pruned = 0;
 		try
 		{
 			// parse doc
@@ -1213,6 +1294,41 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 		return new ByteArrayInputStream(xml.getBytes());
 	}
+	private InputStream sufiaInput( InputStream in, String objURI )
+	{
+		String xml = null;
+		try
+		{
+			// read ntriples into a model
+			Model m1 = ModelFactory.createDefaultModel();
+			m1.read( in, null, "N-TRIPLE" );
+
+			// copy statements into a second model, setting new subject
+			Model m2 = ModelFactory.createDefaultModel();
+			Resource sub = m2.createResource( objURI );
+			StmtIterator it = m1.listStatements();
+			while ( it.hasNext() )
+			{
+				Statement s = it.nextStatement();
+				Statement s2 = m2.createStatement(
+					sub, s.getPredicate(), s.getObject()
+				);
+				m2.add( s2 );
+			}
+
+			// serialize to RDF/XML
+			StringWriter sw = new StringWriter();
+			RDFWriter rdfw = m2.getWriter("RDF/XML-ABBREV");
+			rdfw.write( m2, sw, null );
+			xml = sw.toString();
+		}
+		catch ( Exception ex )
+		{
+			log.warn( "Error processing sufia input", ex );
+		}
+
+		return new ByteArrayInputStream(xml.getBytes());
+	}
 	private static String cmpid( String s )
 	{
 		if ( s == null || !s.startsWith("_") ) { return null; }
@@ -1221,9 +1337,19 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	}
 	private static String fileid( String s )
 	{
-		if ( s == null || !s.startsWith("_") ) { return null; }
-		int idx = s.indexOf("_",1);
-		return (idx > 0) ? s.substring(idx+1) : s.substring(1);
+		if ( s == null )
+		{
+			return null;
+		}
+		else if ( s.startsWith("_") )
+		{
+			int idx = s.indexOf("_",1);
+			return (idx > 0) ? s.substring(idx+1) : s.substring(1);
+		}
+		else
+		{
+			return s;
+		}
 	}
 	private static String dsid( String cmpid, String fileid )
 	{
