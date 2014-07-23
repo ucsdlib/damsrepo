@@ -2147,7 +2147,7 @@ public class DAMSAPIServlet extends HttpServlet
 			Identifier fid = createID( objid, cmpid, fileid );
 			Identifier parent = oid;
 			Identifier cid = null;
-			if ( cmpid != null )
+			if ( cmpid != null && !cmpid.equals("0") )
 			{
 				cid = createID( objid, cmpid, null );
 				parent = cid;
@@ -2277,7 +2277,7 @@ public class DAMSAPIServlet extends HttpServlet
 				else
 				{
 					// check for file metadata and complain if it exists
-					if ( cmpid != null )
+					if ( cmpid != null && !cmpid.equals("0") )
 					{
 						sit = ts.listStatements(cid, hasFile, fid);
 					}
@@ -2354,7 +2354,7 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 
 				// link from object/component to file record
-				if ( cmpid != null )
+				if ( cmpid != null && !cmpid.equals("0") )
 				{
 					// make sure something links to this component
 					sit = ts.listStatements(null, hasComp, cid);
