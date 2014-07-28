@@ -4168,6 +4168,11 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 				content = obj.getNTriples(export);
 				contentType = "text/plain";
 			}
+			else if ( format.equals("sufia") )
+			{
+				content = obj.getNTriplesFlat();
+				contentType = "text/plain";
+			}
 			else if ( format.equals("xml") )
 			{
 				content = obj.getRDFXML(export);

@@ -49,6 +49,10 @@
       <param-name>logResponses</param-name>
       <param-value>true</param-value>
     </init-param>
+    <init-param>
+      <param-name>logContent</param-name>
+      <param-value>true</param-value>
+    </init-param>
   </servlet>
   <servlet>
     <servlet-name>SimpleMinterServlet</servlet-name>

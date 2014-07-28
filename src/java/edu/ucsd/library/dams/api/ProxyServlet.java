@@ -1,6 +1,7 @@
 package edu.ucsd.library.dams.api;
 
 // java core api
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,6 +33,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 
@@ -208,7 +210,22 @@ public class ProxyServlet extends HttpServlet
 		if ( len > 0 )
 		{
 			InputStream in = orig.getInputStream();
-			proxy.setEntity( new InputStreamEntity(in, len) );
+			String inputType = orig.getContentType();
+			log.info("request contentType:" + inputType);
+			if ( logContent && inputType != null && (inputType.startsWith("text/") || inputType.endsWith("/xml")) )
+			{
+				try
+				{
+					String content = FileStoreUtil.read(in);
+					log.info("request entity: " + content);
+					proxy.setEntity( new StringEntity(content) );
+				}
+				catch ( Exception ex ) { ex.printStackTrace(); }
+			}
+			else
+			{
+				proxy.setEntity( new InputStreamEntity(in, len) );
+			}
 		}
 	}
 
@@ -243,13 +260,30 @@ public class ProxyServlet extends HttpServlet
 		HttpEntity entity = response.getEntity();
 		if ( entity != null )
 		{
+			boolean textOutput = false;
 			Header mimeType = response.getFirstHeader("Content-Type");
 			if ( mimeType != null && mimeType.getValue() != null )
 			{
-				res.setContentType( mimeType.getValue() );
+                String mimeTypeValue = mimeType.getValue();
+				res.setContentType( mimeTypeValue );
+				if ( mimeTypeValue.startsWith("text/") || mimeTypeValue.endsWith("/xml") )
+				{
+					textOutput = true;
+				}
 			}
 			OutputStream out = res.getOutputStream();
-			FileStoreUtil.copy( entity.getContent(), out ); // XXX logContent
+			if ( logContent && textOutput )
+			{
+				String content = FileStoreUtil.read(entity.getContent());
+				log.info("response entity: " + content);
+				FileStoreUtil.copy(
+					new ByteArrayInputStream(content.getBytes()), out
+				);
+			}
+			else
+			{
+				FileStoreUtil.copy( entity.getContent(), out );
+			}
 			out.close();
 		}
 	}

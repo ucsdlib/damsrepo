@@ -2,6 +2,7 @@ package edu.ucsd.library.dams.file;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -181,6 +182,17 @@ public class FileStoreUtil
 		{
 			throw new FileStoreException( ex );
 		}
+	}
+
+	/**
+	 * Read the contents of a stream as a string.
+	**/
+	public static String read( InputStream in )
+        throws FileStoreException
+	{
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		copy( in, out );
+		return out.toString();
 	}
 
 	/**

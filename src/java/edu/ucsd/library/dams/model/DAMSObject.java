@@ -297,12 +297,17 @@ public class DAMSObject
 		}
 	}
 
+	public String getNTriplesFlat() throws TripleStoreException
+	{
+		return getRDF( false, true, "N-TRIPLE" );
+	}
+
 	/**
 	 * Get object metadata in NTriples
 	**/
 	public String getNTriples(boolean recurse) throws TripleStoreException
 	{
-		return getRDF( recurse, "N-TRIPLE" );
+		return getRDF( recurse, false, "N-TRIPLE" );
 	}
 
 	/**
@@ -310,7 +315,7 @@ public class DAMSObject
 	**/
 	public String getRDFXML(boolean recurse) throws TripleStoreException
 	{
-		return getRDF( recurse, "RDF/XML-ABBREV" );
+		return getRDF( recurse, false, "RDF/XML-ABBREV" );
 	}
 
 	/**
@@ -320,11 +325,11 @@ public class DAMSObject
 	 * "RDF/XML-ABBREV", "N-TRIPLE", "TURTLE", (and "TTL") and "N3". The
 	 * default value, represented by null is "RDF/XML".
 	**/
-	public String getRDF( boolean recurse, String format )
+	public String getRDF( boolean recurse, boolean flatten, String format )
 		throws TripleStoreException
 	{
 		StringWriter writer = new StringWriter();
-		outputRDF( asModel(recurse), writer, format );
+		outputRDF( asModel(recurse, flatten), writer, format );
 		return writer.toString();
 	}
 
@@ -332,16 +337,23 @@ public class DAMSObject
 	 * Get object metadata as a Jena model.
 	 * @param recurse If true, follow all links recursively.
 	**/
-	public Model asModel( boolean recurse ) throws TripleStoreException
+	public Model asModel( boolean recurse, boolean flatten )
+		throws TripleStoreException
 	{
 		StatementIterator it = getStatements( recurse );
 		Model m = ModelFactory.createDefaultModel();
 		try
 		{
 			// load statements into a jena model
-			for ( int i = 0; it.hasNext(); i++ )
+			while ( it.hasNext() )
 			{
-				m.add( jenaStatement(m,it.nextStatement()) );
+				com.hp.hpl.jena.rdf.model.Statement s
+					= jenaStatement(m,it.nextStatement());
+				if ( !flatten ||
+					(!s.getSubject().isAnon() && !s.getObject().isAnon()) )
+				{
+					m.add( s );
+				}
 			}
 
 			// register namespace prefixes

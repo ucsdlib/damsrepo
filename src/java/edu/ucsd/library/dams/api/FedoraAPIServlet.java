@@ -337,7 +337,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				String objid = stripPrefix(path[2]);
 				DAMSObject obj = new DAMSObject(ts, es, objid, nsmap);
 				Map<String,String[]> params = new HashMap<String,String[]>();
-				params.put("format", new String[]{"nt"});
+				params.put("format", new String[]{"sufia"});
 				output( obj, false, params, req.getPathInfo(), res );
 			}
 			// GET /objects/[oid]/datastreams/[fulltextPrefix][dsid]/content
@@ -402,6 +402,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
                 ts = triplestore(req);
                 Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("dsName",new String[]{fedoraSystemDS});
+				params.put("objid",new String[]{path[2]});
                 outputTransform(
                     path[2], null, null, true, systemMetadataTransform, params,
                     "application/xml", res.SC_OK, ts, null, res
@@ -939,7 +940,10 @@ log.warn("id: " + id + ", cmpid: " + cmpid(path[4]) + ", fileid: " + fileid(path
 		{
 			params =  new HashMap<String,String[]>();
 		}
-		params.put("objid", new String[]{ stripPrefix(objid) } );
+		if ( params.get("objid") == null )
+		{
+			params.put("objid", new String[]{ stripPrefix(objid) } );
+		}
 		if ( fileid != null )
 		{
 			String dsid = dsid( cmpid, fileid );

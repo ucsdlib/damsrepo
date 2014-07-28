@@ -60,7 +60,7 @@ public class ObjectExport
 			try
 			{
 				DAMSObject obj = new DAMSObject(ts, es, ark, nsmap);
-				Model model = obj.asModel(true);
+				Model model = obj.asModel(true,false);
 
 				// export metadata
 				FileWriter fw = new FileWriter(new File(objDir, "rdf.xml"));
