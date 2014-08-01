@@ -119,6 +119,27 @@
         <dams:description>Related Resource value</dams:description>
       </dams:RelatedResource>
     </dams:relatedResource>
+    <dams:relatedResource>
+      <dams:RelatedResource>
+        <dams:uri>http://library.ucsd.edu/ark:/20775/bd86037516</dams:uri>
+        <dams:type>depiction</dams:type>
+        <dams:description>Depiction #1</dams:description>
+      </dams:RelatedResource>
+    </dams:relatedResource>
+    <dams:relatedResource>
+      <dams:RelatedResource>
+        <dams:uri>http://library.ucsd.edu/ark:/20775/bd3379993m</dams:uri>
+        <dams:type>depiction</dams:type>
+        <dams:description>Depiction #2</dams:description>
+      </dams:RelatedResource>
+    </dams:relatedResource>
+    <dams:relatedResource>
+      <dams:RelatedResource>
+        <dams:uri>http://library.ucsd.edu/ark:/20775/bd3516400n</dams:uri>
+        <dams:type>collection</dams:type>
+        <dams:description>Collection #1</dams:description>
+      </dams:RelatedResource>
+    </dams:relatedResource>
 
     <!-- notes -->
     <dams:note>

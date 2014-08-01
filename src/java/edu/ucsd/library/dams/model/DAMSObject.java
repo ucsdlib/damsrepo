@@ -329,18 +329,21 @@ public class DAMSObject
 	 * "RDF/XML-ABBREV", "N-TRIPLE", "TURTLE", (and "TTL") and "N3". The
 	 * default value, represented by null is "RDF/XML".
 	**/
-	public String getRDF(boolean recurse, String format)
+	public String getRDF( boolean recurse, String format )
 		throws TripleStoreException
 	{
-		StatementIterator it = getStatements( recurse );
 		StringWriter writer = new StringWriter();
-		outputRDF( it, writer, format );
+		outputRDF( asModel(recurse), writer, format );
 		return writer.toString();
 	}
 
-	private void outputRDF( StatementIterator it, Writer writer, String format )
-		throws TripleStoreException
+	/**
+	 * Get object metadata as a Jena model.
+	 * @param recurse If true, follow all links recursively.
+	**/
+	public Model asModel( boolean recurse ) throws TripleStoreException
 	{
+		StatementIterator it = getStatements( recurse );
 		Model m = ModelFactory.createDefaultModel();
 		try
 		{
@@ -448,7 +451,19 @@ public class DAMSObject
 					}
 				}
 			}
+		}
+		catch ( Exception ex )
+		{
+			throw new TripleStoreException( ex );
+		}
+		return m;
+	}
 
+	public void outputRDF( Model m, Writer writer, String format )
+		throws TripleStoreException
+	{
+		try
+		{
 			// serialize RDF
 			RDFWriter rdfw = m.getWriter(format);
 			if ( rootType != null && format.equals("RDF/XML-ABBREV") )
