@@ -377,6 +377,9 @@ public class MyJhoveBase extends JhoveBase {
 				kwriter = new PrintWriter(swriter);
 				Module bytestreamModule = (Module) getModuleMap().get("bytestream");
 
+				// keep the original formatName and mimeType
+				String mimeType = dataObj.getMIMEtype();
+				String formatName = dataObj.getFormat();
 				dispatch (_jeapp,
 						bytestreamModule,
 		                null,   // AboutHandler
@@ -384,6 +387,12 @@ public class MyJhoveBase extends JhoveBase {
 		                kwriter,   // output
 		                paths);
 				parseXml(dataObj, swriter);
+				if (defaultModule != null) {
+					if (mimeType != null && mimeType.length() > 0)
+						dataObj.setMIMEtype(mimeType);
+					if (formatName != null && formatName.length() > 0)
+						dataObj.setFormat(formatName);
+				}
 			}
 		}
 		catch (Exception e)
