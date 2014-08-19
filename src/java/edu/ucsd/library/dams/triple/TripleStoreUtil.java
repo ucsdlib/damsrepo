@@ -2,6 +2,7 @@ package edu.ucsd.library.dams.triple;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.text.NumberFormat;
@@ -34,6 +35,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.datatypes.BaseDatatype;
@@ -746,5 +748,16 @@ public class TripleStoreUtil
 				stmt.getSubject(), stmt.getPredicate(), stmt.getObject()
 			);
 		}
+	}
+	public static String convertRDF( InputStream in, String fromFormat,
+		String toFormat )
+	{
+		Model m = ModelFactory.createDefaultModel();
+		m.read( in, null, fromFormat );
+
+		StringWriter sw = new StringWriter();
+		RDFWriter rdfw = m.getWriter( toFormat );
+		rdfw.write( m, sw, null );
+		return sw.toString();
 	}
 }

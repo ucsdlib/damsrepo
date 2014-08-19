@@ -67,6 +67,7 @@ import edu.ucsd.library.dams.model.DAMSObject;
 import edu.ucsd.library.dams.model.Event;
 import edu.ucsd.library.dams.triple.Identifier;
 import edu.ucsd.library.dams.triple.TripleStore;
+import edu.ucsd.library.dams.triple.TripleStoreUtil;
 import edu.ucsd.library.dams.triple.TripleStoreException;
 
 /**
@@ -142,6 +143,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	Transformer datastreamProfileTransform;
 	Transformer datastreamDeleteTransform;
 	Transformer systemMetadataTransform;
+	Transformer sufiaMetadataTransform;
 	Transformer rightsMetadataTransform;
 	Transformer linksMetadataTransform;
 
@@ -199,6 +201,9 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
             );
 			systemMetadataTransform = tf.newTransformer(
 				new StreamSource( xslBase + "fedora-systemMetadata.xsl" )
+			);
+			sufiaMetadataTransform = tf.newTransformer(
+				new StreamSource( xslBase + "fedora-sufiaMetadata.xsl" )
 			);
 			linksMetadataTransform = tf.newTransformer(
 				new StreamSource( xslBase + "fedora-linksMetadata.xsl" )
@@ -341,8 +346,11 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				DAMSObject obj = new DAMSObject(ts, es, objid, nsmap);
 				Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("format", new String[]{"sufia"});
-				output( obj, false, params, req.getPathInfo(), res );
-				// XXX xslt dams4 back down to Sufia
+                outputTransform(
+                    stripPrefix(path[2]), null, null, RECURSIVE_OBJ,
+					sufiaMetadataTransform, params, "text/plain",
+					res.SC_OK, ts, null, res
+                );
 			}
 			// GET /objects/[oid]/datastreams/[fulltextPrefix][dsid]/content
 			// STATUS: TEST
@@ -1004,6 +1012,15 @@ log.warn("id: " + id + ", cmpid: " + cmpid(path[4]) + ", fileid: " + fileid(path
 		try
 		{
 			String content =  xslt( rdfxml, xsl, params, null );
+			String[] format = params.get("format");
+			if ( format != null && format[0].equals("sufia") )
+			{
+				// convert to ntriples
+				content = TripleStoreUtil.convertRDF(
+					new ByteArrayInputStream(content.getBytes()),
+					"RDF/XML", "N-TRIPLE"
+				);
+			}
 			output( successCode, content, contentType, res );
 		}
 		catch ( Exception ex )
