@@ -47,6 +47,9 @@ import org.dom4j.xpath.DefaultXPath;
 // jena
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.RDFList;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
@@ -339,6 +342,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				Map<String,String[]> params = new HashMap<String,String[]>();
 				params.put("format", new String[]{"sufia"});
 				output( obj, false, params, req.getPathInfo(), res );
+				// XXX xslt dams4 back down to Sufia
 			}
 			// GET /objects/[oid]/datastreams/[fulltextPrefix][dsid]/content
 			// STATUS: TEST
@@ -1300,6 +1304,12 @@ log.warn("id: " + id + ", cmpid: " + cmpid(path[4]) + ", fileid: " + fileid(path
 	}
 	private InputStream sufiaInput( InputStream in, String objURI )
 	{
+		String dcNS = "http://purl.org/dc/terms/";
+		String dcTitle = dcNS + "title";
+		String dcType = dcNS + "type";
+		String dcRelation = dcNS + "relation";
+		String dcCreator = dcNS + "creator";
+
 		String xml = null;
 		try
 		{
@@ -1314,15 +1324,50 @@ log.warn("id: " + id + ", cmpid: " + cmpid(path[4]) + ", fileid: " + fileid(path
 			while ( it.hasNext() )
 			{
 				Statement s = it.nextStatement();
-				Statement s2 = m2.createStatement(
-					sub, s.getPredicate(), s.getObject()
-				);
-				m2.add( s2 );
+				String pred = s.getPredicate().getURI();
+				if ( pred != null && pred.equals(dcTitle) )
+				{
+					addMads(
+						m2, fixArk(m2,s.getSubject()), s.getLiteral().toString(),
+						"title", "Title", "MainTitleElement"
+					);
+				}
+				else if ( pred != null && pred.equals(dcRelation) )
+				{
+					addMads(
+						m2, fixArk(m2,s.getSubject()), s.getLiteral().toString(),
+						"topic", "Topic", "TopicElement"
+					);
+				}
+				else if ( pred != null && pred.equals(dcCreator) )
+				{
+					addMadsCreator(
+						m2, fixArk(m2,s.getSubject()), s.getLiteral().toString() );
+				}
+				else if ( pred != null && pred.equals(dcType) )
+				{
+					if ( !s.getLiteral().toString().equals("") )
+					{
+						Property damsType = m2.createProperty(
+							prNS, "typeOfResource"
+						);
+						m2.add( m2.createStatement(
+							fixArk(m2,s.getSubject()), damsType, s.getObject()
+						) );
+					}
+				}
+				else
+				{
+					// copy statement
+					m2.add( m2.createStatement(
+						fixArk(m2,s.getSubject()), s.getPredicate(), s.getObject()
+					) );
+				}
 			}
 
 			// serialize to RDF/XML
 			StringWriter sw = new StringWriter();
-			RDFWriter rdfw = m2.getWriter("RDF/XML-ABBREV");
+			RDFWriter rdfw = m2.getWriter();
 			rdfw.write( m2, sw, null );
 			xml = sw.toString();
 		}
@@ -1332,6 +1377,54 @@ log.warn("id: " + id + ", cmpid: " + cmpid(path[4]) + ", fileid: " + fileid(path
 		}
 
 		return new ByteArrayInputStream(xml.getBytes());
+	}
+	// fix <info:fedora/sufia:pk02c980t> URIs...
+	private Resource fixArk( Model m, Resource r )
+	{
+		if ( r.getNameSpace().equals( idNS ) )
+		{
+			return m.createResource( r.getURI() );
+		}
+		else
+		{
+			String localName = r.getLocalName().replaceAll(".*:","");
+			return m.createResource(idNS + localName);
+		}
+	}
+	private void addMads( Model m, Resource r, String value, String pre,
+		String wrapper, String element )
+	{
+		// wrapper
+		Resource bn1 = m.createResource();
+		addStatement( m, r, prNS + pre, bn1 );
+		addStatement( m, bn1, rdfNS + "type", m.createResource(madsNS+wrapper));
+		addStatement( m, bn1, madsNS + "authoritativeLabel", value );
+
+		// element list
+		if ( element != null )
+		{
+			Resource bn2 = m.createResource();
+			RDFNode[] elements = {bn2};
+			RDFList elementList = m.createList( elements );
+			addStatement( m, bn1, madsNS + "elementList", elementList );
+			addStatement( m, bn2, madsNS + "elementValue", value );
+			addStatement( m, bn2, rdfNS + "type", m.createResource(madsNS+element));
+		}
+	}
+	private void addMadsCreator( Model m, Resource r, String value )
+	{
+		Resource bn1 = m.createResource();
+		addStatement( m, r, prNS + "relationship", bn1 );
+		addMads( m, bn1, value, "name", "Name", "NameElement" );
+        addMads( m, bn1, "Creator", "role", "Authority", null );
+	}
+	private static void addStatement( Model m, Resource r, String p, RDFNode o )
+	{
+		m.add( m.createStatement( r, m.createProperty(p), o ) );
+	}
+	private static void addStatement( Model m, Resource r, String p, String o )
+	{
+		addStatement( m, r, p, m.createLiteral(o) );
 	}
 	private static String cmpid( String s )
 	{
