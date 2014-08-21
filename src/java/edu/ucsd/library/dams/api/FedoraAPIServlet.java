@@ -290,7 +290,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 				String profiles = req.getParameter("profiles");
 				Transformer t = null;
-				if ( profiles.equals("true") ) 
+				if ( profiles != null && profiles.equals("true") ) 
 				{
 					t = objectDatastreamProfilesTransform;
 				}
@@ -1446,6 +1446,7 @@ log.warn("id: " + id + ", cmpid: " + cmpid(path[4]) + ", fileid: " + fileid(path
 	{
 		Resource bn1 = m.createResource();
 		addStatement( m, r, prNS + "relationship", bn1 );
+		addStatement( m, bn1, rdfNS + "type", m.createResource(prNS+"Relationship") );
 		addMads( m, bn1, value, "name", "Name", "NameElement" );
         addMads( m, bn1, "Creator", "role", "Authority", null );
 	}
