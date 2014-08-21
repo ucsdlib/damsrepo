@@ -50,49 +50,49 @@ public class FileStoreUtil
 	 *  triplestore, prefixed with the triplestore name.
 	 * @param name Prefix of the properties in the form "ts.[name].".
 	**/
-    public static FileStore getFileStore( Properties props, String name )
+	public static FileStore getFileStore( Properties props, String name )
 		throws Exception
-    {
-        // copy properties for the named filestore to a new properties file
-        Properties fprops = new Properties();
-        Enumeration e = props.propertyNames();
-        String prefix = "fs." + name + ".";
-        while ( e.hasMoreElements() )
-        {
-            String key = (String)e.nextElement();
-            if ( key.startsWith(prefix) )
-            {
+	{
+		// copy properties for the named filestore to a new properties file
+		Properties fprops = new Properties();
+		Enumeration e = props.propertyNames();
+		String prefix = "fs." + name + ".";
+		while ( e.hasMoreElements() )
+		{
+			String key = (String)e.nextElement();
+			if ( key.startsWith(prefix) )
+			{
 				String key2 = key.substring(prefix.length());
 				String val = props.getProperty(key);
-                fprops.put( key2, val );
-            }
-        }
+				fprops.put( key2, val );
+			}
+		}
 
-        // load the filestore
-        return getFileStore( fprops );
-    }
+		// load the filestore
+		return getFileStore( fprops );
+	}
 
 
 	/**
 	 * Convert a string into a pairpath directory tree.
 	**/
-    public static String pairPath( String s )
-    {
-        if ( s == null ) { return null; }
-        String result = "";
-        int i = 0;
-        while( i < (s.length() - 1) )
-        {
-            result += s.substring(i,i+2);
-            result += "/";
-            i += 2;
-        }
-        if ( s.length() > i )
+	public static String pairPath( String s )
+	{
+		if ( s == null ) { return null; }
+		String result = "";
+		int i = 0;
+		while( i < (s.length() - 1) )
+		{
+			result += s.substring(i,i+2);
+			result += "/";
+			i += 2;
+		}
+		if ( s.length() > i )
 		{
 			result += s.substring(i) + "/";
 		}
-        return result;
-    }
+		return result;
+	}
 
 	/**
 	 * Delete an object from a filestore (trashing existing files).
@@ -188,7 +188,7 @@ public class FileStoreUtil
 	 * Read the contents of a stream as a string.
 	**/
 	public static String read( InputStream in )
-        throws FileStoreException
+		throws FileStoreException
 	{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		copy( in, out );
@@ -198,22 +198,22 @@ public class FileStoreUtil
 	/**
 	 * Copy data from an input stream to an output stream.
 	**/
-    public static long copy( InputStream in, OutputStream out )
-        throws FileStoreException
-    {
+	public static long copy( InputStream in, OutputStream out )
+		throws FileStoreException
+	{
 		long bytesRead = 0;
-        try
-        {
-            BufferedInputStream bufin = new BufferedInputStream(in);
-            BufferedOutputStream bufout = new BufferedOutputStream(out);
-            for ( int c = -1; (c=bufin.read()) != -1; )
-            {   
-                bufout.write(c);
+		try
+		{
+			BufferedInputStream bufin = new BufferedInputStream(in);
+			BufferedOutputStream bufout = new BufferedOutputStream(out);
+			for ( int c = -1; (c=bufin.read()) != -1; )
+			{   
+				bufout.write(c);
 				bytesRead++;
-            }
+			}
 			bufout.close();
-        }
-        catch ( Exception ex ) { throw new FileStoreException(ex); }
+		}
+		catch ( Exception ex ) { throw new FileStoreException(ex); }
 		return bytesRead;
-    }
+	}
 }

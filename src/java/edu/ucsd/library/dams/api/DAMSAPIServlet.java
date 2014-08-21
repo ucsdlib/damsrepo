@@ -1054,7 +1054,7 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 				catch ( Exception ex )
 				{
-					log.warn("Error serializing RDF/XML on update", ex);
+					log.error("Error serializing RDF/XML on update", ex);
 					info = error("Failed to serialize record " + objid + " to filestore. Error: " + ex.getMessage());
 				}
 			}
@@ -2953,7 +2953,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error comparing checksums", ex );
+			log.error( "Error comparing checksums", ex );
 			return error( "Error comparing checksums: " + ex.toString() );
 		}
 		finally

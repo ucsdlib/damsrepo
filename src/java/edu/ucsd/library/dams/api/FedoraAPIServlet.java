@@ -625,7 +625,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			else if ( path.length == 5 && path[1].equals("objects")
 				&& path[3].equals("datastreams") )
 			{
-log.warn("POST new file: " + path[2] + "/datastreams/" + path[4]);
 				InputBundle bundle = input( req );
 				InputStream in = bundle.getInputStream();
 				Map<String,String[]> params = new HashMap<String,String[]>();
@@ -635,7 +634,6 @@ log.warn("POST new file: " + path[2] + "/datastreams/" + path[4]);
 				ts = triplestore(req);
 				es = events(req);
 				String id = stripPrefix(path[2]);
-log.warn("id: " + id + ", cmpid: " + cmpid(path[4]) + ", fileid: " + fileid(path[4]));
 				cacheRemove(id);
 
 				Map info = fileUpload(
