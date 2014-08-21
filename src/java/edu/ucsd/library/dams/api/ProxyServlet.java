@@ -56,7 +56,6 @@ public class ProxyServlet extends HttpServlet
 	private String baseURL = null;
 	private boolean logRequests;
 	private boolean logHeaders;
-	private boolean logResponses;
 	private boolean logContent;
 	private HttpClient client = null;
 
@@ -66,7 +65,6 @@ public class ProxyServlet extends HttpServlet
 		baseURL = config.getInitParameter("baseURL");
 		logRequests = booleanParam( config, "logRequests" );
 		logHeaders = booleanParam( config, "logHeaders" );
-		logResponses = booleanParam( config, "logResponses" );
 		logContent = booleanParam( config, "logContent" );
         ClientConnectionManager pool = new PoolingClientConnectionManager();
 		client = new DefaultHttpClient( pool );
@@ -166,12 +164,6 @@ public class ProxyServlet extends HttpServlet
 		{
 			relURL += "?" + req.getQueryString();
 		}
-		if ( logRequests )
-		{
-			log.info(
-				req.getMethod() + " " + relURL
-			);
-		}
 		return baseURL + relURL;
 	}
 
@@ -212,7 +204,8 @@ public class ProxyServlet extends HttpServlet
 			InputStream in = orig.getInputStream();
 			String inputType = orig.getContentType();
 			log.info("request contentType:" + inputType);
-			if ( logContent && inputType != null && (inputType.startsWith("text/") || inputType.endsWith("/xml")) )
+			if ( logContent && inputType != null &&
+				(inputType.startsWith("text/") || inputType.endsWith("/xml")) )
 			{
 				try
 				{
@@ -238,10 +231,13 @@ public class ProxyServlet extends HttpServlet
 		HttpResponse response = client.execute(req);
 		int status = response.getStatusLine().getStatusCode();
 		res.setStatus(status);
-		if ( logResponses )
+		if ( logRequests )
 		{
-			log.info( "    " + status + " "
-				+ response.getStatusLine().getReasonPhrase() );
+			String uri = req.getURI().toString().substring( baseURL.length() );
+			log.info(
+				req.getMethod() + " " + uri + " " + status + " " +
+				response.getStatusLine().getReasonPhrase()
+			);
 		}
 
 		// headers
@@ -261,12 +257,12 @@ public class ProxyServlet extends HttpServlet
 		if ( entity != null )
 		{
 			boolean textOutput = false;
-			Header mimeType = response.getFirstHeader("Content-Type");
-			if ( mimeType != null && mimeType.getValue() != null )
+			Header mimeTypeHeader = response.getFirstHeader("Content-Type");
+			if ( mimeTypeHeader != null && mimeTypeHeader.getValue() != null )
 			{
-                String mimeTypeValue = mimeType.getValue();
-				res.setContentType( mimeTypeValue );
-				if ( mimeTypeValue.startsWith("text/") || mimeTypeValue.endsWith("/xml") )
+                String mimeType = mimeTypeHeader.getValue();
+				res.setContentType( mimeType );
+				if ( mimeType.startsWith("text/") || mimeType.endsWith("/xml") )
 				{
 					textOutput = true;
 				}

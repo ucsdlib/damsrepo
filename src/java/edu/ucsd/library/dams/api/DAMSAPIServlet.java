@@ -1054,7 +1054,7 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 				catch ( Exception ex )
 				{
-					log.error("Error serializing RDF/XML on update", ex);
+					log.warn("Error serializing RDF/XML on update", ex);
 					info = error("Failed to serialize record " + objid + " to filestore. Error: " + ex.getMessage());
 				}
 			}
@@ -2953,7 +2953,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.error( "Error comparing checksums", ex );
+			log.warn( "Error comparing checksums", ex );
 			return error( "Error comparing checksums: " + ex.toString() );
 		}
 		finally
@@ -3339,7 +3339,7 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 			}
 			Identifier id = createID( objid, null, null );
-if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
+			if ( ts == null ) { log.error("Null triplestorE"); }
 			if ( ts.exists(id) )
 			{
 				obj = new DAMSObject( ts, es, objid, nsmap );
@@ -3907,7 +3907,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 						merged = false;
 						message = "";
 						for(Iterator<String> itTmp=subs.iterator(); itTmp.hasNext();)
-							message = (message.length()>0?", ":"") + message;
+						message = (message.length()>0?", ":"") + message;
 						message = "Failed to merge " +  mergedID.getId() + " to " + objid + ". multiple parent object found for " + mergedID.getId() + ": " + message;
 						log.error( message );
 						updateErrorInfo( info, message );
@@ -4942,7 +4942,6 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		String cmpid, String fileid )
 		throws IOException, FileUploadException
 	{
-		log.info( req.getMethod() + " " + req.getRequestURL() );
 		InputBundle input = null;
 		if ( ServletFileUpload.isMultipartContent(req) || (req.getContentType() != null && req.getContentType().startsWith("multipart/form-data")) )
 		{

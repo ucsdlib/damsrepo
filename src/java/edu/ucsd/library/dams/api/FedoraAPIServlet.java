@@ -139,6 +139,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	Transformer objectContentTransform;
 	Transformer objectProfileTransform;
 	Transformer objectDatastreamsTransform;
+	Transformer objectDatastreamProfilesTransform;
 	Transformer nextPIDTransform;
 	Transformer datastreamProfileTransform;
 	Transformer datastreamDeleteTransform;
@@ -189,6 +190,9 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
             );
             objectDatastreamsTransform = tf.newTransformer(
                 new StreamSource( xslBase + "fedora-object-datastreams.xsl" )
+            );
+            objectDatastreamProfilesTransform = tf.newTransformer(
+                new StreamSource( xslBase + "fedora-object-datastreamProfiles.xsl" )
             );
             nextPIDTransform = tf.newTransformer(
                 new StreamSource( xslBase + "fedora-nextPID.xsl" )
@@ -284,9 +288,19 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					log.warn("Error checking for serialized RDF/XML");
 				}
 
+				String profiles = req.getParameter("profiles");
+				Transformer t = null;
+				if ( profiles.equals("true") ) 
+				{
+					t = objectDatastreamProfilesTransform;
+				}
+				else
+				{
+					t = objectDatastreamsTransform;
+				}
 				outputTransform(
-					path[2], null, null, true, objectDatastreamsTransform,
-					params, "application/xml", res.SC_OK, ts, es, res
+					path[2], null, null, true, t, params, "application/xml",
+					res.SC_OK, ts, es, res
 				);
 			}
 			// GET /objects/[oid]/datastreams/[fid]
