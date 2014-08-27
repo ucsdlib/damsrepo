@@ -1080,7 +1080,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			"//dams:relatedResource/dams:RelatedResource[dams:type='hydra-afmodel']/dams:uri"
 		);
 		if ( model != null ) { model = model.replaceAll(".*:",""); }
-		log.warn("XXXX model = " + model);
 
 		// make sure values are not null
 		String registered = "registered";
