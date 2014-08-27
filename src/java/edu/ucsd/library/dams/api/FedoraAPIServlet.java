@@ -1001,6 +1001,11 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					// use linked admin group if available
 					params.put("adminGroup", new String[]{adminGroup});
 				}
+				else if ( accessGroup.equals("registered") )
+				{
+					params.put("adminGroup", new String[]{roleAdmin});
+					params.put("adminGroup2", new String[]{"registered"});
+				}
 				else
 				{
 					// use default admin group2 if none specified
@@ -1075,6 +1080,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			"//dams:relatedResource/dams:RelatedResource[dams:type='hydra-afmodel']/dams:uri"
 		);
 		if ( model != null ) { model = model.replaceAll(".*:",""); }
+		log.warn("XXXX model = " + model);
 
 		// make sure values are not null
 		String registered = "registered";
@@ -1241,6 +1247,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			Element e = (Element)linkNodes.get(i);
 			String rel = e.getName();
+			if ( rel.equals("isPartOf") ) { rel = "assembledCollection"; }
 			String uri = e.attributeValue(rdfRes);
 			if ( e.getQName().equals(hasModel) )
 			{
@@ -1360,6 +1367,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			// copy statements into a second model, setting new subject
 			Model m2 = ModelFactory.createDefaultModel();
 			Resource sub = m2.createResource( objURI );
+			Property damsType = m2.createProperty( prNS, "typeOfResource" );
 			StmtIterator it = m1.listStatements();
 			while ( it.hasNext() )
 			{
@@ -1388,9 +1396,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				{
 					if ( !s.getLiteral().toString().equals("") )
 					{
-						Property damsType = m2.createProperty(
-							prNS, "typeOfResource"
-						);
 						m2.add( m2.createStatement(
 							fixArk(m2,s.getSubject()), damsType, s.getObject()
 						) );
@@ -1402,6 +1407,35 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					m2.add( m2.createStatement(
 						fixArk(m2,s.getSubject()), s.getPredicate(), s.getObject()
 					) );
+				}
+			}
+
+			// determine type
+			Property rdfType = m2.createProperty( rdfNS, "type" );
+			Statement type1 = m2.getProperty( sub, rdfType );
+			Statement type2 = m2.getProperty( sub, damsType );
+			String typeVal = null;
+			if ( type2 != null )
+			{
+				typeVal = type2.getObject().toString();
+			}
+
+			if ( type1 == null )
+			{
+				if ( typeVal != null && (typeVal.equalsIgnoreCase("processing")
+									  || typeVal.equalsIgnoreCase("complete")) )
+				{
+					// batch = collection
+					log.info("Sufia Batch => DAMS AssembledCollection");
+					addStatement( m2, sub, rdfNS + "type",
+						m2.createResource(prNS + "AssembledCollection") );
+				}
+				else
+				{
+					// file = object
+					log.info("Sufia GenericFile => DAMS Object");
+					addStatement( m2, sub, rdfNS + "type",
+						m2.createResource(prNS + "Object") );
 				}
 			}
 
