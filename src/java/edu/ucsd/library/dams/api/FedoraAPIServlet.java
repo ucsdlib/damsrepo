@@ -1355,6 +1355,9 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		String dcType = dcNS + "type";
 		String dcRelation = dcNS + "relation";
 		String dcCreator = dcNS + "creator";
+		String dcDateSubmitted = dcNS + "dateSubmitted";
+		String dcDateModified = dcNS + "modified";
+		String dcRights = dcNS + "rights";
 
 		String xml = null;
 		try
@@ -1390,6 +1393,21 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				{
 					addMadsCreator(
 						m2, fixArk(m2,s.getSubject()), s.getLiteral().toString() );
+				}
+				else if ( pred != null && pred.equals(dcDateSubmitted) )
+				{
+					addDate(m2, fixArk(m2,s.getSubject()), "submitted",
+												s.getLiteral() );
+				}
+				else if ( pred != null && pred.equals(dcDateModified) )
+				{
+					addDate( m2, fixArk(m2,s.getSubject()), "modified",
+												s.getLiteral());
+				}
+				else if ( pred != null && pred.equals(dcRights) )
+				{
+					addLicense(m2, fixArk(m2,s.getSubject()),
+												s.getLiteral().toString() );
 				}
 				else if ( pred != null && pred.equals(dcType) )
 				{
@@ -1463,6 +1481,21 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			String localName = r.getLocalName().replaceAll(".*:","");
 			return m.createResource(idNS + localName);
 		}
+	}
+	private void addDate(Model m, Resource r, String type, RDFNode value )
+	{
+		Resource bn1 = m.createResource();
+		addStatement( m, r, prNS + "date", bn1 );
+		addStatement( m, bn1, rdfNS + "type", m.createResource(prNS+"Date"));
+		addStatement( m, bn1, prNS + "type", type );
+		addStatement( m, bn1, rdfNS + "value", value );
+	}
+	private void addLicense(Model m, Resource r, String uri )
+	{
+		Resource bn1 = m.createResource();
+		addStatement( m, r, prNS + "license", bn1 );
+		addStatement( m, bn1, rdfNS + "type", m.createResource(prNS+"License"));
+		addStatement( m, bn1, prNS + "licenseURI", uri );
 	}
 	private void addMads( Model m, Resource r, String value, String pre,
 		String wrapper, String element )
