@@ -721,7 +721,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in2 = sufiaInput( in, id2.getId() );
 
 				objectEdit(
-					id, !exists, in2, "all", null, null, null, ts, es, fs
+					id, !exists, in2, "replace", null, null, null, ts, es, fs
 				);
 
 				Map<String,String[]> params = new HashMap<String,String[]>();
@@ -1071,8 +1071,13 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		String visibility = doc.valueOf(
 			"/rdf:RDF/dams:AssembledCollection/dams:visibility|/rdf:RDF/dams:ProvenanceCollection/dams:visibility|/rdf:RDF/dams:ProvenanceCollectionPart/dams:visibility"
 		);
+		String model = doc.valueOf(
+			"//dams:relatedResource/dams:RelatedResource[dams:type='hydra-afmodel']/dams:uri"
+		);
+		if ( model != null ) { model = model.replaceAll(".*:",""); }
 
 		// make sure values are not null
+		String registered = "registered";
 		if ( roleAdmin    == null ) { roleAdmin    = "admin";   }
 		if ( roleAdmin2   == null ) { roleAdmin    = "admin2";  }
 		if ( roleLocal    == null ) { roleLocal    = "local";   }
@@ -1113,6 +1118,12 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				// default: public
 				accessGroup = roleDefault;
 			}
+		}
+		else if ( model.equals("Batch") )
+		{
+			// this should be unnecessary once auth/groups are working
+            log.info("Sufia Batch permissions override");
+			return registered;
 		}
 		else
 		{

@@ -57,6 +57,10 @@ public class TripleStoreUtil
 	private static String ns = "http://libraries.ucsd.edu/ark:/20775/";
 	private static Model staticModel = ModelFactory.createDefaultModel();
 
+	public static final int REPLACE_ALL = 0;
+	public static final int REPLACE_NONE = 1;
+	public static final int REPLACE_PREDICATES = 2;
+
 	/**
 	 * Get an instance of a triplestore class.
 	 * @param props Properties object holding parameters to initialize the 
@@ -180,17 +184,17 @@ public class TripleStoreUtil
 		}
 	}
 
-	public static void loadNTriples( InputStream in, boolean deleteFirst,
+	public static void loadNTriples( InputStream in, int replaceMode,
 		TripleStore ts, String idNS ) throws TripleStoreException
 	{
-		loadRDF( in, deleteFirst, ts, "N-TRIPLE", idNS );
+		loadRDF( in, replaceMode, ts, "N-TRIPLE", idNS );
 	}
-	public static void loadRDFXML( InputStream in, boolean deleteFirst,
+	public static void loadRDFXML( InputStream in, int replaceMode,
 		TripleStore ts, String idNS ) throws TripleStoreException
 	{
-		loadRDF( in, deleteFirst, ts, "RDF/XML", idNS );
+		loadRDF( in, replaceMode, ts, "RDF/XML", idNS );
 	}
-	private static void loadRDF( InputStream in, boolean deleteFirst,
+	private static void loadRDF( InputStream in, int replaceMode,
 		TripleStore ts, String format, String idNS ) throws TripleStoreException
 	{
 		// bnode parent tracking
@@ -210,7 +214,7 @@ public class TripleStoreUtil
 		}
 
 		// list and delete subjects in the model
-		if ( deleteFirst )
+		if ( replaceMode == REPLACE_ALL )
 		{
 			Resource res = null;
 			try
@@ -232,6 +236,21 @@ public class TripleStoreUtil
 			{
 				log.warn("error removing id: " + res, ex );
 				//throw new TripleStoreException("Error removing RDF data", ex);
+			}
+		}
+		else if ( replaceMode == REPLACE_PREDICATES )
+		{
+			StmtIterator it = model.listStatements();
+			while ( it.hasNext() )
+			{
+				com.hp.hpl.jena.rdf.model.Statement s = it.nextStatement();
+				if ( !s.getSubject().isAnon() )
+				{
+					log.warn("XXX removing: " + s);
+					Identifier sub = toIdentifier( s.getSubject(), bnodes, ts );
+					Identifier pre = toIdentifier( s.getPredicate() );
+					recursiveDelete( sub, sub, pre, null, null, ts );
+				}
 			}
 		}
 
@@ -691,19 +710,19 @@ public class TripleStoreUtil
 		}
 
 		// recursively remove statements
-		recursiveDelete( sub, pre, obj, keepPre, map, ts );
+		recursiveDeleteInner( sub, pre, obj, keepPre, map, ts );
 
 		// if obj is public URI, delete all children of it *within this object*
 		if ( obj != null && !obj.isBlankNode() )
 		{
-			recursiveDelete( obj, null, null, keepPre, map, ts );
+			recursiveDeleteInner( obj, null, null, keepPre, map, ts );
 		}
 	}
 
 	/**
 	 * Recursively delete statements.
 	**/
-	private static void recursiveDelete( Identifier sub, Identifier pre,
+	private static void recursiveDeleteInner( Identifier sub, Identifier pre,
 		Identifier obj, Identifier keepPre, Map<String,List<Statement>> map,
 		TripleStore ts ) throws TripleStoreException
 	{
@@ -726,7 +745,7 @@ public class TripleStoreUtil
 						Identifier o = s.getObject();
 						if ( o.isBlankNode() )
 						{
-							recursiveDelete( o, null, null, keepPre, map, ts );
+							recursiveDeleteInner( o, null, null, keepPre, map, ts );
 						}
 					}
 				}

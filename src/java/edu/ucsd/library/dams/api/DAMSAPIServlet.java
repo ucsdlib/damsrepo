@@ -3033,19 +3033,23 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( in != null )
 			{
 				if ( mode == null || mode.equals("") || mode.equals("all")
-					|| mode.equals("add") )
+					|| mode.equals("add") || mode.equals("replace") )
 				{
-                    boolean deleteFirst = false;
+                    int replaceMode = TripleStoreUtil.REPLACE_NONE;
                     if ( !create && mode != null && mode.equals("all") )
                     {
                         // mode=all: delete object and replace
-                        deleteFirst = true;
+                    	replaceMode = TripleStoreUtil.REPLACE_ALL;
+					}
+					else if ( mode != null && mode.equals("replace") )
+					{
+						replaceMode = TripleStoreUtil.REPLACE_PREDICATES;
 					}
 
 					try
 					{
 						// ingest RDF/XML from inputstream
-						TripleStoreUtil.loadRDFXML( in, deleteFirst, ts, idNS );
+						TripleStoreUtil.loadRDFXML( in, replaceMode, ts, idNS );
 
 						// success
 						int status = -1;

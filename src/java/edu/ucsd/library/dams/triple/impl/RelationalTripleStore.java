@@ -1,5 +1,7 @@
 package edu.ucsd.library.dams.triple.impl;
 
+import static edu.ucsd.library.dams.triple.TripleStoreUtil.REPLACE_ALL;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -233,7 +235,7 @@ public class RelationalTripleStore implements TripleStore
 		try
 		{
 			FileInputStream in = new FileInputStream(filename);
-			TripleStoreUtil.loadRDFXML( in, true, this, idNS );
+			TripleStoreUtil.loadRDFXML( in, REPLACE_ALL, this, idNS );
 		}
 		catch ( TripleStoreException ex )
 		{
@@ -249,7 +251,7 @@ public class RelationalTripleStore implements TripleStore
 		try
 		{
 			FileInputStream in = new FileInputStream(filename);
-			TripleStoreUtil.loadNTriples( in, true, this, idNS );
+			TripleStoreUtil.loadNTriples( in, REPLACE_ALL, this, idNS );
 		}
 		catch ( TripleStoreException ex )
 		{
