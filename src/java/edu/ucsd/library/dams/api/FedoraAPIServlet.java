@@ -151,6 +151,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	private String fulltextPrefix = "fulltext";
 
 	private boolean RECURSIVE_OBJ = false;
+	private boolean REGISTERED_USER = true;
 
     // initialize servlet parameters
     public void init( ServletConfig config ) throws ServletException
@@ -1001,7 +1002,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					// use linked admin group if available
 					params.put("adminGroup", new String[]{adminGroup});
 				}
-				else if ( accessGroup.equals("registered") )
+				else if ( REGISTERED_USER && accessGroup.equals("registered") )
 				{
 					params.put("adminGroup", new String[]{roleAdmin});
 					params.put("adminGroup2", new String[]{"registered"});
@@ -1077,7 +1078,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			"/rdf:RDF/dams:AssembledCollection/dams:visibility|/rdf:RDF/dams:ProvenanceCollection/dams:visibility|/rdf:RDF/dams:ProvenanceCollectionPart/dams:visibility"
 		);
 		String model = doc.valueOf(
-			"//dams:relatedResource/dams:RelatedResource[dams:type='hydra-afmodel']/dams:uri"
+			"/rdf:RDF/*/dams:relatedResource/dams:RelatedResource[dams:type='hydra-afmodel']/dams:uri"
 		);
 		if ( model != null ) { model = model.replaceAll(".*:",""); }
 
@@ -1124,7 +1125,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				accessGroup = roleDefault;
 			}
 		}
-		else if ( model.equals("Batch") )
+		else if ( REGISTERED_USER && model.equals("Batch") )
 		{
 			// this should be unnecessary once auth/groups are working
             log.info("Sufia Batch permissions override");
@@ -1132,6 +1133,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		else
 		{
+			log.warn("XXX: model = " + model);
 			// third party or unknown copyright
 			if ( !displayRestriction && displayPermission )
 			{

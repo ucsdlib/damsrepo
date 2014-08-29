@@ -246,7 +246,6 @@ public class TripleStoreUtil
 				com.hp.hpl.jena.rdf.model.Statement s = it.nextStatement();
 				if ( !s.getSubject().isAnon() )
 				{
-					log.warn("XXX removing: " + s);
 					Identifier sub = toIdentifier( s.getSubject(), bnodes, ts );
 					Identifier pre = toIdentifier( s.getPredicate() );
 					recursiveDelete( sub, sub, pre, null, null, ts );
