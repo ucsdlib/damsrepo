@@ -935,7 +935,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			"/rdf:RDF/dams:Object//dams:copyrightStatus"
 		);
 		String rightsHolder = doc.valueOf(
-			"/rdf:RDF/dams:Object//dams:rightsHolder/*/mads:authoritativeLabel"
+			"//dams:rightsHolder/*/mads:authoritativeLabel|//dams:rightsHolderCorporate/*/mads:authoritativeLabel|//dams:rightsHolderPersonal/*/mads:authoritativeLabel"
 		);
 		boolean displayRestriction = findCurrent( doc,
 			"/rdf:RDF/dams:Object//dams:Restriction[dams:type='display']"
