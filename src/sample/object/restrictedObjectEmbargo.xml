@@ -26,8 +26,14 @@
         <dams:quality>520x768</dams:quality>
       </dams:File>
     </dams:hasFile>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/xx00015649"/>
-    <dams:copyright rdf:resource="http://library.ucsd.edu/ark:/20775/bb80219272"/>
+    <dams:copyright>
+      <dams:Copyright>
+	    <dams:copyrightNote>Constraint(s) on Use: This work is protected by the U.S. Copyright Law (Title 17, U.S.C.). Use of this work beyond that allowed by "fair use" requires written permission of the copyright holder(s). Responsibility for obtaining permissions and any use and distribution of this work rests exclusively with the user and not the UC San Diego Libraries. Inquiries can be made to the UC San Diego Libraries department having custody of the work (http://libraries.ucsd.edu/locations/mscl/).</dams:copyrightNote>
+	    <dams:copyrightPurposeNote>Use: This work is available from the UC San Diego Libraries. This digital copy of the work is intended to support research, teaching, and private study.</dams:copyrightPurposeNote>
+	    <dams:copyrightJurisdiction>us</dams:copyrightJurisdiction>
+	    <dams:copyrightStatus>Under copyright</dams:copyrightStatus>
+	    </dams:Copyright>
+    </dams:copyright>
     <dams:note>
       <dams:Note>
         <rdf:value>[Title, Date]. Roger Keesing Papers. MSS 427. Mandeville Special Collections Library, UCSD.</rdf:value>
@@ -102,7 +108,6 @@
         <dams:licenseNote>Display currently prohibited.</dams:licenseNote>
       </dams:License>
     </dams:license>
-    <dams:otherRights rdf:resource="http://library.ucsd.edu/ark:/20775/bb58718348"/>
     <dams:note>
       <dams:Note>
         <rdf:value>This digital image is a surrogate of an item from the Roger M. Keesing Papers (MSS 427).</rdf:value>
@@ -183,7 +188,6 @@
         <dams:quality>102x150</dams:quality>
       </dams:File>
     </dams:hasFile>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/xx00015647"/>
     <dams:note>
       <dams:Note>
         <dams:type>note</dams:type>
