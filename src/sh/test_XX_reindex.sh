@@ -38,6 +38,13 @@ if [ ! "$IDS" ]; then
 	IDS="$IDS bd91134949" # language=French
 	IDS="$IDS bb05050505" # copyright=under copyright
 	IDS="$IDS bd0513099p" # copyright=public domain
+	IDS="$IDS bb6110650g" # license
+	IDS="$IDS bb3004913f" # license
+	IDS="$IDS bb58718348" # otherRight
+	IDS="$IDS bb80219272" # copyright
+	IDS="$IDS bb2628975j" # embargo object
+	IDS="$IDS bb3448091s" # cultural sensitive object
+	IDS="$IDS bb5734834n" # metadata only display object
 fi
 
 # solr indexing
