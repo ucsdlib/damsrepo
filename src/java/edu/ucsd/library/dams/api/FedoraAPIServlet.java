@@ -952,6 +952,9 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		String visibility = doc.valueOf(
 			"/rdf:RDF/dams:AssembledCollection/dams:visibility|/rdf:RDF/dams:ProvenanceCollection/dams:visibility|/rdf:RDF/dams:ProvenanceCollectionPart/dams:visibility"
 		);
+		String colVisibility = doc.valueOf(
+			"/rdf:RDF/dams:Object/dams:assembledCollection/dams:AssembledCollection/dams:visibility|/rdf:RDF/dams:Object/dams:provenanceCollection/dams:ProvenanceCollection/dams:visibility|/rdf:RDF/dams:Object/dams:provenanceCollectionPart/dams:ProvenanceCollectionPart/dams:visibility"
+		);
 
 		// make sure values are not null
 		if ( roleAdmin    == null ) { roleAdmin    = "admin";   }
@@ -967,7 +970,11 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 		// logic
 		String accessGroup = null;
-		if ( visibility != null && visibility.equals("curator") )
+		if ( colVisibility != null && colVisibility.equals("curator") )
+        {
+            accessGroup = roleEdit;
+        }
+		else if ( visibility != null && visibility.equals("curator") )
 		{
 			accessGroup = roleEdit;
 		}
