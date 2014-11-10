@@ -13,6 +13,9 @@
     <!-- linked to curator-only collection -->
     <dams:assembledCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd5735300v"/>
 
+    <!-- also link to a public collection, since that's a scenario -->
+    <dams:provenanceCollection rdf:resource="http://library.ucsd.edu/ark:/20775/bd24241158"/>
+
     <dams:typeOfResource>still image</dams:typeOfResource>
     <dams:language rdf:resource="http://library.ucsd.edu/ark:/20775/bd0410344f"/>
     <dams:title>

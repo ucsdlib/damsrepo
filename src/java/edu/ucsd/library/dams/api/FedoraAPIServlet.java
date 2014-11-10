@@ -952,7 +952,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		String visibility = doc.valueOf(
 			"/rdf:RDF/dams:AssembledCollection/dams:visibility|/rdf:RDF/dams:ProvenanceCollection/dams:visibility|/rdf:RDF/dams:ProvenanceCollectionPart/dams:visibility"
 		);
-		String colVisibility = doc.valueOf(
+		List colVisibility = doc.selectNodes(
 			"/rdf:RDF/dams:Object/dams:assembledCollection/dams:AssembledCollection/dams:visibility|/rdf:RDF/dams:Object/dams:provenanceCollection/dams:ProvenanceCollection/dams:visibility|/rdf:RDF/dams:Object/dams:provenanceCollectionPart/dams:ProvenanceCollectionPart/dams:visibility"
 		);
 
@@ -968,13 +968,24 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			roleEdit     = roleAdmin;
 		}
 
+		// collection visibility overrides object access control
+		if ( colVisibility != null && colVisibility.size() > 0 )
+		{
+			for ( int i = 0; i < colVisibility.size(); i++ )
+			{
+				Element e = (Element)colVisibility.get(i);
+				log.warn("visibility: " + e.getText());
+				if ( e.getText().equals("curator") )
+				{
+					log.info("accessGroup(" + discover + "): " + roleEdit);
+					return roleEdit;
+				}
+			}
+		}
+
 		// logic
 		String accessGroup = null;
-		if ( colVisibility != null && colVisibility.equals("curator") )
-        {
-            accessGroup = roleEdit;
-        }
-		else if ( visibility != null && visibility.equals("curator") )
+		if ( visibility != null && visibility.equals("curator") )
 		{
 			accessGroup = roleEdit;
 		}
