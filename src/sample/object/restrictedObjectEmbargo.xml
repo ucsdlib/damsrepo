@@ -1,0 +1,198 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dams="http://library.ucsd.edu/ontology/dams#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:mads="http://www.loc.gov/mads/rdf/v1#"
+    xmlns:damsid="http://library.ucsd.edu/ark:/20775/">
+  <dams:Object rdf:about="http://library.ucsd.edu/ark:/20775/bb2628975j">
+    <dams:typeOfResource>still image</dams:typeOfResource>
+    <dams:hasFile>
+      <dams:File rdf:about="http://library.ucsd.edu/ark:/20775/bb2628975j/2.jpg">
+        <dams:size>368605</dams:size>
+        <dams:sourceFileName>20775-bb2628975j-0-2.jpg</dams:sourceFileName>
+        <dams:crc32checksum>76f846d2</dams:crc32checksum>
+        <dams:compositionLevel>0</dams:compositionLevel>
+        <dams:formatName>JPEG</dams:formatName>
+        <dams:mimeType>image/jpeg</dams:mimeType>
+        <dams:formatVersion>1.01</dams:formatVersion>
+        <dams:sha1checksum>b2b7f7b49d8945a553a81c667cc4262459bbc908</dams:sha1checksum>
+        <dams:sourcePath>/pub/data2/dams/localStore/bb/26/28/97/5j</dams:sourcePath>
+        <dams:md5checksum>1e17297e8011346dbd403052b133959f</dams:md5checksum>
+        <dams:use>image-service</dams:use>
+        <dams:preservationLevel>full</dams:preservationLevel>
+        <dams:dateCreated>2013-05-12T10:56:40-0700</dams:dateCreated>
+        <dams:filestore>localStore</dams:filestore>
+        <dams:objectCategory>file</dams:objectCategory>
+        <dams:quality>520x768</dams:quality>
+      </dams:File>
+    </dams:hasFile>
+    <dams:copyright>
+      <dams:Copyright>
+	    <dams:copyrightNote>Constraint(s) on Use: This work is protected by the U.S. Copyright Law (Title 17, U.S.C.). Use of this work beyond that allowed by "fair use" requires written permission of the copyright holder(s). Responsibility for obtaining permissions and any use and distribution of this work rests exclusively with the user and not the UC San Diego Libraries. Inquiries can be made to the UC San Diego Libraries department having custody of the work (http://libraries.ucsd.edu/locations/mscl/).</dams:copyrightNote>
+	    <dams:copyrightPurposeNote>Use: This work is available from the UC San Diego Libraries. This digital copy of the work is intended to support research, teaching, and private study.</dams:copyrightPurposeNote>
+	    <dams:copyrightJurisdiction>us</dams:copyrightJurisdiction>
+	    <dams:copyrightStatus>Under copyright</dams:copyrightStatus>
+	    </dams:Copyright>
+    </dams:copyright>
+    <dams:note>
+      <dams:Note>
+        <rdf:value>[Title, Date]. Roger Keesing Papers. MSS 427. Mandeville Special Collections Library, UCSD.</rdf:value>
+        <dams:type>preferred citation</dams:type>
+      </dams:Note>
+    </dams:note>
+    <dams:hasFile>
+      <dams:File rdf:about="http://library.ucsd.edu/ark:/20775/bb2628975j/5.jpg">
+        <dams:quality>44x65</dams:quality>
+        <dams:use>image-icon</dams:use>
+        <dams:mimeType>image/jpeg</dams:mimeType>
+        <dams:size>20253</dams:size>
+        <dams:sourcePath>/pub/data2/dams/localStore/bb/26/28/97/5j</dams:sourcePath>
+        <dams:sha1checksum>fe481b7b2d245bfce1548e0414506141700017ed</dams:sha1checksum>
+        <dams:sourceFileName>20775-bb2628975j-0-5.jpg</dams:sourceFileName>
+        <dams:crc32checksum>727e4a91</dams:crc32checksum>
+        <dams:preservationLevel>full</dams:preservationLevel>
+        <dams:dateCreated>2013-05-12T10:56:40-0700</dams:dateCreated>
+        <dams:objectCategory>file</dams:objectCategory>
+        <dams:formatVersion>1.01</dams:formatVersion>
+        <dams:compositionLevel>0</dams:compositionLevel>
+        <dams:filestore>localStore</dams:filestore>
+        <dams:md5checksum>5d349b9deb644d4514fb36afa575f3ba</dams:md5checksum>
+        <dams:formatName>JPEG</dams:formatName>
+      </dams:File>
+    </dams:hasFile>
+    <dams:hasFile>
+      <dams:File rdf:about="http://library.ucsd.edu/ark:/20775/bb2628975j/1.tif">
+        <dams:preservationLevel>full</dams:preservationLevel>
+        <dams:crc32checksum>fe322f05</dams:crc32checksum>
+        <dams:filestore>localStore</dams:filestore>
+        <dams:size>33204848</dams:size>
+        <dams:md5checksum>e9d660f50fbcfe88224947daff6ab69b</dams:md5checksum>
+        <dams:sourceCapture>
+          <dams:SourceCapture>
+            <dams:scanningSoftwareVersion>4.0.0</dams:scanningSoftwareVersion>
+            <dams:scanningSoftware>Nikon Scan</dams:scanningSoftware>
+            <dams:scannerModelName>Super Coolscan 9000 ED</dams:scannerModelName>
+            <dams:scannerManufacturer>Nikon</dams:scannerManufacturer>
+            <dams:captureSource>transmission scanner</dams:captureSource>
+            <dams:imageProducer>LUNA Imaging Inc.</dams:imageProducer>
+            <dams:sourceType>Color slide</dams:sourceType>
+          </dams:SourceCapture>
+        </dams:sourceCapture>
+        <dams:formatVersion>6.0</dams:formatVersion>
+        <dams:sha1checksum>4d9be0e8cfd4c2190bdadd16425a707143927a4f</dams:sha1checksum>
+        <dams:mimeType>image/tiff</dams:mimeType>
+        <dams:dateCreated>2008-09-19T14:32:08</dams:dateCreated>
+        <dams:objectCategory>file</dams:objectCategory>
+        <dams:formatName>TIFF</dams:formatName>
+        <dams:quality>2737x4040</dams:quality>
+        <dams:compositionLevel>0</dams:compositionLevel>
+        <dams:use>image-source</dams:use>
+        <dams:sourceFileName>20775-bb2628975j-0-1.tif</dams:sourceFileName>
+        <dams:sourcePath>/pub/data2/dams/localStore/bb/26/28/97/5j</dams:sourcePath>
+      </dams:File>
+    </dams:hasFile>
+    <dams:license>
+      <dams:License>
+        <dams:restriction>
+          <dams:Restriction>
+            <dams:endDate>2059-01-01</dams:endDate>
+            <dams:beginDate>2009-01-01</dams:beginDate>
+            <dams:type>display</dams:type>
+          </dams:Restriction>
+        </dams:restriction>
+        <dams:permission>
+          <dams:Permission>
+            <dams:type>display</dams:type>
+          </dams:Permission>
+        </dams:permission>
+        <dams:licenseNote>Display currently prohibited.</dams:licenseNote>
+      </dams:License>
+    </dams:license>
+    <dams:note>
+      <dams:Note>
+        <rdf:value>This digital image is a surrogate of an item from the Roger M. Keesing Papers (MSS 427).</rdf:value>
+        <dams:type>location of originals</dams:type>
+      </dams:Note>
+    </dams:note>
+    <dams:title>
+      <mads:Title>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:MainTitleElement>
+            <mads:elementValue>Women wrapping food.</mads:elementValue>
+          </mads:MainTitleElement>
+        </mads:elementList>
+        <mads:authoritativeLabel>Women wrapping food.</mads:authoritativeLabel>
+      </mads:Title>
+    </dams:title>
+    <dams:note>
+      <dams:Note>
+        <rdf:value>http://libraries.ucsd.edu/ark:/20775/bb2628975j</rdf:value>
+        <dams:displayLabel>ARK</dams:displayLabel>
+        <dams:type>identifier</dams:type>
+      </dams:Note>
+    </dams:note>
+    <dams:hasFile>
+      <dams:File rdf:about="http://library.ucsd.edu/ark:/20775/bb2628975j/3.jpg">
+        <dams:use>image-preview</dams:use>
+        <dams:quality>305x450</dams:quality>
+        <dams:mimeType>image/jpeg</dams:mimeType>
+        <dams:dateCreated>2013-05-12T10:56:40-0700</dams:dateCreated>
+        <dams:objectCategory>file</dams:objectCategory>
+        <dams:sourcePath>/pub/data2/dams/localStore/bb/26/28/97/5j</dams:sourcePath>
+        <dams:formatName>JPEG</dams:formatName>
+        <dams:crc32checksum>286c2f28</dams:crc32checksum>
+        <dams:md5checksum>99b5e1acd4312f26005f9e4e98e32690</dams:md5checksum>
+        <dams:compositionLevel>0</dams:compositionLevel>
+        <dams:formatVersion>1.01</dams:formatVersion>
+        <dams:sha1checksum>55194f27ae29a834e0cda5deb70a64f0e13048b2</dams:sha1checksum>
+        <dams:filestore>localStore</dams:filestore>
+        <dams:preservationLevel>full</dams:preservationLevel>
+        <dams:sourceFileName>20775-bb2628975j-0-3.jpg</dams:sourceFileName>
+        <dams:size>148334</dams:size>
+      </dams:File>
+    </dams:hasFile>
+    <dams:note>
+      <dams:Note>
+        <rdf:value>m427b36f10r48_i7</rdf:value>
+        <dams:displayLabel>filename</dams:displayLabel>
+        <dams:type>identifier</dams:type>
+      </dams:Note>
+    </dams:note>
+    <dams:date>
+      <dams:Date>
+        <dams:encoding>w3cdtf</dams:encoding>
+        <dams:type>creation</dams:type>
+        <rdf:value>November 1977</rdf:value>
+        <dams:beginDate>1977</dams:beginDate>
+        <dams:endDate>1977</dams:endDate>
+      </dams:Date>
+    </dams:date>
+    <dams:hasFile>
+      <dams:File rdf:about="http://library.ucsd.edu/ark:/20775/bb2628975j/4.jpg">
+        <dams:filestore>localStore</dams:filestore>
+        <dams:crc32checksum>7b7264c7</dams:crc32checksum>
+        <dams:dateCreated>2013-05-12T10:56:40-0700</dams:dateCreated>
+        <dams:size>33555</dams:size>
+        <dams:md5checksum>a8243f34ed05d123a3bd8def02518b57</dams:md5checksum>
+        <dams:formatVersion>1.01</dams:formatVersion>
+        <dams:preservationLevel>full</dams:preservationLevel>
+        <dams:formatName>JPEG</dams:formatName>
+        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd62817230"/>
+        <dams:objectCategory>file</dams:objectCategory>
+        <dams:sourcePath>/pub/data2/dams/localStore/bb/26/28/97/5j</dams:sourcePath>
+        <dams:mimeType>image/jpeg</dams:mimeType>
+        <dams:sourceFileName>20775-bb2628975j-0-4.jpg</dams:sourceFileName>
+        <dams:use>image-thumbnail</dams:use>
+        <dams:compositionLevel>0</dams:compositionLevel>
+        <dams:sha1checksum>22e1029b2ca049129c534a800aa3173d43f35f9e</dams:sha1checksum>
+        <dams:quality>102x150</dams:quality>
+      </dams:File>
+    </dams:hasFile>
+    <dams:note>
+      <dams:Note>
+        <dams:type>note</dams:type>
+        <rdf:value>Embargoed content: Image not available due to cultural sensitivities of the community depicted. Access may be granted for research purposes at the discretion of the UC San Diego Library. For more information please contact the Special Collections &amp; Archives at spcoll@ucsd.edu or (858) 534-2533.</rdf:value>
+      </dams:Note>
+    </dams:note>
+  </dams:Object>
+</rdf:RDF>

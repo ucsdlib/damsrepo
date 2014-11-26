@@ -21,7 +21,6 @@ if [ ! "$IDS" ]; then
 	IDS="$IDS bd22194583" # simple object
 	IDS="$IDS bb02020202" # units
 	IDS="$IDS bb48484848"
-	IDS="$IDS bb07070707" # event
 	IDS="$IDS bd24241158" # collections
 	IDS="$IDS bb03030303"
 	IDS="$IDS bd5905304g"
@@ -38,6 +37,8 @@ if [ ! "$IDS" ]; then
 	IDS="$IDS bd91134949" # language=French
 	IDS="$IDS bb05050505" # copyright=under copyright
 	IDS="$IDS bd0513099p" # copyright=public domain
+	IDS="$IDS bb2628975j" # embargo object
+	IDS="$IDS bd5774559x" # object linked to curator-only collection
 fi
 
 # solr indexing
