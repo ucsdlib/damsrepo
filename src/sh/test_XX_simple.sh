@@ -16,7 +16,7 @@ for j in 2 3 4 5; do
 done
 
 # post first files
-$BASE/fs-post.sh $ARK 1.pdf $BASE/../sample/files/20775-bb01034796-1-1.pdf
+$BASE/fs-post.sh $ARK 1.pdf $BASE/../sample/files/document.pdf
 
 # update metadata (PUT required even for new obj b/c files create object)
 $BASE/ts-put.sh $ARK $BASE/../sample/object/damsSimpleObject1.rdf.xml
