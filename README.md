@@ -13,4 +13,6 @@ are supported by a partial implementaiton of the
 License
 -------
 * [FileStoreServlet.java](src/java/edu/ucsd/library/dams/api/FileStoreServlet.java) is licensed under the [GNU LGPL](http://www.gnu.org/licenses/lgpl.html).
-* other code is governed by the [UC Copyright Notice](UC_Copyright_Notice.txt).
+* DAMS Repository code is governed by the [UC Copyright Notice](UC_Copyright_Notice.txt).
+* See [third-party licenses](third-party-licenses.txt) for more information about licenses for
+  Java libraries.
