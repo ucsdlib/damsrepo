@@ -935,7 +935,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			"/rdf:RDF/dams:Object//dams:copyrightStatus"
 		);
 		String rightsHolder = doc.valueOf(
-			"//dams:rightsHolder/*/mads:authoritativeLabel|//dams:rightsHolderCorporate/*/mads:authoritativeLabel|//dams:rightsHolderPersonal/*/mads:authoritativeLabel"
+			"//dams:rightsHolder/*/mads:authoritativeLabel|//dams:rightsHolderCorporate/*/mads:authoritativeLabel|//dams:rightsHolderPersonal/*/mads:authoritativeLabel|//dams:rightsHolderName/*/mads:authoritativeLabel"
 		);
 		boolean displayRestriction = findCurrent( doc,
 			"/rdf:RDF/dams:Object//dams:Restriction[dams:type='display']"
@@ -974,7 +974,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			for ( int i = 0; i < colVisibility.size(); i++ )
 			{
 				Element e = (Element)colVisibility.get(i);
-				log.warn("visibility: " + e.getText());
+				log.warn("col visibility: " + e.getText());
 				if ( e.getText().equals("curator") )
 				{
 					log.info("accessGroup(" + discover + "): " + roleEdit);
