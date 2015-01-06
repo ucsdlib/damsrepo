@@ -98,6 +98,13 @@
 </dams:note>
 <dams:note>
 <dams:Note>
+<dams:type>identifier</dams:type>
+<rdf:value>19851203_01</rdf:value>
+<dams:displayLabel>event id</dams:displayLabel>
+</dams:Note>
+</dams:note>
+<dams:note>
+<dams:Note>
 <dams:displayLabel>Local ID</dams:displayLabel>
 <rdf:value>b6700311</rdf:value>
 <dams:type>identifier</dams:type>

@@ -151,6 +151,14 @@
     </dams:note>
     <dams:note>
       <dams:Note>
+        <dams:type>identifier</dams:type>
+        <rdf:value>19851203_01</rdf:value>
+        <dams:displayLabel>event id</dams:displayLabel>
+      </dams:Note>
+    </dams:note>
+
+    <dams:note>
+      <dams:Note>
         <rdf:value>XYZ 123-abc</rdf:value>
         <dams:displayLabel>sample number</dams:displayLabel>
         <dams:type>identifier</dams:type>
