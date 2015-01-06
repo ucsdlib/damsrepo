@@ -28,6 +28,9 @@ $BASE/fs-post.sh bd2083054q 1.pdf $BASE/../sample/files/document.pdf
 $BASE/ts-put.sh bd2083054q $BASE/../sample/object/formatSampleText.rdf.xml
 $BASE/fs-derivatives.sh bd2083054q 1.pdf
 
+# text (html)
+$BASE/fs-post-cmp.sh bb01010101 2 2.html $BASE/../sample/files/webpage.html
+
 # video (mov master, mp4 and jpeg derivatives)
 $BASE/fs-post.sh bd0786115s 1.mov $BASE/../sample/files/video.mov
 $BASE/fs-post.sh bd0786115s 2.mp4 $BASE/../sample/files/video.mp4
