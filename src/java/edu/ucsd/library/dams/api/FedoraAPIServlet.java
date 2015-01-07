@@ -958,7 +958,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 		// make sure values are not null
 		if ( roleAdmin    == null ) { roleAdmin    = "admin";   }
-		if ( roleAdmin2   == null ) { roleAdmin    = "admin2";  }
+		if ( roleAdmin2   == null ) { roleAdmin2   = "admin2";  }
 		if ( roleLocal    == null ) { roleLocal    = "local";   }
 		if ( roleDefault  == null ) { roleDefault  = "public";  }
 		if ( copyright    == null ) { copyright    = "unknown"; }
