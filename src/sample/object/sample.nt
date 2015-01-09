@@ -1,4 +1,4 @@
-<http://library.ucsd.edu/ark:/20775/bb01010101> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Object> .
+<http://library.ucsd.edu/ark:/20775/bb01010101> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Object> .
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#unit> <http://library.ucsd.edu/ark:/20775/bb02020202> .
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#assembledCollection> <http://library.ucsd.edu/ark:/20775/bb03030303> .
 <http://library.ucsd.edu/ark:/20775/bb01010101> <http://library.ucsd.edu/ontology/dams#subject> <http://library.ucsd.edu/ark:/20775/bb04040404> .

@@ -149,20 +149,20 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
         // call parent init
         super.init(config);
 
-        String err = config( false );
+        String err = config(config.getServletContext(), false);
         if ( err != null )
         {
             log.error( err );
         }
     }
-    private String config( boolean reload )
+    private String config( ServletContext context, boolean reload )
     {
         String err = null;
 
         // reload parent config
         if ( reload )
         {
-            err = super.config();
+            err = super.config(context);
             if ( err != null ) { return err; }
         }
 
@@ -399,7 +399,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
             else if ( path.length == 3 && path[1].equals("system" )
                 && path[2].equals("config") )
             {
-                String err = config(true);
+                String err = config(getServletContext(), true);
 				if ( err == null )
 				{
 					output(

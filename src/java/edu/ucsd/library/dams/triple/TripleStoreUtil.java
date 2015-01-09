@@ -11,10 +11,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -35,9 +37,11 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.NodeIterator;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.datatypes.BaseDatatype;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -178,23 +182,27 @@ public class TripleStoreUtil
 		}
 	}
 
-	public static void loadNTriples( InputStream in, boolean deleteFirst,
-		TripleStore ts, String idNS ) throws TripleStoreException
+	public static Set<String> loadNTriples( InputStream in, boolean deleteFirst,
+		TripleStore ts, Map<String,String> nsmap, Set<String> validClasses,
+		Set<String> validProperties ) throws TripleStoreException
 	{
-		loadRDF( in, deleteFirst, ts, "N-TRIPLE", idNS );
+		return loadRDF( in, deleteFirst, ts, "N-TRIPLE", nsmap, validClasses, validProperties );
 	}
-	public static void loadRDFXML( InputStream in, boolean deleteFirst,
-		TripleStore ts, String idNS ) throws TripleStoreException
+	public static Set<String> loadRDFXML( InputStream in, boolean deleteFirst,
+		TripleStore ts, Map<String,String> nsmap, Set<String> validClasses,
+		Set<String> validProperties ) throws TripleStoreException
 	{
-		loadRDF( in, deleteFirst, ts, "RDF/XML", idNS );
+		return loadRDF( in, deleteFirst, ts, "RDF/XML", nsmap, validClasses, validProperties );
 	}
-	private static void loadRDF( InputStream in, boolean deleteFirst,
-		TripleStore ts, String format, String idNS ) throws TripleStoreException
+	private static Set<String> loadRDF( InputStream in, boolean deleteFirst,
+		TripleStore ts, String format, Map<String,String> nsmap, Set<String> validClasses,
+		Set<String> validProperties ) throws TripleStoreException
 	{
 		// bnode parent tracking
 		Map<String,Identifier> bnodes = new HashMap<String,Identifier>();
 		Map<String,String> parents = new HashMap<String,String>();
 		ArrayList<Statement> orphans = new ArrayList<Statement>();
+		String idNS = nsmap.get("damsid");
 
 		Model model = ModelFactory.createDefaultModel();
 		try
@@ -205,6 +213,13 @@ public class TripleStoreUtil
 		catch ( Exception ex )
 		{
 			throw new TripleStoreException("Error reading RDF data", ex);
+		}
+
+		// validate the model before loading
+		Set<String> errors = validateModel( model, validClasses, validProperties );
+		if ( errors != null && errors.size() > 0 )
+		{
+			return errors;
 		}
 
 		// list and delete subjects in the model
@@ -320,6 +335,49 @@ public class TripleStoreUtil
 		{
 			throw new TripleStoreException( "Error processing triples", ex );
 		}
+
+		return null;
+	}
+	public static Set<String> validateModel( Model model, Set<String> validClasses,
+		Set<String> validProperties )
+	{
+		Set<String> errors = new HashSet<>();
+
+		// classes must be present in DAMS/MADS ontologies
+		if ( validClasses != null && validClasses.size() > 0 )
+		{
+			NodeIterator classes = model.listObjectsOfProperty( RDF.type );
+			while ( classes.hasNext() )
+			{
+				RDFNode classNode = classes.next();
+				if ( classNode.isURIResource() )
+				{
+					String classURI = classNode.asResource().getURI();
+					if ( !validClasses.contains(classURI) )
+					{
+						log.warn( "Invalid class: " + classURI );
+						errors.add( "Invalid class: " + classURI );
+					}
+				}
+			}
+		}
+
+		// predicates must be present in DAMS/MADS/RDF/RDFS ontologies
+		if ( validProperties != null && validProperties.size() > 0 )
+		{
+			StmtIterator statements = model.listStatements();
+			while ( statements.hasNext() )
+			{
+				String propURI = statements.nextStatement().getPredicate().getURI();
+				if ( !validProperties.contains(propURI) )
+				{
+					log.warn( "Invalid property: " + propURI );
+					errors.add( "Invalid property: " + propURI );
+				}
+			}
+		}
+
+		return errors;
 	}
 
 	/**
