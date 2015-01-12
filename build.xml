@@ -95,8 +95,8 @@
       depends="prepare,version">
     <!-- compile -->
     <javac destdir="${webapp}/WEB-INF/classes" srcdir="${java}"
-        deprecation="on" debug="true" debuglevel="lines,source" target="1.6"
-        includeantruntime="false" source="1.6">
+        deprecation="on" debug="true" debuglevel="lines,source" target="1.7"
+        includeantruntime="false" source="1.7">
       <classpath refid="classpath"/>
       <!-- <compilerarg line="-Xlint:unchecked"/> -->
       <!-- <compilerarg line="-Xlint:all"/> -->
@@ -149,7 +149,7 @@
       <fileset dir="${props}" includes="**/*.properties, jhove.conf"/>
     </copy>
     <copy todir="${webapp}/WEB-INF/">
-      <fileset dir="${webinf}" excludes="context.xml"/>
+      <fileset dir="${webinf}" includes="*" excludes="context.xml"/>
       <filterset refid="version-filters"/>
     </copy>
     <copy todir="${webapp}/META-INF/">
@@ -261,6 +261,11 @@
     <!-- sample files -->
     <copy todir="${tomcat.home}/dams/sample">
       <fileset dir="${src}/sample"/>
+    </copy>
+
+    <!-- validation files -->
+    <copy todir="${tomcat.home}/dams/bin">
+      <fileset dir="${src}/webinf" includes="**/valid*"/>
     </copy>
   </target>
 

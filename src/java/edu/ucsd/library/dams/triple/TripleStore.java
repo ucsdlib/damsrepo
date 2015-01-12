@@ -172,13 +172,15 @@ public interface TripleStore
      * Load triples from an N-triples file on disk.
      * @param filename RDF filename.
     **/
-    public void loadNTriples( String filename ) throws TripleStoreException;
+    public void loadNTriples( String filename, Set<String> validClasses,
+		Set<String> validProperties ) throws TripleStoreException;
 
 	/**
 	 * Load triples from an RDF XML file on disk.
 	 * @param filename RDF filename.
 	**/
-	public void loadRDFXML( String filename ) throws TripleStoreException;
+	public void loadRDFXML( String filename, Set<String> validClasses, Set<String> validProperties )
+		throws TripleStoreException;
 
     /**
      * Perform any maintenance required after performing triplestore updates.
