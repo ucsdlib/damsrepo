@@ -124,6 +124,7 @@ import edu.ucsd.library.dams.triple.StatementIterator;
 import edu.ucsd.library.dams.triple.TripleStore;
 import edu.ucsd.library.dams.triple.TripleStoreException;
 import edu.ucsd.library.dams.triple.TripleStoreUtil;
+import edu.ucsd.library.dams.triple.Validator;
 import edu.ucsd.library.dams.triple.edit.Edit;
 import edu.ucsd.library.dams.util.HttpUtil;
 import edu.ucsd.library.dams.util.LDAPUtil;
@@ -3501,7 +3502,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 
 		// validate model
 		DAMSObject obj = (DAMSObject)info.get("obj");
-		Set<String> errors = TripleStoreUtil.validateModel(
+		Set<String> errors = Validator.validateModel(
 			obj.asModel(false), validClasses, validProperties
 		);
 		if ( errors != null && errors.size() > 0 )

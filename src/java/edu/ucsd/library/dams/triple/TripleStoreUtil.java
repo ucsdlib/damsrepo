@@ -11,7 +11,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,11 +36,9 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.NodeIterator;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.datatypes.BaseDatatype;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.vocabulary.RDF;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -216,7 +213,7 @@ public class TripleStoreUtil
 		}
 
 		// validate the model before loading
-		Set<String> errors = validateModel( model, validClasses, validProperties );
+		Set<String> errors = Validator.validateModel( model, validClasses, validProperties );
 		if ( errors != null && errors.size() > 0 )
 		{
 			return errors;
@@ -337,47 +334,6 @@ public class TripleStoreUtil
 		}
 
 		return null;
-	}
-	public static Set<String> validateModel( Model model, Set<String> validClasses,
-		Set<String> validProperties )
-	{
-		Set<String> errors = new HashSet<>();
-
-		// classes must be present in DAMS/MADS ontologies
-		if ( validClasses != null && validClasses.size() > 0 )
-		{
-			NodeIterator classes = model.listObjectsOfProperty( RDF.type );
-			while ( classes.hasNext() )
-			{
-				RDFNode classNode = classes.next();
-				if ( classNode.isURIResource() )
-				{
-					String classURI = classNode.asResource().getURI();
-					if ( !validClasses.contains(classURI) )
-					{
-						log.warn( "Invalid class: " + classURI );
-						errors.add( "Invalid class: " + classURI );
-					}
-				}
-			}
-		}
-
-		// predicates must be present in DAMS/MADS/RDF/RDFS ontologies
-		if ( validProperties != null && validProperties.size() > 0 )
-		{
-			StmtIterator statements = model.listStatements();
-			while ( statements.hasNext() )
-			{
-				String propURI = statements.nextStatement().getPredicate().getURI();
-				if ( !validProperties.contains(propURI) )
-				{
-					log.warn( "Invalid property: " + propURI );
-					errors.add( "Invalid property: " + propURI );
-				}
-			}
-		}
-
-		return errors;
 	}
 
 	/**
