@@ -108,6 +108,11 @@
     </copy>
     <chmod dir="${tmp}/commands" perm="ugo+rx" includes="**/*.sh"/>
 
+    <!-- validation files -->
+    <copy todir="${tmp}/commands">
+      <fileset dir="${src}/webinf" includes="**/valid*"/>
+    </copy>
+
     <!-- jars -->
     <copy todir="${tmp}/lib">
       <fileset dir="${lib}"/>
