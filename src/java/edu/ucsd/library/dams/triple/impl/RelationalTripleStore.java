@@ -60,7 +60,6 @@ public class RelationalTripleStore implements TripleStore
 	protected String tableName = null;
 	protected String tsName = null;
 	protected Map<String,String> nsmap = null;
-	protected String idNS = null;
 	protected ArkTranslator trans = null;
 	protected int added = 0;
 	protected int insertCount = 0;
@@ -98,7 +97,6 @@ public class RelationalTripleStore implements TripleStore
 		try
 		{
 			nsmap = TripleStoreUtil.namespaceMap( props );
-			idNS = nsmap.get("damsid");
 		}
 		catch ( Exception ex ) { throw new TripleStoreException(ex); }
 
@@ -228,12 +226,13 @@ public class RelationalTripleStore implements TripleStore
 
 	public void logIngest( boolean b ) { this.logIngest = b; }
 
-	public void loadRDFXML( String filename ) throws TripleStoreException
+	public void loadRDFXML( String filename, Set<String> validClasses,
+		Set<String> validProperties ) throws TripleStoreException
 	{
 		try
 		{
 			FileInputStream in = new FileInputStream(filename);
-			TripleStoreUtil.loadRDFXML( in, true, this, idNS );
+			TripleStoreUtil.loadRDFXML( in, true, this, nsmap, validClasses, validProperties );
 		}
 		catch ( TripleStoreException ex )
 		{
@@ -244,12 +243,13 @@ public class RelationalTripleStore implements TripleStore
 			throw new TripleStoreException(ex);
 		}
 	}
-	public void loadNTriples( String filename ) throws TripleStoreException
+	public void loadNTriples( String filename, Set<String> validClasses,
+		Set<String> validProperties ) throws TripleStoreException
 	{
 		try
 		{
 			FileInputStream in = new FileInputStream(filename);
-			TripleStoreUtil.loadNTriples( in, true, this, idNS );
+			TripleStoreUtil.loadNTriples( in, true, this, nsmap, validClasses, validProperties );
 		}
 		catch ( TripleStoreException ex )
 		{

@@ -2,11 +2,13 @@ package edu.ucsd.library.dams.api;
 
 // java core api
 import java.io.File;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -20,6 +22,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -28,6 +31,7 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
@@ -120,6 +124,7 @@ import edu.ucsd.library.dams.triple.StatementIterator;
 import edu.ucsd.library.dams.triple.TripleStore;
 import edu.ucsd.library.dams.triple.TripleStoreException;
 import edu.ucsd.library.dams.triple.TripleStoreUtil;
+import edu.ucsd.library.dams.triple.Validator;
 import edu.ucsd.library.dams.triple.edit.Edit;
 import edu.ucsd.library.dams.util.HttpUtil;
 import edu.ucsd.library.dams.util.LDAPUtil;
@@ -165,7 +170,9 @@ public class DAMSAPIServlet extends HttpServlet
 	protected String idNS;                // Prefix for unqualified identifiers
 	protected String prNS;                // Prefix for unqualified predicates
 	protected String rdfNS;               // Prefix for RDF predicates
-	protected String madsNS;               // Prefix for MADS ontology predicates
+	protected String madsNS;              // Prefix for MADS ontology predicates
+	protected Set<String> validClasses;   // valid class URIs
+	protected Set<String> validProperties;// valid predicate URIs
 
 	// uploads
 	private int uploadCount = 0; // current number of uploads being processed
@@ -307,14 +314,14 @@ public class DAMSAPIServlet extends HttpServlet
 	// initialize servlet parameters
 	public void init( ServletConfig config ) throws ServletException
 	{
-		config();
 		ServletContext ctx = config.getServletContext();
+		config(ctx);
 		appVersion     = ctx.getInitParameter("app-version");
 		srcVersion     = ctx.getInitParameter("src-version");
 		buildTimestamp = ctx.getInitParameter("build-timestamp");
 		super.init(config);
 	}
-	protected String config()
+	protected String config(ServletContext context)
 	{
 		String error = null;
 		try
@@ -354,6 +361,10 @@ public class DAMSAPIServlet extends HttpServlet
 			prNS = nsmap.get("dams");
 			rdfNS = nsmap.get("rdf");
 			madsNS = nsmap.get("mads");
+
+			// load valid class/predicate lists
+			validClasses = loadSet( context, "/WEB-INF/valid-classes.txt" );
+			validProperties = loadSet( context, "/WEB-INF/valid-properties.txt" );
 
 			// solr
 			solrBase = props.getProperty("solr.base");
@@ -744,7 +755,7 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 4 && path[1].equals("objects")
 				&& path[3].equals("validate") )
 			{
-				fs = filestore(req);
+				fs = null; // filestore(req);
 				ts = triplestore(req);
 				es = events(req);
 				info = objectValidate( path[2], fs, ts, es );
@@ -844,7 +855,7 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 3 && path[1].equals("system" )
 				&& path[2].equals("config") )
 			{
-				String err = config();
+				String err = config( getServletContext() );
 				if ( err == null ) { info = status("Configuration reloaded"); }
 				else { info = error( err ); }
 			}
@@ -3043,7 +3054,15 @@ public class DAMSAPIServlet extends HttpServlet
 					try
 					{
 						// ingest RDF/XML from inputstream
-						TripleStoreUtil.loadRDFXML( in, deleteFirst, ts, idNS );
+						Set<String> errors = TripleStoreUtil.loadRDFXML(in, deleteFirst, ts, nsmap, validClasses, validProperties);
+						if ( errors != null && errors.size() > 0 )
+						{
+							Map resp = error(
+								HttpServletResponse.SC_BAD_REQUEST, "Invalid RDF input"
+							);
+							resp.put("errors", errors);
+							return resp;
+						}
 
 						// success
 						int status = -1;
@@ -3472,11 +3491,32 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		}
 	}
 	public Map objectValidate( String objid, FileStore fs, TripleStore ts,
-		TripleStore es )
+		TripleStore es ) throws TripleStoreException
 	{
-		return null; // DAMS_MGR
+		// load object
+		Map info = objectShow( objid, ts, es );
+		if ( info.get("obj") == null )
+		{
+			return error( HttpServletResponse.SC_NOT_FOUND, "Object does not exist" );
+		}
+
+		// validate model
+		DAMSObject obj = (DAMSObject)info.get("obj");
+		Set<String> errors = Validator.validateModel(
+			obj.asModel(false), validClasses, validProperties
+		);
+		if ( errors != null && errors.size() > 0 )
+		{
+			Map resp = error( "Validation failure" );
+			resp.put( "errors", errors );
+			return resp;
+		}
+		else
+		{
+			return status( "Validation successful" );
+		}
 	}
-	// probably don't need this with automatic ARK/URI translation
+
 	public Map predicateList( TripleStore ts )
 	{
 		try
@@ -4300,12 +4340,12 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			{
 				e.setText( val.toString() );
 			}
-			else if ( val instanceof List )
+			else if ( val instanceof Collection )
 			{
-				List list = (List)val;
-				for ( int i = 0; i < list.size(); i++ )
+				Collection col = (Collection)val;
+				for ( Iterator it = col.iterator(); it.hasNext(); )
 				{
-					Object o = list.get(i);
+					Object o = it.next();
 					Element sub = e.addElement("value");
 					if ( o instanceof Map )
 					{
@@ -4351,12 +4391,13 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		{
 			String key = (String)keys.next();
 			Object val = m.get(key);
-			if ( val instanceof List )
+			if ( val instanceof Collection )
 			{
-				List list = (List)val;
-				for ( int i = 0; i < list.size(); i++ )
+				Collection col = (Collection)val;
+				int i = 0;
+				for ( Iterator it = col.iterator(); it.hasNext(); i++ )
 				{
-					Object o = list.get(i);
+					Object o = it.next();
 					if ( o instanceof Map )
 					{
 						Map valmap = (Map)o;
@@ -4430,13 +4471,13 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			{
 				valCell.setText(val.toString());
 			}
-			else if ( val instanceof List )
+			else if ( val instanceof Collection )
 			{
-				List list = (List)val;
-				for ( int i = 0; i < list.size(); i++ )
+				Collection col = (Collection)val;
+				for ( Iterator it = col.iterator(); it.hasNext(); )
 				{
 					Element p = valCell.addElement("p");
-					Object o = list.get(i);
+					Object o = it.next();
 					if ( o instanceof Map )
 					{
 						Map valmap = (Map)o;
@@ -5064,6 +5105,25 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		{
 			if(embargoeds != null )
 				embargoeds.close();
+		}
+	}
+	private Set<String> loadSet( ServletContext context, String resourcePath )
+	{
+		Set<String> set = new HashSet<>();
+		try
+		{
+			InputStream in = context.getResourceAsStream(resourcePath);
+			BufferedReader buf = new BufferedReader( new InputStreamReader(in) );
+			for ( String line = null; (line = buf.readLine()) != null; )
+			{
+				set.add( line );
+			}
+			return set;
+		}
+		catch ( Exception ex )
+		{
+			log.warn("Error loading set from " + resourcePath, ex);
+			return null;
 		}
 	}
 }

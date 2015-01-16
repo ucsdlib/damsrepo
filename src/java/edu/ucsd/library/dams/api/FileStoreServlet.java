@@ -360,8 +360,8 @@ public class FileStoreServlet extends HttpServlet
 		// encoding is supported by the browser and expand content type with
 		// the one and right character encoding.
 		else if (contentType.startsWith("text")) {
-			String acceptEncoding = request.getHeader("Accept-Encoding");
-			acceptsGzip = acceptEncoding != null && accepts(acceptEncoding, "gzip");
+			//String acceptEncoding = request.getHeader("Accept-Encoding");
+			//acceptsGzip = acceptEncoding != null && accepts(acceptEncoding, "gzip");
 			contentType += ";charset=UTF-8";
 		} 
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # load predicates
-tmp/commands/ts-load.sh dams $BASE/../sample/predicates/nameNoteSubject.nt
+tmp/commands/ts-load-raw.sh dams $BASE/../sample/predicates/nameNoteSubject.nt
 
 function f
 {

@@ -59,6 +59,6 @@ _:bn33n03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1
 _:bn33n04 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#DateNameElement> .
 _:bn33n04 <http://www.loc.gov/mads/rdf/v1#elementValue> "1977-"@en .
 
-<http://library.ucsd.edu/ark:/20775/bd1707286t> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://library.ucsd.edu/ontology/dams#Role> .
-<http://library.ucsd.edu/ark:/20775/bd1707286t> <http://library.ucsd.edu/ontology/dams#vocabulary> <http://library.ucsd.edu/ark:/20775/bb14141414> .
-<http://library.ucsd.edu/ark:/20775/bd1707286t> <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Initiator" .
+<http://library.ucsd.edu/ark:/20775/bd1707286t> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://library.ucsd.edu/ark:/20775/bd1707286t> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://library.ucsd.edu/ark:/20775/bd5837217p> .
+<http://library.ucsd.edu/ark:/20775/bd1707286t> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "Initiator" .

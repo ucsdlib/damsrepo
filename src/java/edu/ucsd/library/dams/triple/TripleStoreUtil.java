@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -178,23 +179,27 @@ public class TripleStoreUtil
 		}
 	}
 
-	public static void loadNTriples( InputStream in, boolean deleteFirst,
-		TripleStore ts, String idNS ) throws TripleStoreException
+	public static Set<String> loadNTriples( InputStream in, boolean deleteFirst,
+		TripleStore ts, Map<String,String> nsmap, Set<String> validClasses,
+		Set<String> validProperties ) throws TripleStoreException
 	{
-		loadRDF( in, deleteFirst, ts, "N-TRIPLE", idNS );
+		return loadRDF( in, deleteFirst, ts, "N-TRIPLE", nsmap, validClasses, validProperties );
 	}
-	public static void loadRDFXML( InputStream in, boolean deleteFirst,
-		TripleStore ts, String idNS ) throws TripleStoreException
+	public static Set<String> loadRDFXML( InputStream in, boolean deleteFirst,
+		TripleStore ts, Map<String,String> nsmap, Set<String> validClasses,
+		Set<String> validProperties ) throws TripleStoreException
 	{
-		loadRDF( in, deleteFirst, ts, "RDF/XML", idNS );
+		return loadRDF( in, deleteFirst, ts, "RDF/XML", nsmap, validClasses, validProperties );
 	}
-	private static void loadRDF( InputStream in, boolean deleteFirst,
-		TripleStore ts, String format, String idNS ) throws TripleStoreException
+	private static Set<String> loadRDF( InputStream in, boolean deleteFirst,
+		TripleStore ts, String format, Map<String,String> nsmap, Set<String> validClasses,
+		Set<String> validProperties ) throws TripleStoreException
 	{
 		// bnode parent tracking
 		Map<String,Identifier> bnodes = new HashMap<String,Identifier>();
 		Map<String,String> parents = new HashMap<String,String>();
 		ArrayList<Statement> orphans = new ArrayList<Statement>();
+		String idNS = nsmap.get("damsid");
 
 		Model model = ModelFactory.createDefaultModel();
 		try
@@ -205,6 +210,13 @@ public class TripleStoreUtil
 		catch ( Exception ex )
 		{
 			throw new TripleStoreException("Error reading RDF data", ex);
+		}
+
+		// validate the model before loading
+		Set<String> errors = Validator.validateModel( model, validClasses, validProperties );
+		if ( errors != null && errors.size() > 0 )
+		{
+			return errors;
 		}
 
 		// list and delete subjects in the model
@@ -320,6 +332,8 @@ public class TripleStoreUtil
 		{
 			throw new TripleStoreException( "Error processing triples", ex );
 		}
+
+		return null;
 	}
 
 	/**

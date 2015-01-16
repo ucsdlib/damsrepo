@@ -149,20 +149,20 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
         // call parent init
         super.init(config);
 
-        String err = config( false );
+        String err = config(config.getServletContext(), false);
         if ( err != null )
         {
             log.error( err );
         }
     }
-    private String config( boolean reload )
+    private String config( ServletContext context, boolean reload )
     {
         String err = null;
 
         // reload parent config
         if ( reload )
         {
-            err = super.config();
+            err = super.config(context);
             if ( err != null ) { return err; }
         }
 
@@ -399,7 +399,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
             else if ( path.length == 3 && path[1].equals("system" )
                 && path[2].equals("config") )
             {
-                String err = config(true);
+                String err = config(getServletContext(), true);
 				if ( err == null )
 				{
 					output(
@@ -935,7 +935,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			"/rdf:RDF/dams:Object//dams:copyrightStatus"
 		);
 		String rightsHolder = doc.valueOf(
-			"//dams:rightsHolder/*/mads:authoritativeLabel|//dams:rightsHolderCorporate/*/mads:authoritativeLabel|//dams:rightsHolderPersonal/*/mads:authoritativeLabel"
+			"//dams:rightsHolder/*/mads:authoritativeLabel|//dams:rightsHolderCorporate/*/mads:authoritativeLabel|//dams:rightsHolderPersonal/*/mads:authoritativeLabel|//dams:rightsHolderName/*/mads:authoritativeLabel"
 		);
 		boolean displayRestriction = findCurrent( doc,
 			"/rdf:RDF/dams:Object//dams:Restriction[dams:type='display']"
@@ -958,7 +958,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 		// make sure values are not null
 		if ( roleAdmin    == null ) { roleAdmin    = "admin";   }
-		if ( roleAdmin2   == null ) { roleAdmin    = "admin2";  }
+		if ( roleAdmin2   == null ) { roleAdmin2   = "admin2";  }
 		if ( roleLocal    == null ) { roleLocal    = "local";   }
 		if ( roleDefault  == null ) { roleDefault  = "public";  }
 		if ( copyright    == null ) { copyright    = "unknown"; }
@@ -974,7 +974,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			for ( int i = 0; i < colVisibility.size(); i++ )
 			{
 				Element e = (Element)colVisibility.get(i);
-				log.warn("visibility: " + e.getText());
+				log.warn("col visibility: " + e.getText());
 				if ( e.getText().equals("curator") )
 				{
 					log.info("accessGroup(" + discover + "): " + roleEdit);

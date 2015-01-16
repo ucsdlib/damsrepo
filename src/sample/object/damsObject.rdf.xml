@@ -66,8 +66,8 @@
         <dams:statuteJurisdiction>us</dams:statuteJurisdiction>
         <dams:restriction>
           <dams:Restriction>
-            <dams:beginDate>2015-01-01</dams:beginDate>
-            <dams:endDate>2015-12-31</dams:endDate>
+            <dams:beginDate>2099-01-01</dams:beginDate>
+            <dams:endDate>2099-12-31</dams:endDate>
             <dams:type>display</dams:type>
           </dams:Restriction>
         </dams:restriction>
@@ -149,6 +149,14 @@
         <dams:type>identifier</dams:type>
       </dams:Note>
     </dams:note>
+    <dams:note>
+      <dams:Note>
+        <dams:type>identifier</dams:type>
+        <rdf:value>19851203_01</rdf:value>
+        <dams:displayLabel>event id</dams:displayLabel>
+      </dams:Note>
+    </dams:note>
+
     <dams:note>
       <dams:Note>
         <rdf:value>XYZ 123-abc</rdf:value>

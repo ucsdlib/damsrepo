@@ -34,14 +34,14 @@ done
 read -p "Press any key to continue... "
 
 # post first files
-$BASE/fs-post-cmp.sh $ARK 1 1.pdf $BASE/../sample/files/20775-bb01034796-1-1.pdf
+$BASE/fs-post-cmp.sh $ARK 1 1.pdf $BASE/../sample/files/document.pdf
 
 # update metadata (PUT required even for new obj b/c files create object)
 $BASE/ts-put.sh $ARK $BASE/../sample/object/damsComplexObject2.rdf.xml
 
 # post subcomponent files after metadata scaffold in place
-$BASE/fs-post-cmp.sh $ARK 3 1.jpg $BASE/../sample/files/20775-bb75097630-1-1.jpg
-$BASE/fs-post-cmp.sh $ARK 4 1.jpg $BASE/../sample/files/20775-bb01010101-2-1.jpg
+$BASE/fs-post-cmp.sh $ARK 3 1.jpg $BASE/../sample/files/image.jpg
+$BASE/fs-post-cmp.sh $ARK 4 1.jpg $BASE/../sample/files/image.jpg
 $BASE/fs-post-cmp.sh $ARK 6 1.xslx $BASE/../sample/files/damsComplexObject2-1.xslx 
 $BASE/fs-post-cmp.sh $ARK 8 1.xslx $BASE/../sample/files/damsComplexObject2-2.xslx
 $BASE/fs-post-cmp.sh $ARK 10 1.png $BASE/../sample/files/damsComplexObject2-1.png

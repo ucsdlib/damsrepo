@@ -55,7 +55,7 @@ for i in 1 2; do
 	echo
 
 	# attach a file to the object (multipart upload)
-	FILE=$BASE/../sample/files/20775-bb01010101-1-1.tif
+	FILE=$BASE/../sample/files/image.tif
 	SRCPATH=`dirname $FILE`
 	echo $FILE
 	echo "$URL/api/files/$OBJ_ARK/1/1.tif"

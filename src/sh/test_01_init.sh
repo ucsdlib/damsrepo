@@ -19,7 +19,7 @@ $BASE/ts-clear.sh $TS
 ERRORS=$(( $ERRORS + $? ))
 
 # load predicate map into object triplestore
-$BASE/ts-load.sh $TS $BASE/../sample/predicates/
+$BASE/ts-load-raw.sh $TS $BASE/../sample/predicates/
 ERRORS=$(( $ERRORS + $? ))
 
 # initialize event triplestore
@@ -27,7 +27,7 @@ $BASE/ts-clear.sh $ES
 ERRORS=$(( $ERRORS + $? ))
 
 # load predicate map into event triplestore
-$BASE/ts-load.sh $ES $BASE/../sample/predicates/
+$BASE/ts-load-raw.sh $ES $BASE/../sample/predicates/
 ERRORS=$(( $ERRORS + $? ))
 
 # clear solr index

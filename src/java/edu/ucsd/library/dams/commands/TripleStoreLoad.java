@@ -1,8 +1,13 @@
 package edu.ucsd.library.dams.commands;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import edu.ucsd.library.dams.triple.TripleStore;
 import edu.ucsd.library.dams.triple.TripleStoreUtil;
@@ -19,6 +24,9 @@ public class TripleStoreLoad
 	private static TripleStore ts = null;
 	private static final int BATCH_SIZE = 1000;
 
+	private static Set<String> validClasses = null;
+	private static Set<String> validProperties = null;
+ 
 	/**
 	 * Command-line operation.
 	 * @param args The first argument must be a properties file for triplestore
@@ -37,12 +45,16 @@ public class TripleStoreLoad
 			String tsName = args[1];
 			ts = TripleStoreUtil.getTripleStore( props, tsName );
 
+			// parse class/property lists for validation
+			validClasses = loadSet(args[2]);
+			validProperties = loadSet(args[3]);
+
 			// model size
 			startTriples = ts.size();
 			System.out.println( "size: " + startTriples );
 
 			// add bulk Statements
-			for ( int i = 2; i < args.length; i++ )
+			for ( int i = 4; i < args.length; i++ )
 			{
 				File f = new File( args[i] );
 				if ( f.isDirectory() )
@@ -139,12 +151,12 @@ public class TripleStoreLoad
 			System.out.println( f.getName() );
 			if ( name.endsWith(".rdf") || name.endsWith(".xml") )
 			{
-				ts.loadRDFXML( f.getAbsolutePath() );
+				ts.loadRDFXML( f.getAbsolutePath(), validClasses, validProperties );
 				records++;
 			}
 			else if ( name.endsWith(".nt") || name.endsWith(".ntriples") )
 			{
-				ts.loadNTriples( f.getAbsolutePath() );
+				ts.loadNTriples( f.getAbsolutePath(), validClasses, validProperties );
 				records++;
 			}
 			else
@@ -165,4 +177,27 @@ public class TripleStoreLoad
 			System.exit(1);
 		}
 	}
+	private static Set<String> loadSet( String filename ) throws IOException
+	{
+		if ( filename.trim().equals("") )
+		{
+			return null;
+		}
+		BufferedReader buf = new BufferedReader( new FileReader(filename) );
+		try
+		{
+			Set<String> set = new HashSet<>();
+			for ( String line = null; (line = buf.readLine()) != null; )
+			{
+				set.add( line );
+			}
+			System.err.println("Loaded " + set.size() + " values from " + filename);
+			return set;
+		}
+		finally
+		{
+			buf.close();
+		}
+	}
+
 }
