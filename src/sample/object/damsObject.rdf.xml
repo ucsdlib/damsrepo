@@ -84,6 +84,14 @@
         <dams:endDate>2012-04-08</dams:endDate>
       </dams:Date>
     </dams:date>
+    <dams:date>
+      <dams:Date>
+        <dams:type>published</dams:type>
+        <rdf:value>2014</rdf:value>
+        <dams:beginDate>2014</dams:beginDate>
+        <dams:endDate>2014</dams:endDate>
+      </dams:Date>
+    </dams:date>
     <dams:title>
       <mads:Title> 
         <mads:authoritativeLabel>Sample Simple Object, The: An Image Object, Allegro, 1</mads:authoritativeLabel> 
