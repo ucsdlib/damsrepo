@@ -687,9 +687,7 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 				catch ( Exception ex )
 				{
-					info = error(
-						"Error processing batch retrieval: " + ex.getMessage()
-					);
+					info = error( "Error processing batch retrieval", ex );
 				}
 			}
 			// GET /objects/bb1234567x
@@ -857,7 +855,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				String err = config( getServletContext() );
 				if ( err == null ) { info = status("Configuration reloaded"); }
-				else { info = error( err ); }
+				else { info = error( err, null ); }
 			}
 			// GET /system/info
 			else if ( path.length == 3 && path[1].equals("system" )
@@ -908,7 +906,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			else
 			{
-				info = error( res.SC_BAD_REQUEST, "Invalid request" );
+				info = error( res.SC_BAD_REQUEST, "Invalid request", null );
 			}
 
 			// output
@@ -1005,17 +1003,14 @@ public class DAMSAPIServlet extends HttpServlet
 				catch ( Exception ex )
 				{
 					log.warn("Error uploading file", ex );
-					info = error("Error uploading file");
+					info = error("Error uploading file", ex);
 				}
 			}
 			// POST /objects/bb1234567x/merge
 			else if ( path.length == 4 && path[1].equals("objects") 
 					&& path[3].equals("merge"))
 			{
-		   		info = error(
-	   				res.SC_BAD_REQUEST,
-			   		"Please use PUT to merge records."
-			   	);
+		   		info = error( res.SC_BAD_REQUEST, "Please use PUT to merge records.", null);
 			}
 			// POST /objects/bb1234567x/transform
 			else if ( path.length == 4 && path[1].equals("objects")
@@ -1064,7 +1059,7 @@ public class DAMSAPIServlet extends HttpServlet
 				catch ( Exception ex )
 				{
 					log.error("Error serializing RDF/XML on update", ex);
-					info = error("Failed to serialize record " + objid + " to filestore. Error: " + ex.getMessage());
+					info = error("Failed to serialize record " + objid + " to filestore.", ex);
 				}
 			}
 			// POST /files/bb1234567x/1.tif
@@ -1080,7 +1075,7 @@ public class DAMSAPIServlet extends HttpServlet
 					{
 						info = error(
 							HttpServletResponse.SC_BAD_REQUEST,
-							"Multipart or srcfs/local params required"
+							"Multipart or srcfs/local params required", null
 						);
 					}
 					else
@@ -1100,12 +1095,12 @@ public class DAMSAPIServlet extends HttpServlet
 				catch ( SizeLimitExceededException ex )
 				{
 					log.warn("File too large for upload: " + ex.getMessage() );
-					info = error("File too large for upload (max upload size: " + maxUploadSize + "), stage locally instead");
+					info = error("File too large for upload (max upload size: " + maxUploadSize + "), stage locally instead", ex);
 				}
 				catch ( Exception ex )
 				{
 					log.warn("Error uploading file", ex );
-					info = error("Error uploading file");
+					info = error("Error uploading file", ex);
 				}
 			}
 			// POST /files/bb1234567x/1/1.tif
@@ -1122,7 +1117,7 @@ public class DAMSAPIServlet extends HttpServlet
 					{
 						info = error(
 							HttpServletResponse.SC_BAD_REQUEST,
-							"Multipart or srcfs/local params required"
+							"Multipart or srcfs/local params required", null
 						);
 					}
 					else
@@ -1142,7 +1137,7 @@ public class DAMSAPIServlet extends HttpServlet
 				catch ( Exception ex )
 				{
 					log.warn("Error uploading file", ex );
-					info = error("Error uploading file");
+					info = error("Error uploading file", ex);
 				}
 			}
 			// POST /files/bb1234567x/1.tif/characterize
@@ -1215,7 +1210,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			else
 			{
-				info = error( res.SC_BAD_REQUEST, "Invalid request" );
+				info = error( res.SC_BAD_REQUEST, "Invalid request", null );
 			}
 
 			// output
@@ -1287,7 +1282,7 @@ public class DAMSAPIServlet extends HttpServlet
 				catch ( Exception ex )
 				{
 					log.warn( "Error updating object", ex );
-					info = error( "Error updating object" );
+					info = error( "Error updating object", ex );
 				}
 			} 
 			// PUT /objects/bb1234567x/merge
@@ -1308,7 +1303,7 @@ public class DAMSAPIServlet extends HttpServlet
 				catch ( Exception ex )
 				{
 					log.warn( "Error merging records to " + path[2], ex );
-					info = error( "Error merging records(s) to " + path[2] );
+					info = error( "Error merging records(s) to " + path[2], ex );
 				}
 			}
 			// PUT /files/bb1234567x/1.tif
@@ -1330,7 +1325,7 @@ public class DAMSAPIServlet extends HttpServlet
 				catch ( Exception ex )
 				{
 					log.warn( "Error updating file", ex );
-					info = error( "Error updating file" );
+					info = error( "Error updating file", ex );
 				}
 			}
 			// PUT /files/bb1234567x/1/1.tif
@@ -1353,7 +1348,7 @@ public class DAMSAPIServlet extends HttpServlet
 				catch ( Exception ex )
 				{
 					log.warn( "Error updating file", ex );
-					info = error( "Error updating file" );
+					info = error( "Error updating file", ex );
 				}
 			}
 			// PUT /files/bb1234567x/1.tif/characterize
@@ -1416,7 +1411,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			else
 			{
-				info = error( res.SC_BAD_REQUEST, "Invalid request" );
+				info = error( res.SC_BAD_REQUEST, "Invalid request", null );
 			}
 
 			// output
@@ -1530,7 +1525,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			else
 			{
-				info = error( res.SC_BAD_REQUEST, "Invalid request" );
+				info = error( res.SC_BAD_REQUEST, "Invalid request", null );
 			}
 
 			// output
@@ -1680,8 +1675,7 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( !ts.exists(objid) )
 			{
 				return error(
-					HttpServletResponse.SC_NOT_FOUND,
-					pred + " does not exist"
+					HttpServletResponse.SC_NOT_FOUND, pred + " does not exist", null
 				);
 			}
 			if ( pred == null || pred.length < 1 )
@@ -1718,7 +1712,7 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			String msg = "Error counting " + pred + " members: " + obj;
 			log.info(msg, ex );
-			return error(msg);
+			return error(msg, ex);
 		}
 	}
 	public Map collectionListFiles( String colid, TripleStore ts )
@@ -1789,7 +1783,7 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			String msg = "Error listing files in a " + pred + ": " + obj;
 			log.info(msg, ex );
-			return error(msg);
+			return error(msg, ex);
 		}
 	}
 	public Map objectListFiles( String objid, TripleStore ts )
@@ -1800,7 +1794,7 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( !ts.exists(obj) )
 			{
 				return error(
-					HttpServletResponse.SC_NOT_FOUND, "Object does not exist"
+					HttpServletResponse.SC_NOT_FOUND, "Object does not exist", null
 				);
 			}
 
@@ -1851,7 +1845,7 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			String msg = "Error listing files for object: " + objid;
 			log.info(msg, ex );
-			return error(msg);
+			return error(msg, ex);
 		}
 	}
 	public Map unitEmbargo( String colid, TripleStore ts )
@@ -1860,7 +1854,7 @@ public class DAMSAPIServlet extends HttpServlet
 		try {
 			info.put("embargoed", getEmbargoedList("dams:unit", colid, ts));
 		} catch (TripleStoreException ex) {
-			return error( "Error listing embargoed objects for unit " + colid + ": " + ex.toString() );
+			return error( "Error listing embargoed objects for unit " + colid, ex );
 		}
 		return info;
 		// output = metadata: list of embargoed objects and embargoed endDate
@@ -1876,7 +1870,7 @@ public class DAMSAPIServlet extends HttpServlet
 			
 			info.put("embargoed", embargoes);
 		} catch (TripleStoreException ex) {
-			return error( "Error listing embargoed objects for collection " + colid + ": " + ex.toString() );
+			return error( "Error listing embargoed objects for collection " + colid, ex);
 		}
 		return info;
 		// output = metadata: list of embargoed objects and embargoed endDate
@@ -1894,7 +1888,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			return error( "Error listing units: " + ex.toString() );
+			return error( "Error listing units",  ex );
 		}
 	}
 	public Map eventsListAll( TripleStore ts )
@@ -1910,7 +1904,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			return error( "Error listing events: " + ex.toString() );
+			return error( "Error listing events",  ex );
 		}
 	}
 	private void recordsList( TripleStore ts, Map<String,String[]> params,
@@ -1941,7 +1935,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				Map err = error(
 					HttpServletResponse.SC_BAD_REQUEST,
-					"Unsupported format: " + format
+					"Unsupported format: " + format, null
 				);
 				output( err, params, pathInfo, res );
 				return;
@@ -2014,7 +2008,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			return error( "Error listing objects: " + ex.toString() );
+			return error( "Error listing objects", ex );
 		}
 	}
 	public Map collectionListAll( TripleStore ts )
@@ -2033,7 +2027,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			return error( "Error listing collections: " + ex.toString() );
+			return error( "Error listing collections", ex );
 		}
 	}
 	public List<Map<String,String>> collectionListAll( TripleStore ts, String type ) throws Exception
@@ -2095,7 +2089,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				return error(
 					HttpServletResponse.SC_NOT_FOUND,
-					pred + " does not exist"
+					pred + " does not exist", null
 				);
 			}
 
@@ -2113,7 +2107,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			ex.printStackTrace();
-			return error( "Error listing " + pred + ": " + ex.toString() );
+			return error( "Error listing " + pred, ex );
 		}
 	}
 	public List listObjects( String pred, Identifier id, TripleStore ts  )
@@ -2143,14 +2137,14 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				return error(
 					HttpServletResponse.SC_BAD_REQUEST,
-					"Object identifier required"
+					"Object identifier required", null
 				);
 			}
 			if ( fileid == null || fileid.trim().equals("") )
 			{
 				return error(
 					HttpServletResponse.SC_BAD_REQUEST,
-					"File identifier required"
+					"File identifier required", null
 				);
 			}
 
@@ -2177,7 +2171,7 @@ public class DAMSAPIServlet extends HttpServlet
 					return error(
 						HttpServletResponse.SC_FORBIDDEN,
 						"Characterization for file " + fid.getId()
-							+ " already exists. Please use PUT instead"
+							+ " already exists. Please use PUT instead", null
 					);
 				}
 			}
@@ -2240,7 +2234,7 @@ public class DAMSAPIServlet extends HttpServlet
 						return error(
 							HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE,
 							"File is too large to retrieve for local processing"
-							+ " (maxSize=" + jhoveMaxSize + "): " + fid.getId()
+							+ " (maxSize=" + jhoveMaxSize + "): " + fid.getId(), null
 						);
 					}
 					else if ( fileSize > srcFile.getFreeSpace() )
@@ -2248,7 +2242,7 @@ public class DAMSAPIServlet extends HttpServlet
 						return error(
 							HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE,
 							"There is not enough disk space to create a temp"
-							+ " file for " + fid.getId()
+							+ " file for " + fid.getId(), null
 						);
 					}
 					srcDelete = true;
@@ -2301,7 +2295,7 @@ public class DAMSAPIServlet extends HttpServlet
 						return error(
 							HttpServletResponse.SC_FORBIDDEN,
 							"Characterization for file " + fid.getId()
-							+ " already exists. Please use PUT instead"
+							+ " already exists. Please use PUT instead", null
 						);
 					}
 				}
@@ -2404,7 +2398,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			log.warn( "Error Jhove extraction", ex );
-			return error( "Error Jhove extraction: " + ex.toString() );
+			return error( "Error Jhove extraction", ex );
 		}
 		finally
 		{
@@ -2430,7 +2424,7 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( !ts.exists(oid) )
 			{
 				return error(
-					HttpServletResponse.SC_NOT_FOUND, "Object does not exist"
+					HttpServletResponse.SC_NOT_FOUND, "Object does not exist", null
 				);
 			}
 
@@ -2459,7 +2453,7 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			String msg = "Error retrieving checksums: " + ex.toString();
 			log.info(msg, ex );
-			return error(msg);
+			return error(msg, ex);
 		}
 		return sums;
 	}
@@ -2474,21 +2468,22 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				return error(
 					HttpServletResponse.SC_BAD_REQUEST,
-					"Object identifier required"
+					"Object identifier required", null
 				);
 			}
 			if ( fileid == null || fileid.trim().equals("") )
 			{
 				return error(
 					HttpServletResponse.SC_BAD_REQUEST,
-					"File identifier required"				);
+					"File identifier required", null
+				);
 			}
 
 			if ( in == null )
 			{
 				return error(
 					HttpServletResponse.SC_BAD_REQUEST,
-					"File upload or locally-staged file required"
+					"File upload or locally-staged file required", null
 				);
 			}
 
@@ -2498,7 +2493,7 @@ public class DAMSAPIServlet extends HttpServlet
 				log.info("Upload: refused");
 				return error(
 					HttpServletResponse.SC_SERVICE_UNAVAILABLE,
-					"Too many concurrent uploads"
+					"Too many concurrent uploads", null
 				);
 			}
 			else
@@ -2512,14 +2507,14 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				return error(
 					HttpServletResponse.SC_FORBIDDEN,
-					"File already exists, use PUT to overwrite"
+					"File already exists, use PUT to overwrite", null
 				);
 			}
 			else if ( overwrite && !fs.exists( objid, cmpid, fileid ) )
 			{
 				return error(
 					HttpServletResponse.SC_FORBIDDEN,
-					"File does not exist, use POST to create"
+					"File does not exist, use POST to create", null
 				);
 			}
 
@@ -2591,13 +2586,13 @@ public class DAMSAPIServlet extends HttpServlet
 					"Failed to upload file"
 				);
 
-				return error( message );
+				return error( message, null );
 			}
 		}
 		catch ( Exception ex )
 		{
 			log.warn( "Error uploading file", ex );
-			return error( "Error uploading file: " + ex.toString() );
+			return error( "Error uploading file", ex );
 		}
 		finally
 		{
@@ -2614,14 +2609,14 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				return error(
 					HttpServletResponse.SC_BAD_REQUEST,
-					"Object identifier required"
+					"Object identifier required", null
 				);
 			}
 			if ( fileid == null || fileid.trim().equals("") )
 			{
 				return error(
 					HttpServletResponse.SC_BAD_REQUEST,
-					"File identifier required"
+					"File identifier required", null
 				);
 			}
 
@@ -2630,7 +2625,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				return error(
 					HttpServletResponse.SC_FORBIDDEN,
-					"File does not exist"
+					"File does not exist", null
 				);
 			}
 
@@ -2658,14 +2653,14 @@ public class DAMSAPIServlet extends HttpServlet
 					null, null
 				);
 				return error(
-					"Failed to delete file: " + objid + fileString(cmpid,fileid)
+					"Failed to delete file: " + objid + fileString(cmpid,fileid), null
 				);
 			}
 		}
 		catch ( Exception ex )
 		{
 			log.warn( "Error deleting file", ex );
-			return error( "Error deleting file: " + ex.toString() );
+			return error( "Error deleting file", ex );
 		}
 	}
 	private static String listToString(String[] arr)
@@ -2692,20 +2687,20 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				return error(
 					HttpServletResponse.SC_BAD_REQUEST,
-					"Object identifier required"
+					"Object identifier required", null
 				);
 			}
 			if ( fileid == null || fileid.trim().equals("") )
 			{
 				return error(
 					HttpServletResponse.SC_BAD_REQUEST,
-					"File identifier required"
+					"File identifier required", null
 				);
 			}
 			if ( derivativesRes == null || derivativesRes.size() == 0 )
 			{
 				return error(
-					"Derivative dimensions not configured."
+					"Derivative dimensions not configured.", null
 				);
 			}
 
@@ -2731,7 +2726,7 @@ public class DAMSAPIServlet extends HttpServlet
 					{
 						return error(
 								HttpServletResponse.SC_BAD_REQUEST,
-								"Unknow derivative name: " + derName
+								"Unknown derivative name: " + derName, null
 							);
 					}
 					Identifier dfid = createID( objid, cmpid, derName + derivativesExt );
@@ -2743,7 +2738,7 @@ public class DAMSAPIServlet extends HttpServlet
 							return error(
 								HttpServletResponse.SC_FORBIDDEN,
 								"Derivative " + dfid.getId()
-									+ " already exists. Please use PUT instead"
+									+ " already exists. Please use PUT instead", null
 							);
 						}
 					}
@@ -2809,7 +2804,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			log.warn( "Error derivatives creation", ex );
-			return error( "Error derivatives creation: " + ex.toString() );
+			return error( "Error derivatives creation", ex );
 		}
 		finally
 		{
@@ -2820,7 +2815,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		if ( errorMessage.length() > 0)
 		{
-			return error ( errorMessage );
+			return error( errorMessage, null );
 		}
 		else
 		{
@@ -2840,14 +2835,14 @@ public class DAMSAPIServlet extends HttpServlet
 			else
 			{
 				return error(
-					HttpServletResponse.SC_NOT_FOUND, "File does not exist"
+					HttpServletResponse.SC_NOT_FOUND, "File does not exist", null
 				);
 			}
 		}
 		catch ( Exception ex )
 		{
 			log.warn( "Error checking file existence", ex );
-			return error( "Error processing request: " + ex.toString() );
+			return error( "Error processing request", ex );
 		}
 	}
     public Map extractText( String objid, String cmpid, String fileid,
@@ -2865,7 +2860,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				return error(
 					HttpServletResponse.SC_BAD_REQUEST,
-					"Object and file must be specified"
+					"Object and file must be specified", null
 				);
 			}
 
@@ -2873,7 +2868,7 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( !fs.exists( objid, cmpid, fileid ) )
 			{
 				return error(
-					HttpServletResponse.SC_NOT_FOUND, "File does not exist"
+					HttpServletResponse.SC_NOT_FOUND, "File does not exist", null
 				);
 			}
 
@@ -2891,9 +2886,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			log.warn( "Error extracting text from " + fn, ex );
-			return error(
-				"Error extracting text from " + fn + ": " + ex.toString()
-			);
+			return error( "Error extracting text from " + fn, ex);
 		}
 		return info;
 	}
@@ -2963,7 +2956,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			log.error( "Error comparing checksums", ex );
-			return error( "Error comparing checksums: " + ex.toString() );
+			return error( "Error comparing checksums", ex );
 		}
 		finally
 		{
@@ -2977,7 +2970,7 @@ public class DAMSAPIServlet extends HttpServlet
 		String minterURL = idMinters.get(name);
 		if ( minterURL == null )
 		{
-			return error("Unknown id minter: " + name);
+			return error("Unknown id minter: " + name, null);
 		}
 		minterURL += count;
 
@@ -2987,7 +2980,7 @@ public class DAMSAPIServlet extends HttpServlet
 			String result = HttpUtil.get(minterURL);
 			if ( result == null || !result.startsWith("id: ") )
 			{
-				return error("Failed to generate id");
+				return error("Failed to generate id", null);
 			}
 			else
 			{
@@ -3004,7 +2997,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			return error( "Error generating id" );
+			return error( "Error generating id", null );
 		}
 	}
 	protected Map objectEdit( String objid, boolean create, InputStream in,
@@ -3017,7 +3010,7 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( objid == null || objid.trim().equals("") )
 			{
 				return error(
-					HttpServletResponse.SC_BAD_REQUEST, "No subject provided"
+					HttpServletResponse.SC_BAD_REQUEST, "No subject provided", null
 				);
 			}
 
@@ -3027,14 +3020,14 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 		   		return error(
 			   		HttpServletResponse.SC_FORBIDDEN,
-			   		"Object already exists, use PUT to update"
+			   		"Object already exists, use PUT to update", null
 		   		);
 			}
 			else if ( !create && !ts.exists(id) )
 			{
 		   		return error(
 			   		HttpServletResponse.SC_FORBIDDEN,
-			   		"Object does not exist, use POST to create"
+			   		"Object does not exist, use POST to create", null
 		  		);
 			}
 
@@ -3058,7 +3051,7 @@ public class DAMSAPIServlet extends HttpServlet
 						if ( errors != null && errors.size() > 0 )
 						{
 							Map resp = error(
-								HttpServletResponse.SC_BAD_REQUEST, "Invalid RDF input"
+								HttpServletResponse.SC_BAD_REQUEST, "Invalid RDF input", null
 							);
 							resp.put("errors", errors);
 							return resp;
@@ -3089,10 +3082,10 @@ public class DAMSAPIServlet extends HttpServlet
 					catch ( Exception ex )
 					{
 						log.warn("Error loading metadata", ex );
-						return error( "Error loading new metadata" );
+						return error( "Error loading new metadata", ex );
 					}
 				}
-				return error( "Unsupported mode: " + mode );
+				return error( "Unsupported mode: " + mode, null );
 			}
 			// otherwise, look for JSON adds
 			else
@@ -3137,14 +3130,15 @@ public class DAMSAPIServlet extends HttpServlet
 							ts, es, fs, objid, null, null, type, false,
 							null, msg
 						);
-						return error( msg );
+						return error( msg, edit.getException() );
 					}
 				}
 				else
 				{
 					return error(
 						HttpServletResponse.SC_BAD_REQUEST,
-						"Object metadata must be supplied as a file upload or in the adds parameter"
+						"Object metadata must be supplied as a file upload or in the adds parameter",
+						null
 					);
 				}
 			}
@@ -3152,7 +3146,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			log.warn( "Error editing object", ex );
-			return error( "Error editing object: " + ex.toString() );
+			return error( "Error editing object", ex );
 		}
 	}
 	public Map objectDelete( String objid, TripleStore ts, TripleStore es,
@@ -3163,7 +3157,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// make sure an identifier is specified
 			if ( objid == null || objid.trim().equals("") )
 			{
-				return error( HttpServletResponse.SC_BAD_REQUEST, "No subject provided" );
+				return error( HttpServletResponse.SC_BAD_REQUEST, "No subject provided", null );
 			}
 
 	   		// make sure appropriate method is being used to create/update
@@ -3172,7 +3166,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 		   		return error(
 			   		HttpServletResponse.SC_BAD_REQUEST,
-			   		"Object does not exist"
+			   		"Object does not exist", null
 		   		);
 			}
 			ts.removeObject(id);
@@ -3192,7 +3186,7 @@ public class DAMSAPIServlet extends HttpServlet
 					ts, es, fs, objid, null, null, Event.RECORD_DELETED, false,
 					null, null
 				);
-				return error( "Object deletion failed" );
+				return error( "Object deletion failed", null );
 			}
 			//ts.addLiteralStatement(id,updatedFlag,"delete",id);
 			//String userID = request.getParameter("userID");
@@ -3204,7 +3198,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			log.warn( "Error deleting object", ex );
-			return error( "Error deleting object: " + ex.toString() );
+			return error( "Error deleting object", ex );
 		}
 	}
 	public Map selectiveDelete( String objid, String cmpid, String[] predicates,
@@ -3216,7 +3210,7 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( objid == null || objid.trim().equals("") )
 			{
 				return error(
-					HttpServletResponse.SC_BAD_REQUEST, "No subject provided"
+					HttpServletResponse.SC_BAD_REQUEST, "No subject provided", null
 				);
 			}
 
@@ -3227,7 +3221,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 		   		return error(
 			   		HttpServletResponse.SC_BAD_REQUEST,
-			   		"Object does not exist"
+			   		"Object does not exist", null
 		   		);
 			}
 
@@ -3235,7 +3229,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 		   		return error(
 			   		HttpServletResponse.SC_BAD_REQUEST,
-			   		"No predicates specified for deletion"
+			   		"No predicates specified for deletion", null
 		   		);
 			}
 
@@ -3261,7 +3255,7 @@ public class DAMSAPIServlet extends HttpServlet
 				ts, es, fs, objid, null, null, Event.RECORD_EDITED, false,
 				null, null
 			);} catch ( Exception ex2 ) {}
-			return error( "Error deleting predicates: " + ex.toString() );
+			return error( "Error deleting predicates", ex );
 		}
 	}
 	public String objectBatch( List<String> objids, TripleStore ts,
@@ -3352,11 +3346,11 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				return error(
 					HttpServletResponse.SC_BAD_REQUEST,
-					"Object id must be specified"
+					"Object id must be specified", null
 				);
 			}
 			Identifier id = createID( objid, null, null );
-if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
+			if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			if ( ts.exists(id) )
 			{
 				obj = new DAMSObject( ts, es, objid, nsmap );
@@ -3369,7 +3363,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			{
 				return error(
 					HttpServletResponse.SC_NOT_FOUND,
-					"Object does not exist"
+					"Object does not exist", null
 				);
 			}
 
@@ -3380,7 +3374,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		catch ( Exception ex )
 		{
 			log.warn( "Error showing object", ex );
-			return error( "Error processing request: " + ex.toString() );
+			return error( "Error processing request", ex );
 		}
 	}
 
@@ -3463,7 +3457,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			}
 			catch ( Exception ex2 ) { log.error("Error creating event",ex2); }
 			output(
-				error("Error transforming metadata"), params, pathInfo, res
+				error("Error transforming metadata", ex), params, pathInfo, res
 			);
 		}
 	}
@@ -3480,14 +3474,14 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			else
 			{
 				return error(
-					HttpServletResponse.SC_NOT_FOUND, "Object does not exist"
+					HttpServletResponse.SC_NOT_FOUND, "Object does not exist", null
 				);
 			}
 		}
 		catch ( Exception ex )
 		{
 			log.warn( "Error checking object existence", ex );
-			return error( "Error checking object existence: " + ex.toString() );
+			return error( "Error checking object existence", ex );
 		}
 	}
 	public Map objectValidate( String objid, FileStore fs, TripleStore ts,
@@ -3497,7 +3491,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		Map info = objectShow( objid, ts, es );
 		if ( info.get("obj") == null )
 		{
-			return error( HttpServletResponse.SC_NOT_FOUND, "Object does not exist" );
+			return error( HttpServletResponse.SC_NOT_FOUND, "Object does not exist", null );
 		}
 
 		// validate model
@@ -3507,7 +3501,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		);
 		if ( errors != null && errors.size() > 0 )
 		{
-			Map resp = error( "Validation failure" );
+			Map resp = error( "Validation failure", null );
 			resp.put( "errors", errors );
 			return resp;
 		}
@@ -3533,7 +3527,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		catch ( Exception ex )
 		{
 			log.error( "Error looking up predicate map", ex );
-			return error( "Error looking up predicate map" );
+			return error( "Error looking up predicate map", ex );
 		}
 	}
 
@@ -3571,7 +3565,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		catch ( Exception ex )
 		{
 			log.error( "Error deleting file metadata", ex );
-			return error("Error deleting file metadata: " + ex.toString());
+			return error("Error deleting file metadata", ex );
 		}
 	}
 
@@ -3587,7 +3581,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		{
 			info = error(
 				HttpServletResponse.SC_BAD_REQUEST,
-				"No identifier specified"
+				"No identifier specified", null
 			);
 		}
 
@@ -3728,7 +3722,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		if ( sparql == null )
 		{
                 Map err = error(
-                    HttpServletResponse.SC_BAD_REQUEST, "No query specified."
+                    HttpServletResponse.SC_BAD_REQUEST, "No query specified.", null
                 );
                 output( err, params, pathInfo, res );
                 return;
@@ -3825,7 +3819,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		if ( objid == null || objid.trim().equals("") )
 		{
 			return error(
-				HttpServletResponse.SC_BAD_REQUEST, "No subject provided"
+				HttpServletResponse.SC_BAD_REQUEST, "No subject provided", null
 			);
 		}
 
@@ -3835,7 +3829,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		{
 	   		return error(
 		   		HttpServletResponse.SC_FORBIDDEN,
-		   		"The selected record does not exist: " + objid
+		   		"The selected record does not exist: " + objid, null
 	  		);
 		}
 		
@@ -3859,7 +3853,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 					{
 				   		return error(
 					   		HttpServletResponse.SC_FORBIDDEN,
-					   		"Record for merging does not exist: " + tmpid
+					   		"Record for merging does not exist: " + tmpid, null
 				  		);
 					}
 					records2merge.add( tmpid );
@@ -3871,7 +3865,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		if ( records2merge.size() == 0 )
 		{
 			return error(
-				HttpServletResponse.SC_BAD_REQUEST, "No subject for merging provided in id parameter"
+				HttpServletResponse.SC_BAD_REQUEST, "No subject for merging provided in id parameter", null
 			);
 		}
 		
@@ -4103,9 +4097,13 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 	private void updateErrorInfo(Map info, String message)
 	{
 		if(info == null)
-			info = error( 500, message);
+		{
+			info = error(message, null);
+		}
 		else
-			info = error( 500, info.get("message") + " ; " + message);
+		{
+			info = error(info.get("message") + " ; " + message, null);
+		}
 	}
 
 	/**
@@ -4170,15 +4168,14 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 	// Output formatting
 	//========================================================================
 
-	protected Map error( String msg )
+	protected Map error( String msg, Exception ex )
 	{
-		return error( HttpServletResponse.SC_INTERNAL_SERVER_ERROR, msg );
+		return error( HttpServletResponse.SC_INTERNAL_SERVER_ERROR, msg, ex );
 	}
-	protected Map error( int errorCode, String msg )
+	protected Map error( int errorCode, String msg, Exception ex )
 	{
-		Map info = new LinkedHashMap();
-		info.put( "statusCode", errorCode );
-		info.put( "message", msg );
+		Map info = status( errorCode, msg );
+		if ( ex != null ) { info.put( "exception", ex ); }
 		return info;
 	}
 	protected Map status( String msg )
@@ -4190,6 +4187,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		Map info = new LinkedHashMap();
 		info.put( "statusCode", statusCode );
 		info.put( "message", msg );
+        info.put( "timestamp", dateFormat.format(new Date()) );
 		return info;
 	}
 
@@ -4215,7 +4213,8 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 			{
 				Map err = error(
 					HttpServletResponse.SC_BAD_REQUEST,
-					"Unsupported format: " + format
+					"Unsupported format: " + format,
+					null
 				);
 				output( err, params, pathInfo, res );
 				return;
@@ -4225,7 +4224,7 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 		catch ( Exception ex )
 		{
 			log.warn("Error outputting object metadata",ex);
-			Map err = error("Error outputting object metadata");
+			Map err = error("Error outputting object metadata", ex);
 			output( err ,params, pathInfo, res );
 		}
 	}
@@ -4376,6 +4375,15 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 					sub.setText( v2 );
 				}
 			}
+			else if ( val instanceof Exception )
+			{
+				Exception ex = (Exception)val;
+				e.addElement("p").setText( ex.toString() );
+				StackTraceElement[] elem = ex.getStackTrace();
+				for ( int i = 0; i < elem.length; i++ ) {
+					e.addElement("p").setText(elem[i].toString());
+				}
+			}
 			else
 			{
 				e.setText( String.valueOf(val) );
@@ -4424,6 +4432,15 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 				{
 					String k2 = (String)it.next();
 					props.put( key + "." + k2, (String)m2.get(k2) );
+				}
+			}
+			else if ( val instanceof Exception )
+			{
+				Exception ex = (Exception)val;
+				props.put( key + ".summary", ex.toString() );
+				StackTraceElement[] elem = ex.getStackTrace();
+				for ( int i = 0; i < elem.length; i++ ) {
+					props.put(key + "." + i, elem[i].toString());
 				}
 			}
 			else
@@ -4505,6 +4522,16 @@ if ( ts == null ) { log.error("NULL TRIPLESTORE"); }
 					String v2 = (String)m2.get(k2);
 					Element div = valCell.addElement("div");
 					div.setText(k2 + ": " + v2);
+				}
+			}
+			else if ( val instanceof Exception )
+			{
+				Exception ex = (Exception)val;
+				valCell.addElement("p").setText(ex.toString());
+				StackTraceElement[] elem = ex.getStackTrace();
+				for ( int i = 0; i < elem.length; i++ ) {
+					valCell.addText(elem[i].toString());
+					valCell.addElement("br");
 				}
 			}
 

@@ -690,7 +690,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			}
 			else
 			{
-				Map err = error( res.SC_BAD_REQUEST, "Invalid request" );
+				Map err = error( res.SC_BAD_REQUEST, "Invalid request", null );
 				output( err, req.getParameterMap(), req.getPathInfo(), res );
 			}
 		}
@@ -760,7 +760,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			}
 			else
 			{
-				info = error( res.SC_BAD_REQUEST, "Invalid request" );
+				info = error( res.SC_BAD_REQUEST, "Invalid request", null );
 			}
 
 			// output
