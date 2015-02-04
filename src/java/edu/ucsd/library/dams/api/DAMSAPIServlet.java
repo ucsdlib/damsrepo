@@ -126,6 +126,7 @@ import edu.ucsd.library.dams.triple.TripleStoreException;
 import edu.ucsd.library.dams.triple.TripleStoreUtil;
 import edu.ucsd.library.dams.triple.Validator;
 import edu.ucsd.library.dams.triple.edit.Edit;
+import edu.ucsd.library.dams.util.Ezid;
 import edu.ucsd.library.dams.util.HttpUtil;
 import edu.ucsd.library.dams.util.LDAPUtil;
 import edu.ucsd.library.dams.util.PDFParser;
@@ -242,6 +243,9 @@ public class DAMSAPIServlet extends HttpServlet
 	private static HashMap<String,String> cacheContent = new HashMap<String,String>();
 	private static LinkedList<String> cacheAccess = new LinkedList<String>();
 	private static int cacheSize = 10; // max objects in cache, 0 = disabled
+
+	// doi minting
+	private Ezid ezid;
 
 	protected static void cacheAdd( String objid, String content )
 	{
@@ -499,6 +503,13 @@ public class DAMSAPIServlet extends HttpServlet
 				queueProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 				log.info("JMS Queue: " + queueUrl + "/" + queueName);
 			}
+
+			// doi minter
+			String ezidHost = props.getProperty("ezid.host");
+			String ezidShoulder = props.getProperty("ezid.shoulder");
+			String ezidUser = props.getProperty("ezid.user");
+			String ezidPass = props.getProperty("ezid.pass");
+			ezid = new Ezid( ezidHost, ezidShoulder, ezidUser, ezidPass );
 		}
 		catch ( Exception ex )
 		{
@@ -1004,6 +1015,24 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					log.warn("Error uploading file", ex );
 					info = error("Error uploading file", ex);
+				}
+			}
+			// POST /objects/bb1234567x/mint_doi
+			else if ( path.length == 4 && path[1].equals("objects") 
+					&& path[3].equals("mint_doi"))
+			{
+				try
+				{
+					ts = triplestore(params);
+					es = events(params);
+					fs = filestore(params);
+					cacheRemove(path[2]);
+					info = mintDOI( path[2], ts, es, fs, res );
+				}
+				catch ( Exception ex )
+				{
+					log.warn("Error minting DOI", ex );
+					info = error("Error minting DOI", ex);
 				}
 			}
 			// POST /objects/bb1234567x/merge
@@ -3376,6 +3405,50 @@ public class DAMSAPIServlet extends HttpServlet
 			log.warn( "Error showing object", ex );
 			return error( "Error processing request", ex );
 		}
+	}
+	private Map mintDOI( String objid, TripleStore ts, TripleStore es, FileStore fs,
+		HttpServletResponse res ) throws Exception
+	{
+		// load object XML
+		Map m = objectShow( objid, ts, es );
+		String xml = null;
+		if ( m.get("obj") != null )
+		{
+			DAMSObject obj = (DAMSObject)m.get("obj");
+			xml = obj.getRDFXML(true);
+		}
+
+		// transform to datacite format with XSL
+		String datacite = xslt( xml, "datacite.xsl", null, null );
+
+		// mint doi
+		String doi = ezid.mintDOI( nsmap.get("damsid") + objid, datacite );
+		String doiURL = doi.replaceAll("doi:","http://doi.org/");
+		log.info("Minted DOI: " + doiURL + " for " + objid);
+
+		// add doi to object
+		Document doc = DocumentHelper.parseText(xml);
+		Element obj = (Element)doc.getRootElement().elements().get(0);
+		Element doiNote = obj.addElement("dams:note").addElement("dams:Note");
+		doiNote.addElement("dams:type").setText("identifier");
+		doiNote.addElement("dams:displayLabel").setText("DOI");
+		doiNote.addElement("rdf:value").setText(doiURL);
+
+		// update preferred citation note
+		List cites = doc.selectNodes(
+				"/rdf:RDF/*/dams:note/dams:Note[dams:type='preferred citation']/rdf:value");
+		if ( cites.size() > 0 )
+		{
+			Element cite = (Element)cites.get(0);
+			cite.setText( cite.getText() + " " + doiURL );
+		}
+
+		// save RDF
+		Map info = objectEdit( objid, false, new ByteArrayInputStream(doc.asXML().getBytes()),
+				null, null, null, null, ts, es, fs );
+
+		info.put("message", "Minted DOI: " + doiURL);
+		return info;
 	}
 
 	/**
