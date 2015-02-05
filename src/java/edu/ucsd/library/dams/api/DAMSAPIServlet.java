@@ -1032,7 +1032,7 @@ public class DAMSAPIServlet extends HttpServlet
 				catch ( Exception ex )
 				{
 					log.warn("Error minting DOI", ex );
-					info = error("Error minting DOI", ex);
+					info = error("Error minting DOI: " + ex.getMessage(), ex);
 				}
 			}
 			// POST /objects/bb1234567x/merge
@@ -3445,7 +3445,10 @@ public class DAMSAPIServlet extends HttpServlet
 
 		// save RDF
 		Map info = objectEdit( objid, false, new ByteArrayInputStream(doc.asXML().getBytes()),
-				null, null, null, null, ts, es, fs );
+				"all", null, null, null, ts, es, fs );
+
+		// queue for reindexing
+		indexQueue( objid, "modifyObject" );
 
 		info.put("message", "Minted DOI: " + doiURL);
 		return info;
@@ -4354,6 +4357,9 @@ public class DAMSAPIServlet extends HttpServlet
 
 		if ( format.equals("json") )
 		{
+			// convert exceptions to strings b/c toJSONString can't handle them
+			Exception e = (Exception)info.get("exception");
+			if ( e != null ) { info.put("exception", e.getMessage()); }
 			content = JSONValue.toJSONString(info);
 			contentType = "application/json";
 		}
