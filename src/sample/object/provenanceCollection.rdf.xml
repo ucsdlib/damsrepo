@@ -101,7 +101,7 @@
     </dams:preferredCitationNote>
     <dams:note>
       <dams:Note>
-        <rdf:value>Wagner, Rick; Hallman, Eric J.; O'Shea, Brian W.; Burns, Jack O.; Norman, Michael L.; Harkness, Robert; So, Geoffrey (2013): The Santa Fe Light Cone Simulation research project files. Data version 1.0. UC San Diego Library Digital Collections. http://dx.doi.org/10.5060/D2DN4300</rdf:value>
+        <rdf:value>Wagner, Rick; Hallman, Eric J.; O'Shea, Brian W.; Burns, Jack O.; Norman, Michael L.; Harkness, Robert; So, Geoffrey (2013): The Santa Fe Light Cone Simulation research project files. Data version 1.0. UC San Diego Library Digital Collections.</rdf:value>
         <dams:type>preferred citation</dams:type>
       </dams:Note>
     </dams:note>
