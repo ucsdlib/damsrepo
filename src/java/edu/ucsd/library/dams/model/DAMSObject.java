@@ -315,6 +315,14 @@ public class DAMSObject
 	}
 
 	/**
+	 * Get object metadata in Turtle format
+	**/
+	public String getTurtle(boolean recurse) throws TripleStoreException
+	{
+		return getRDF( recurse, "TURTLE" );
+	}
+
+	/**
 	 * Get object metadata in RDF/XML
 	**/
 	public String getRDFXML(boolean recurse) throws TripleStoreException
