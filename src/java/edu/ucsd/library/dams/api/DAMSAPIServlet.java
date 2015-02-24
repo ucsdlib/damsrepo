@@ -4283,7 +4283,7 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( format.equals("turtle") )
 			{
 				content = obj.getTurtle(export);
-				contentType = "text/plain";
+				contentType = "text/turtle";
 			}
 			else if ( format.equals("xml") )
 			{
