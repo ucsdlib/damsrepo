@@ -82,12 +82,16 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 // commons-lang
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import org.dom4j.Branch;
 // dom4j
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
+import org.dom4j.DocumentFactory;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.Namespace;
+import org.dom4j.QName;
 
 // xsl
 import javax.xml.transform.Transformer;
@@ -246,6 +250,10 @@ public class DAMSAPIServlet extends HttpServlet
 
 	// doi minting
 	private Ezid ezid;
+
+	// request user id
+	private String user = null;
+	private Identifier userID = null;
 
 	protected static void cacheAdd( String objid, String content )
 	{
@@ -3721,9 +3729,9 @@ public class DAMSAPIServlet extends HttpServlet
 			eventARK = eventARK.replaceAll(".*/","").trim();
 			Identifier eventID = Identifier.publicURI( idNS + eventARK );
 
-			// lookup user identifier
-			// ZZZ: AUTH: who is making the request? hydra or end-user?
-			Identifier userID = null;
+			// create or lookup user from the event triplestore
+			if (userID == null)
+				userID = createOrLookupUser( es, user );
 
 			// create event object and save to the triplestore
 			String obj = objid.startsWith("http") ? objid : idNS + objid;
@@ -3753,6 +3761,70 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			log.warn( "Error minting event ARK", ex );
 		}
+	}
+	
+	private Identifier createOrLookupUser( TripleStore es, String user )
+				throws TripleStoreException, IOException
+	{
+		Identifier uid = null;
+
+		if (!StringUtils.isBlank(user)) {
+			// lookup the user from the event triplestore
+			String query = "SELECT ?sub WHERE { ?sub <" + rdfNS + "type> ?type . ?type <" + rdfNS + "label> '\"mads:PersonalName\"' . " +
+					"?sub <" + madsNS + "authoritativeLabel> ?val . FILTER ( lcase( ?val ) =  lcase('\"" + user + "\"'))}";
+			BindingIterator it = es.sparqlSelect(query);
+			if (it.hasNext())
+				uid = Identifier.publicURI(it.nextBinding().get("sub"));
+			else {
+				// mint ARK for the new user
+				String minterURL = idMinters.get(minterDefault) + "1";
+				String userARK = HttpUtil.get(minterURL);
+				userARK = userARK.replaceAll(".*/","").trim();
+				uid = userID = Identifier.publicURI( idNS + userARK );
+				
+				Namespace madsNamespace = new Namespace("mads", madsNS);
+				Namespace rdfNamespace = new Namespace("rdf", rdfNS);
+				Element rdf = createRdfRootElement();
+				Element name = rdf.addElement( new QName("PersonalName", madsNamespace) );
+				name.addAttribute(new QName("about", rdfNamespace), uid.getId());
+		        addTextElement( name, "authoritativeLabel", madsNamespace, user );
+		        Element el = addElement( name, "elementList", madsNamespace );
+		        el.addAttribute( new QName("parseType", rdfNamespace), "Collection" );
+		        Element ne = addElement( el, "NameElement", madsNamespace );
+		        addTextElement( ne, "elementValue", madsNamespace, user );
+
+		        // add the user record to the event triplestore
+		        InputStream in = new ByteArrayInputStream(rdf.getDocument().asXML().getBytes());
+		        Map info = objectEdit( userARK, true, in, null, null, null, null, es, es, null );
+		        in.close();
+		        int statusCode = (int) info.get("statusCode");
+		        if ( statusCode != 201 )
+		        	throw new TripleStoreException("Error status code" + statusCode + ": " + (String) info.get("message"));
+
+			}
+		}
+		return uid;
+	}
+
+    private static Element addElement( Branch parent, String elemName, Namespace ns )
+    {
+        return parent.addElement( new QName(elemName, ns) );
+    }
+
+    private static void addTextElement( Element parent, String elemName, Namespace ns, String value )
+    {
+        addElement( parent, elemName, ns ).setText( value );
+    }
+    
+	private Element createRdfRootElement() {
+        // setup document rdf root element
+    	Document doc = new DocumentFactory().createDocument();
+        Element rdf = addElement(doc, "RDF", new Namespace("rdf", rdfNS));
+        doc.setRootElement(rdf);
+        rdf.add( new Namespace("mads", madsNS) );
+        rdf.add( new Namespace("rdf", rdfNS) );
+        rdf.add( new Namespace("dams", prNS) );
+        return rdf;
 	}
 
 	//=========================================================================
@@ -5099,6 +5171,10 @@ public class DAMSAPIServlet extends HttpServlet
 			InputStream in = alternateStream( params, objid, cmpid, fileid );
 			input = new InputBundle( params, in );
 		}
+
+		// retrieve the user
+		userID = null;
+		user =  getParamString(input.getParams(), "user", null);
 		return input;
 	}
 
