@@ -89,7 +89,7 @@ public class Event
 		Identifier bn = es.blankNode();
 		es.addStatement( eventID, id("dams:relationship"), bn, eventID );
 		if ( this.userID == null ) { this.userID = id("dams:unknownUser"); }
-		es.addStatement( bn, id("dams:name"), userID, eventID );
+		es.addStatement( bn, id("dams:personalName"), userID, eventID );
 		es.addStatement( bn, id("dams:role"), id("dams:initiator"), eventID );
 	}
 	private String q( String s )
