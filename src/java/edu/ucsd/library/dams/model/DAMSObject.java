@@ -227,7 +227,17 @@ public class DAMSObject
 				// process the batch of statements
 				try { process( it3 ); }
 				finally { it3.close(); }
+				
+				// describe all records in the todo set for events 
+				if (todo.size() > 0) {
+					it3 = es.sparqlDescribe(todo);
+
+					// process the batch of statements
+					try { process( it3 ); }
+					finally { it3.close(); }
+				}
 			}
+			
 		}
 
 		// output unprocessed statements
@@ -312,6 +322,14 @@ public class DAMSObject
 	public String getNTriples(boolean recurse) throws TripleStoreException
 	{
 		return getRDF( recurse, "N-TRIPLE" );
+	}
+
+	/**
+	 * Get object metadata in Turtle format
+	**/
+	public String getTurtle(boolean recurse) throws TripleStoreException
+	{
+		return getRDF( recurse, "TURTLE" );
 	}
 
 	/**

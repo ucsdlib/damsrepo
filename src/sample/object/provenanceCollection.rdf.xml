@@ -26,6 +26,14 @@
         <dams:endDate>2012-04-08</dams:endDate>
       </dams:Date>
     </dams:date>
+    <dams:date>
+      <dams:Date>
+        <dams:type>published</dams:type>
+        <rdf:value>2014</rdf:value>
+        <dams:beginDate>2014</dams:beginDate>
+        <dams:endDate>2014</dams:endDate>
+      </dams:Date>
+    </dams:date>
     <dams:title>
       <mads:Title> 
         <mads:authoritativeLabel>Sample Provenance Collection, The: Subtitle, Allegro, 1</mads:authoritativeLabel> 
@@ -91,6 +99,12 @@
         <dams:type>preferredCitationNote</dams:type>
       </dams:PreferredCitationNote>
     </dams:preferredCitationNote>
+    <dams:note>
+      <dams:Note>
+        <rdf:value>Wagner, Rick; Hallman, Eric J.; O'Shea, Brian W.; Burns, Jack O.; Norman, Michael L.; Harkness, Robert; So, Geoffrey (2013): The Santa Fe Light Cone Simulation research project files. Data version 1.0. UC San Diego Library Digital Collections.</rdf:value>
+        <dams:type>preferred citation</dams:type>
+      </dams:Note>
+    </dams:note>
     <dams:scopeContentNote>
       <dams:ScopeContentNote>
         <dams:displayLabel>Scope and Contents</dams:displayLabel>

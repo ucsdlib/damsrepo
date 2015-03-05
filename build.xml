@@ -155,6 +155,7 @@
     </copy>
     <copy todir="${webapp}/WEB-INF/">
       <fileset dir="${webinf}" includes="*" excludes="context.xml"/>
+      <fileset dir="${webinf}" includes="**/valid*"/>
       <filterset refid="version-filters"/>
     </copy>
     <copy todir="${webapp}/META-INF/">
@@ -204,45 +205,10 @@
 
   <!-- tomcat -->
   <target name="tomcat" description="Update scripts and files in tomcat"
-      depends="compile,tomcat-files">
-
-    <!-- move old war file out of the way -->
-    <move file="${dist}/${appName}.war" tofile="${dist}/${appName}.bak"
-      failonerror="false"/>
-
-    <!-- copy files -->
-    <copy todir="${webapp}">
-      <fileset dir="${root}" includes="**/*"/>
-    </copy>
-    <copy todir="${webapp}/WEB-INF/lib">
-      <fileset refid="lib"/>
-    </copy>
-    <copy todir="${webapp}/WEB-INF/classes">
-      <fileset dir="${props}" includes="**/*.properties, jhove.conf"/>
-    </copy>
-    <copy file="${webinf}/web.xml" tofile="${webapp}/WEB-INF/web.xml">
-      <filterset refid="version-filters"/>
-    </copy>
-    <copy todir="${webapp}/META-INF/">
-      <fileset dir="${webinf}" includes="context.xml"/>
-    </copy>
-
-    <!-- generate new war file -->
-    <war destfile="${dist}/${appName}.war"
-        webxml="${webapp}/WEB-INF/web.xml">
-      <fileset dir="${webapp}">
-        <exclude name="WEB-INF/**"/>
-        <exclude name="META-INF/**"/>
-      </fileset>
-      <webinf dir="${webapp}/WEB-INF" excludes="web.xml"/>
-      <metainf dir="${webapp}/META-INF"/>
-    </war>
+      depends="webapp,tomcat-files">
 
     <!-- copy webapp -->
     <copy file="${dist}/${appName}.war" todir="${tomcat.home}/tomcat/webapps"/>
-
-    <!-- copy database driver -->
-    <copy file="${lib2}/hsqldb.jar" tofile="${tomcat.home}/tomcat/lib/hsqldb.jar"/>
   </target>
   <target name="tomcat-files" description="Update tomcat scripts, sample files">
     <!-- command-line scripts -->
@@ -262,6 +228,9 @@
       <fileset dir="${webapp}/WEB-INF/classes"/>
       <fileset dir="${props}" includes="**/*.properties, jhove.conf"/>
     </copy>
+
+    <!-- copy database driver -->
+    <copy file="${lib2}/hsqldb.jar" tofile="${tomcat.home}/tomcat/lib/hsqldb.jar"/>
 
     <!-- sample files -->
     <copy todir="${tomcat.home}/dams/sample">
