@@ -1151,8 +1151,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			Identifier damsU = Identifier.publicURI(prNS + "uri");
 
 			boolean success = true;
-			String detail = "Add " + newModels.size() + " fedora models";
-			String error = null;
+			String outcome = null;
 			try
 			{
 				for ( Iterator<String> it = newModels.iterator(); it.hasNext();)
@@ -1164,18 +1163,18 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					ts.addLiteralStatement( bn1, damsT, "'hydra-afmodel'", id );
 					ts.addLiteralStatement( bn1, damsU, "'" + model + "'", id );
 				}
+				outcome = "Added " + newModels.size() + " fedora models";
 			}
 			catch ( Exception ex )
 			{
 				success = false;
-				error = ex.toString();
+				outcome = "Error: " + ex.toString();
 			}
 			finally
 			{
 				// add event
 				createEvent(
-					ts, es, fs, objid, null, null, Event.RECORD_EDITED,
-					success, detail, error
+					ts, es, fs, objid, null, null, Event.RECORD_EDITED, success, outcome
 				);
 			}
 		}
