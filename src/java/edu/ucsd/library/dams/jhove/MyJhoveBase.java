@@ -31,6 +31,8 @@ import edu.harvard.hul.ois.jhove.JhoveBase;
 import edu.harvard.hul.ois.jhove.Module;
 import edu.harvard.hul.ois.jhove.OutputHandler;
 import edu.harvard.hul.ois.jhove.handler.XmlHandler;
+import org.portico.tool.jhove_1_1.PTC_ZipModule_1_1;
+import org.portico.tool.jhove_1_1.PTC_GzipModule_1_1;
 
 /**
  * The JHOVE engine, providing all base services necessary to build an
@@ -47,6 +49,8 @@ public class MyJhoveBase extends JhoveBase {
 	private static List<MyJhoveBase> myJhoves = new ArrayList<MyJhoveBase>();
 	public static boolean shellMode = false;
 	private static String jhoveconf = "conf/jhove.conf";
+	private static String zipModelCommand = "unzip";
+	private static String gzipModelCommand = "gzip";
 	private static final String jhvname = "ETL-Jhove";
 	private static final int [] jhvdate = {2005, 9, 25};
 	private static final String jvhrel = "1.0";
@@ -54,8 +58,8 @@ public class MyJhoveBase extends JhoveBase {
 	"the President and Fellows of Harvard College. " +
 	"Released under the GNU Lesser General Public License.";
 	
-	private static final String _moduleNames[] = {"PDF-hul","ASCII-hul","GIF-hul","TIFF-hul","WAVE-hul","XML-hul","HTML-hul","BYTESTREAM","BYTESTREAM"};
-	private static final String _fileExten[]   = {".pdf",".txt",".gif",".tif",".wav",".xml",".html",".mov",".hierarchy"};
+	private static final String _moduleNames[] = {"PDF-hul","ASCII-hul","GIF-hul","TIFF-hul","WAVE-hul","XML-hul","HTML-hul","ZIP-ptc","GZIP-ptc","BYTESTREAM","BYTESTREAM"};
+	private static final String _fileExten[]   = {".pdf",".txt",".gif",".tif",".wav",".xml",".html",".zip",".gz",".mov",".hierarchy"};
 	private static HashMap _moduleMap;
 	private static String ffmpegCommand = "ffmpeg";
 	public static final String MEDIA_FILES = ".wav .mp3 .mov .mp4 .avi .png";
@@ -138,6 +142,12 @@ public class MyJhoveBase extends JhoveBase {
             }
     	}
     	else {
+        	// initiate the command parameters for the zip module and gzip module
+            if (module instanceof PTC_ZipModule_1_1)
+            	module.param(zipModelCommand);
+            else if (module instanceof PTC_GzipModule_1_1)
+            	module.param(gzipModelCommand);
+
             for (int i=0; i<dirFileOrUri.length; i++) {
                 if (!process (app, module, /*moduleParam, */ handler, /*handlerParam,*/
     			   dirFileOrUri[i])) {
@@ -469,5 +479,19 @@ public class MyJhoveBase extends JhoveBase {
 	
 	public static synchronized void setFfmpegCommand(String ffmpegCommand){
 		MyJhoveBase.ffmpegCommand = ffmpegCommand;
+	}
+
+	/**
+	 * Set the command parameter for the zip model
+	 */
+	public static synchronized void setZipModelCommand(String zipModelCommand){
+		MyJhoveBase.zipModelCommand = zipModelCommand;
+	}
+
+	/**
+	 * Set the command parameter for the gzip model
+	 */
+	public static synchronized void setGzipModelCommand(String gzipModelCommand){
+		MyJhoveBase.gzipModelCommand = gzipModelCommand;
 	}
 }

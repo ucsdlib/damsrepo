@@ -483,6 +483,15 @@ public class DAMSAPIServlet extends HttpServlet
 			String jhoveConf = props.getProperty("jhove.conf");
 			if ( jhoveConf != null )
 				MyJhoveBase.setJhoveConfig(jhoveConf);
+			// Jhove zip model configuration
+			String jhoveZipModelCommand = props.getProperty("jhove.zipModel.command");
+			if ( StringUtils.isNotBlank(jhoveZipModelCommand) )
+				MyJhoveBase.setZipModelCommand(jhoveZipModelCommand);
+			// Jhove gzip model configuration
+			String jhoveGzipModelCommand = props.getProperty("jhove.gzipModel.command");
+			if ( StringUtils.isNotBlank(jhoveGzipModelCommand) )
+				MyJhoveBase.setGzipModelCommand(jhoveGzipModelCommand);
+
 			jhoveMaxSize = getPropLong( props, "jhove.maxSize", -1L );
 
 			// ldap for group lookup
