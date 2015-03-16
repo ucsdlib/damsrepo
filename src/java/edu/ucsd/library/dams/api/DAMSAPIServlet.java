@@ -254,6 +254,7 @@ public class DAMSAPIServlet extends HttpServlet
 	// request user id
 	private String user = null;
 	private Identifier userID = null;
+	private String client = null;
 
 	protected static void cacheAdd( String objid, String content )
 	{
@@ -2428,7 +2429,7 @@ public class DAMSAPIServlet extends HttpServlet
 					//indexQueue(objid,"modifyObject");
 					createEvent(
 						ts, es, fs, objid, cmpid, fileid, Event.CHECKSUM_CALCULATED,
-						true, null, m.get("status")
+						true, m.get("status")
 					);
 				}
 				return status( "Jhove extracted and saved successfully" );
@@ -2589,7 +2590,7 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 				//indexQueue(objid,"modifyObject");
 				createEvent(
-					ts, es, fs, objid, cmpid, fileid, type, true, null, null
+					ts, es, fs, objid, cmpid, fileid, type, true, null
 				);
 
 				Map info = status( status, message );
@@ -2628,8 +2629,7 @@ public class DAMSAPIServlet extends HttpServlet
 				if ( overwrite ) { message = "File update failed"; }
 				else { message = "File creation failed"; }
 				createEvent(
-					ts, es, fs, objid, cmpid, fileid, type, false, null,
-					"Failed to upload file"
+					ts, es, fs, objid, cmpid, fileid, type, false, "Failed to upload file"
 				);
 
 				return error( message, null );
@@ -2683,8 +2683,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				//indexQueue(objid,"modifyObject");
 				createEvent(
-					ts, es, fs, objid, cmpid, fileid, Event.FILE_DELETED, true,
-					null, null
+					ts, es, fs, objid, cmpid, fileid, Event.FILE_DELETED, true, null
 				);
 
 				// FILE_META: update file metadata
@@ -2695,8 +2694,7 @@ public class DAMSAPIServlet extends HttpServlet
 			else
 			{
 				createEvent(
-					ts, es, fs, objid, cmpid, fileid, Event.FILE_DELETED, false,
-					null, null
+					ts, es, fs, objid, cmpid, fileid, Event.FILE_DELETED, false, null
 				);
 				return error(
 					"Failed to delete file: " + objid + fileString(cmpid,fileid), null
@@ -2842,8 +2840,7 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 				//indexQueue(objid,"modifyObject");
 				createEvent(
-					ts, es, fs, objid, cmpid, derid, Event.DERIVATIVE_CREATED,
-					true, null, null
+					ts, es, fs, objid, cmpid, derid, Event.DERIVATIVE_CREATED, true, null
 				);
 			}
 		}
@@ -2964,7 +2961,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// compare and build response
 			boolean success = true;
-			String detail = "";
+			String outcome = "";
 			Iterator<String> it = recorded.keySet().iterator();
 			while ( it.hasNext() )
 			{
@@ -2974,7 +2971,7 @@ public class DAMSAPIServlet extends HttpServlet
 				if ( rec != null && act != null && rec.equals(act) )
 				{
 					info.put( alg, act );
-					detail += alg + "=" + act + " ";
+					outcome += alg + "=" + act + " ";
 				}
 				else
 				{
@@ -2986,7 +2983,7 @@ public class DAMSAPIServlet extends HttpServlet
 					);
 					success = false;
 
-					detail += alg + ": " + msg + ". ";
+					outcome += alg + ": " + msg + ". ";
 				}
 			}
 
@@ -2994,8 +2991,7 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( es != null )
 			{
 				createEvent(
-					ts, es, fs, objid, cmpid, fileid, Event.CHECKSUM_VERIFIED,
-					success, detail, null
+					ts, es, fs, objid, cmpid, fileid, Event.CHECKSUM_VERIFIED, success, outcome
 				);
 			}
 		}
@@ -3121,7 +3117,7 @@ public class DAMSAPIServlet extends HttpServlet
 						}
 						//indexQueue(objid,"modifyObject");
 						createEvent(
-							ts, es, fs, objid, null, null, type, true, null, null
+							ts, es, fs, objid, null, null, type, true, null
 						);
 						return status( status, message );
 					}
@@ -3163,7 +3159,7 @@ public class DAMSAPIServlet extends HttpServlet
 						}
 						//indexQueue(objid,"modifyObject");
 						createEvent(
-							ts, es, fs, objid, null, null, type, true, null, null
+							ts, es, fs, objid, null, null, type, true, null
 						);
 						edit.removeBackup();
 						return status( status, message );
@@ -3173,8 +3169,7 @@ public class DAMSAPIServlet extends HttpServlet
 						// failure
 						String msg = edit.getException().toString();
 						createEvent(
-							ts, es, fs, objid, null, null, type, false,
-							null, msg
+							ts, es, fs, objid, null, null, type, false, msg
 						);
 						return error( msg, edit.getException() );
 					}
@@ -3221,16 +3216,14 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				//indexQueue(objid,"purgeObject");
 				createEvent(
-					ts, es, fs, objid, null, null, Event.RECORD_DELETED, true,
-					null, null
+					ts, es, fs, objid, null, null, Event.RECORD_DELETED, true, null
 				);
 				return status( "Object deleted successfully" );
 			}
 			else
 			{
 				createEvent(
-					ts, es, fs, objid, null, null, Event.RECORD_DELETED, false,
-					null, null
+					ts, es, fs, objid, null, null, Event.RECORD_DELETED, false, null
 				);
 				return error( "Object deletion failed", null );
 			}
@@ -3289,8 +3282,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 			//indexQueue(objid,"modifyObject");
 			createEvent(
-				ts, es, fs, objid, null, null, Event.RECORD_EDITED, true,
-				null, null
+				ts, es, fs, objid, null, null, Event.RECORD_EDITED, true, null
 			);
 			return status( "Predicate deleted successfully" );
 		}
@@ -3298,8 +3290,7 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			log.warn( "Error deleting predicates", ex );
 			try {createEvent(
-				ts, es, fs, objid, null, null, Event.RECORD_EDITED, false,
-				null, null
+				ts, es, fs, objid, null, null, Event.RECORD_EDITED, false, null
 			);} catch ( Exception ex2 ) {}
 			return error( "Error deleting predicates", ex );
 		}
@@ -3533,8 +3524,7 @@ public class DAMSAPIServlet extends HttpServlet
 				fs.write( objid, cmpid, destid, content.getBytes() );
 				//indexQueue(objid,"modifyObject");
 				createEvent(
-					ts, es, fs, objid, cmpid, fileid, Event.RECORD_TRANSFORMED,
-					true, null, null
+					ts, es, fs, objid, cmpid, fileid, Event.RECORD_TRANSFORMED, true, null
 				);
 			}
 		}
@@ -3544,8 +3534,7 @@ public class DAMSAPIServlet extends HttpServlet
 			try
 			{
 				createEvent(
-					ts, es, fs, objid, cmpid, fileid, Event.RECORD_TRANSFORMED,
-					false, null, ex.toString()
+					ts, es, fs, objid, cmpid, fileid, Event.RECORD_TRANSFORMED, false, ex.toString()
 				);
 			}
 			catch ( Exception ex2 ) { log.error("Error creating event",ex2); }
@@ -3727,8 +3716,7 @@ public class DAMSAPIServlet extends HttpServlet
 	}
 	protected void createEvent( TripleStore ts, TripleStore es, FileStore fs,
 		String objid, String cmpid, String fileid, String type, boolean success,
-		String detail, String outcomeNote )
-			throws TripleStoreException
+		String outcomeNote ) throws TripleStoreException
 	{
 		try
 		{
@@ -3749,8 +3737,7 @@ public class DAMSAPIServlet extends HttpServlet
 			if ( fileid != null ) { obj += "/" + fileid; }
 			Identifier subID = Identifier.publicURI( obj );
 			Event e = new Event(
-				eventID, objID, subID, userID, success, type,
-				detail, outcomeNote
+				eventID, objID, subID, userID, success, type, client, outcomeNote
 			);
 			e.save(ts,es);
 
@@ -4071,7 +4058,7 @@ public class DAMSAPIServlet extends HttpServlet
 						//Update the linking
 						updateResource(stmt, ts, id, parentID);
 						createEvent(
-								ts, es, fs, subAffected, null, null, Event.RECORD_EDITED, true, null, null
+								ts, es, fs, subAffected, null, null, Event.RECORD_EDITED, true, null
 						);
 						
 						log.info("Updated record " + parentID.getId() + " to link to " + id.getId() + ".");
@@ -4117,13 +4104,13 @@ public class DAMSAPIServlet extends HttpServlet
 					if ( ! ts.exists(id) )
 					{
 						createEvent(
-								ts, es, fs, merid, null, null, Event.RECORD_DELETED, true, null, null
+								ts, es, fs, merid, null, null, Event.RECORD_DELETED, true, null
 						);
 					}
 					else
 					{
 						createEvent(
-								ts, es, fs, merid, null, null, Event.RECORD_DELETED, false, null, null
+								ts, es, fs, merid, null, null, Event.RECORD_DELETED, false, null
 						);
 						updateErrorInfo( info, "Object deletion failed: " +  mergedID.getId());
 					}
@@ -5184,6 +5171,7 @@ public class DAMSAPIServlet extends HttpServlet
 		// retrieve the user
 		userID = null;
 		user =  getParamString(input.getParams(), "user", null);
+		client = getParamString(input.getParams(), "client", "No client specified");
 		return input;
 	}
 
