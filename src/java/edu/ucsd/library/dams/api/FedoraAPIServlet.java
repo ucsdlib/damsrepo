@@ -881,8 +881,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			{
 				params.remove("rightsDS"); // remove dummy param
 				Document doc = DocumentHelper.parseText(rdfxml);
-				String discoverGroup = accessGroup( doc, true );
-				String accessGroup = accessGroup( doc, false );
+				String discoverGroup = accessGroup( doc, true, objid );
+				String accessGroup = accessGroup( doc, false, objid );
 				String adminGroup = doc.valueOf(
 					"//dams:unitGroup"
 				);
@@ -927,7 +927,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	}
 
 	// determine access group
-	private String accessGroup( Document doc, boolean discover )
+	private String accessGroup( Document doc, boolean discover, String objid )
 	{
 		// relevant values
 		String roleEdit = doc.valueOf("/rdf:RDF/dams:Object//dams:unitGroup");
@@ -950,8 +950,11 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			"/rdf:RDF/dams:Object//dams:Permission[dams:type='metadataDisplay']"
 		);
 		String visibility = doc.valueOf(
-			"/rdf:RDF/dams:AssembledCollection/dams:visibility|/rdf:RDF/dams:ProvenanceCollection/dams:visibility|/rdf:RDF/dams:ProvenanceCollectionPart/dams:visibility"
+			"//*[contains(@rdf:about, '" + objid + "')]/dams:visibility"
 		);
+		List parentCols = doc.selectNodes(
+				"/rdf:RDF/*[contains(@rdf:about, '" + objid + "')]/*[local-name()='assembledCollection' or local-name()='provenanceCollection' or local-name()='provenanceCollectionPart']/*[local-name()='AssembledCollection' or local-name()='ProvenanceCollection' or local-name()='ProvenanceCollectionPart']/@rdf:about"
+			);
 		List colVisibility = doc.selectNodes(
 			"/rdf:RDF/dams:Object/dams:assembledCollection/dams:AssembledCollection/dams:visibility|/rdf:RDF/dams:Object/dams:provenanceCollection/dams:ProvenanceCollection/dams:visibility|/rdf:RDF/dams:Object/dams:provenanceCollectionPart/dams:ProvenanceCollectionPart/dams:visibility"
 		);
@@ -979,6 +982,30 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				{
 					log.info("accessGroup(" + discover + "): " + roleEdit);
 					return roleEdit;
+				}
+			}
+		}
+
+		// parent collection visibility overrides collection access control
+		if ( parentCols != null && parentCols.size() > 0 )
+		{
+			for ( int i = 0; i < parentCols.size(); i++ )
+			{
+				Node e = (Node)parentCols.get(i);
+				
+				String colid = e.getStringValue();
+				Node parentColVisibilityNode = doc.selectSingleNode(
+						"//*[@rdf:about='" + colid + "']/dams:visibility"
+						);
+				if ( parentColVisibilityNode != null ) 
+				{
+					String parentColVisibility = parentColVisibilityNode.getText();
+					log.warn("Collection " + objid + " visibility: " + visibility + "; parent visibility: " + parentColVisibility);
+					if ( parentColVisibility.equals("curator") )
+					{
+						log.info("accessGroup(" + discover + "): " + roleEdit);
+						return roleEdit;
+					}
 				}
 			}
 		}
@@ -1151,8 +1178,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			Identifier damsU = Identifier.publicURI(prNS + "uri");
 
 			boolean success = true;
-			String detail = "Add " + newModels.size() + " fedora models";
-			String error = null;
+			String outcome = null;
 			try
 			{
 				for ( Iterator<String> it = newModels.iterator(); it.hasNext();)
@@ -1164,18 +1190,18 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					ts.addLiteralStatement( bn1, damsT, "'hydra-afmodel'", id );
 					ts.addLiteralStatement( bn1, damsU, "'" + model + "'", id );
 				}
+				outcome = "Added " + newModels.size() + " fedora models";
 			}
 			catch ( Exception ex )
 			{
 				success = false;
-				error = ex.toString();
+				outcome = "Error: " + ex.toString();
 			}
 			finally
 			{
 				// add event
 				createEvent(
-					ts, es, fs, objid, null, null, Event.RECORD_EDITED,
-					success, detail, error
+					ts, es, fs, objid, null, null, Event.RECORD_EDITED, success, outcome
 				);
 			}
 		}
