@@ -95,8 +95,8 @@
       depends="prepare,version">
     <!-- compile -->
     <javac destdir="${webapp}/WEB-INF/classes" srcdir="${java}"
-        deprecation="on" debug="true" debuglevel="lines,source" target="1.7"
-        includeantruntime="false" source="1.7">
+        deprecation="on" debug="true" debuglevel="lines,source" target="1.8"
+        includeantruntime="false" source="1.8">
       <classpath refid="classpath"/>
       <!-- <compilerarg line="-Xlint:unchecked"/> -->
       <!-- <compilerarg line="-Xlint:all"/> -->
@@ -244,24 +244,28 @@
   </target>
 
   <!-- test-compile -->
-  <target name="test-compile" description="Compile test Java classes.">
+  <target name="test-compile" description="Compile tests">
     <mkdir dir="${testexec}"/>
     <javac destdir="${testexec}" srcdir="${test}"
-        deprecation="on" debug="true" debuglevel="lines,source" target="1.6"
-        includeantruntime="false" source="1.6">
+        deprecation="on" debug="true" debuglevel="lines,source" target="1.8"
+        includeantruntime="false" source="1.8">
       <classpath refid="classpath"/>
     </javac>
   </target>
-  <target name="test-exec" description="Run test Java classes.">
-    <junit>
+  <target name="test" description="Run tests" depends="compile,test-compile">
+    <junit showoutput="true" printsummary="withOutAndErr" haltonfailure="yes">
+      <sysproperty key="dams.samples" value="${src}/sample"/>
+      <formatter type="plain"/>
       <classpath refid="classpath"/>
       <classpath>
         <pathelement path="${testexec}"/>
       </classpath>
-      <test name="edu.ucsd.library.dams.integration.D4IntegrationTest"
-          outfile="tmp/result">
-        <formatter type="plain"/>
-      </test>
+      <batchtest todir="${tmp}">
+        <fileset dir="${test}">
+          <include name="**/*Test*.java"/>
+          <exclude name="**/AbstractIntegrationTest.java"/>
+        </fileset>
+      </batchtest>
     </junit>
   </target>
 

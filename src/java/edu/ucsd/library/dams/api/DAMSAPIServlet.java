@@ -3065,13 +3065,6 @@ public class DAMSAPIServlet extends HttpServlet
 			   		"Object already exists, use PUT to update", null
 		   		);
 			}
-			else if ( !create && !ts.exists(id) )
-			{
-		   		return error(
-			   		HttpServletResponse.SC_FORBIDDEN,
-			   		"Object does not exist, use POST to create", null
-		  		);
-			}
 
 			// process uploaded file if present
 			if ( in != null )
