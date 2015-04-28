@@ -507,19 +507,26 @@ public class DAMSAPIServlet extends HttpServlet
 			queueName = props.getProperty("queue.name");
 			if ( queueEnabled && queueUrl != null )
 			{
-				queueConnectionFactory = new ActiveMQConnectionFactory(
-					queueUrl
-				);
-				queueConnection = queueConnectionFactory.createConnection();
-				queueConnection.start();
-				queueSession = queueConnection.createSession(
-					false, Session.AUTO_ACKNOWLEDGE
-				);
-				queueProducer= queueSession.createProducer(
-					queueSession.createTopic(queueName)
-				);
-				queueProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-				log.info("JMS Queue: " + queueUrl + "/" + queueName);
+				try
+				{
+					queueConnectionFactory = new ActiveMQConnectionFactory(
+						queueUrl
+					);
+					queueConnection = queueConnectionFactory.createConnection();
+					queueConnection.start();
+					queueSession = queueConnection.createSession(
+						false, Session.AUTO_ACKNOWLEDGE
+					);
+					queueProducer= queueSession.createProducer(
+						queueSession.createTopic(queueName)
+					);
+					queueProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+					log.info("JMS Queue: " + queueUrl + "/" + queueName);
+				}
+				catch ( Exception ex )
+				{
+					log.warn("Error initializing JMS queue: " + ex.toString());
+				}
 			}
 
 			// doi minter

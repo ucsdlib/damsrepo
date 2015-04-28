@@ -6,9 +6,14 @@
     xmlns:dams="http://library.ucsd.edu/ontology/dams#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
   <dams:ProvenanceCollection rdf:about="http://library.ucsd.edu/ark:/20775/bb1673671n">
+    <dams:date>
+      <dams:Date>
+        <dams:type>published</dams:type>
+        <rdf:value>2015</rdf:value>
+      </dams:Date>
+    </dams:date>
     <dams:corporateName>
       <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bb77829427">
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb87385828"/>
         <mads:elementList rdf:parseType="Collection">
           <mads:NameElement>
             <mads:elementValue>University of California, San Diego</mads:elementValue>
@@ -20,29 +25,23 @@
         <mads:authoritativeLabel>University of California, San Diego, Center for Astrophysics and Space Sciences</mads:authoritativeLabel>
       </mads:CorporateName>
     </dams:corporateName>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd0344107m"/>
     <dams:relationship>
       <dams:Relationship>
         <dams:role>
           <mads:Authority rdf:about="http://library.ucsd.edu/ark:/20775/bb6486002k">
-            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd31429482"/>
             <mads:code>cre</mads:code>
             <mads:isMemberOfMADSScheme>
               <mads:MADSScheme rdf:about="http://library.ucsd.edu/ark:/20775/bb3789730g">
-                <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd9527953h"/>
                 <mads:code>marcrelator</mads:code>
                 <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/relators"/>
                 <rdfs:label>MARC Relator Codes</rdfs:label>
-                <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb6042310t"/>
               </mads:MADSScheme>
             </mads:isMemberOfMADSScheme>
             <mads:authoritativeLabel>Creator</mads:authoritativeLabel>
-            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb9694222m"/>
           </mads:Authority>
         </dams:role>
         <dams:personalName>
           <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bb7441640w">
-            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb28682214"/>
             <mads:elementList rdf:parseType="Collection">
               <mads:FamilyNameElement>
                 <mads:elementValue>Wagner</mads:elementValue>
@@ -61,7 +60,6 @@
     </dams:relationship>
     <dams:topic>
       <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bb2936479z">
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb06156393"/>
         <mads:authoritativeLabel>Cosmology</mads:authoritativeLabel>
         <mads:elementList rdf:parseType="Collection">
           <mads:TopicElement>
@@ -70,13 +68,11 @@
         </mads:elementList>
       </mads:Topic>
     </dams:topic>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd4956752n"/>
     <dams:relationship>
       <dams:Relationship>
         <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bb6486002k"/>
         <dams:personalName>
           <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bb3926251w">
-            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb8397281w"/>
             <mads:elementList rdf:parseType="Collection">
               <mads:FullNameElement>
                 <mads:elementValue>Norman, Michael L.</mads:elementValue>
@@ -93,13 +89,11 @@
         <dams:uri rdf:resource="http://libraries.ucsd.edu/assets/dams/thumbnails/bb1673671n.jpg"/>
       </dams:RelatedResource>
     </dams:relatedResource>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd48199230"/>
     <dams:relationship>
       <dams:Relationship>
         <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bb6486002k"/>
         <dams:personalName>
           <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bb8704449q">
-            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb80559799"/>
             <mads:elementList rdf:parseType="Collection">
               <mads:FamilyNameElement>
                 <mads:elementValue>So</mads:elementValue>
@@ -115,7 +109,6 @@
     </dams:relationship>
     <dams:corporateName>
       <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bb9079881x">
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb7100339r"/>
         <mads:elementList rdf:parseType="Collection">
           <mads:NameElement>
             <mads:elementValue>San Diego Supercomputer Center</mads:elementValue>
@@ -134,7 +127,6 @@
     </dams:date>
     <dams:topic>
       <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bb42334191">
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb22538816"/>
         <mads:elementList rdf:parseType="Collection">
           <mads:TopicElement>
             <mads:elementValue>Cosmic background radiation</mads:elementValue>
@@ -143,13 +135,8 @@
         <mads:authoritativeLabel>Cosmic background radiation</mads:authoritativeLabel>
       </mads:Topic>
     </dams:topic>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd82617848"/>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd02760974"/>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd3245286d"/>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb44723337"/>
     <dams:topic>
       <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bb1639539c">
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb1912580h"/>
         <mads:elementList rdf:parseType="Collection">
           <mads:TopicElement>
             <mads:elementValue>Cosmology--Observations</mads:elementValue>
@@ -160,16 +147,13 @@
     </dams:topic>
     <dams:relatedResource>
       <dams:RelatedResource rdf:about="http://library.ucsd.edu/ark:/20775/bb9216512w">
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd6964713d"/>
         <dams:uri>http://www.oac.cdlib.org/findaid/ark:/13030/c8r78fzq</dams:uri>
         <dams:type>online finding aid</dams:type>
         <dams:description>Santa Fe Light Cone Simulation research project files</dams:description>
       </dams:RelatedResource>
     </dams:relatedResource>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd1741879m"/>
     <dams:topic>
       <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bb0342601c">
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb1571279t"/>
         <mads:elementList rdf:parseType="Collection">
           <mads:TopicElement>
             <mads:elementValue>Galaxies--Clusters</mads:elementValue>
@@ -192,12 +176,10 @@
         <dams:type>extent</dams:type>
       </dams:Note>
     </dams:note>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd3248900t"/>
     <dams:relationship>
       <dams:Relationship>
         <dams:role>
           <mads:Authority rdf:about="http://library.ucsd.edu/ark:/20775/bb5735143w">
-            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb31753910"/>
             <mads:authoritativeLabel>donor</mads:authoritativeLabel>
           </mads:Authority>
         </dams:role>
@@ -206,8 +188,6 @@
     </dams:relationship>
     <dams:corporateName>
       <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bb9387051g">
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd0854321g"/>
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb3550820w"/>
         <mads:elementList rdf:parseType="Collection">
           <mads:NameElement>
             <mads:elementValue>Los Alamos National Laboratory</mads:elementValue>
@@ -225,13 +205,11 @@
         <dams:type>description</dams:type>
       </dams:Note>
     </dams:note>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd2219488j"/>
     <dams:relationship>
       <dams:Relationship>
         <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bb6486002k"/>
         <dams:personalName>
           <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bb38921204">
-            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb8397280c"/>
             <mads:elementList rdf:parseType="Collection">
               <mads:FamilyNameElement>
                 <mads:elementValue>Hallman</mads:elementValue>
@@ -254,13 +232,11 @@
         <dams:endDate>2012</dams:endDate>
       </dams:Date>
     </dams:date>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd97636259"/>
     <dams:relationship>
       <dams:Relationship>
         <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bb6486002k"/>
         <dams:personalName>
           <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bb2629309z">
-            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb09910703"/>
             <mads:elementList rdf:parseType="Collection">
               <mads:NameElement>
                 <mads:elementValue>O'Shea, Brian W. (Brian William )</mads:elementValue>
@@ -277,7 +253,6 @@
             </mads:isMemberOfMADSScheme>
             <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/authorities/names/no2008083372"/>
             <mads:authoritativeLabel>O'Shea, Brian W. (Brian William ), 1978-</mads:authoritativeLabel>
-            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd86018280"/>
           </mads:PersonalName>
         </dams:personalName>
       </dams:Relationship>
@@ -309,7 +284,6 @@
         <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bb6486002k"/>
         <dams:personalName>
           <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bb5189060b">
-            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb22880093"/>
             <mads:elementList rdf:parseType="Collection">
               <mads:FullNameElement>
                 <mads:elementValue>Burns, Jack O.</mads:elementValue>
@@ -329,23 +303,16 @@
     </dams:note>
     <dams:unit>
       <dams:Unit rdf:about="http://library.ucsd.edu/ark:/20775/bb6827300d">
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd4235176d"/>
         <dams:unitURI>http://rci.ucsd.edu/</dams:unitURI>
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd2938237g"/>
         <dams:code>rci</dams:code>
         <dams:unitGroup>dams-rci</dams:unitGroup>
         <dams:unitName>UCSD Research Data Collections</dams:unitName>
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb32777794"/>
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd3384552p"/>
         <dams:unitDescription>ResearchCyberinfrastructure (RCI) is a UCSD-sponsored program that offers campus researchers facilities, storage, data curation, computing, and networking to facilitate their research using shared cyberinfrastructure services across campus.</dams:unitDescription>
       </dams:Unit>
     </dams:unit>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd3961274d"/>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd89792467"/>
     <dams:personalName rdf:resource="http://library.ucsd.edu/ark:/20775/bb7441640w"/>
     <dams:topic>
       <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bb9045750q">
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb4165161k"/>
         <mads:elementList rdf:parseType="Collection">
           <mads:TopicElement>
             <mads:elementValue>Hydrodynamics</mads:elementValue>
@@ -359,7 +326,6 @@
         <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bb6486002k"/>
         <dams:personalName>
           <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bb2595180x">
-            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb90116196"/>
             <mads:elementList rdf:parseType="Collection">
               <mads:FullNameElement>
                 <mads:elementValue>Harkness, Robert</mads:elementValue>
@@ -370,11 +336,8 @@
         </dams:personalName>
       </dams:Relationship>
     </dams:relationship>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd4035093p"/>
     <dams:corporateName>
       <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bb5496228m">
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd9557468g"/>
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb09569407"/>
         <mads:elementList rdf:parseType="Collection">
           <mads:NameElement>
             <mads:elementValue>University of Colorado (System)</mads:elementValue>
@@ -389,10 +352,8 @@
         <mads:authoritativeLabel>University of Colorado (System). Dept. of Astrophysics and Planetary Sciences. Center for Astrophysics and Space Astronomy</mads:authoritativeLabel>
       </mads:CorporateName>
     </dams:corporateName>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd9388687p"/>
     <dams:genreForm>
       <mads:GenreForm rdf:about="http://library.ucsd.edu/ark:/20775/bb0376730j">
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb3584949r"/>
         <mads:elementList rdf:parseType="Collection">
           <mads:GenreFormElement>
             <mads:elementValue>Research data</mads:elementValue>
@@ -401,31 +362,25 @@
         <mads:authoritativeLabel>Research data</mads:authoritativeLabel>
         <mads:isMemberOfMADSScheme>
           <mads:MADSScheme rdf:about="http://library.ucsd.edu/ark:/20775/bb00354307">
-            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb61447009"/>
             <mads:code>Local sources</mads:code>
           </mads:MADSScheme>
         </mads:isMemberOfMADSScheme>
       </mads:GenreForm>
     </dams:genreForm>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd0685537t"/>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd3038817d"/>
     <dams:note>
       <dams:Note>
         <rdf:value>The Santa Fe Light Cone Simulation project was the result of an ongoing effort by the Laboratory for Computational Astrophysics, beginning with the LUScID Project in 2005. This led to the development of the Enzo simulation software to the point where it was able to complete a seven-level adaptive mesh refinement (AMR) cosmology simulation. The project files consists of data in three broad categories: the simulation data ("Data at Redshift" components); analysis tools and example scripts (Data Processing Tools) for processing the data; and project administration and background documents (Historical Documents) related to the project. All these materials were created between 2005 and 2012, beginning with a proposal for the LUSciD Project, continuing on to the simulation data, and ending with the recent analysis tools. The historical documents are proposals and progress reports that were part of grants or requests for computational resources supporting the research. The component for analysis tools and example scripts contains the source code to yt (http://yt-project.org/), which was used to produce the example data analysis results. The results are a combination of structured text, binary files, and images. The historical documents and analysis tools are described in greater detail in their component descriptions.</rdf:value>
         <dams:type>description</dams:type>
       </dams:Note>
     </dams:note>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd1402690w"/>
     <dams:note>
       <dams:Note>
-        <rdf:value>Wagner, Rick; Hallman, Eric J.; O’Shea, Brian W.; Burns, Jack O.; Norman, Michael L.; Harkness, Robert; So, Geoffrey (2013): The Santa Fe Light Cone Simulation research project files. Data version 1.0. UC San Diego Library Digital Collections. http://dx.doi.org/10.5060/D2DN4300</rdf:value>
+        <rdf:value>Wagner, Rick; Hallman, Eric J.; O’Shea, Brian W.; Burns, Jack O.; Norman, Michael L.; Harkness, Robert; So, Geoffrey (2013): The Santa Fe Light Cone Simulation research project files. Data version 1.0. UC San Diego Library Digital Collections.</rdf:value>
         <dams:type>preferred citation</dams:type>
       </dams:Note>
     </dams:note>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd1948347g"/>
     <dams:language>
       <mads:Language rdf:about="http://library.ucsd.edu/ark:/20775/bb83631427">
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd79541920"/>
         <mads:elementList rdf:parseType="Collection">
           <mads:LanguageElement>
             <mads:elementValue>No linguistic content</mads:elementValue>
@@ -433,25 +388,18 @@
         </mads:elementList>
         <mads:isMemberOfMADSScheme>
           <mads:MADSScheme rdf:about="http://library.ucsd.edu/ark:/20775/bb8329015v">
-            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd38597459"/>
-            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd2562806g"/>
             <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/iso639-2"/>
             <mads:code>iso639-2b</mads:code>
-            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb4096893d"/>
             <rdfs:label>ISO 639 Language Codes</rdfs:label>
           </mads:MADSScheme>
         </mads:isMemberOfMADSScheme>
         <mads:code>zxx</mads:code>
         <mads:authoritativeLabel>No linguistic content</mads:authoritativeLabel>
         <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/iso639-2/zxx"/>
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb30388636"/>
       </mads:Language>
     </dams:language>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd1573036t"/>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb7032083b"/>
     <dams:topic>
       <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bb6451868z">
-        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb54621008"/>
         <mads:authoritativeLabel>Research-Data processing</mads:authoritativeLabel>
         <mads:elementList rdf:parseType="Collection">
           <mads:TopicElement>
@@ -460,7 +408,5 @@
         </mads:elementList>
       </mads:Topic>
     </dams:topic>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd71346958"/>
-    <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd28358472"/>
   </dams:ProvenanceCollection>
 </rdf:RDF>

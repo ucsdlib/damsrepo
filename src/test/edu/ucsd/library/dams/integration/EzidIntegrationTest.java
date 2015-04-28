@@ -50,30 +50,15 @@ public class EzidIntegrationTest extends AbstractIntegrationTest
 		repoPass = System.getProperty("test.pass", "dams");
 		repoBase = "http://" + repoHost + ":" + repoPort + "/dams/api";
 
-		// mint 3 arks (collection, 2 objects)
-		HttpPost mintPost = new HttpPost(
-			repoBase + "/next_id?format=json&count=3"
-		);
-		HttpResponse mintResp = exec( mintPost );
-		String mintBody = getBody( mintResp );
-		JSONObject mintJson = (JSONObject)JSONValue.parse( mintBody );
-		JSONArray ids = (JSONArray)mintJson.get("ids");
-		collID = (String)ids.get(0);
-		obj1ID = (String)ids.get(1);
-		obj2ID = (String)ids.get(1);
-		assertNotNull(collID);
-		assertNotNull(obj1ID);
-		assertNotNull(obj2ID);
-
 		samples = new File( System.getProperty("dams.samples") );
 	}
 
 	@After
 	public void cleanup()
 	{
-		execAndCleanup( new HttpDelete( repoBase + "/objects/" + collID ) );
-		execAndCleanup( new HttpDelete( repoBase + "/objects/" + obj1ID ) );
-		execAndCleanup( new HttpDelete( repoBase + "/objects/" + obj2ID ) );
+		execAndCleanup( new HttpDelete( repoBase + "/objects/bb1673671n") );
+		execAndCleanup( new HttpDelete( repoBase + "/objects/bb0103691x") );
+		execAndCleanup( new HttpDelete( repoBase + "/objects/bb59399209") );
 	}
 
 	@Test
@@ -96,13 +81,17 @@ public class EzidIntegrationTest extends AbstractIntegrationTest
 
 	private void loadAndMint( String id )
 	{
-		HttpPut put = new HttpPut(repoBase + "/objects/" + id);
+		HttpPut put = new HttpPut(repoBase + "/objects/" + id + "?mode=all");
 		put.setEntity( new FileEntity(new File(samples, "object/" + id + ".xml")) );
 		String putResponse = execAndGetBody(put);
        	assertTrue( putResponse, putResponse.contains("<statusCode>200</statusCode>") );
 
 		HttpPost post = new HttpPost(repoBase + "/objects/" + id + "/mint_doi");
-		String mintResponse = execAndGetBody(put);
+		String mintResponse = execAndGetBody(post);
        	assertTrue( mintResponse, mintResponse.contains("<statusCode>200</statusCode>") );
+
+		HttpGet get = new HttpGet(repoBase + "/objects/" + id);
+		String getResponse = execAndGetBody(get);
+		assertTrue( getResponse, getResponse.contains("<dams:displayLabel>DOI</dams:displayLabel>") );
 	}
 }
