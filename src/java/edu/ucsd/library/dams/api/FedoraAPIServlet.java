@@ -52,6 +52,7 @@ import org.apache.log4j.Logger;
 
 // dams
 import edu.ucsd.library.dams.file.FileStore;
+import edu.ucsd.library.dams.file.FileStoreUtil;
 import edu.ucsd.library.dams.model.DAMSObject;
 import edu.ucsd.library.dams.model.Event;
 import edu.ucsd.library.dams.triple.Identifier;
@@ -140,6 +141,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 	private boolean RECURSIVE_OBJ = false;
 
+	private FileStore fs;
     // initialize servlet parameters
     public void init( ServletConfig config ) throws ServletException
     {
@@ -211,7 +213,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	public void doGet( HttpServletRequest req, HttpServletResponse res )
 	{
 		long start = System.currentTimeMillis();
-		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
 
@@ -219,6 +220,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			String[] path = path( req );
 
+			fs = FileStoreUtil.getFileStore(props,fsDefault);
 			// GET /describe
 			// STATUS: impl
 			if ( path.length == 2 && path[1].equals("describe") )
@@ -258,7 +260,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 				try
 				{
-					fs = filestore(req);
 					if ( fs.exists(path[2], null, "rdf.xml") )
 					{
 						params.put("rdfxmlDS", new String[]{"_rdf.xml"});
@@ -280,7 +281,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[3].equals("datastreams") )
 			{
 				// check if file exists and send 404 if not
-				fs = filestore(req);
 				if (path[4].equals(fedoraObjectDS)
 					|| path[4].equals(fedoraRightsDS)
 					|| path[4].equals(fedoraLinksDS)
@@ -324,7 +324,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				&& path[3].equals("datastreams") && path[5].equals("content")
 				&& path[4].startsWith(fulltextPrefix) )
 			{
-				fs = filestore(req);
 				String[] parts = path[4].split("_");
 				String cmpid = null;
 				String fileid = null;
@@ -437,7 +436,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	public void doPost( HttpServletRequest req, HttpServletResponse res )
 	{
 		long start = System.currentTimeMillis();
-		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
 
@@ -445,6 +443,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			String[] path = path( req );
 
+			fs = FileStoreUtil.getFileStore(props,fsDefault);
 			// POST /objects/nextPID
 			// STATUS: WORKING
 			if ( path.length == 3 && path[1].equals("objects")
@@ -472,7 +471,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				}
 				ts = triplestore(req);
 				es = events(req);
-				fs = filestore(req);
 				String id = stripPrefix(path[2]);
 
 				cacheRemove(id);
@@ -494,7 +492,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				ts = triplestore(req);
 				es = events(req);
-				fs = filestore(req);
 				String id = stripPrefix(path[2]);
 				cacheRemove(id);
 				Identifier id2 = Identifier.publicURI(idNS+id);
@@ -529,7 +526,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				ts = triplestore(req);
 				es = events(req);
-				fs = filestore(req);
 				String id = stripPrefix(path[2]);
 
 				updateModels( id, in, ts, es, fs );
@@ -552,7 +548,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				Map<String,String[]> params = new HashMap<String,String[]>();
 				params.putAll( bundle.getParams() );
 				params.put("dsName",new String[]{path[4]});
-				fs = filestore(req);
 				ts = triplestore(req);
 				es = events(req);
 				String id = stripPrefix(path[2]);
@@ -587,7 +582,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	public void doPut( HttpServletRequest req, HttpServletResponse res )
 	{
 		long start = System.currentTimeMillis();
-		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
 
@@ -595,6 +589,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			String[] path = path( req );
 
+			fs = FileStoreUtil.getFileStore(props,fsDefault);
 			// PUT /objects/[oid]/datastreams/[fedoraObjectDS]
 			// STATUS: WORKING
 			if ( path.length == 5 && path[1].equals("objects")
@@ -606,7 +601,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				ts = triplestore(req);
 				es = events(req);
-				fs = filestore(req);
 				String id = stripPrefix(path[2]);
 				cacheRemove(id);
 				Identifier id2 = createID( id, null, null );
@@ -641,7 +635,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				InputStream in = bundle.getInputStream();
 				ts = triplestore(req);
 				es = events(req);
-				fs = filestore(req);
 				String id = stripPrefix(path[2]);
 
 				updateModels( id, in, ts, es, fs );
@@ -665,7 +658,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				Map<String,String[]> params = new HashMap<String,String[]>();
 				params.putAll( bundle.getParams() );
 				params.put("dsName",new String[]{path[4]});
-				fs = filestore(req);
 				ts = triplestore(req);
 				es = events(req);
 
@@ -711,7 +703,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	public void doDelete( HttpServletRequest req, HttpServletResponse res )
 	{
 		long start = System.currentTimeMillis();
-		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
 		Map info = null;
@@ -719,6 +710,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		try
 		{
 			String[] path = path( req );
+
+			fs = FileStoreUtil.getFileStore(props,fsDefault);
 			// DELETE /objects/[oid]
 			// STATUS: WORKING
 			if ( path.length == 3 && path[1].equals("objects") )
@@ -726,7 +719,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				// delete object
 				ts = triplestore(req);
 				es = events(req);
-				fs = filestore(req);
 				String id = stripPrefix(path[2]);
 				cacheRemove(id);
 
@@ -745,7 +737,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				// delete file
 				ts = triplestore(req);
 				es = events(req);
-				fs = filestore(req);
 				String id = stripPrefix(path[2]);
 				cacheRemove(id);
 				info = fileDelete(

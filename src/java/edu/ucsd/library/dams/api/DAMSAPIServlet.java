@@ -152,11 +152,12 @@ public class DAMSAPIServlet extends HttpServlet
 	// logging
 	private static Logger log = Logger.getLogger(DAMSAPIServlet.class);
 
-	private Properties props;      // config
+	protected Properties props;      // config
 	private String damsHome;       // config file location
 	private String appVersion;     // application (user) version
 	private String srcVersion;     // source code version
 	private String buildTimestamp; // timestamp application was built
+	private FileStore fs;          // local filestore to use
 
 	// default output format
 	private String formatDefault; // output format to use when not specified
@@ -571,7 +572,6 @@ public class DAMSAPIServlet extends HttpServlet
 		long start = System.currentTimeMillis();
 		Map info = null;
 		boolean outputRequired = true; // set to false to suppress status output
-		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
 
@@ -580,6 +580,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// parse request URI
 			String[] path = path( req );
 
+			fs = FileStoreUtil.getFileStore(props,fsDefault);
 			// GET /collections
 			if ( path.length == 2 && path[1].equals("collections") )
 			{
@@ -789,7 +790,6 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 4 && path[1].equals("objects")
 				&& path[3].equals("validate") )
 			{
-				fs = null; // filestore(req);
 				ts = triplestore(req);
 				es = events(req);
 				info = objectValidate( path[2], fs, ts, es );
@@ -817,7 +817,6 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 5 && path[1].equals("files")
 				&& path[4].equals("characterize") )
 			{
-				fs = filestore(req);
 				info = fileCharacterize(
 					path[2], null, path[3], false, fs, null, null, new HashMap<String, String[]>()
 				);
@@ -826,7 +825,6 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 6 && path[1].equals("files")
 				&& isNumber(path[3]) && path[5].equals("characterize") )
 			{
-				fs = filestore(req);
 				info = fileCharacterize(
 					path[2], path[3], path[4], false, fs, null, null, new HashMap<String, String[]>()
 				);
@@ -835,21 +833,18 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 5 && path[1].equals("files")
 				&& path[4].equals("exists") )
 			{
-				fs = filestore(req);
 				info = fileExists( path[2], null, path[3], fs );
 			}
 			// GET /files/bb1234567x/1/1.tif/exists
 			else if ( path.length == 6 && path[1].equals("files")
 				&& path[5].equals("exists") && isNumber(path[3]) )
 			{
-				fs = filestore(req);
 				info = fileExists( path[2], path[3], path[4], fs );
 			}
 			// GET /files/bb1234567x/1.tif/fixity
 			else if ( path.length == 5 && path[1].equals("files")
 				&& path[4].equals("fixity") )
 			{
-				fs = filestore(req);
 				ts = triplestore(req);
 				es = events(req);
 				info = fileFixity( path[2], null, path[3], fs, ts, es );
@@ -858,7 +853,6 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 6 && path[1].equals("files")
 				&& path[5].equals("fixity") && isNumber(path[3]) )
 			{
-				fs = filestore(req);
 				ts = triplestore(req);
 				es = events(req);
 				info = fileFixity( path[2], path[3], path[4], fs, ts, es );
@@ -867,14 +861,12 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 5 && path[1].equals("files")
 				&& path[4].equals("text") )
 			{
-				fs = filestore(req);
 				info = extractText( path[2], null, path[3], fs );
 			}
 			// GET /files/bb1234567x/1/1.tif/text
 			else if ( path.length == 6 && path[1].equals("files")
 				&& path[5].equals("text") && isNumber(path[3]) )
 			{
-				fs = filestore(req);
 				info = extractText( path[2], path[3], path[4], fs );
 			}
 			// GET /client/info
@@ -986,7 +978,6 @@ public class DAMSAPIServlet extends HttpServlet
 
 		Map info = null;
 		boolean outputRequired = true; // set to false to suppress status output
-		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
 		Map<String,String[]> params = null;
@@ -996,6 +987,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// parse request URI
 			String[] path = path( req );
 
+			fs = FileStoreUtil.getFileStore(props,fsDefault);
 			// POST /index
 			if ( path.length == 2 && path[1].equals("index") )
 			{
@@ -1032,7 +1024,6 @@ public class DAMSAPIServlet extends HttpServlet
 					String adds = getParamString( params, "adds", null );
 					ts = triplestore(params);
 					es = events(params);
-					fs = filestore(params);
 					cacheRemove(path[2]);
 					info = objectEdit( path[2], true, in, null, adds, null, null, ts, es, fs );
 				}
@@ -1050,7 +1041,6 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					ts = triplestore(params);
 					es = events(params);
-					fs = filestore(params);
 					cacheRemove(path[2]);
 					info = mintDOI( path[2], ts, es, fs, res );
 				}
@@ -1079,7 +1069,6 @@ public class DAMSAPIServlet extends HttpServlet
 				boolean export = getParamBool(params,"recursive",false);
 				if ( dest != null )
 				{
-					fs = filestore(params);
 					cacheRemove(path[2]);
 				}
 				objectTransform(
@@ -1103,7 +1092,6 @@ public class DAMSAPIServlet extends HttpServlet
 				// serialize the record to disk
 				try
 				{
-					fs = filestore(params);
 					ts = triplestore(params);
 					es = events(params);
 					fs.write(
@@ -1137,7 +1125,6 @@ public class DAMSAPIServlet extends HttpServlet
 						InputBundle bundle = input(req,path[2],null,path[3]);
 						InputStream in = bundle.getInputStream();
 						params = bundle.getParams();
-						fs = filestore(params);
 						ts = triplestore(params);
 						es = events(params);
 						cacheRemove(path[2]);
@@ -1179,7 +1166,6 @@ public class DAMSAPIServlet extends HttpServlet
 						InputBundle bundle = input(req,path[2],path[3],path[4]);
 						InputStream in = bundle.getInputStream();
 						params = bundle.getParams();
-						fs = filestore(params);
 						ts = triplestore(params);
 						es = events(params);
 						cacheRemove(path[2]);
@@ -1200,7 +1186,6 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
-				fs = filestore(params);
 				ts = triplestore(params);
 				es = events(params);
 				cacheRemove(path[2]);
@@ -1212,7 +1197,6 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
-				fs = filestore(params);
 				ts = triplestore(params);
 				es = events(params);
 				cacheRemove(path[2]);
@@ -1224,12 +1208,10 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
-				fs = filestore(params);
 				ts = triplestore(params);
 				es = events(params);
 
                 Map<String,String[]> params2 = new HashMap<String, String[]>();
-                params2.put( "fs", new String[]{getParamString(params,"fs",fsDefault)} );
                 params2.put( "size", getParamArray(params,"size",null) );
                 params2.put( "frame", getParamArray(params,"frame",null) );
 				cacheRemove(path[2]);
@@ -1241,12 +1223,10 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
-				fs = filestore(params);
 				ts = triplestore(params);
 				es = events(params);
 
 				Map<String,String[]> params2 = new HashMap<String, String[]>();
-				params2.put( "fs", new String[]{getParamString(params,"fs",fsDefault)} );
 				params2.put( "size", getParamArray(params,"size",null) );
 				params2.put( "frame", getParamArray(params,"frame",null) );
 				cacheRemove(path[2]);
@@ -1302,7 +1282,6 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		long start = System.currentTimeMillis();
 		Map info = null;
-		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
 		Map<String,String[]> params = null;
@@ -1312,6 +1291,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// parse request URI
 			String[] path = path( req );
 
+			fs = FileStoreUtil.getFileStore(props,fsDefault);
 			// PUT /objects/bb1234567x
 			if ( path.length == 3 && path[1].equals("objects") )
 			{
@@ -1326,7 +1306,6 @@ public class DAMSAPIServlet extends HttpServlet
 					String mode    = getParamString(params,"mode",null);
 					ts = triplestore(req);
 					es = events(req);
-					fs = filestore(req);
 					cacheRemove(path[2]);
 					info = objectEdit(
 						path[2], false, in, mode, adds, updates, deletes,
@@ -1349,7 +1328,6 @@ public class DAMSAPIServlet extends HttpServlet
 					params = bundle.getParams();
 					ts = triplestore(req);
 					es = events(req);
-					fs = filestore(req);
 					info = mergeRecords(
 						path[2], params, ts, es, fs
 					);
@@ -1368,7 +1346,6 @@ public class DAMSAPIServlet extends HttpServlet
 					InputBundle bundle = input( req, path[2], null, path[3] );
 					InputStream in = bundle.getInputStream();
 					params = bundle.getParams();
-					fs = filestore(params);
 					ts = triplestore(params);
 					es = events(params);
 					cacheRemove(path[2]);
@@ -1391,7 +1368,6 @@ public class DAMSAPIServlet extends HttpServlet
 					InputBundle bundle = input( req, path[2], path[3], path[4] );
 					InputStream in = bundle.getInputStream();
 					params = bundle.getParams();
-					fs = filestore(params);
 					ts = triplestore(params);
 					es = events(params);
 					cacheRemove(path[2]);
@@ -1411,7 +1387,6 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
-				fs = filestore(params);
 				ts = triplestore(params);
 				es = events(params);
 				cacheRemove(path[2]);
@@ -1423,7 +1398,6 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
-				fs = filestore(params);
 				ts = triplestore(params);
 				es = events(params);
 				cacheRemove(path[2]);
@@ -1435,12 +1409,10 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
-				fs = filestore(params);
 				ts = triplestore(params);
 				es = events(params);
 
 				Map<String,String[]> params2 = new HashMap<String, String[]>();
-				params2.put( "fs", new String[]{getParamString(params,"fs",fsDefault)} );
 				params2.put( "size", getParamArray(params,"size",null) );
 				params2.put( "frame", getParamArray(params,"frame",null) );
 				cacheRemove(path[2]);
@@ -1452,12 +1424,10 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				InputBundle bundle = input( req );
 				params = bundle.getParams();
-				fs = filestore(params);
 				ts = triplestore(params);
 				es = events(params);
 
 				Map<String,String[]> params2 = new HashMap<String, String[]>();
-				params2.put( "fs", new String[]{getParamString(params,"fs",fsDefault)} );
 				params2.put( "size", getParamArray(params,"size",null) );
 				params2.put( "frame", getParamArray(params,"frame",null) );
 				cacheRemove(path[2]);
@@ -1495,7 +1465,6 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		long start = System.currentTimeMillis();
 		Map info = null;
-		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
 
@@ -1504,6 +1473,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// parse request URI
 			String[] path = path( req );
 
+			fs = FileStoreUtil.getFileStore(props,fsDefault);
 			// DELETE /index
 			if ( path.length == 2 && path[1].equals("index") )
 			{
@@ -1523,7 +1493,6 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				ts = triplestore(req);
 				es = events(req);
-				fs = filestore(req);
 				cacheRemove(path[2]);
 				info = objectDelete( path[2], ts, es, fs );
 			}
@@ -1541,7 +1510,6 @@ public class DAMSAPIServlet extends HttpServlet
 				String[] predicates = req.getParameterValues("predicate");
 				ts = triplestore(req);
 				es = events(req);
-				fs = filestore(req);
 				cacheRemove(path[2]);
 				info = selectiveDelete( path[2], null, predicates, ts, es, fs );
 			}
@@ -1552,7 +1520,6 @@ public class DAMSAPIServlet extends HttpServlet
 				String[] predicates = req.getParameterValues("predicate");
 				ts = triplestore(req);
 				es = events(req);
-				fs = filestore(req);
 				cacheRemove(path[2]);
 				info = selectiveDelete(
 					path[2], path[3], predicates, ts, es, fs
@@ -1561,7 +1528,6 @@ public class DAMSAPIServlet extends HttpServlet
 			// DELETE /files/bb1234567x/1.tif
 			else if ( path.length == 4 && path[1].equals("files") )
 			{
-				fs = filestore(req);
 				ts = triplestore(req);
 				es = events(req);
 				cacheRemove(path[2]);
@@ -1571,7 +1537,6 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 5 && path[1].equals("files")
 				&& isNumber(path[3]) )
 			{
-				fs = filestore(req);
 				ts = triplestore(req);
 				es = events(req);
 				cacheRemove(path[2]);
@@ -1627,16 +1592,6 @@ public class DAMSAPIServlet extends HttpServlet
 		return info;
 	}
 
-	protected FileStore filestore( HttpServletRequest req ) throws Exception
-	{
-		return filestore( req.getParameterMap() );
-	}
-	protected FileStore filestore( Map<String,String[]> params )
-		throws Exception
-	{
-		String fsName = getParamString(params,"fs",fsDefault);
-		return FileStoreUtil.getFileStore(props,fsName);
-	}
 	protected TripleStore triplestore( HttpServletRequest req ) throws Exception
 	{
 		return triplestore( req.getParameterMap() );
@@ -2322,8 +2277,6 @@ public class DAMSAPIServlet extends HttpServlet
 			String sourceFilename = input!=null?input[0]:null;
 			input = params.get("sourcePath");
 			String sourcePath = input!=null?input[0]:null;
-			input = params.get("fs");
-			String fsName = input!=null?input[0]:null;
 
 			// Output is saved to the triplestore.
 			if ( ts != null && es != null )
@@ -2374,10 +2327,6 @@ public class DAMSAPIServlet extends HttpServlet
 				if ( sourcePath != null && sourcePath.length() > 0 )
 				{
 					m.put( "sourcePath", sourcePath );
-				}
-				if ( fsName != null && fsName.length() > 0 )
-				{
-					m.put( "filestore", fsName );
 				}
 
 				// Add constant properties
@@ -3837,17 +3786,6 @@ public class DAMSAPIServlet extends HttpServlet
 		if ( req.getQueryString() != null && !req.getQueryString().equals("") )
 		{
 			url += "?" + req.getQueryString();
-		}
-		String fs = req.getParameter("fs");
-		if ( fs == null || fs.trim().equals("") )
-		{
-			fs = lookupFileStore(objid, cmpid, fileid);
-		}
-		if ( fs != null )
-		{
-			url += ( url.indexOf("?") > -1 ) ? "&" : "?";
-			url += "fs=" + fs;
-			log.info("added filestore=" + fs);
 		}
 		try
 		{
