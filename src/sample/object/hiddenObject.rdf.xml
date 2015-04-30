@@ -13,10 +13,10 @@
     </dams:copyright>
     <dams:otherRights>
       <dams:OtherRights>
-        <dams:otherRightsNote>Hidden from public discovery</dams:otherRightsNote>
+        <dams:otherRightsNote>Suppress public discovery</dams:otherRightsNote>
         <dams:restriction>
           <dams:Restriction>
-            <dams:type>hidden</dams:type>
+            <dams:type>suppressDiscovery</dams:type>
           </dams:Restriction>
         </dams:restriction>
       </dams:OtherRights>
