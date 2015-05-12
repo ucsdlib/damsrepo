@@ -940,6 +940,9 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		boolean metadataPermission = findCurrent( doc,
 			"/rdf:RDF/dams:Object//dams:Permission[dams:type='metadataDisplay']"
 		);
+		boolean suppressDiscovery = findCurrent( doc,
+			"/rdf:RDF/dams:Object//dams:Restriction[dams:type='suppressDiscovery']"
+		);
 		String visibility = doc.valueOf(
 			"//*[contains(@rdf:about, '" + objid + "')]/dams:visibility"
 		);
@@ -1014,6 +1017,11 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		else if ( visibility != null && visibility.equals("public") )
 		{
 			accessGroup = roleDefault;
+		}
+		else if ( suppressDiscovery && discover )
+		{
+			// suppress discovery of hidden objects
+			accessGroup = roleEdit;
 		}
 		else if (    copyright.equalsIgnoreCase("public domain") ||
 				( copyright.equalsIgnoreCase("under copyright") &&
