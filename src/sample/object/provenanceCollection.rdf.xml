@@ -28,7 +28,7 @@
     </dams:date>
     <dams:date>
       <dams:Date>
-        <dams:type>published</dams:type>
+        <dams:type>issued</dams:type>
         <rdf:value>2014</rdf:value>
         <dams:beginDate>2014</dams:beginDate>
         <dams:endDate>2014</dams:endDate>
