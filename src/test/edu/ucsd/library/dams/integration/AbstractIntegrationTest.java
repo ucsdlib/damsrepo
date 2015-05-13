@@ -14,6 +14,7 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -32,14 +33,14 @@ import org.apache.http.protocol.BasicHttpContext;
 
 public abstract class AbstractIntegrationTest
 {
-	private HttpClient client;
+	private static HttpClient client;
 
-	protected String repoHost;
-	protected int repoPort;
-	protected String repoUser;
-	protected String repoPass;
+	protected static String repoHost;
+	protected static int repoPort;
+	protected static String repoUser;
+	protected static String repoPass;
 
-	public HttpClient getClient()
+	public static HttpClient getClient()
 	{
 		DefaultHttpClient defaultClient  = new DefaultHttpClient();
 
@@ -52,7 +53,7 @@ public abstract class AbstractIntegrationTest
 		defaultClient.setCredentialsProvider(credsProvider);
 		return defaultClient;
 	}
-	public HttpEntity toEntity( Map<String,String> params )
+	public static HttpEntity toEntity( Map<String,String> params )
 	{
 		HttpEntity entity = null;
 		try
@@ -72,7 +73,7 @@ public abstract class AbstractIntegrationTest
 		}
 		return entity;
 	}
-	public HttpResponse exec( HttpUriRequest request )
+	public static HttpResponse exec( HttpRequestBase request )
 	{
 		HttpResponse response = null;
 		try
@@ -86,7 +87,19 @@ public abstract class AbstractIntegrationTest
 		}
 		return response;
 	}
-	public String getBody( HttpResponse response )
+	public static String execAndGetBody( HttpRequestBase request )
+	{
+		HttpResponse response = exec(request);
+		String body = getBody(response);
+		request.releaseConnection();
+		return body;
+	}
+	public static void execAndCleanup( HttpRequestBase request )
+	{
+		exec(request);
+		request.releaseConnection();
+	}
+	public static String getBody( HttpResponse response )
 	{
 		String body = null;
 		try
@@ -99,7 +112,7 @@ public abstract class AbstractIntegrationTest
 		}
 		return body;
 	}
-	public String urlencode( String s )
+	public static String urlencode( String s )
 	{
 		String enc = null;
 		try 

@@ -196,17 +196,12 @@ public class FileStoreServlet extends HttpServlet
 		String fullFilename = objid + "-" + fileid;
 
 		// first load the FileStore (no point if this doesn't work)
-		String fsName = request.getParameter("fs");
-		if ( fsName == null || fsName.trim().length() == 0 )
-		{
-			fsName = fsDefault;
-		}
 		FileStore fs = null;
 		long fsTime = 0;
 		try
 		{
 			long start = System.currentTimeMillis();
-			fs = FileStoreUtil.getFileStore( props, fsName );
+			fs = FileStoreUtil.getFileStore( props, fsDefault );
 			fsTime = System.currentTimeMillis() - start;
 		}
 		catch ( Exception ex )
