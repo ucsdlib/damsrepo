@@ -59,27 +59,41 @@ public class EzidIntegrationTest extends AbstractIntegrationTest
 		execAndCleanup( new HttpDelete( repoBase + "/objects/bb1673671n") );
 		execAndCleanup( new HttpDelete( repoBase + "/objects/bb0103691x") );
 		execAndCleanup( new HttpDelete( repoBase + "/objects/bb59399209") );
+		execAndCleanup( new HttpDelete( repoBase + "/objects/xxxxxxxxx1") );
+		execAndCleanup( new HttpDelete( repoBase + "/objects/xxxxxxxxx2") );
 	}
 
 	@Test
 	public void testCollection()
 	{
-		loadAndMint("bb1673671n");
+		loadAndMint("bb1673671n", 200, null);
 	}
 
 	@Test
 	public void testObject1()
 	{
-        loadAndMint("bb0103691x");
+        loadAndMint("bb0103691x", 200, null);
 	}
 
 	@Test
 	public void testObject2()
 	{
-		loadAndMint("bb59399209");
+		loadAndMint("bb59399209", 200, null);
 	}
 
-	private void loadAndMint( String id )
+	@Test
+	public void testObjectWithoutDate()
+	{
+		loadAndMint("xxxxxxxxx1", 400, "does not contain Date Issued");
+	}
+
+	@Test
+	public void testObjectWithoutPreferredCitation()
+	{
+		loadAndMint("xxxxxxxxx2", 400, "does not contain Preferred Citation");
+	}
+
+	private void loadAndMint( String id, int status, String message )
 	{
 		HttpPut put = new HttpPut(repoBase + "/objects/" + id + "?mode=all");
 		put.setEntity( new FileEntity(new File(samples, "object/" + id + ".xml")) );
@@ -88,10 +102,18 @@ public class EzidIntegrationTest extends AbstractIntegrationTest
 
 		HttpPost post = new HttpPost(repoBase + "/objects/" + id + "/mint_doi");
 		String mintResponse = execAndGetBody(post);
-       	assertTrue( mintResponse, mintResponse.contains("<statusCode>200</statusCode>") );
+       	assertTrue( mintResponse, mintResponse.contains("<statusCode>" + status + "</statusCode>") );
 
-		HttpGet get = new HttpGet(repoBase + "/objects/" + id);
-		String getResponse = execAndGetBody(get);
-		assertTrue( getResponse, getResponse.contains("<dams:displayLabel>DOI</dams:displayLabel>") );
+		if ( message != null )
+		{
+			assertTrue( mintResponse, mintResponse.contains(message) );
+		}
+
+		if ( status == 200 )
+		{
+			HttpGet get = new HttpGet(repoBase + "/objects/" + id);
+			String getResponse = execAndGetBody(get);
+			assertTrue( getResponse, getResponse.contains("<dams:displayLabel>DOI</dams:displayLabel>") );
+		}
 	}
 }
