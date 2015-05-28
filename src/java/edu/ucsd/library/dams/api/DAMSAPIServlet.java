@@ -140,6 +140,7 @@ import edu.ucsd.library.dams.triple.TripleStoreUtil;
 import edu.ucsd.library.dams.triple.Validator;
 import edu.ucsd.library.dams.triple.edit.Edit;
 import edu.ucsd.library.dams.util.Ezid;
+import edu.ucsd.library.dams.util.EzidException;
 import edu.ucsd.library.dams.util.HttpUtil;
 import edu.ucsd.library.dams.util.LDAPUtil;
 import edu.ucsd.library.dams.util.PDFParser;
@@ -3307,20 +3308,13 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 
 		// pre-validate
-		Document d = DocumentHelper.parseText(xml);
-		String issue = d.valueOf("/rdf:RDF/*/dams:date/dams:Date[dams:type='issued']/rdf:value");
-		if ( issue == null || issue.equals("") )
+        try
 		{
-			return error(SC_BAD_REQUEST, objid + " does not contain Date Issued", null);
+        	Ezid.validate(xml);
 		}
-
-		String citation = d.valueOf(
-			"/rdf:RDF/*/dams:note/dams:Note[dams:type='preferred citation']/rdf:value"
-		);
-		if ( citation == null || citation.indexOf(" (") == -1
-			|| citation.substring(0, citation.indexOf(" (")).trim().equals("") )
+		catch ( EzidException ex )
 		{
-			return error(SC_BAD_REQUEST, objid + " does not contain Preferred Citation", null);
+			return error(SC_BAD_REQUEST, objid + ": " + ex.getMessage(), null);
 		}
 
 		// transform to datacite format with XSL
