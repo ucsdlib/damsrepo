@@ -2880,7 +2880,7 @@ public class DAMSAPIServlet extends HttpServlet
 			Parser parser = new AutoDetectParser();
 			ParseContext parserContext = new ParseContext();
 			parser.parse(in, contentHandler, metadata, parserContext);
-			info.put( "text",contentHandler.toString() );
+			info.put( "text", escapeForXml(contentHandler.toString()) );
 		}
 		catch ( Exception ex )
 		{
@@ -5247,6 +5247,26 @@ public class DAMSAPIServlet extends HttpServlet
 			log.warn("Error loading set from " + resourcePath, ex);
 			return null;
 		}
+	}
+
+	/**
+	 * Remove characters that are not allowed in XML.
+	 * @see http://www.w3.org/TR/2000/REC-xml-20001006#charsets
+	**/
+	private static String escapeForXml( String s )
+	{
+		StringBuffer buf = new StringBuffer(s.length());
+		char c;
+		for ( int i = 0; i < s.length(); i++ )
+		{
+			c = s.charAt(i);
+			if ( c == 0x9 || c == 0xA || c == 0xD || (c >= 0x20 && c <= 0xD7FF)
+				|| (c >= 0xE000 && c <= 0xFFFD) || (c >= 0x10000 && c <= 0x10FFFF) )
+			{
+				buf.append(c);
+			}
+		}
+		return buf.toString();
 	}
 }
 class InputBundle
