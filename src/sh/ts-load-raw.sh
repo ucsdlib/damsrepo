@@ -3,7 +3,7 @@
 # bulk load N-Triples or RDF/XML files into a triplestore
 
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 CLASS=edu.ucsd.library.dams.commands.TripleStoreLoad
 
 TS=$1
