@@ -196,12 +196,9 @@ public class DAMSAPIServlet extends HttpServlet
 	private long maxUploadSize;  // largest allowed upload size
 	private String backupDir;    // directory to store temporary edit backups
 
-	// solr
-	private String solrBase;		// base URL for solr webapp
+	// xslt config
 	protected String xslBase;	    // base dir for server-side XSL stylesheets
 	private String encodingDefault; // default character encoding
-	private String mimeDefault;     // default output mime type
-	private File solrXslFile;       // default solr xsl stylesheet
 
 	// ip address mapping
 	protected String roleSuper;           // superuser role
@@ -390,12 +387,9 @@ public class DAMSAPIServlet extends HttpServlet
 			validClasses = loadSet( context, "/WEB-INF/valid-classes.txt" );
 			validProperties = loadSet( context, "/WEB-INF/valid-properties.txt" );
 
-			// solr
-			solrBase = props.getProperty("solr.base");
-			mimeDefault = props.getProperty("solr.mimeDefault");
+			// xslt config
 			encodingDefault = props.getProperty("solr.encoding");
 			xslBase = props.getProperty("solr.xslDir");
-			solrXslFile = new File( xslBase, "solrindexer.xsl" );
 
 			// access control
 			localCopyright = props.getProperty("role.localCopyright");
@@ -4139,36 +4133,6 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 		}
 		return buf.toString();
-	}
-
-	/**
-	 * Load object record from solr and find which filestore contains a file
-	**/
-	private String lookupFileStore(String objid, String cmpid, String fileid)
-	{
-		String url = solrBase + "/select?q=id:" + objid + "&wt=xml";
-		HttpUtil http = new HttpUtil(url);
-		String solrxml = null;
-		try
-		{
-			String fs = null;
-			http.exec();
-			if ( http.status() == 200 )
-			{
-				solrxml = http.contentBodyAsString();
-				//file_3_1.xml_filestore_tesim
-				String fieldname = "file_";
-				if ( cmpid != null ) { fieldname += cmpid + "_";}
-				fieldname += fileid + "_filestore_tesim";
-				Document doc = DocumentHelper.parseText(solrxml);
-				fs = doc.valueOf("//arr[@name='" + fieldname + "']/str");
-			}
-			return fs;
-		}
-		catch ( Exception ex )
-		{
-			return null;
-		}
 	}
 
 	//========================================================================
