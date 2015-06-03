@@ -97,6 +97,13 @@ public class Ezid {
     public static void validate( String damsXML ) throws DocumentException, EzidException {
         // pre-validate
         Document d = DocumentHelper.parseText(damsXML);
+
+        String existing = d.valueOf("/rdf:RDF/*/dams:note/dams:Note[(dams:type = 'preferred citation' or dams:type = 'identifier') and contains(rdf:value, 'http://dx.doi.org/')]");
+        if ( existing != null && !existing.trim().equals("") )
+        {
+            throw new EzidException("Record already has a DOI assigned");
+        }
+
         String issue = d.valueOf("/rdf:RDF/*/dams:date/dams:Date[dams:type='issued']/rdf:value");
         if ( issue == null || issue.equals("") )
         {

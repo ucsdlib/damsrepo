@@ -59,6 +59,7 @@ public class EzidIntegrationTest extends AbstractIntegrationTest
 		execAndCleanup( new HttpDelete( repoBase + "/objects/bb1673671n") );
 		execAndCleanup( new HttpDelete( repoBase + "/objects/bb0103691x") );
 		execAndCleanup( new HttpDelete( repoBase + "/objects/bb59399209") );
+		execAndCleanup( new HttpDelete( repoBase + "/objects/bd5905304g") );
 		execAndCleanup( new HttpDelete( repoBase + "/objects/xxxxxxxxx1") );
 		execAndCleanup( new HttpDelete( repoBase + "/objects/xxxxxxxxx2") );
 	}
@@ -79,6 +80,12 @@ public class EzidIntegrationTest extends AbstractIntegrationTest
 	public void testObject2()
 	{
 		loadAndMint("bb59399209", 200, null);
+	}
+
+	@Test
+	public void testObjectWithExistingDOI()
+	{
+		loadAndMint("bd5905304g", 400, "already has a DOI assigned");
 	}
 
 	@Test
