@@ -474,12 +474,19 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				String id = stripPrefix(path[2]);
 
 				cacheRemove(id);
-				Map info = objectEdit(
+				Map status = objectEdit(
 					id, true, in, null, adds, null, null, ts, es, fs
 				);
-
-				// output id plaintext
-				output( res.SC_CREATED, path[2], "text/plain", res );
+				if ( ((Integer)status.get("statusCode")) >= 400 )
+				{
+					output( status, req.getParameterMap(), req.getPathInfo(), res );
+					log.warn( "Error updating " + id + ", " + status.get("message") + ": " + status.get("errors"));
+				}
+				else
+				{
+					// output id plaintext
+					output( res.SC_CREATED, path[2], "text/plain", res );
+				}
 			}
 			// POST /objects/[oid]/datastreams/[fedoraObjectDS]
 			// STATUS: WORKING
@@ -498,16 +505,23 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				boolean exists = ts.exists(id2);
 				InputStream in2 = pruneInput( in, id2.getId() );
 
-				objectEdit(
+				Map status = objectEdit(
 					id, !exists, in2, "add", null, null, null, ts, es, fs
 				);
-
-				Map<String,String[]> params = new HashMap<String,String[]>();
-				params.put("dsName",new String[]{fedoraObjectDS});
-				outputTransform(
-					path[2], null, null, true, datastreamProfileTransform,
-					params, "application/xml", res.SC_CREATED, ts, es, res
-				);
+				if ( ((Integer)status.get("statusCode")) >= 400 )
+				{
+					output( status, req.getParameterMap(), req.getPathInfo(), res );
+					log.warn( "Error updating " + id + ", " + status.get("message") + ": " + status.get("errors"));
+				}
+				else
+				{
+					Map<String,String[]> params = new HashMap<String,String[]>();
+					params.put("dsName",new String[]{fedoraObjectDS});
+					outputTransform(
+						path[2], null, null, true, datastreamProfileTransform,
+						params, "application/xml", res.SC_CREATED, ts, es, res
+					);
+				}
 			}
 			// POST /objects/[oid]/datastreams/[fedoraRightsDS]
 			else if ( path.length == 5 && path[1].equals("objects")
@@ -607,16 +621,23 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				boolean exists = ts.exists( id2 );
 				InputStream in2 = pruneInput( in, id2.getId() );
 
-				objectEdit(
+				Map status = objectEdit(
 					id, !exists, in2, "all", null, null, null, ts, es, fs
 				);
-
-				Map<String,String[]> params = new HashMap<String,String[]>();
-				params.put("dsName",new String[]{fedoraObjectDS});
-				outputTransform(
-					path[2], null, null, true, datastreamProfileTransform,
-					params, "application/xml", res.SC_OK, ts, es, res
-				);
+				if ( ((Integer)status.get("statusCode")) >= 400 )
+				{
+					output( status, req.getParameterMap(), req.getPathInfo(), res );
+					log.warn( "Error updating " + id + ", " + status.get("message") + ": " + status.get("errors"));
+				}
+				else
+				{
+					Map<String,String[]> params = new HashMap<String,String[]>();
+					params.put("dsName",new String[]{fedoraObjectDS});
+					outputTransform(
+						path[2], null, null, true, datastreamProfileTransform,
+						params, "application/xml", res.SC_OK, ts, es, res
+					);
+				}
 			}
 			// PUT /objects/[oid]/datastreams/[fedoraRightsDS]
 			else if ( path.length == 5 && path[1].equals("objects")

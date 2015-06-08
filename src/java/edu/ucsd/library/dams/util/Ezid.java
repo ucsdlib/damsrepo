@@ -22,6 +22,11 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+// dom4j
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+
 
 /**
  * Utility for minting DOIs using EZID (http://ezid.cdlib.org/).
@@ -84,6 +89,37 @@ public class Ezid {
 		}
 	}
 
+    /**
+     * Validate that DAMS XML contains the required information to mint a DOI.
+     * @param damsXML DAMS4 XML content
+     * @throws EzidException if the validation fails
+    **/
+    public static void validate( String damsXML ) throws DocumentException, EzidException {
+        // pre-validate
+        Document d = DocumentHelper.parseText(damsXML);
+
+        String existing = d.valueOf("/rdf:RDF/*/dams:note/dams:Note[(dams:type = 'preferred citation' or dams:type = 'identifier') and contains(rdf:value, 'http://dx.doi.org/')]");
+        if ( existing != null && !existing.trim().equals("") )
+        {
+            throw new EzidException("Record already has a DOI assigned");
+        }
+
+        String issue = d.valueOf("/rdf:RDF/*/dams:date/dams:Date[dams:type='issued']/rdf:value");
+        if ( issue == null || issue.equals("") )
+        {
+            throw new EzidException("Record does not contain Date Issued");
+        }
+
+        String citation = d.valueOf(
+            "/rdf:RDF/*/dams:note/dams:Note[dams:type='preferred citation']/rdf:value"
+        );
+        if ( citation == null || citation.indexOf(" (") == -1
+            || citation.substring(0, citation.indexOf(" (")).trim().equals("") )
+        {
+            throw new EzidException("Record does not contain Preferred Citation");
+        }
+    }
+
 	/* See http://ezid.cdlib.org/doc/apidoc.html#java-example */
     private static String encode (String s) {
         return s.replace("%", "%25").replace("\n", "%0A").replace("\r", "%0D").replace(":", "%3A");
@@ -96,14 +132,4 @@ public class Ezid {
         }
         return b.toString();
     }
-
-}
-
-/**
- * Embedded exception class.
-**/
-class EzidException extends Exception {
-	public EzidException( String msg ) {
-		super(msg);
-	}
 }
