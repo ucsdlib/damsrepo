@@ -2,7 +2,7 @@
 
 # load env
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 $BASE/fs-clear.sh localStore     # clear file storage
 $BASE/test_01_init.sh            # clear metadata and solr, load predicates

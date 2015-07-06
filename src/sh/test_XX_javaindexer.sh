@@ -2,7 +2,7 @@
 
 # load env
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 # copy solr config
 if [ "$INDEXER" -a -d $INDEXER ]; then

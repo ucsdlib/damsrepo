@@ -2,7 +2,7 @@
 
 # load metadata from file
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 OBJID=$1
 RDF=$2

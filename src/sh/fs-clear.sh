@@ -3,7 +3,7 @@
 # delete all triples from a triplestore
 
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 FS=$1
 if [ ! "$FS" ]; then

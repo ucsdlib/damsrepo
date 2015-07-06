@@ -3,7 +3,7 @@
 # copy an object within a triplestore
 
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 FS=$1
 SRC=$2

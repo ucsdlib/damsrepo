@@ -2,7 +2,7 @@
 
 # delete single predicates only
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 OBJID=$1
 curl -u $USER:$PASS -i -X DELETE "$URL/api/objects/$OBJID/selective?predicate=dams:relationship&predicate=dams:unit"

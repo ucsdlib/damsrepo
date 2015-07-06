@@ -2,7 +2,7 @@
 
 # test deleting records
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 ERRORS=0
 

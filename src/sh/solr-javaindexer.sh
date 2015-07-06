@@ -1,7 +1,7 @@
 #!/bin/sh
 
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 DAMSPAS=$DAMSPAS_URL/solrdoc/
 SOLR=$SOLR_URL/blacklight

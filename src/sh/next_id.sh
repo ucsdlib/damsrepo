@@ -3,7 +3,7 @@
 # generate a new identifier
 
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 if [ "$1" ]; then
 	COUNT="?count=$1"

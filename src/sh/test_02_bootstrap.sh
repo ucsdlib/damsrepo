@@ -2,13 +2,10 @@
 
 # load objects from scratch
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
-BASE=`dirname $0`
-source $BASE/common.sh
 DAMSID="http://library.ucsd.edu/ark:/20775/"
 ERRORS=0
-#FS=openStack
 FS=localStore
 
 function mintark

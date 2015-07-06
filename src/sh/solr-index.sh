@@ -2,7 +2,7 @@
 
 # index a record in solr
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 echo "curl -u $USER:$PASS -X POST $URL/api/objects/$1/index"
 curl -u $USER:$PASS -X POST $URL/api/objects/$1/index

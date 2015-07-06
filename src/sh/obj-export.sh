@@ -3,7 +3,7 @@
 # export object files and metadata to disk
 
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 TS=dams
 ES=events

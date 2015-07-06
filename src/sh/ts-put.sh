@@ -9,7 +9,7 @@ if [ "$3" ]; then
 fi
 
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 curl -k -u $USER:$PASS -X PUT -F file=@$FILE $URL/api/objects/$OBJID$TS
 if [ $? != 0 ]; then
