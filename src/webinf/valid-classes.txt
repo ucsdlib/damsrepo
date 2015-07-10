@@ -3,6 +3,8 @@ http://library.ucsd.edu/ontology/dams#BuiltWorkPlace
 http://library.ucsd.edu/ontology/dams#BuiltWorkPlaceElement
 http://library.ucsd.edu/ontology/dams#Cartographics
 http://library.ucsd.edu/ontology/dams#Collection
+http://library.ucsd.edu/ontology/dams#CommonName
+http://library.ucsd.edu/ontology/dams#CommonNameElement
 http://library.ucsd.edu/ontology/dams#Component
 http://library.ucsd.edu/ontology/dams#Copyright
 http://library.ucsd.edu/ontology/dams#CulturalContext
