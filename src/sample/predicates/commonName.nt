@@ -1,0 +1,6 @@
+<http://library.ucsd.edu/ark:/20775/bd89859222> <http://library.ucsd.edu/ark:/20775/bd4608335b> "dams:commonName" .
+<http://library.ucsd.edu/ark:/20775/bd89859222> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ontology/dams#commonName> .
+<http://library.ucsd.edu/ark:/20775/bd7688982v> <http://library.ucsd.edu/ark:/20775/bd4608335b> "dams:CommonName" .
+<http://library.ucsd.edu/ark:/20775/bd7688982v> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ontology/dams#CommonName> .
+<http://library.ucsd.edu/ark:/20775/bd6392041x> <http://library.ucsd.edu/ark:/20775/bd4608335b> "dams:CommonNameElement" .
+<http://library.ucsd.edu/ark:/20775/bd6392041x> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ontology/dams#CommonNameElement> .

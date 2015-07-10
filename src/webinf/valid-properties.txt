@@ -6,6 +6,7 @@ http://library.ucsd.edu/ontology/dams#cartographics
 http://library.ucsd.edu/ontology/dams#checksum
 http://library.ucsd.edu/ontology/dams#code
 http://library.ucsd.edu/ontology/dams#collection
+http://library.ucsd.edu/ontology/dams#commonName
 http://library.ucsd.edu/ontology/dams#complexSubject
 http://library.ucsd.edu/ontology/dams#component
 http://library.ucsd.edu/ontology/dams#compositionLevel
