@@ -2,7 +2,7 @@
 
 # update an existing file
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 OBJID=$1
 FILEID=$2

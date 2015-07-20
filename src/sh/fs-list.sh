@@ -3,7 +3,7 @@
 # list all files in an object
 
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 FS=$1
 OBJ=$2

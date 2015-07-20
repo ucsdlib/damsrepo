@@ -1,7 +1,7 @@
 #!/bin/sh
 
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 TS=$1
 ES=$2

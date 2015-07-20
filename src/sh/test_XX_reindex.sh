@@ -2,7 +2,7 @@
 
 # load env
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 IDS="$@"
 if [ ! "$IDS" ]; then

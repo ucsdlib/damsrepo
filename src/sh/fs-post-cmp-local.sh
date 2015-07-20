@@ -2,7 +2,7 @@
 
 # upload a new file, from local staging
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 
 OBJID=$1
 CMPID=$2

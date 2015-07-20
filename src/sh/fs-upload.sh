@@ -3,7 +3,7 @@
 # upload a file to a filestore
 
 BASE=`dirname $0`
-source $BASE/common.sh
+. $BASE/common.sh
 DIR=$DAMS_HOME/tmp
 
 FS=$1
