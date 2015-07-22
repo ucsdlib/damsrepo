@@ -41,7 +41,6 @@ http://library.ucsd.edu/ontology/dams#StylePeriod
 http://library.ucsd.edu/ontology/dams#StylePeriodElement
 http://library.ucsd.edu/ontology/dams#Technique
 http://library.ucsd.edu/ontology/dams#TechniqueElement
-http://library.ucsd.edu/ontology/dams#Title
 http://library.ucsd.edu/ontology/dams#Unit
 http://www.loc.gov/mads/rdf/v1#Address
 http://www.loc.gov/mads/rdf/v1#Affiliation
