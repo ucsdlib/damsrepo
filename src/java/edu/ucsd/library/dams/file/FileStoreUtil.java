@@ -32,15 +32,15 @@ public class FileStoreUtil
 	 *  determine which triplestore class should be created.  Other parameters
 	 *  required will depend on the triplestore implementation.
 	**/
-	public static FileStore getFileStore( Properties props )
+	public synchronized static FileStore getFileStore( Properties props )
 		throws ClassNotFoundException, IllegalAccessException,
 			InstantiationException, InvocationTargetException,
 			NoSuchMethodException
 	{
 		String className = props.getProperty("className");
 		Class c = Class.forName( className );
-		Constructor constructor = c.getConstructor(new Properties().getClass());
-		return (FileStore)constructor.newInstance( props );
+		Constructor constructor = c.getConstructor( File.class, String.class);
+		return (FileStore)constructor.newInstance( new File (props.getProperty("baseDir")), props.getProperty("orgCode") );
 	}
 
 	/**
