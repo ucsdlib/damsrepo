@@ -141,7 +141,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 	private boolean RECURSIVE_OBJ = false;
 
-	private FileStore fs;
     // initialize servlet parameters
     public void init( ServletConfig config ) throws ServletException
     {
@@ -157,7 +156,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
             log.error( err );
         }
     }
-    private String config( ServletContext context, boolean reload )
+    private synchronized String config( ServletContext context, boolean reload )
     {
         String err = null;
 
@@ -213,6 +212,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	public void doGet( HttpServletRequest req, HttpServletResponse res )
 	{
 		long start = System.currentTimeMillis();
+		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
 
@@ -436,6 +436,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	public void doPost( HttpServletRequest req, HttpServletResponse res )
 	{
 		long start = System.currentTimeMillis();
+		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
 
@@ -596,6 +597,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	public void doPut( HttpServletRequest req, HttpServletResponse res )
 	{
 		long start = System.currentTimeMillis();
+		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
 
@@ -724,6 +726,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	public void doDelete( HttpServletRequest req, HttpServletResponse res )
 	{
 		long start = System.currentTimeMillis();
+		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
 		Map info = null;
