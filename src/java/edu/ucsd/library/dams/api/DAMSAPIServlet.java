@@ -167,7 +167,6 @@ public class DAMSAPIServlet extends HttpServlet
 	private String appVersion;     // application (user) version
 	private String srcVersion;     // source code version
 	private String buildTimestamp; // timestamp application was built
-	private FileStore fs;          // local filestore to use
 
 	// default output format
 	private String formatDefault; // output format to use when not specified
@@ -342,7 +341,7 @@ public class DAMSAPIServlet extends HttpServlet
 		buildTimestamp = ctx.getInitParameter("build-timestamp");
 		super.init(config);
 	}
-	protected String config(ServletContext context)
+	protected synchronized String config(ServletContext context)
 	{
 		String error = null;
 		try
@@ -576,6 +575,7 @@ public class DAMSAPIServlet extends HttpServlet
 		long start = System.currentTimeMillis();
 		Map info = null;
 		boolean outputRequired = true; // set to false to suppress status output
+		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
 
@@ -982,6 +982,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 		Map info = null;
 		boolean outputRequired = true; // set to false to suppress status output
+		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
 		Map<String,String[]> params = null;
@@ -1286,6 +1287,7 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		long start = System.currentTimeMillis();
 		Map info = null;
+		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
 		Map<String,String[]> params = null;
@@ -1469,6 +1471,7 @@ public class DAMSAPIServlet extends HttpServlet
 	{
 		long start = System.currentTimeMillis();
 		Map info = null;
+		FileStore fs = null;
 		TripleStore ts = null;
 		TripleStore es = null;
 
