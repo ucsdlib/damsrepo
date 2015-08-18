@@ -1,5 +1,6 @@
 package edu.ucsd.library.dams.api;
 
+import static javax.jms.Message.DEFAULT_PRIORITY;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_CREATED;
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
@@ -999,7 +1000,8 @@ public class DAMSAPIServlet extends HttpServlet
 				InputBundle bundle = input(req);
 				params = bundle.getParams();
 				String[] ids = getParamArray(params,"id",null);
-				info = indexQueue( ids, "modifyObject" );
+                int priority = getParamInt( params, "priority", DEFAULT_PRIORITY );
+				info = indexQueue( ids, "modifyObject", priority );
 			}
 			// POST /queue
 			else if ( path.length == 2 && path[1].equals("queue") )
@@ -1007,7 +1009,8 @@ public class DAMSAPIServlet extends HttpServlet
 				InputBundle bundle = input(req);
 				params = bundle.getParams();
 				String[] ids = getParamArray( params,"id",null);
-				info = indexQueue( ids, "modifyObject" );
+                int priority = getParamInt( params, "priority", DEFAULT_PRIORITY );
+				info = indexQueue( ids, "modifyObject", priority );
 			}
 			// POST /next_id
 			else if ( path.length == 2 && path[1].equals("next_id") )
@@ -1087,7 +1090,8 @@ public class DAMSAPIServlet extends HttpServlet
 				&& path[3].equals("index") )
 			{
 				String[] ids = new String[]{ path[2] };
-				info = indexQueue( ids, "modifyObject" );
+                int priority = getParamInt( req, "priority", DEFAULT_PRIORITY );
+				info = indexQueue( ids, "modifyObject", priority );
 			}
 			// POST /objects/bb1234567x/serialize
 			else if ( path.length == 4 && path[1].equals("objects")
@@ -1486,14 +1490,16 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				InputBundle input = input(req);
 				String[] ids = input.getParams().get("id");
-				info = indexQueue( ids, "purgeObject" );
+                int priority = getParamInt( input.getParams(), "priority", DEFAULT_PRIORITY );
+				info = indexQueue( ids, "purgeObject", priority );
 			}
 			// DELETE /queue
 			else if ( path.length == 2 && path[1].equals("queue") )
 			{
 				InputBundle input = input(req);
 				String[] ids = input.getParams().get("id");
-				info = indexQueue( ids, "purgeObject" );
+                int priority = getParamInt( input.getParams(), "priority", DEFAULT_PRIORITY );
+				info = indexQueue( ids, "purgeObject", priority );
 			}
 			// DELETE /objects/bb1234567x
 			else if ( path.length == 3 && path[1].equals("objects") )
@@ -1508,7 +1514,8 @@ public class DAMSAPIServlet extends HttpServlet
 				&& path[3].equals("index") )
 			{
 				String[] ids = new String[]{ path[2] };
-				info = indexQueue( ids, "purgeObject" );
+                int priority = getParamInt( req, "priority", DEFAULT_PRIORITY );
+				info = indexQueue( ids, "purgeObject", priority );
 			}
 			// DELETE /objects/bb1234567x/selective
 			else if ( path.length == 4 && path[1].equals("objects")
@@ -3344,7 +3351,7 @@ public class DAMSAPIServlet extends HttpServlet
 				"all", null, null, null, ts, es, fs );
 
 		// queue for reindexing
-		indexQueue( objid, "modifyObject" );
+		indexQueue( objid, "modifyObject", DEFAULT_PRIORITY );
 
 		info.put("message", "Minted DOI: " + doiURL);
 		return info;
@@ -3539,8 +3546,12 @@ public class DAMSAPIServlet extends HttpServlet
 
 	/**
 	 * Bulk indexing queue.
+	 * @param ids Array of object ids
+	 * @param type 'purgeObject' for deletes, 'modifyObject' for other operations.
+     * @param priority Value from 0 (lowest) to 9 (highest) -- any other value is treated
+	 *   as the default priority (4).
 	**/
-	private Map indexQueue( String[] ids, String type )
+	private Map indexQueue( String[] ids, String type, int priority )
 	{
 		Map info = null;
 
@@ -3556,7 +3567,7 @@ public class DAMSAPIServlet extends HttpServlet
 		int queueSuccess = 0;
 		for ( int i = 0; i < ids.length; i++ )
 		{
-			String error = indexQueue(ids[i],type);
+			String error = indexQueue(ids[i], type, priority);
 			if ( error != null ) { errors.add( error ); }
 			else { queueSuccess++; }
 		}
@@ -3565,6 +3576,7 @@ public class DAMSAPIServlet extends HttpServlet
 		info = new LinkedHashMap();
 		info.put( "queueTotal", queueTotal );
 		info.put( "queueSuccess", queueTotal );
+		info.put( "priority", String.valueOf(priority) );
 		info.put( "errors", errors );
 		return info;
 	}
@@ -3572,10 +3584,11 @@ public class DAMSAPIServlet extends HttpServlet
 	/**
 	 * Send object to solrizer indexing queue.
 	 * @param objid Object id
-	 * @param type 'purgeObject' for deletes, 'modifyObject' for other
-	 *   operations.
+	 * @param type 'purgeObject' for deletes, 'modifyObject' for other operations.
+     * @param priority Value from 0 (lowest) to 9 (highest) -- any other value is treated
+	 *   as the default priority (4).
 	**/
-	private String indexQueue( String objid, String type )
+	private String indexQueue( String objid, String type, int priority )
 	{
 		String error = null;
 		if ( queueEnabled && queueSession != null )
@@ -3587,7 +3600,15 @@ public class DAMSAPIServlet extends HttpServlet
 				);
 				msg.setStringProperty("pid",objid);
 				msg.setStringProperty("methodName",type);
-				queueProducer.send(msg);
+
+				if ( priority < 1 || priority > 9 )
+				{
+					priority = DEFAULT_PRIORITY;
+				}
+				queueProducer.send(
+					msg, queueProducer.getDeliveryMode(),
+					priority, queueProducer.getTimeToLive()
+				);
 			}
 			catch ( Exception ex )
 			{
@@ -3995,7 +4016,7 @@ public class DAMSAPIServlet extends HttpServlet
 			//Remove the merged record from SOLR
 			if ( merged )
 			{
-				message = indexQueue( merid.replace(idNS, ""), "purgeObject" );
+				message = indexQueue( merid.replace(idNS, ""), "purgeObject", DEFAULT_PRIORITY );
 				if ( message != null && message.length() > 0 )
 				{
 					successful = false;
@@ -4011,7 +4032,7 @@ public class DAMSAPIServlet extends HttpServlet
 			//Update SOLR for records affected
 			for ( Iterator<String> ita=recordsAffected.iterator(); ita.hasNext(); )
 			{
-				message = indexQueue( ita.next(), "modifyObject" );
+				message = indexQueue( ita.next(), "modifyObject", DEFAULT_PRIORITY );
 				if ( message != null && message.length() > 0 )
 					updateErrorInfo( info, message );
 			}
@@ -4937,6 +4958,7 @@ public class DAMSAPIServlet extends HttpServlet
 		if ( params == null ) { return defaultValue; }
 
 		String s = getParamString(params,key,null);
+System.out.println("getParamInt: " + key + ", " + s);
 		int value = defaultValue;
 
 		if ( s != null )
