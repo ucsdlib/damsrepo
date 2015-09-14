@@ -1000,8 +1000,9 @@ public class DAMSAPIServlet extends HttpServlet
 				InputBundle bundle = input(req);
 				params = bundle.getParams();
 				String[] ids = getParamArray(params,"id",null);
-                int priority = getParamInt( params, "priority", DEFAULT_PRIORITY );
-				info = indexQueue( ids, "modifyObject", priority );
+				int priority = getParamInt( params, "priority", DEFAULT_PRIORITY );
+				String type = getParamString( params, "type", "modifyObject" );
+				info = indexQueue( ids, type, priority );
 			}
 			// POST /queue
 			else if ( path.length == 2 && path[1].equals("queue") )
