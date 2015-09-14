@@ -3573,11 +3573,18 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 
 		// return error/success info
-		info = new LinkedHashMap();
+		if ( errors.size() > 0 )
+		{
+			info = error( SC_INTERNAL_SERVER_ERROR, "Indexing failures.", null);
+			info.put( "errors", errors );
+		}
+		else
+		{
+			info = new LinkedHashMap();
+		}
 		info.put( "queueTotal", queueTotal );
 		info.put( "queueSuccess", queueTotal );
 		info.put( "priority", String.valueOf(priority) );
-		info.put( "errors", errors );
 		return info;
 	}
 
@@ -3587,6 +3594,8 @@ public class DAMSAPIServlet extends HttpServlet
 	 * @param type 'purgeObject' for deletes, 'modifyObject' for other operations.
      * @param priority Value from 0 (lowest) to 9 (highest) -- any other value is treated
 	 *   as the default priority (4).
+	 * @return Error message if there was a problem queueing a record for indexing, or null if
+	 *   the record was queued successfully.
 	**/
 	private String indexQueue( String objid, String type, int priority )
 	{
