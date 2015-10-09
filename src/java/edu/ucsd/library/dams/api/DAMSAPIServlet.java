@@ -539,7 +539,14 @@ public class DAMSAPIServlet extends HttpServlet
 			String ezidShoulder = props.getProperty("ezid.shoulder");
 			String ezidUser = props.getProperty("ezid.user");
 			String ezidPass = props.getProperty("ezid.pass");
-			ezid = new Ezid( ezidHost, ezidShoulder, ezidUser, ezidPass );
+			if ( ezidHost != null && ezidShoulder != null && ezidUser != null && ezidPass != null )
+			{
+				ezid = new Ezid( ezidHost, ezidShoulder, ezidUser, ezidPass );
+			}
+			else
+			{
+				ezid =  null;
+			}
 		}
 		catch ( Exception ex )
 		{
@@ -3303,6 +3310,12 @@ public class DAMSAPIServlet extends HttpServlet
 	private Map mintDOI( String objid, TripleStore ts, TripleStore es, FileStore fs,
 		HttpServletResponse res ) throws Exception
 	{
+		// make sure ezid is configured
+		if ( ezid == null )
+		{
+			return error(SC_BAD_REQUEST, "DOI minting is not configured", null);
+		}
+
 		// load object XML
 		Map m = objectShow( objid, ts, es );
 		String xml = null;
