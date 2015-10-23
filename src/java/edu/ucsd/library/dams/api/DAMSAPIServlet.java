@@ -264,7 +264,7 @@ public class DAMSAPIServlet extends HttpServlet
 	private Identifier userID = null;
 	private String client = null;
 
-	protected static void cacheAdd( String objid, String content )
+	protected static synchronized void cacheAdd( String objid, String content )
 	{
 		if ( cacheSize > 0 )
 		{
@@ -279,7 +279,7 @@ public class DAMSAPIServlet extends HttpServlet
 			cacheAccess.add(objid);
 		}
 	}
-	protected static String cacheGet( String objid )
+	protected static synchronized String cacheGet( String objid )
 	{
 		if ( cacheSize > 0 )
 		{
