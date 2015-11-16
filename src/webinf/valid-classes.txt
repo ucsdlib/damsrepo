@@ -7,6 +7,8 @@ http://library.ucsd.edu/ontology/dams#CommonName
 http://library.ucsd.edu/ontology/dams#CommonNameElement
 http://library.ucsd.edu/ontology/dams#Component
 http://library.ucsd.edu/ontology/dams#Copyright
+http://library.ucsd.edu/ontology/dams#Cruise
+http://library.ucsd.edu/ontology/dams#CruiseElement
 http://library.ucsd.edu/ontology/dams#CulturalContext
 http://library.ucsd.edu/ontology/dams#CulturalContextElement
 http://library.ucsd.edu/ontology/dams#CustodialResponsibilityNote
@@ -20,6 +22,8 @@ http://library.ucsd.edu/ontology/dams#FunctionElement
 http://library.ucsd.edu/ontology/dams#Iconography
 http://library.ucsd.edu/ontology/dams#IconographyElement
 http://library.ucsd.edu/ontology/dams#License
+http://library.ucsd.edu/ontology/dams#Lithology
+http://library.ucsd.edu/ontology/dams#LithologyElement
 http://library.ucsd.edu/ontology/dams#Note
 http://library.ucsd.edu/ontology/dams#Object
 http://library.ucsd.edu/ontology/dams#OtherRights
@@ -35,6 +39,8 @@ http://library.ucsd.edu/ontology/dams#RightsAction
 http://library.ucsd.edu/ontology/dams#ScientificName
 http://library.ucsd.edu/ontology/dams#ScientificNameElement
 http://library.ucsd.edu/ontology/dams#ScopeContentNote
+http://library.ucsd.edu/ontology/dams#Series
+http://library.ucsd.edu/ontology/dams#SeriesElement
 http://library.ucsd.edu/ontology/dams#SourceCapture
 http://library.ucsd.edu/ontology/dams#Statute
 http://library.ucsd.edu/ontology/dams#StylePeriod

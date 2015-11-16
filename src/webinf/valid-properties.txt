@@ -18,6 +18,7 @@ http://library.ucsd.edu/ontology/dams#copyrightPurposeNote
 http://library.ucsd.edu/ontology/dams#copyrightStatus
 http://library.ucsd.edu/ontology/dams#corporateName
 http://library.ucsd.edu/ontology/dams#crc32checksum
+http://library.ucsd.edu/ontology/dams#cruise
 http://library.ucsd.edu/ontology/dams#culturalContext
 http://library.ucsd.edu/ontology/dams#custodialResponsibilityNote
 http://library.ucsd.edu/ontology/dams#date
@@ -52,6 +53,7 @@ http://library.ucsd.edu/ontology/dams#license
 http://library.ucsd.edu/ontology/dams#licenseNote
 http://library.ucsd.edu/ontology/dams#licenseURI
 http://library.ucsd.edu/ontology/dams#line
+http://library.ucsd.edu/ontology/dams#lithology
 http://library.ucsd.edu/ontology/dams#md5checksum
 http://library.ucsd.edu/ontology/dams#mimeType
 http://library.ucsd.edu/ontology/dams#name
@@ -96,6 +98,7 @@ http://library.ucsd.edu/ontology/dams#scanningSoftware
 http://library.ucsd.edu/ontology/dams#scanningSoftwareVersion
 http://library.ucsd.edu/ontology/dams#scientificName
 http://library.ucsd.edu/ontology/dams#scopeContentNote
+http://library.ucsd.edu/ontology/dams#series
 http://library.ucsd.edu/ontology/dams#sha1checksum
 http://library.ucsd.edu/ontology/dams#sha256checksum
 http://library.ucsd.edu/ontology/dams#sha512checksum
