@@ -119,6 +119,12 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.xml.sax.ContentHandler;
 
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
+import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator;
+
 // dams
 import edu.ucsd.library.dams.file.Checksum;
 import edu.ucsd.library.dams.file.FileStore;
@@ -258,6 +264,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 	// doi minting
 	private Ezid ezid;
+	private String ezidTargetUrl;
 
 	// request user id
 	private String user = null;
@@ -535,6 +542,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 
 			// doi minter
+			ezidTargetUrl = props.getProperty("ezid.target.url");
 			String ezidHost = props.getProperty("ezid.host");
 			String ezidShoulder = props.getProperty("ezid.shoulder");
 			String ezidUser = props.getProperty("ezid.user");
@@ -3319,12 +3327,16 @@ public class DAMSAPIServlet extends HttpServlet
 		// load object XML
 		Map m = objectShow( objid, ts, es );
 		String xml = null;
+		// path for Object, Collection?
+		String targetPath = "";
 		if ( m.get("obj") != null )
 		{
 			DAMSObject obj = (DAMSObject)m.get("obj");
 			xml = obj.getRDFXML(true);
+			targetPath = findTargetPath(objid, obj.asModel(false));
 		}
 
+		String targetUrl = ezidTargetUrl + targetPath + "/" + objid;
 		// pre-validate
         try
 		{
@@ -3332,16 +3344,16 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( EzidException ex )
 		{
-			return error(SC_BAD_REQUEST, objid + ": " + ex.getMessage(), null);
+			return error(SC_BAD_REQUEST, targetUrl + ": " + ex.getMessage(), null);
 		}
 
 		// transform to datacite format with XSL
 		String datacite = xslt( xml, "datacite.xsl", null, null );
 
 		// mint doi
-		String doi = ezid.mintDOI( nsmap.get("damsid") + objid, datacite );
+		String doi = ezid.mintDOI( targetUrl, datacite );
 		String doiURL = doi.replaceAll("doi:","http://doi.org/");
-		log.info("Minted DOI: " + doiURL + " for " + objid);
+		log.info("Minted DOI: " + doiURL + " for " + targetUrl);
 
 		// add doi to object
 		Document doc = DocumentHelper.parseText(xml);
@@ -4747,6 +4759,30 @@ public class DAMSAPIServlet extends HttpServlet
 		{
 			return defaultFile;
 		}
+	}
+	/*
+	 * Target path for the EZID record
+	 */
+	private String findTargetPath(String objid, Model rdf) 
+	{
+		// default path: object?
+		String path = "/object";
+		ExtendedIterator<Triple> triples  = rdf.getGraph().find(NodeFactory.createURI(idNS + objid), NodeFactory.createURI(rdfNS + "type"), Node.ANY);
+		for (Triple triple : triples.toList()) 
+		{
+			if (triple.getObject() != null) {
+				Node typeNode = triple.getObject();
+				if (typeNode.isURI()) 
+				{
+					String rdfType = typeNode.getURI();
+					if (rdfType.endsWith("Object")) 
+						return path;
+					else if (rdfType.endsWith("Collection")) 
+						return "/collection";
+				}
+			}
+		}
+		return path;
 	}
 	/**
 	 * Extract technical metadata with Jhove
