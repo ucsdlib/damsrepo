@@ -69,8 +69,8 @@ public class Ezid {
 		params.put("_profile", "datacite");
 		params.put("datacite", dataciteXML);
 		String anvl = toAnvl(params);
-		post.setEntity(new StringEntity(anvl));
-		post.setHeader("Content-Type", "text/plain");
+		post.setEntity(new StringEntity(anvl, "UTF-8"));
+		post.setHeader("Content-Type", "text/plain; charset=UTF-8");
 
 		// execute request
 		HttpResponse response = client.execute(post);
