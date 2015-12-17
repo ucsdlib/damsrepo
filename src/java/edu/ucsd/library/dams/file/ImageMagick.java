@@ -149,6 +149,8 @@ public class ImageMagick
 		//cmd.add( "-trim" );        // remove whitespace
 		cmd.add( "+profile" );     // remove EXIF, etc. metadata
 		cmd.add( "'*'" );
+		if (src.getName().toLowerCase().endsWith(".pdf"))
+			cmd.add( "-flatten" );
 		cmd.add( "-resize" );      // resize to specified pixel dimensions
 		cmd.add( width + "x" + height );
 		cmd.add( src.getAbsolutePath() + (frameNo!=-1?"[" + frameNo + "]":"") );
