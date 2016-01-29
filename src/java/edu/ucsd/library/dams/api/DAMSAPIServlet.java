@@ -150,7 +150,6 @@ import edu.ucsd.library.dams.util.Ezid;
 import edu.ucsd.library.dams.util.EzidException;
 import edu.ucsd.library.dams.util.HttpUtil;
 import edu.ucsd.library.dams.util.LDAPUtil;
-import edu.ucsd.library.dams.util.PDFParser;
 import edu.ucsd.library.dams.util.OutputStreamer;
 import edu.ucsd.library.dams.util.JSONOutputStreamer;
 import edu.ucsd.library.dams.util.XMLOutputStreamer;
