@@ -1,0 +1,6 @@
+<http://library.ucsd.edu/ark:/20775/bd67701499> <http://library.ucsd.edu/ark:/20775/bd4608335b> "dams:anatomy" .
+<http://library.ucsd.edu/ark:/20775/bd67701499> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ontology/dams#anatomy> .
+<http://library.ucsd.edu/ark:/20775/bd5473209q> <http://library.ucsd.edu/ark:/20775/bd4608335b> "dams:Anatomy" .
+<http://library.ucsd.edu/ark:/20775/bd5473209q> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ontology/dams#Anatomy> .
+<http://library.ucsd.edu/ark:/20775/bd4176271v> <http://library.ucsd.edu/ark:/20775/bd4608335b> "dams:AnatomyElement" .
+<http://library.ucsd.edu/ark:/20775/bd4176271v> <http://library.ucsd.edu/ark:/20775/bd33455245> <http://library.ucsd.edu/ontology/dams#AnatomyElement> .
