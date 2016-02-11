@@ -1,3 +1,5 @@
+http://library.ucsd.edu/ontology/dams#Anatomy
+http://library.ucsd.edu/ontology/dams#AnatomyElement
 http://library.ucsd.edu/ontology/dams#AssembledCollection
 http://library.ucsd.edu/ontology/dams#BuiltWorkPlace
 http://library.ucsd.edu/ontology/dams#BuiltWorkPlaceElement
