@@ -7,6 +7,7 @@
   <property name="java"      value="${src}/java"/>
   <property name="sh"        value="${src}/sh"/>
   <property name="lib"       value="${src}/lib"/>
+  <property name="lib1"       value="${src}/lib1"/>
   <property name="lib2"      value="${src}/lib2"/>
   <property name="root"      value="${src}/root"/>
   <property name="metainf"   value="${src}/metainf"/>
@@ -64,6 +65,9 @@
     <fileset dir="${lib}" id="lib">
       <include name="*.jar"/>
     </fileset>
+    <fileset dir="${lib1}" id="lib1">
+      <include name="*.jar"/>
+    </fileset>
     <fileset dir="${lib2}" id="lib2">
       <include name="*.jar"/>
     </fileset>
@@ -116,6 +120,7 @@
     <!-- jars -->
     <copy todir="${tmp}/lib">
       <fileset dir="${lib}"/>
+      <fileset dir="${lib1}"/>
       <fileset dir="${lib2}"/>
     </copy>
 
@@ -149,6 +154,9 @@
     </copy>
     <copy todir="${webapp}/WEB-INF/lib">
       <fileset refid="lib"/>
+    </copy>
+    <copy todir="${webapp}/WEB-INF/lib">
+      <fileset refid="lib1"/>
     </copy>
     <copy todir="${webapp}/WEB-INF/classes">
       <fileset dir="${props}" includes="**/*.properties, jhove.conf"/>
@@ -220,6 +228,7 @@
     <!-- jars -->
     <copy todir="${tomcat.home}/dams/lib">
       <fileset dir="${lib}"/>
+      <fileset dir="${lib1}"/>
       <fileset dir="${lib2}"/>
     </copy>
 
