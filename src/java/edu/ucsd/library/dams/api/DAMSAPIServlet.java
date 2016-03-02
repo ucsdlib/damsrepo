@@ -2740,11 +2740,6 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 
 			int frame = 0;
-			String[] frameNo = params.get("frame");
-			if ( frameNo != null && frameNo.length > 0 )
-			{
-				frame = Integer.parseInt( frameNo[0] );
-			}
 			ImageMagick magick = new ImageMagick( magickCommand );
 			Ffmpeg ffmpeg = new Ffmpeg(ffmpegCommand);
 			String[] sizewh = null;
@@ -2760,11 +2755,22 @@ public class DAMSAPIServlet extends HttpServlet
 								fs, objid, cmpid, fileid, derName+".mp3"
 					);
 				} else {
-					successful = magick.makeDerivative(
-					    fs, objid, cmpid, fileid, derid,
-						Integer.parseInt(sizewh[0]),
-						Integer.parseInt(sizewh[1]), frame
-					);
+					// jpeg thumbnails/derivatives
+					if (fileid.endsWith(".mp4") || fileid.endsWith(".mov") || fileid.endsWith(".avi")) {
+						String[] frameNo = params.get("frame");
+						if ( frameNo != null && frameNo.length > 0 ) {
+							frame = Integer.parseInt( frameNo[0] );
+						}
+						// position (in seconds) to start creating the thumbnail from mp4 (29.7 frames/second)
+						String paramSkip = frame > 0 ? "" + Math.round(100*frame/29.7)/100.0 : "";
+						successful = ffmpeg.createThumbnail(fs, objid, cmpid, fileid, derid, sizewh[0] + ":-1", paramSkip);
+					} else {
+						successful = magick.makeDerivative(
+						    fs, objid, cmpid, fileid, derid,
+							Integer.parseInt(sizewh[0]),
+							Integer.parseInt(sizewh[1]), frame
+						);
+					}
 				}
 				if(! successful )
 				{

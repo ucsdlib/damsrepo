@@ -1,5 +1,6 @@
 package edu.ucsd.library.dams.file;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -8,11 +9,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import org.apache.commons.io.IOUtils;
-
 import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 
 import edu.ucsd.library.dams.file.impl.LocalStore;
 
@@ -202,5 +202,134 @@ public class Ffmpeg
 			}
 		}
 	}
-	
+
+	/**
+	 * create thumbnail for videos
+	 * @param fs
+	 * @param oid
+	 * @param cid
+	 * @param srcFid - source file id
+	 * @param destFid - thumbnail files id
+	 * @param scale - size like 150:-1, 450:-1, 768:-1 etc.
+	 * @param offset - start position in seconds or 00:00:10.xxx format
+	 * @return
+	 * @throws Exception 
+	 */
+	public boolean createThumbnail (FileStore fs, String oid, String cid, String srcFid, String destFid, String scale, String offset) 
+			throws Exception 
+	{
+		File src = ((LocalStore)fs).getFile( oid, cid, srcFid );
+		File destTemp = File.createTempFile("ffmpegtmp",destFid);
+		if (destTemp.exists())
+			destTemp.delete();
+		destTemp.deleteOnExit();
+
+		// build the command
+		ArrayList<String> cmd = new ArrayList<String>();
+		cmd.add( ffmpegCommand );
+		if (StringUtils.isNotBlank(offset)) {
+			cmd.add( "-ss" );					// start point of the input video stream
+			cmd.add( offset );
+		}
+		cmd.add( "-i" );
+		cmd.add( src.getAbsolutePath());		// source video file
+		cmd.add( "-vf" );						// video filter for thumbnail with scale
+		cmd.add( "thumbnail,scale=" + scale );	
+		cmd.add( "-vframes" );					// number of frames to extract
+		cmd.add( "1" );
+		cmd.add( destTemp.getAbsolutePath() );	// temporary thumbnail file
+		boolean successful = exec( cmd );
+
+		if ( destTemp.exists() && destTemp.length() > 0 ) {
+			// write the thumbnail created to filestore
+			FileInputStream fis = null;
+			try{
+				File dest = ((LocalStore)fs).getFile( oid, cid, destFid );
+				if (dest.exists())
+					dest.delete();
+				fis = new FileInputStream(destTemp);
+				fs.write( oid, cid, destFid, fis );
+			}finally {
+				close(fis);
+			}
+		}
+		if(destTemp.exists())
+			destTemp.delete();
+		return successful;
+	}
+
+	private boolean exec(List<String> cmd) throws Exception 
+	{
+		InputStream in = null;
+		InputStream inErr = null;
+		Process proc = null;
+		final StringBuffer log = new StringBuffer();
+		int status = -1;
+		try {
+			// Execute the command
+			ProcessBuilder pb = new ProcessBuilder(cmd);
+			pb.redirectErrorStream(true);
+			proc = pb.start();
+
+			// dump metadata and errors
+			in = proc.getInputStream();
+			inErr = proc.getErrorStream();
+			final BufferedReader buf = new BufferedReader(new InputStreamReader(in));
+			final BufferedReader bufErr = new BufferedReader(new InputStreamReader(inErr));
+
+			new Thread() {
+				@Override
+				public void run()
+				{
+					try {
+						for ( String line = null; (line=bufErr.readLine()) != null; ) {
+							log.append( line + "\n" );
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}.start();
+
+			new Thread() {
+				@Override
+				public void run()
+				{
+					try {
+						for ( String line = null; (line=buf.readLine()) != null; ) {
+							log.append( line + "\n" );
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}.start();
+
+			// Wait for the process to exit
+			status = proc.waitFor();
+			if ( status == 0 )
+				return true;
+			else
+				throw new Exception( "Error status code: " + status);
+
+		} catch ( Exception ex ) {
+			throw new Exception( log.toString(), ex );
+		} finally {
+			close(in);
+			close(inErr);
+			if(proc != null){
+				proc.destroy();
+				proc = null;
+			}
+		}
+	}
+
+	public void close ( Closeable closeable ) {
+		try {
+			if (closeable != null)
+				closeable.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
 }
