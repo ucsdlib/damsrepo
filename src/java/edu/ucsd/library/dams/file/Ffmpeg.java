@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +21,7 @@ import edu.ucsd.library.dams.file.impl.LocalStore;
  * Interface to generate derivatives with Ffmpeg.
  * @see www.ffmpeg.org
  * @author tchu@ucsd.edu
+ * @author lsitu
  * 
 **/
 public class Ffmpeg
@@ -210,12 +212,12 @@ public class Ffmpeg
 	 * @param cid
 	 * @param srcFid - source file id
 	 * @param destFid - thumbnail files id
-	 * @param scale - size like 150:-1, 450:-1, 768:-1 etc.
+	 * @param codecParams - codec and other params like scale 150:-1, 450:-1, 768:-1 etc.
 	 * @param offset - start position in seconds or 00:00:10.xxx format
 	 * @return
 	 * @throws Exception 
 	 */
-	public boolean createThumbnail (FileStore fs, String oid, String cid, String srcFid, String destFid, String scale, String offset) 
+	public boolean createDerivative (FileStore fs, String oid, String cid, String srcFid, String destFid, String codecParams, String offset) 
 			throws Exception 
 	{
 		File src = ((LocalStore)fs).getFile( oid, cid, srcFid );
@@ -227,16 +229,19 @@ public class Ffmpeg
 		// build the command
 		ArrayList<String> cmd = new ArrayList<String>();
 		cmd.add( ffmpegCommand );
+		cmd.add( "-y" );						// delete silently
 		if (StringUtils.isNotBlank(offset)) {
 			cmd.add( "-ss" );					// start point of the input video stream
 			cmd.add( offset );
 		}
 		cmd.add( "-i" );
 		cmd.add( src.getAbsolutePath());		// source video file
-		cmd.add( "-vf" );						// video filter for thumbnail with scale
-		cmd.add( "thumbnail,scale=" + scale );	
-		cmd.add( "-vframes" );					// number of frames to extract
-		cmd.add( "1" );
+		if (StringUtils.isNotBlank(codecParams)) 
+		{
+			List<String> codecParamsList = Arrays.asList(codecParams.split(" "));
+			cmd.addAll(codecParamsList);		// codec and other params
+		}
+
 		cmd.add( destTemp.getAbsolutePath() );	// temporary thumbnail file
 		boolean successful = exec( cmd );
 

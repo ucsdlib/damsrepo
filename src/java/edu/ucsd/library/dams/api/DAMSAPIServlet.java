@@ -63,8 +63,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
 // jms queue
 import org.apache.activemq.ActiveMQConnectionFactory;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -73,6 +75,7 @@ import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
 
 // logging
 import org.apache.log4j.Logger;
@@ -114,6 +117,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
+
 // json
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -132,6 +136,7 @@ import edu.ucsd.library.dams.file.FileStoreUtil;
 import edu.ucsd.library.dams.file.ImageMagick;
 import edu.ucsd.library.dams.file.Ffmpeg;
 import edu.ucsd.library.dams.file.impl.LocalStore;
+import edu.ucsd.library.dams.jhove.FfmpegUtil;
 import edu.ucsd.library.dams.jhove.JhoveInfo;
 import edu.ucsd.library.dams.jhove.MyJhoveBase;
 import edu.ucsd.library.dams.model.DAMSObject;
@@ -227,6 +232,9 @@ public class DAMSAPIServlet extends HttpServlet
 	// derivatives creation
 	private Map<String, String> derivativesRes; // derivatives resolution map
 	private Map<String, String> derivativesUse; // derivatives use value map
+	private Map<String, String> videoDerivativesRes; // video derivatives resolution map
+	private Map<String, String> videoDerivativesUse; // video derivatives use value map
+	private Map<String,String> ffmpegCodecParamsMap; // ffmpeg codec map for derivative creation
 	private String derivativesExt;              // extension for derivs
 	private String magickCommand; 				// ImageMagick command
 	private String ffmpegCommand; 				// ffmpeg command
@@ -465,21 +473,13 @@ public class DAMSAPIServlet extends HttpServlet
 			String derList = props.getProperty("derivatives.list");
 			derivativesRes = new HashMap<String, String>();
 			derivativesUse = new HashMap<String, String>();
-			if(derList != null)
-			{
-				String[] d = derList.split(",");
-				for ( int i = 0; i < d.length; i++ )
-				{
-					String res = props.getProperty(
-						"derivatives." + d[i] + ".resolution"
-					);
-					String use = props.getProperty(
-						"derivatives." + d[i] + ".use"
-					);
-					derivativesRes.put( d[i], res );
-					derivativesUse.put( d[i], use );
-				}
-			}
+			loadDerivativesConfig(derList, derivativesRes, derivativesUse);
+
+			// video derivative list
+			String derVideoList = props.getProperty("derivatives.video.list");
+			videoDerivativesRes = new HashMap<String, String>();
+			videoDerivativesUse = new HashMap<String, String>();
+			loadDerivativesConfig(derVideoList, videoDerivativesRes, videoDerivativesUse);
 
 			// ImageMagick convert command
 			magickCommand = props.getProperty("magick.convert");
@@ -553,6 +553,19 @@ public class DAMSAPIServlet extends HttpServlet
 			else
 			{
 				ezid =  null;
+			}
+
+			// ffmpeg codec params for derivative creation
+			ffmpegCodecParamsMap = new HashMap<String, String>();
+			String ffmpegCodecParams = props.getProperty("ffmpeg.codec.params");
+			if (StringUtils.isNotBlank(ffmpegCodecParams))
+			{
+				String[] codecParams = ffmpegCodecParams.split("\\;");
+				for (String codecParam : codecParams)
+				{
+					String[] keyValPair = codecParam.trim().split("\\|");
+					ffmpegCodecParamsMap.put(keyValPair[0].trim(), keyValPair[1]);
+				}
 			}
 		}
 		catch ( Exception ex )
@@ -2711,11 +2724,12 @@ public class DAMSAPIServlet extends HttpServlet
 				for ( int i=0; i<len; i++ )
 				{
 					derName = sizes[i] = sizes[i].trim();
-					if ( !derivativesRes.containsKey( derName ) )
+					String codecParams = ffmpegCodecParamsMap.get(derName.substring(derName.indexOf(".") + 1));
+					if ( !derivativesRes.containsKey( derName ) && StringUtils.isBlank(codecParams))
 					{
 						return error( SC_BAD_REQUEST, "Unknown derivative name: " + derName, null);
 					}
-					Identifier dfid = createID( objid, cmpid, derName + derivativesExt );
+					Identifier dfid = createID( objid, cmpid, derName.indexOf(".") < 0 ? derName + derivativesExt : derName );
 					if ( !overwrite )
 					{
 						sit = ts.listStatements(oid, hasFile, dfid);
@@ -2748,30 +2762,77 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				boolean successful = false;
 				derName = sizes[i];
-				sizewh = derivativesRes.get(derName).split("x");
-				derid = derName + derivativesExt;
-				if(fileid.endsWith(".mp3") || fileid.endsWith(".wav")) {
-					successful = ffmpeg.makeDerivative(
-								fs, objid, cmpid, fileid, derName+".mp3"
-					);
-				} else {
-					// jpeg thumbnails/derivatives
-					if (fileid.endsWith(".mp4") || fileid.endsWith(".mov") || fileid.endsWith(".avi")) {
-						String[] frameNo = params.get("frame");
-						if ( frameNo != null && frameNo.length > 0 ) {
-							frame = Integer.parseInt( frameNo[0] );
-						}
-						// position (in seconds) to start creating the thumbnail from mp4 (29.7 frames/second)
-						String paramSkip = frame > 0 ? "" + Math.round(100*frame/29.7)/100.0 : "";
-						successful = ffmpeg.createThumbnail(fs, objid, cmpid, fileid, derid, sizewh[0] + ":-1", paramSkip);
-					} else {
-						successful = magick.makeDerivative(
-						    fs, objid, cmpid, fileid, derid,
-							Integer.parseInt(sizewh[0]),
-							Integer.parseInt(sizewh[1]), frame
-						);
-					}
+				String size = derivativesRes.get(derName);
+				if (StringUtils.isBlank(size))
+					size = videoDerivativesRes.get(derName);
+
+				if (StringUtils.isNotBlank(size))
+					sizewh = size.split("x");
+
+				int dotIdx = derName.indexOf(".");
+				if ( dotIdx < 0)
+					derid = derName + derivativesExt;
+				else 
+					derid = derName;
+
+				String codecParams = ffmpegCodecParamsMap.get(derid.substring(derid.indexOf(".") + 1));
+				if(derName.endsWith(".mp3") || fileid.toLowerCase().endsWith(".mp3") || fileid.toLowerCase().endsWith(".wav"))
+				{
+					// create audio derivativ
+					if (StringUtils.isBlank(codecParams) && !ffmpegCodecParamsMap.containsKey(derid.substring(derid.indexOf(".") + 1)))
+						throw new Exception("Unknown codec format for derivative " + derid + ".");
+
+					successful = ffmpeg.createDerivative (
+								fs, objid, cmpid, fileid, derid, codecParams, null);
 				}
+				else if (derName.endsWith(".mp4") || fileid.endsWith(".mp4") || fileid.endsWith(".mov") 
+						|| fileid.endsWith(".avi") || fileid.endsWith(".webm") || fileid.endsWith(".mkv"))
+				{
+					// create video derivative
+					if (StringUtils.isBlank(codecParams) && !ffmpegCodecParamsMap.containsKey(derid.substring(derid.indexOf(".") + 1)))
+						throw new Exception("Unknown codec format for derivative " + derid + ".");
+	
+					String[] frameNo = params.get("frame");
+					if ( frameNo != null && frameNo.length > 0 ) {
+						frame = Integer.parseInt( frameNo[0] );
+					}
+					// position (in seconds) to start creating the thumbnail from mp4 (29.7 frames/second)
+					String paramSkip = frame > 0 ? "" + Math.round(100*frame/29.7)/100.0 : "";
+					String deriExt = derid.substring(derid.indexOf(".") + 1);
+
+					// scale calculation with background padding for fix frame size 
+					String scale = "scale=iw*min(" + sizewh[0] + "/iw\\," + sizewh[1] + "/ih):ih*min(" + sizewh[0] + "/iw\\," + sizewh[1] + "/ih)";
+					String pad = "pad=" + sizewh[0] + ":" + sizewh[1] + ":(" + sizewh[0] + "-iw*min(" + sizewh[0] + "/iw\\," + sizewh[1] + "/ih))/2:(" + sizewh[1] + "-ih*min(" + sizewh[0] + "/iw\\," + sizewh[1] + "/ih))/2";
+
+					Map<String, String> streamInfoMap = FfmpegUtil.executeInquiry(fs.getPath(objid, cmpid, fileid), ffmpegCommand);
+					// extract aspect ratio, frame size
+					String dar = streamInfoMap.get("dar");
+					String srcSize = streamInfoMap.get("size");
+					if (StringUtils.isNotBlank(dar)) {
+							codecParams += " -aspect " + dar;
+					}
+
+					if (derid.endsWith(derivativesExt)) {
+						// params to create jpeg thumbnails
+						codecParams += " -vf thumbnail," + scale + " -vframes 1";
+					} else {
+						// params to create video derivatives
+						codecParams += " -vf yadif," + scale + "," + pad;
+					}
+			
+					log.info("FFMPEG codecParams: "  + codecParams);
+					successful = ffmpeg.createDerivative(fs, objid, cmpid, fileid, derid, codecParams, paramSkip);
+				}
+				else
+				{
+					// jpeg derivatives created by ImageMagick
+					successful = magick.makeDerivative(
+					    fs, objid, cmpid, fileid, derid,
+						Integer.parseInt(sizewh[0]),
+						Integer.parseInt(sizewh[1]), frame
+					);
+				}
+
 				if(! successful )
 				{
 					errorMessage += "Error derivatives creation: "
@@ -5241,6 +5302,25 @@ System.out.println("getParamInt: " + key + ", " + s);
 			}
 		}
 		return buf.toString();
+	}
+
+	private void loadDerivativesConfig (String derList, Map<String, String> derivativesRes, Map<String, String> derivativesUse)
+	{
+		if(derList != null)
+		{
+			String[] d = derList.split(",");
+			for ( int i = 0; i < d.length; i++ )
+			{
+				String res = props.getProperty(
+					"derivatives." + d[i] + ".resolution"
+				);
+				String use = props.getProperty(
+					"derivatives." + d[i] + ".use"
+				);
+				derivativesRes.put( d[i], res );
+				derivativesUse.put( d[i], use );
+			}
+		}
 	}
 }
 class InputBundle
