@@ -82,6 +82,18 @@ public class FfmpegUtil
 				{
 					// video parameters
 					// Stream #0:0(eng): Video: mpeg4 (Simple Profile) (mp4v / 0x7634706D), yuv420p, 640x480 [SAR 1:1 DAR 4:3], 261 kb/s, 10 fps, 10 tbr, 3k tbn, 25 tbc
+
+					idx = line.indexOf("DAR ");
+					if (idx >= 0)
+					{
+						// extract aspect ratio
+						int endIdx = line.indexOf(']', idx) > 0 ? line.indexOf(']', idx) : line.indexOf(',', idx);
+						if (endIdx > 0) {
+							String dar = line.substring(idx + 4, endIdx).trim();
+							fieldMap.put( "dar", dar );
+						}
+					}
+
 					String s = line.replaceAll("\\[.+?\\]","");
 					s = s.replaceAll("\\(\\w+? / \\w+?\\)","");
 					s = s.replaceAll(".*Video:","");
