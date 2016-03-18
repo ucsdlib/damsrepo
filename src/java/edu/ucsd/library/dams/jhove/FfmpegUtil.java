@@ -94,6 +94,17 @@ public class FfmpegUtil
 						}
 					}
 
+					idx = line.indexOf("SAR ");
+					if (idx >= 0)
+					{
+						// extract aspect ratio
+						int endIdx = line.indexOf(' ', idx) > 0 ? line.indexOf(' ', idx + 4) : line.indexOf(',', idx);
+						if (endIdx > 0) {
+							String dar = line.substring(idx + 4, endIdx).trim();
+							fieldMap.put( "sar", dar );
+						}
+					}
+					
 					String s = line.replaceAll("\\[.+?\\]","");
 					s = s.replaceAll("\\(\\w+? / \\w+?\\)","");
 					s = s.replaceAll(".*Video:","");
@@ -108,6 +119,10 @@ public class FfmpegUtil
 							if ( qual.length() > 0 ) { qual += ", "; }
 							qual += tokens[i].trim();
 						}
+
+						// frame size
+						if (tokens[i].trim().matches("\\d+x\\d+"))
+							fieldMap.put( "size", tokens[i].trim() );
 					}
 					fieldMap.put( "video", qual );
 				}
