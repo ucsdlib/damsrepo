@@ -2789,52 +2789,12 @@ public class DAMSAPIServlet extends HttpServlet
 					String paramSkip = frame > 0 ? "" + Math.round(100*frame/29.7)/100.0 : "";
 					String deriExt = derid.substring(derid.indexOf(".") + 1);
 
-					// scale calculation with background padding for fix frame size 
-					String scale = "scale=iw*min(" + sizewh[0] + "/iw\\," + sizewh[1] + "/ih):ih*min(" + sizewh[0] + "/iw\\," + sizewh[1] + "/ih)";
-					String pad = "pad=" + sizewh[0] + ":" + sizewh[1] + ":(" + sizewh[0] + "-iw*min(" + sizewh[0] + "/iw\\," + sizewh[1] + "/ih))/2:(" + sizewh[1] + "-ih*min(" + sizewh[0] + "/iw\\," + sizewh[1] + "/ih))/2";
-
 					String srcPath = fs.getPath(objid, cmpid, fileid);
-					Map<String, String> streamInfoMap = FfmpegUtil.executeInquiry(srcPath, ffmpegCommand);
-					// extract aspect ratio, frame size
-					String dar = streamInfoMap.get("dar");
-					String sar = streamInfoMap.get("sar");
-					String srcFrameSize = streamInfoMap.get("size");
 
 					if (derid.endsWith(derivativesExt)) {
 						// params to create jpeg thumbnails
+						String scale = "scale=iw*min(" + sizewh[0] + "/iw\\," + sizewh[1] + "/ih):ih*min(" + sizewh[0] + "/iw\\," + sizewh[1] + "/ih)";
 						codecParams += " -vf thumbnail," + scale + " -vframes 1";
-					} else {
-						// params to create video derivatives
-						if (StringUtils.isNotBlank(dar) && StringUtils.isNotBlank(sar) && StringUtils.isNotBlank(srcFrameSize) && !sar.equals("1:1")) {
-							// recalculate scale and padding when sar is not 1:1
-							String[] darWH = dar.split(":");
-							String[] sarWH = sar.split(":");
-
-							// display aspect ratio
-							int darW = Integer.parseInt(darWH[0]);
-							int darH = Integer.parseInt(darWH[1]);
-
-							// sample aspect ratio
-							int sarW = Integer.parseInt(sarWH[0]);
-							int sarH = Integer.parseInt(sarWH[1]);
-
-							// derivative frame size
-							int sizeW = Integer.parseInt(sizewh[0]);
-							int sizeH = Integer.parseInt(sizewh[1]);
-
-							// use PAR=DAR/SAR to recalculate the mp4 video size for stretched videos
-							double diff = darH*sarW*sizeW/((double)darW*sarH*sizeH) - darW*sarH*sizeH/((double)darH*sarW*sizeW);
-							long derIW = diff > 0 ? (int)Math.floor(darW*sarH*sizeH/((double)darH*sarW)) : sizeW;
-							long derIH = diff > 0 ? sizeH : (int)Math.floor(darH*sarW*sizeW/((double)darW*sarH));
-
-							scale = "setsar=1:1,scale=" + derIW + ":" + derIH;
-							pad = "pad=" + sizeW + ":" + sizeH + ":" + (derIW < sizeW ? (sizeW - derIW)/2 : "0") +":" + (derIH < sizeH ? (sizeH - derIH)/2 : "0");
-						} else if (StringUtils.isNotBlank(dar)) {
-							// enforce aspect ratio for videos that has sar=1:1
-							codecParams += " -aspect " + dar;
-						}
-
-						codecParams += " -vf yadif," + scale + "," + pad;
 					}
 			
 					log.info("FFMPEG video " + srcPath + " codecParams: "  + codecParams);
