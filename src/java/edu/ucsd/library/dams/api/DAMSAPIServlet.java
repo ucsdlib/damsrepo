@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -174,7 +175,6 @@ public class DAMSAPIServlet extends HttpServlet
 	private static Logger log = Logger.getLogger(DAMSAPIServlet.class);
 
 	protected Properties props;      // config
-	private String damsHome;       // config file location
 	private String appVersion;     // application (user) version
 	private String srcVersion;     // source code version
 	private String buildTimestamp; // timestamp application was built
@@ -361,19 +361,7 @@ public class DAMSAPIServlet extends HttpServlet
 		String error = null;
 		try
 		{
-			InitialContext ctx = new InitialContext();
-			try
-			{
-				damsHome = (String)ctx.lookup("java:comp/env/dams/home");
-			}
-			catch ( Exception ex )
-			{
-				damsHome = "dams";
-			}
-			File f = new File( damsHome, "dams.properties" );
-			props = new Properties();
-			props.load( new FileInputStream(f) );
-
+			props = loadConfig();
 			// default output format
 			formatDefault = props.getProperty( "format.default");
 
@@ -403,7 +391,8 @@ public class DAMSAPIServlet extends HttpServlet
 
 			// xslt config
 			encodingDefault = props.getProperty("solr.encoding");
-			xslBase = props.getProperty("solr.xslDir");
+			xslBase = context.getRealPath("/WEB-INF/xsl") + File.separatorChar;
+			log.info("Fedora xsl files directory: " + xslBase);
 
 			// access control
 			localCopyright = props.getProperty("role.localCopyright");
@@ -5349,6 +5338,224 @@ System.out.println("getParamInt: " + key + ", " + s);
 				derivativesUse.put( d[i], use );
 			}
 		}
+	}
+
+	public static Properties loadConfig() throws Exception
+	{
+		Properties props = null;
+
+		String envName = getEnvCode();
+		if (StringUtils.isBlank(envName))
+		{
+			// load default configuration if environment variables is not set
+			props = loadDefaultConfig();
+		}
+		else
+		{
+			String varNamePrefix = "APPS_DAMS_" + (envName.equalsIgnoreCase("production") ? "PROD" : envName).toUpperCase();
+	
+			props = new Properties();
+			//#default api output format
+			addProperty(props, "format.default", varNamePrefix);
+	
+			//#editor backup save dir
+			addProperty(props, "edit.backupDir", varNamePrefix);
+	
+			//#derivatives and characterization
+			addProperty(props, "derivatives.list", varNamePrefix);
+			addProperty(props, "derivatives.ext", varNamePrefix);
+			addProperty(props, "derivatives.2.resolution", varNamePrefix);
+			addProperty(props, "derivatives.2.use", varNamePrefix);
+			addProperty(props, "derivatives.3.resolution", varNamePrefix);
+			addProperty(props, "derivatives.3.use", varNamePrefix);
+			addProperty(props, "derivatives.4.resolution", varNamePrefix);
+			addProperty(props, "derivatives.4.use", varNamePrefix);
+			addProperty(props, "derivatives.5.resolution", varNamePrefix);
+			addProperty(props, "derivatives.5.use", varNamePrefix);
+			addProperty(props, "derivatives.6.resolution", varNamePrefix);
+			addProperty(props, "derivatives.6.use", varNamePrefix);
+			addProperty(props, "derivatives.7.resolution", varNamePrefix);
+			addProperty(props, "derivatives.7.use", varNamePrefix);
+	
+			//#video derivatives and characterization
+			addProperty(props, "derivatives.video.list", varNamePrefix);
+			addProperty(props, "derivatives.2.mp4.resolution", varNamePrefix);
+			addProperty(props, "derivatives.2.mp4.use", varNamePrefix);
+			
+			addProperty(props, "ffmpeg", varNamePrefix);
+			addProperty(props, "magick.convert", varNamePrefix);
+			addProperty(props, "jhove.conf", varNamePrefix);
+			addProperty(props, "jhove.maxSize", varNamePrefix);
+			addProperty(props, "jhove.zipModel.command", varNamePrefix);
+			addProperty(props, "jhove.gzipModel.command", varNamePrefix);
+			
+			//#namespaces and identifiers
+			addProperty(props, "minters.default", varNamePrefix);
+			addProperty(props, "minters.list", varNamePrefix);
+			addProperty(props, "minters.xx", varNamePrefix);
+			addProperty(props, "minters.bb", varNamePrefix);
+			addProperty(props, "minters.bd", varNamePrefix);
+			addProperty(props, "minters.br", varNamePrefix);
+			addProperty(props, "ns.damsid", varNamePrefix);
+			addProperty(props, "ns.dams", varNamePrefix);
+			addProperty(props, "ns.mads", varNamePrefix);
+			addProperty(props, "ns.owl", varNamePrefix);
+			addProperty(props, "ns.rdf", varNamePrefix);
+			addProperty(props, "ns.owl.sameAs", varNamePrefix);
+			addProperty(props, "ns.rdf.label", varNamePrefix);
+			
+			//#solr
+			addProperty(props, "solr.base", varNamePrefix);
+			addProperty(props, "solr.mimeDefault", varNamePrefix);
+			addProperty(props, "solr.encoding", varNamePrefix);
+			addProperty(props, "solr.xslDir", varNamePrefix);
+			addProperty(props, "solr.profile.dams", varNamePrefix);
+			
+			//#accesscontrol/filters
+			addProperty(props, "role.localCopyright", varNamePrefix);
+			addProperty(props, "role.admin", varNamePrefix);
+			addProperty(props, "role.admin2", varNamePrefix);
+			addProperty(props, "role.default", varNamePrefix);
+			addProperty(props, "role.local", varNamePrefix);
+			addProperty(props, "role.super", varNamePrefix);
+			addProperty(props, "role.list", varNamePrefix);
+			addProperty(props, "role.public.filter", varNamePrefix);
+			addProperty(props, "role.public.iplist", varNamePrefix);
+			addProperty(props, "role.local.filter", varNamePrefix);
+			addProperty(props, "role.local.iplist", varNamePrefix);
+			
+			//#triplestores
+			addProperty(props, "ts.default", varNamePrefix);
+			addProperty(props, "ts.events", varNamePrefix);
+			addProperty(props, "ts.cacheSize", varNamePrefix);
+			addProperty(props, "ts.dams.className", varNamePrefix);
+			addProperty(props, "ts.dams.tripleStoreName", varNamePrefix);
+			addProperty(props, "ts.dams.dataSource", varNamePrefix);
+			addProperty(props, "ts.dams.driverClass", varNamePrefix);
+			addProperty(props, "ts.dams.dataSourceUser", varNamePrefix);
+			addProperty(props, "ts.dams.dataSourcePass", varNamePrefix);
+			addProperty(props, "ts.dams.dataSourceURL", varNamePrefix);
+			addProperty(props, "ts.dams.columnDef", varNamePrefix);
+			addProperty(props, "ts.events.className", varNamePrefix);
+			addProperty(props, "ts.events.tripleStoreName", varNamePrefix);
+			addProperty(props, "ts.events.dataSource", varNamePrefix);
+			addProperty(props, "ts.events.driverClass", varNamePrefix);
+			addProperty(props, "ts.events.dataSourceUser", varNamePrefix);
+			addProperty(props, "ts.events.dataSourcePass", varNamePrefix);
+			addProperty(props, "ts.events.dataSourceURL", varNamePrefix);
+			addProperty(props, "ts.events.columnDef", varNamePrefix);
+			
+			//#filestores
+			addProperty(props, "fs.default", varNamePrefix);
+			addProperty(props, "fs.maxUploadCount", varNamePrefix);
+			addProperty(props, "fs.maxUploadSize", varNamePrefix);
+			addProperty(props, "fs.staging", varNamePrefix);
+			addProperty(props, "fs.localStore.baseDir", varNamePrefix);
+			addProperty(props, "fs.localStore.className", varNamePrefix);
+			addProperty(props, "fs.localStore.orgCode", varNamePrefix);
+			addProperty(props, "fs.isilon-nfs.baseDir", varNamePrefix);
+			addProperty(props, "fs.isilon-nfs.className", varNamePrefix);
+			addProperty(props, "fs.isilon-nfs.orgCode", varNamePrefix);
+	
+			//#file use default values for common file types
+			addProperty(props, "fs.usemap.avi", varNamePrefix);
+			addProperty(props, "fs.usemap.mov", varNamePrefix);
+			addProperty(props, "fs.usemap.mp4", varNamePrefix);
+			addProperty(props, "fs.usemap.tif", varNamePrefix);
+			addProperty(props, "fs.usemap.jpg", varNamePrefix);
+			addProperty(props, "fs.usemap.png", varNamePrefix);
+			addProperty(props, "fs.usemap.pdf", varNamePrefix);
+			addProperty(props, "fs.usemap.wav", varNamePrefix);
+			addProperty(props, "fs.usemap.mp3", varNamePrefix);
+			addProperty(props, "fs.usemap.tar", varNamePrefix);
+			addProperty(props, "fs.usemap.tgz", varNamePrefix);
+			addProperty(props, "fs.usemap.tar.gz", varNamePrefix);
+			addProperty(props, "fs.usemap.zip", varNamePrefix);
+			
+			//#ldap authorization
+			addProperty(props, "ldap.url", varNamePrefix);
+			addProperty(props, "ldap.principal", varNamePrefix);
+			addProperty(props, "ldap.pass", varNamePrefix);
+			addProperty(props, "ldap.queryPrefix", varNamePrefix);
+			addProperty(props, "ldap.querySuffix", varNamePrefix);
+			addProperty(props, "ldap.defaultAttributes", varNamePrefix);
+			addProperty(props, "ldap.memberOf.match", varNamePrefix);
+			addProperty(props, "ldap.memberOf.trimstart", varNamePrefix);
+			addProperty(props, "ldap.memberOf.trimend", varNamePrefix);
+			
+			//#fedora compat config
+			addProperty(props, "fedora.objectDS", varNamePrefix);
+			addProperty(props, "fedora.rightsDS", varNamePrefix);
+			addProperty(props, "fedora.linksDS", varNamePrefix);
+			addProperty(props, "fedora.systemDS", varNamePrefix);
+			addProperty(props, "fedora.samplePID", varNamePrefix);
+			addProperty(props, "fedora.compatVersion", varNamePrefix);
+			addProperty(props, "fedora.adminEmail", varNamePrefix);
+			//#update test
+			
+			//#activemq for solrizerd
+			addProperty(props, "queue.url", varNamePrefix);
+			addProperty(props, "queue.name", varNamePrefix);
+			
+			//#ezid for doi minting
+			addProperty(props, "ezid.target.url", varNamePrefix);
+			addProperty(props, "ezid.host", varNamePrefix);
+			addProperty(props, "ezid.shoulder", varNamePrefix);
+			addProperty(props, "ezid.user", varNamePrefix);
+			addProperty(props, "ezid.pass", varNamePrefix);
+			
+			//#FFMPEG codec parameters
+			addProperty(props, "ffmpeg.codec.params", varNamePrefix);
+		}
+		return props;
+	}
+
+	private static void addProperty(Properties props, String propName, String prefix) {
+		// Env variable convenient: APPS_[JIRA code]{deploy][purpose] APPS_DAMS_PROD_DERIVATIVES_2_RESOLUTION
+		String val = System.getProperty(prefix + "_" + propName.toUpperCase().replace("\\.", "_"));
+		props.put(propName, val);
+	}
+
+	private static String getEnvCode() throws Exception
+	{
+		String envCode = System.getProperty("RAILS_ENV");
+		if (StringUtils.isNotBlank(envCode))
+			return envCode;
+
+		List<String> envCodes = new ArrayList<>();
+		Map<String, String> vars = System.getenv();
+		for (String key : vars.keySet())
+		{
+			if (key != null && key.startsWith("APPS_DAMS_"))
+			{
+				String[] tokens = key.split("_");
+				if ( tokens.length >= 4 && !envCodes.contains(tokens[2]))
+					envCodes.add(tokens[2]);
+			}
+		}
+		if (envCodes.size() == 0)
+			return null;
+		else if (envCodes.size() == 1)
+			return envCodes.get(0);
+		else
+			throw new Exception ("Configuration error: more than one sets of environment variable found - " + envCodes.get(0) + ", " + envCodes.get(1) + ".");
+	}
+
+	private static Properties loadDefaultConfig() throws NamingException, FileNotFoundException, IOException {
+		String damsHome = null;
+		InitialContext ctx = new InitialContext();
+		try
+		{
+			damsHome = (String)ctx.lookup("java:comp/env/dams/home");
+		}
+		catch ( Exception ex )
+		{
+			damsHome = "dams";
+		}
+		File f = new File( damsHome, "dams.properties" );
+		Properties props = new Properties();
+		props.load( new FileInputStream(f) );
+		return props;
 	}
 }
 class InputBundle

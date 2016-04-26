@@ -12,6 +12,7 @@
   <property name="root"      value="${src}/root"/>
   <property name="metainf"   value="${src}/metainf"/>
   <property name="props"     value="${src}/properties"/>
+  <property name="xsl"     value="${src}/xsl"/>
   <property name="test"      value="${src}/test"/>
   <property name="webinf"    value="${src}/webinf"/>
   <property name="tmp"       value="${basedir}/tmp"/>
@@ -92,6 +93,7 @@
     <mkdir dir="${webapp}/WEB-INF"/>
     <mkdir dir="${webapp}/WEB-INF/lib"/>
     <mkdir dir="${webapp}/WEB-INF/classes"/>
+  	<mkdir dir="${webapp}/WEB-INF/xsl"/>
   </target>
 
   <!-- compile -->
@@ -160,6 +162,9 @@
     </copy>
     <copy todir="${webapp}/WEB-INF/classes">
       <fileset dir="${props}" includes="**/*.properties, jhove.conf"/>
+    </copy>
+    <copy todir="${webapp}/WEB-INF/xsl">
+      <fileset dir="${xsl}" includes="**/*.*"/>
     </copy>
     <copy todir="${webapp}/WEB-INF/">
       <fileset dir="${webinf}" includes="*" excludes="context.xml"/>

@@ -95,9 +95,7 @@ public class FileStoreServlet extends HttpServlet
 			{
 				damsHome = "dams";
 			}
-            File f = new File( damsHome, "dams.properties" );
-            props = new Properties();
-            props.load( new FileInputStream(f) );
+			props = DAMSAPIServlet.loadConfig();
 			fsDefault = props.getProperty("fs.default");
 			df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
 			// RFC 822, Wed, 23 May 2012 11:54:18 GMT
