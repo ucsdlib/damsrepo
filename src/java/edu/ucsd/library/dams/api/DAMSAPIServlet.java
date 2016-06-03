@@ -417,7 +417,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			catch ( Exception ex )
 			{
-				System.err.println("Error parsing roles: " + ex.toString());
+				log.error("Error parsing roles: " + ex.toString(), ex);
 			}
 
 			// triplestores
@@ -525,7 +525,7 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 				catch ( Exception ex )
 				{
-					log.warn("Error initializing JMS queue: " + ex.toString());
+					log.error("Error initializing JMS queue: " + ex.toString(), ex);
 				}
 			}
 
@@ -971,7 +971,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex2 )
 		{
-			log.warn( "Error processing GET request", ex2 );
+			log.error( "Error processing GET request", ex2 );
 		}
 		finally
 		{
@@ -1054,7 +1054,7 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 				catch ( Exception ex )
 				{
-					log.warn("Error uploading file", ex );
+					log.error("Error uploading file", ex );
 					info = error("Error uploading file", ex);
 				}
 			}
@@ -1071,7 +1071,7 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 				catch ( Exception ex )
 				{
-					log.warn("Error minting DOI", ex );
+					log.error("Error minting DOI", ex );
 					info = error("Error minting DOI: " + ex.getMessage(), ex);
 				}
 			}
@@ -1161,12 +1161,12 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 				catch ( SizeLimitExceededException ex )
 				{
-					log.warn("File too large for upload: " + ex.getMessage() );
+					log.error("File too large for upload: " + ex.getMessage() );
 					info = error("File too large for upload (max upload size: " + maxUploadSize + "), stage locally instead", ex);
 				}
 				catch ( Exception ex )
 				{
-					log.warn("Error uploading file", ex );
+					log.error("Error uploading file", ex );
 					info = error("Error uploading file", ex);
 				}
 			}
@@ -1202,7 +1202,7 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 				catch ( Exception ex )
 				{
-					log.warn("Error uploading file", ex );
+					log.error("Error uploading file", ex );
 					info = error("Error uploading file", ex);
 				}
 			}
@@ -1291,7 +1291,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex2 )
 		{
-			log.warn( "Error processing POST request", ex2 );
+			log.error( "Error processing POST request", ex2 );
 		}
 		finally
 		{
@@ -1341,7 +1341,7 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 				catch ( Exception ex )
 				{
-					log.warn( "Error updating object", ex );
+					log.error( "Error updating object", ex );
 					info = error( "Error updating object", ex );
 				}
 			} 
@@ -1361,7 +1361,7 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 				catch ( Exception ex )
 				{
-					log.warn( "Error merging records to " + path[2], ex );
+					log.error( "Error merging records to " + path[2], ex );
 					info = error( "Error merging records(s) to " + path[2], ex );
 				}
 			}
@@ -1382,7 +1382,7 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 				catch ( Exception ex )
 				{
-					log.warn( "Error updating file", ex );
+					log.error( "Error updating file", ex );
 					info = error( "Error updating file", ex );
 				}
 			}
@@ -1404,7 +1404,7 @@ public class DAMSAPIServlet extends HttpServlet
 				}
 				catch ( Exception ex )
 				{
-					log.warn( "Error updating file", ex );
+					log.error( "Error updating file", ex );
 					info = error( "Error updating file", ex );
 				}
 			}
@@ -1474,7 +1474,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex2 )
 		{
-			log.warn( "Error processing PUT request", ex2 );
+			log.error( "Error processing PUT request", ex2 );
 		}
 		finally
 		{
@@ -1583,7 +1583,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error processing DELETE request", ex );
+			log.error( "Error processing DELETE request", ex );
 		}
 		finally
 		{
@@ -1647,17 +1647,17 @@ public class DAMSAPIServlet extends HttpServlet
 		if ( fs != null )
 		{
 			try { fs.close(); }
-			catch ( Exception ex ) { log.warn("Error closing FileStore",ex); }
+			catch ( Exception ex ) { log.error("Error closing FileStore",ex); }
 		}
 		if ( ts != null )
 		{
 			try { ts.close(); }
-			catch ( Exception ex ) { log.warn("Error closing TripleStore",ex); }
+			catch ( Exception ex ) { log.error("Error closing TripleStore",ex); }
 		}
 		if ( es != null )
 		{
 			try { es.close(); }
-			catch ( Exception ex ) { log.warn("Error closing Event TripleStore",ex); }
+			catch ( Exception ex ) { log.error("Error closing Event TripleStore",ex); }
 		}
 	}
 
@@ -1685,11 +1685,11 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			catch ( NameNotFoundException ex )
 			{
-				log.warn( "Error looking up groups, name not found: " + user );
+				log.error( "Error looking up groups, name not found: " + user );
 			}
 			catch ( Exception ex )
 			{
-				log.warn( "Error looking up groups: " + user, ex );
+				log.error( "Error looking up groups: " + user, ex );
 			}
 		}
 
@@ -1751,7 +1751,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			String msg = "Error counting " + pred + " members: " + obj;
-			log.info(msg, ex );
+			log.error(msg, ex );
 			return error(msg, ex);
 		}
 	}
@@ -1822,7 +1822,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			String msg = "Error listing files in a " + pred + ": " + obj;
-			log.info(msg, ex );
+			log.error(msg, ex );
 			return error(msg, ex);
 		}
 	}
@@ -1884,7 +1884,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			String msg = "Error listing files for object: " + objid;
-			log.info(msg, ex );
+			log.error(msg, ex );
 			return error(msg, ex);
 		}
 	}
@@ -2031,7 +2031,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			ex.printStackTrace();
+			log.error( "Error listing records.", ex );
 		}
 	}
 	public Map objectsListAll( TripleStore ts )
@@ -2144,7 +2144,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			ex.printStackTrace();
+			log.error( "Error listing " + pred, ex );
 			return error( "Error listing " + pred, ex );
 		}
 	}
@@ -2426,7 +2426,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error Jhove extraction", ex );
+			log.error( "Error Jhove extraction", ex );
 			return error( "Error Jhove extraction", ex );
 		}
 		finally
@@ -2479,7 +2479,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			String msg = "Error retrieving checksums: " + ex.toString();
-			log.info(msg, ex );
+			log.error(msg, ex );
 			return error(msg, ex);
 		}
 		return sums;
@@ -2508,7 +2508,7 @@ public class DAMSAPIServlet extends HttpServlet
 			// check upload count and abort if at limit
 			if ( maxUploadCount != -1 && uploadCount >= maxUploadCount )
 			{
-				log.info("Upload: refused");
+				log.error("Upload: refused");
 				return error( SC_SERVICE_UNAVAILABLE, "Too many concurrent uploads", null);
 			}
 			else
@@ -2599,7 +2599,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error uploading file", ex );
+			log.error( "Error uploading file", ex );
 			return error( "Error uploading file", ex );
 		}
 		finally
@@ -2656,7 +2656,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error deleting file", ex );
+			log.error( "Error deleting file", ex );
 			return error( "Error deleting file", ex );
 		}
 	}
@@ -2831,7 +2831,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error derivatives creation", ex );
+			log.error( "Error derivatives creation", ex );
 			return error( "Error derivatives creation", ex );
 		}
 		finally
@@ -2867,7 +2867,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error checking file existence", ex );
+			log.error( "Error checking file existence", ex );
 			return error( "Error processing request", ex );
 		}
 	}
@@ -2906,7 +2906,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error extracting text from " + fn, ex );
+			log.error( "Error extracting text from " + fn, ex );
 			return error( "Error extracting text from " + fn, ex);
 		}
 		return info;
@@ -3084,7 +3084,7 @@ public class DAMSAPIServlet extends HttpServlet
 					}
 					catch ( Exception ex )
 					{
-						log.warn("Error loading metadata", ex );
+						log.error("Error loading metadata", ex );
 						return error( "Error loading new metadata", ex );
 					}
 				}
@@ -3147,7 +3147,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error editing object", ex );
+			log.error( "Error editing object", ex );
 			return error( "Error editing object", ex );
 		}
 	}
@@ -3194,7 +3194,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error deleting object", ex );
+			log.error( "Error deleting object", ex );
 			return error( "Error deleting object", ex );
 		}
 	}
@@ -3238,7 +3238,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error deleting predicates", ex );
+			log.error( "Error deleting predicates", ex );
 			try {createEvent(
 				ts, es, fs, objid, null, null, Event.RECORD_EDITED, false, null
 			);} catch ( Exception ex2 ) {}
@@ -3354,7 +3354,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error showing object", ex );
+			log.error( "Error showing object", ex );
 			return error( "Error processing request", ex );
 		}
 	}
@@ -3494,7 +3494,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error transforming metadata", ex );
+			log.error( "Error transforming metadata", ex );
 			try
 			{
 				createEvent(
@@ -3524,7 +3524,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error checking object existence", ex );
+			log.error( "Error checking object existence", ex );
 			return error( "Error checking object existence", ex );
 		}
 	}
@@ -3690,7 +3690,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			catch ( Exception ex )
 			{
-				log.warn("Error sending event to queue", ex );
+				log.error("Error sending event to queue", ex );
 				error = "Error sending object to queue: " + ex.toString();
 			}
 		}
@@ -3732,12 +3732,12 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			catch ( Exception inner )
 			{
-				log.warn("Error serializing RDF/XML on update", inner);
+				log.error("Error serializing RDF/XML on update", inner);
 			}
 		}
 		catch ( IOException ex )
 		{
-			log.warn( "Error minting event ARK", ex );
+			log.error( "Error minting event ARK", ex );
 		}
 	}
 	
@@ -3826,8 +3826,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.error("Error sending redirect: " + ex.toString());
-			log.warn( "Error sending redirect", ex );
+			log.error("Error sending redirect", ex);
 		}
 	}
 	private void sparqlQuery( String sparql, TripleStore ts,
@@ -4297,7 +4296,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn("Error outputting object metadata",ex);
+			log.error("Error outputting object metadata",ex);
 			Map err = error("Error outputting object metadata", ex);
 			output( err ,params, pathInfo, res );
 		}
@@ -4315,7 +4314,7 @@ public class DAMSAPIServlet extends HttpServlet
 				statusCode = statusInteger.intValue();
 			}
 		}
-		catch ( Exception ex ) { log.debug("Error processing status code",ex); }
+		catch ( Exception ex ) { log.error("Error processing status code",ex); }
 
 		// auto-populate basic request info
 		info.put( "request", pathInfo );
@@ -4398,7 +4397,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error sending output", ex );
+			log.error( "Error sending output", ex );
 		}
 	}
 	public static Document toXML( Map m )
@@ -4537,6 +4536,7 @@ public class DAMSAPIServlet extends HttpServlet
 		catch ( Exception ex )
 		{
 			content = "Error serializing properties: " + ex.toString();
+			log.error( content, ex );
 		}
 			
 		return content;
@@ -4948,7 +4948,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.debug("Error parsing integer property: " + ex.toString());
+			log.error("Error parsing integer property: " + ex.toString());
 			value = defaultValue;
 		}
 		return value;
@@ -4967,7 +4967,7 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.debug("Error parsing long property: " + ex.toString());
+			log.error("Error parsing long property: " + ex.toString());
 			value = defaultValue;
 		}
 		return value;
@@ -5072,7 +5072,7 @@ System.out.println("getParamInt: " + key + ", " + s);
 			}
 			catch ( Exception ex )
 			{
-				log.debug("Error parsing integer parameter: " + ex.toString());
+				log.error("Error parsing integer parameter: " + ex.toString());
 				value = defaultValue;
 			}
 		}
@@ -5256,7 +5256,7 @@ System.out.println("getParamInt: " + key + ", " + s);
 		}
 		catch ( Exception ex )
 		{
-			log.warn("Error loading set from " + resourcePath, ex);
+			log.error("Error loading set from " + resourcePath, ex);
 			return null;
 		}
 	}
@@ -5511,6 +5511,7 @@ System.out.println("getParamInt: " + key + ", " + s);
 		catch ( Exception ex )
 		{
 			damsHome = "dams";
+			log.error("Error looking up enviroment variable: java:comp/env/dams/home", ex);
 		}
 		File f = new File( damsHome, "dams.properties" );
 		Properties props = new Properties();

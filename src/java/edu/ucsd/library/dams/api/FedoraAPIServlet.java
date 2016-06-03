@@ -267,7 +267,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				}
 				catch ( Exception ex )
 				{
-					log.warn("Error checking for serialized RDF/XML");
+					log.error("Error checking for serialized RDF/XML");
 				}
 
 				outputTransform(
@@ -421,7 +421,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error processing GET request", ex );
+			log.error( "Error processing GET request", ex );
 		}
 		finally
 		{
@@ -582,7 +582,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error processing POST request", ex );
+			log.error( "Error processing POST request", ex );
 		}
 		finally
 		{
@@ -711,7 +711,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error processing PUT request", ex );
+			log.error( "Error processing PUT request", ex );
 		}
 		finally
 		{
@@ -783,7 +783,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error processing DELETE request", ex );
+			log.error( "Error processing DELETE request", ex );
 		}
 		finally
 		{
@@ -921,7 +921,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			}
 			catch ( Exception ex )
 			{
-				log.warn("Error parsing rights metadata", ex);
+				log.error("Error parsing rights metadata", ex);
 			}
 		}
 
@@ -933,7 +933,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		catch ( Exception ex )
 		{
-			log.warn("Error transforming object", ex );
+			log.error("Error transforming object", ex );
 			output(
 				res.SC_INTERNAL_SERVER_ERROR, "Error: " + ex.toString(),
 				"text/plain", res
@@ -995,7 +995,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			for ( int i = 0; i < colVisibility.size(); i++ )
 			{
 				Element e = (Element)colVisibility.get(i);
-				log.warn("col visibility: " + e.getText());
+				log.debug("col visibility: " + e.getText());
 				if ( e.getText().equals("curator") )
 				{
 					log.info("accessGroup(" + discover + "): " + roleEdit);
@@ -1018,7 +1018,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				if ( parentColVisibilityNode != null ) 
 				{
 					String parentColVisibility = parentColVisibilityNode.getText();
-					log.warn("Collection " + objid + " visibility: " + visibility + "; parent visibility: " + parentColVisibility);
+					log.debug("Collection " + objid + " visibility: " + visibility + "; parent visibility: " + parentColVisibility);
 					if ( parentColVisibility.equals("curator") )
 					{
 						log.info("accessGroup(" + discover + "): " + roleEdit);
@@ -1219,6 +1219,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			{
 				success = false;
 				outcome = "Error: " + ex.toString();
+				log.error("Error adding new models", ex);
 			}
 			finally
 			{
@@ -1261,7 +1262,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		catch ( Exception ex )
 		{
-			log.warn( "Error pruning input (DOM4J)", ex );
+			log.error( "Error pruning input (DOM4J)", ex );
 			if ( doc != null ) { log.info("doc: " + doc.asXML());}
 		}
 
