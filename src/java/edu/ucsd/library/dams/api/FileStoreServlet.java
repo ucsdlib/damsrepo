@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import edu.ucsd.library.dams.file.FileStore;
@@ -170,28 +171,23 @@ public class FileStoreServlet extends HttpServlet
 		}
 		catch (Exception e)
 		{
-			log.info(
-				"Error parsing request pathInfo: " + request.getPathInfo()
-			);
+			String errorMessage = "Error parsing request pathInfo: " + request.getPathInfo();
+			log.error( errorMessage, e );
+			response.setContentType("text/plain");
+			response.sendError( HttpServletResponse.SC_INTERNAL_SERVER_ERROR, errorMessage );
+			return;
 		}
 
 		// make sure required parameters are populated
 		if ( objid == null || objid.trim().length() == 0
 			|| fileid == null || fileid.trim().length() == 0 )
 		{
-			try
-			{
-				response.setContentType("text/plain");
-				response.sendError( response.SC_BAD_REQUEST,
-					"Subject and file must be specified in the request URI" );
-				return;
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
+			response.setContentType("text/plain");
+			response.sendError( HttpServletResponse.SC_BAD_REQUEST,
+				"Subject and file must be specified in the request URI" );
+			return;
 		}
-		String fullFilename = objid + "-" + fileid;
+		String fullFilename = objid + (StringUtils.isNotBlank(cmpid) ? "-" + cmpid : "") + "-" + fileid;
 
 		// first load the FileStore (no point if this doesn't work)
 		FileStore fs = null;
@@ -220,7 +216,7 @@ public class FileStoreServlet extends HttpServlet
 		);
 		if(authorized == null || !authorized.equals("true"))
 		{
-			log.info("Illegal Access from IP " + request.getRemoteAddr()
+			log.warn("Illegal Access from IP " + request.getRemoteAddr()
 				+ " for file " + fullFilename);
 			response.setContentType("text/plain");
 			response.sendError( HttpServletResponse.SC_FORBIDDEN,
@@ -263,7 +259,7 @@ public class FileStoreServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.info("File " + fullFilename + " doesn't exist.");
+			log.error("File " + fullFilename + " doesn't exist.", ex);
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
@@ -422,7 +418,8 @@ public class FileStoreServlet extends HttpServlet
 			}
 			catch ( Exception ex )
 			{
-				log.info("Error reading " + fullFilename, ex );
+				log.error("Error reading " + fullFilename, ex );
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
 			finally
 			{
