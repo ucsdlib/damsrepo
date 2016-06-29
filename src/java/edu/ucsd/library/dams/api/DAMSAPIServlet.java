@@ -101,6 +101,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Branch;
 // dom4j
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.DocumentFactory;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -1106,9 +1107,15 @@ public class DAMSAPIServlet extends HttpServlet
 			else if ( path.length == 4 && path[1].equals("objects")
 				&& path[3].equals("index") )
 			{
+				InputBundle bundle = input( req );
+				params = bundle.getParams();
+				ts = triplestore(params);
+				es = events(params);
 				String[] ids = new String[]{ path[2] };
-                int priority = getParamInt( req, "priority", DEFAULT_PRIORITY );
-				info = indexQueue( ids, "modifyObject", priority );
+				int priority = getParamInt( req, "priority", DEFAULT_PRIORITY );
+				boolean isCollection = isCollection(ts, es, path[2]);
+				String indexType = isCollection ? "modifyCollection" : "modifyObject";
+				info = indexQueue( ids, indexType, priority );
 			}
 			// POST /objects/bb1234567x/serialize
 			else if ( path.length == 4 && path[1].equals("objects")
@@ -1524,7 +1531,15 @@ public class DAMSAPIServlet extends HttpServlet
 				ts = triplestore(req);
 				es = events(req);
 				cacheRemove(path[2]);
+				boolean isCollection = isCollection(ts, es, path[2]);
+
 				info = objectDelete( path[2], ts, es, fs );
+				if ((int)info.get("statusCode") == SC_OK)
+				{
+					String[] ids = { path[2] };
+					String indexType = isCollection ? "purgeCollection" : "purgeObject";
+					info = indexQueue( ids, indexType, DEFAULT_PRIORITY );
+				}
 			}
 			// DELETE /objects/bb1234567x/index
 			else if ( path.length == 4 && path[1].equals("objects")
@@ -3696,6 +3711,27 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		return error;
 	}
+
+	protected boolean isCollection ( TripleStore ts, TripleStore es, String objid )
+			throws TripleStoreException, DocumentException
+	{
+		// Q: check cache & use export if cached?  any impact on xsl?
+		Map info = objectShow( objid, ts, es );
+		boolean result = false;
+		if ( info.get("obj") != null )
+		{
+			DAMSObject obj = (DAMSObject)info.get("obj");
+			String rdfxml = obj.getRDFXML(false);
+			if (StringUtils.isNotBlank(rdfxml)) {
+				Document doc = DocumentHelper.parseText(rdfxml);
+				org.dom4j.Node colNode = doc.getRootElement().selectSingleNode("*[contains(local-name(), 'Collection')]");
+				if ( colNode != null )
+					result = true;
+			}
+		}
+		return result;
+	}
+
 	protected void createEvent( TripleStore ts, TripleStore es, FileStore fs,
 		String objid, String cmpid, String fileid, String type, boolean success,
 		String outcomeNote ) throws TripleStoreException
