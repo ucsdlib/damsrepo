@@ -11,6 +11,7 @@ import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,7 @@ import org.dom4j.Namespace;
 import org.dom4j.Node;
 import org.dom4j.QName;
 import org.dom4j.XPath;
-
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import edu.harvard.hul.ois.jhove.App;
@@ -31,6 +32,7 @@ import edu.harvard.hul.ois.jhove.JhoveBase;
 import edu.harvard.hul.ois.jhove.Module;
 import edu.harvard.hul.ois.jhove.OutputHandler;
 import edu.harvard.hul.ois.jhove.handler.XmlHandler;
+
 import org.portico.tool.jhove_1_1.PTC_ZipModule_1_1;
 import org.portico.tool.jhove_1_1.PTC_GzipModule_1_1;
 
@@ -58,8 +60,10 @@ public class MyJhoveBase extends JhoveBase {
 	"the President and Fellows of Harvard College. " +
 	"Released under the GNU Lesser General Public License.";
 	
-	private static final String _moduleNames[] = {"PDF-hul","ASCII-hul","GIF-hul","TIFF-hul","WAVE-hul","XML-hul","HTML-hul","ZIP-ptc","GZIP-ptc","BYTESTREAM","BYTESTREAM"};
-	private static final String _fileExten[]   = {".pdf",".txt",".gif",".tif",".wav",".xml",".html",".zip",".gz",".mov",".hierarchy"};
+	private static final String BYTESTREAM = "BYTESTREAM";
+	private static final String[] BYTESTREAM_MODULE_EXTS = {".mov",".hierarchy",".wrl",".st"};
+	private static final String _moduleNames[] = {"PDF-hul","ASCII-hul","GIF-hul","TIFF-hul","WAVE-hul","XML-hul","HTML-hul","ZIP-ptc","GZIP-ptc"};
+	private static final String _fileExten[]   = {".pdf",".txt",".gif",".tif",".wav",".xml",".html",".zip",".gz"};
 	private static HashMap _moduleMap;
 	private static String ffmpegCommand = "ffmpeg";
 	public static final String MEDIA_FILES = ".wav .mp3 .mov .mp4 .avi .png";
@@ -367,9 +371,16 @@ public class MyJhoveBase extends JhoveBase {
 		 //Module selection
 		Module defaultModule = null;
 		int indx = srcFileName.lastIndexOf(".");
-		if (indx >= 0 && _moduleMap.containsKey(srcFileName.substring(indx))) {
-			String selectedModule = (String) _moduleMap.get((String)srcFileName.substring(indx));
-			defaultModule = (Module) getModuleMap().get (selectedModule.toLowerCase ());
+		if (indx >= 0) {
+			String ext = srcFileName.substring(indx);
+			String selectedModule = null;
+			if (_moduleMap.containsKey(ext))
+				selectedModule = (String) _moduleMap.get(ext);
+			else if (ext.indexOf("out") >= 0 || Arrays.asList(BYTESTREAM_MODULE_EXTS).contains(ext.toLowerCase()))
+				selectedModule = BYTESTREAM;
+
+			if (StringUtils.isNotBlank(selectedModule))
+				defaultModule = (Module) getModuleMap().get (selectedModule.toLowerCase ());
 		}
 		
 		try {
