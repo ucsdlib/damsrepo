@@ -898,21 +898,9 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				Document doc = DocumentHelper.parseText(rdfxml);
 				String discoverGroup = accessGroup( doc, true, objid );
 				String accessGroup = accessGroup( doc, false, objid );
-				String adminGroup = doc.valueOf(
-					"//dams:unitGroup"
-				);
-				if ( adminGroup != null && !adminGroup.equals("") )
-				{
-					// use linked admin group if available
-					params.put("adminGroup", new String[]{adminGroup});
-				}
-				else
-				{
-					// use default admin group2 if none specified
-					params.put("adminGroup", new String[]{roleAdmin});
-					params.put("adminGroup2", new String[]{roleAdmin2});
-				}
-				if ( !accessGroup.equals(adminGroup) )
+				params.put("adminGroup", new String[]{roleAdmin});
+				params.put("adminGroup2", new String[]{roleAdmin2});
+				if ( !accessGroup.equals(roleAdmin) )
 				{
 					params.put("accessGroup",new String[]{accessGroup});
 				}
@@ -945,7 +933,6 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	private String accessGroup( Document doc, boolean discover, String objid )
 	{
 		// relevant values
-		String roleEdit = doc.valueOf("/rdf:RDF/dams:Object//dams:unitGroup");
 		String copyright = doc.valueOf(
 			"/rdf:RDF/dams:Object//dams:copyrightStatus"
 		);
@@ -979,15 +966,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 
 		// make sure values are not null
 		if ( roleAdmin    == null ) { roleAdmin    = "admin";   }
-		if ( roleAdmin2   == null ) { roleAdmin2   = "admin2";  }
 		if ( roleLocal    == null ) { roleLocal    = "local";   }
 		if ( roleDefault  == null ) { roleDefault  = "public";  }
 		if ( copyright    == null ) { copyright    = "unknown"; }
 		if ( rightsHolder == null ) { rightsHolder = "unknown"; }
-		if ( roleEdit     == null || roleEdit.trim().equals("") )
-		{
-			roleEdit     = roleAdmin;
-		}
 
 		// collection visibility overrides object access control
 		if ( colVisibility != null && colVisibility.size() > 0 )
@@ -998,8 +980,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				log.debug("col visibility: " + e.getText());
 				if ( e.getText().equals("curator") )
 				{
-					log.info("accessGroup(" + discover + "): " + roleEdit);
-					return roleEdit;
+					log.info("accessGroup(" + discover + "): " + roleAdmin);
+					return roleAdmin;
 				}
 			}
 		}
@@ -1021,8 +1003,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 					log.debug("Collection " + objid + " visibility: " + visibility + "; parent visibility: " + parentColVisibility);
 					if ( parentColVisibility.equals("curator") )
 					{
-						log.info("accessGroup(" + discover + "): " + roleEdit);
-						return roleEdit;
+						log.info("accessGroup(" + discover + "): " + roleAdmin);
+						return roleAdmin;
 					}
 				}
 			}
@@ -1032,7 +1014,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		String accessGroup = null;
 		if ( visibility != null && visibility.equals("curator") )
 		{
-			accessGroup = roleEdit;
+			accessGroup = roleAdmin;
 		}
 		else if ( visibility != null && visibility.equals("local") )
 		{
@@ -1045,7 +1027,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		else if ( suppressDiscovery && discover )
 		{
 			// suppress discovery of hidden objects
-			accessGroup = roleEdit;
+			accessGroup = roleAdmin;
 		}
 		else if (    copyright.equalsIgnoreCase("public domain") ||
 				( copyright.equalsIgnoreCase("under copyright") &&
@@ -1055,7 +1037,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			if ( displayRestriction )
 			{
 				// overridden: admin only
-				accessGroup = roleEdit;
+				accessGroup = roleAdmin;
 			}
 			else
 			{
@@ -1086,7 +1068,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			else
 			{
 				// default: admin-only
-				accessGroup = roleEdit;
+				accessGroup = roleAdmin;
 			}
 		}
 

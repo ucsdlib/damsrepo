@@ -46,16 +46,14 @@
           <xsl:if test="$accessGroup != '' and $accessGroup != $adminGroup">
             <group><xsl:value-of select="$accessGroup"/></group>
           </xsl:if>
+          <xsl:if test="$adminGroup != ''">
+            <group><xsl:value-of select="$adminGroup"/></group>
+          </xsl:if>
           <xsl:call-template name="admin-groups"/>
         </machine>
       </access>
       <access type="edit">
         <machine>
-          <xsl:for-each select="//dams:Unit/dams:unitGroup">
-            <xsl:if test="text() != $adminGroup and text() != $adminGroup2">
-              <group><xsl:value-of select="."/></group>
-            </xsl:if>
-          </xsl:for-each>
           <xsl:call-template name="admin-groups"/>
         </machine>
       </access>
@@ -77,9 +75,6 @@
 
   </xsl:template>
   <xsl:template name="admin-groups">
-    <xsl:if test="$adminGroup != ''">
-      <group><xsl:value-of select="$adminGroup"/></group>
-    </xsl:if>
     <xsl:if test="$adminGroup2 != ''">
       <group><xsl:value-of select="$adminGroup2"/></group>
     </xsl:if>
