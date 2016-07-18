@@ -38,6 +38,9 @@
           <xsl:if test="$discoverGroup != '' and $discoverGroup != $adminGroup">
             <group><xsl:value-of select="$discoverGroup"/></group>
           </xsl:if>
+          <xsl:if test="$adminGroup != ''">
+            <group><xsl:value-of select="$adminGroup"/></group>
+          </xsl:if>
           <xsl:call-template name="admin-groups"/>
         </machine>
       </access>
