@@ -85,6 +85,7 @@ import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
+import org.apache.camel.CamelContext;
 
 // post/put file attachments
 import org.apache.commons.fileupload.FileItem;
@@ -135,8 +136,8 @@ import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import edu.ucsd.library.dams.file.Checksum;
 import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.file.FileStoreUtil;
-import edu.ucsd.library.dams.file.ImageMagick;
-import edu.ucsd.library.dams.file.Ffmpeg;
+import edu.ucsd.library.dams.file.ImageMagickCamel;
+import edu.ucsd.library.dams.file.FfmpegCamel;
 import edu.ucsd.library.dams.file.impl.LocalStore;
 import edu.ucsd.library.dams.jhove.FfmpegUtil;
 import edu.ucsd.library.dams.jhove.JhoveInfo;
@@ -153,6 +154,7 @@ import edu.ucsd.library.dams.triple.TripleStoreException;
 import edu.ucsd.library.dams.triple.TripleStoreUtil;
 import edu.ucsd.library.dams.triple.Validator;
 import edu.ucsd.library.dams.triple.edit.Edit;
+import edu.ucsd.library.dams.util.CamelClientPool;
 import edu.ucsd.library.dams.util.Ezid;
 import edu.ucsd.library.dams.util.EzidException;
 import edu.ucsd.library.dams.util.HttpUtil;
@@ -258,6 +260,11 @@ public class DAMSAPIServlet extends HttpServlet
 	private Connection queueConnection;
 	private Session queueSession;
 	MessageProducer queueProducer;
+
+	// camel jms
+	protected String camelQueueName;
+	protected long camelRequestTimeout;
+	protected CamelClientPool camelPool;
 
     // stats tracking
 	protected List<Long> pstTimes = new ArrayList<Long>();
@@ -557,6 +564,25 @@ public class DAMSAPIServlet extends HttpServlet
 					ffmpegCodecParamsMap.put(keyValPair[0].trim(), keyValPair[1]);
 				}
 			}
+
+			// camel jms context
+			String camelJmsHost = props.getProperty("camel.jms.host");
+			String camelJmsPort = props.getProperty("camel.jms.port");
+			String camelJmsUsername = props.getProperty("camel.jms.username");
+			String camelJmsPassword = props.getProperty("camel.jms.password");
+			camelQueueName = props.getProperty("camel.queue.name");
+			camelRequestTimeout = Long.valueOf(props.getProperty("camel.request.timeout"));
+
+			// camel client context
+			System.setProperty("camel.jms.host", camelJmsHost);
+			System.setProperty("camel.jms.port", camelJmsPort);
+			System.setProperty("camel.jms.username", camelJmsUsername);
+			System.setProperty("camel.jms.password", camelJmsPassword);
+
+			if (camelPool == null) {
+				int camelPoolSize = Integer.valueOf(props.getProperty("camel.pool.size"));
+				camelPool = new CamelClientPool("camel-client.xml", camelPoolSize);
+			}
 		}
 		catch ( Exception ex )
 		{
@@ -566,6 +592,12 @@ public class DAMSAPIServlet extends HttpServlet
 
 		return error;
 	}
+
+	public void destroy() {
+		if (camelPool != null)
+			camelPool.close();
+	}
+
 	protected Map systemInfo( HttpServletRequest req )
 	{
 		String baseURL = req.getScheme() + "://" + req.getServerName() + ":"
@@ -2692,6 +2724,8 @@ public class DAMSAPIServlet extends HttpServlet
 		String derName = null;
 		StatementIterator sit = null;
 		String errorMessage = "";
+
+		CamelContext camelContext = null;
 		try
 		{
 			// both objid and fileid are required
@@ -2758,10 +2792,10 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 
 			int frame = 0;
-			ImageMagick magick = new ImageMagick( magickCommand );
-			Ffmpeg ffmpeg = new Ffmpeg(ffmpegCommand);
 			String[] sizewh = null;
 			String derid = null;
+
+			camelContext = camelPool.acquire();
 			for ( int i=0; i<sizes.length; i++ )
 			{
 				boolean successful = false;
@@ -2786,6 +2820,7 @@ public class DAMSAPIServlet extends HttpServlet
 					if (StringUtils.isBlank(codecParams) && !ffmpegCodecParamsMap.containsKey(derid.substring(derid.indexOf(".") + 1)))
 						throw new Exception("Unknown codec format for derivative " + derid + ".");
 
+					FfmpegCamel ffmpeg = new FfmpegCamel(ffmpegCommand, camelContext.getEndpoint(camelQueueName), camelRequestTimeout );
 					successful = ffmpeg.createDerivative (
 								fs, objid, cmpid, fileid, derid, codecParams, null);
 				}
@@ -2813,10 +2848,13 @@ public class DAMSAPIServlet extends HttpServlet
 					}
 			
 					log.info("FFMPEG video " + srcPath + " codecParams: "  + codecParams);
+
+					FfmpegCamel ffmpeg = new FfmpegCamel(ffmpegCommand, camelContext.getEndpoint(camelQueueName), camelRequestTimeout );
 					successful = ffmpeg.createDerivative(fs, objid, cmpid, fileid, derid, codecParams, paramSkip);
 				}
 				else
 				{
+					ImageMagickCamel magick = new ImageMagickCamel( magickCommand, camelContext.getEndpoint(camelQueueName), camelRequestTimeout );
 					// jpeg derivatives created by ImageMagick
 					successful = magick.makeDerivative(
 					    fs, objid, cmpid, fileid, derid,
@@ -2854,6 +2892,15 @@ public class DAMSAPIServlet extends HttpServlet
 			if(sit != null) {
 				sit.close();
 				sit = null;
+			}
+
+			if (camelContext != null)
+			{
+				try {
+					camelPool.recycle(camelContext);
+				} catch (Exception e) {
+					log.error( "Failed to recycle camel context", e );
+				}
 			}
 		}
 		if ( errorMessage.length() > 0)
@@ -5493,6 +5540,15 @@ System.out.println("getParamInt: " + key + ", " + s);
 			addProperty(props, "queue.url", varNamePrefix);
 			addProperty(props, "queue.name", varNamePrefix);
 			
+			//#camel jms context
+			addProperty(props, "camel.jms.host", varNamePrefix);
+			addProperty(props, "camel.jms.port", varNamePrefix);
+			addProperty(props, "camel.jms.username", varNamePrefix);
+			addProperty(props, "camel.jms.password", varNamePrefix);
+			addProperty(props, "camel.queue.name", varNamePrefix);
+			addProperty(props, "camel.request.timeout", varNamePrefix);
+			addProperty(props, "camel.pool.size", varNamePrefix);
+
 			//#ezid for doi minting
 			addProperty(props, "ezid.target.url", varNamePrefix);
 			addProperty(props, "ezid.host", varNamePrefix);
