@@ -9,6 +9,7 @@
   <property name="lib"       value="${src}/lib"/>
   <property name="lib1"       value="${src}/lib1"/>
   <property name="lib2"      value="${src}/lib2"/>
+  <property name="lib-camel" value="${src}/lib-camel"/>
   <property name="root"      value="${src}/root"/>
   <property name="metainf"   value="${src}/metainf"/>
   <property name="props"     value="${src}/properties"/>
@@ -72,6 +73,9 @@
     <fileset dir="${lib2}" id="lib2">
       <include name="*.jar"/>
     </fileset>
+    <fileset dir="${lib-camel}" id="lib-camel">
+      <include name="*.jar"/>
+    </fileset>
   </path>
 
   <!-- remove temp files -->
@@ -124,6 +128,7 @@
       <fileset dir="${lib}"/>
       <fileset dir="${lib1}"/>
       <fileset dir="${lib2}"/>
+    <fileset dir="${lib-camel}"/>
     </copy>
 
     <!-- compiled classes -->
@@ -160,8 +165,11 @@
     <copy todir="${webapp}/WEB-INF/lib">
       <fileset refid="lib1"/>
     </copy>
+    <copy todir="${webapp}/WEB-INF/lib">
+      <fileset refid="lib-camel"/>
+    </copy>
     <copy todir="${webapp}/WEB-INF/classes">
-      <fileset dir="${props}" includes="**/*.properties, jhove.conf"/>
+      <fileset dir="${props}" includes="**/*.properties, jhove.conf, camel-client.xml"/>
     </copy>
     <copy todir="${webapp}/WEB-INF/xsl">
       <fileset dir="${xsl}" includes="**/*.*"/>
