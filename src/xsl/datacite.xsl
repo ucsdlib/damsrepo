@@ -22,28 +22,46 @@
       </xsl:for-each>
 
       <xsl:for-each select="dams:Object">
-        <xsl:for-each select="dams:typeOfResource[1]">
+        <xsl:variable name="unit">
           <xsl:choose>
-            <xsl:when test="text() = 'still image'">
-              <resourceType resourceTypeGeneral="Image"/>
+            <xsl:when test="dams:unit/@rdf:resource">
+              <xsl:variable name="sid" select="dams:unit/@rdf:resource"/>
+              <xsl:value-of select="//*[@rdf:about=$sid]/dams:code"/>
             </xsl:when>
-            <xsl:when test="text() = 'text'">
-              <resourceType resourceTypeGeneral="Text"/>
-            </xsl:when>
-            <xsl:when test="text() = 'data'">
-              <resourceType resourceTypeGeneral="Dataset"/>
-            </xsl:when>
-            <xsl:when test="text() = 'sound recording'">
-              <resourceType resourceTypeGeneral="Sound"/>
-            </xsl:when>
-            <xsl:when test="text() = 'sound recording-nonmusical'">
-              <resourceType resourceTypeGeneral="Sound"/>
-            </xsl:when>
-            <xsl:when test="text() = 'moving image'">
-              <resourceType resourceTypeGeneral="Audiovisual"/>
-            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="dams:unit//dams:code" />
+            </xsl:otherwise>
           </xsl:choose>
-        </xsl:for-each>
+        </xsl:variable>
+        <xsl:choose>
+          <xsl:when test="$unit = 'rdcp'">
+            <resourceType resourceTypeGeneral="Dataset"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:for-each select="dams:typeOfResource[1]">
+              <xsl:choose>
+                <xsl:when test="text() = 'still image'">
+                  <resourceType resourceTypeGeneral="Image"/>
+                </xsl:when>
+                <xsl:when test="text() = 'text'">
+                  <resourceType resourceTypeGeneral="Text"/>
+                </xsl:when>
+                <xsl:when test="text() = 'data'">
+                  <resourceType resourceTypeGeneral="Dataset"/>
+                </xsl:when>
+                <xsl:when test="text() = 'sound recording'">
+                  <resourceType resourceTypeGeneral="Sound"/>
+                </xsl:when>
+                <xsl:when test="text() = 'sound recording-nonmusical'">
+                  <resourceType resourceTypeGeneral="Sound"/>
+                </xsl:when>
+                <xsl:when test="text() = 'moving image'">
+                  <resourceType resourceTypeGeneral="Audiovisual"/>
+                </xsl:when>
+              </xsl:choose>
+            </xsl:for-each>
+          </xsl:otherwise>
+        </xsl:choose>
 
         <xsl:call-template name="datacite"/>
       </xsl:for-each>
@@ -63,11 +81,16 @@
     </creators>
 
     <titles>
+      <xsl:variable name="collectionTitle">
+        <xsl:for-each select="dams:assembledCollection/*|dams:provenanceCollection/*|dams:provenanceCollectionPart/*">
+          <xsl:value-of select="dams:title//mads:authoritativeLabel"/>
+        </xsl:for-each>
+      </xsl:variable>
       <xsl:for-each select="dams:title//mads:authoritativeLabel|dams:title//mads:variantLabel">
         <xsl:variable name="lang">
           <xsl:choose>
             <xsl:when test="@xml:lang"><xsl:value-of select="@xml:lang"/></xsl:when>
-            <xsl:otherwise>en-us</xsl:otherwise>
+            <xsl:otherwise>en-US</xsl:otherwise>
           </xsl:choose>
         </xsl:variable>
         <xsl:variable name="type">
@@ -83,6 +106,9 @@
             <xsl:attribute name="titleType"><xsl:value-of select="$type"/></xsl:attribute>
           </xsl:if>
           <xsl:value-of select="."/>
+          <xsl:if test="string-length($collectionTitle) &gt; 0">
+            <xsl:value-of select="concat('. ', 'In ', $collectionTitle, '.')"/>
+          </xsl:if>
         </xsl:element>
       </xsl:for-each>
     </titles>
@@ -140,24 +166,20 @@
 
     <!-- subject, excl. geo -->
     <subjects>
-      <xsl:for-each select="dams:builtWorkPlace/*|dams:conferenceName/*|dams:corporateName/*|dams:culturalContext/*|dams:familyName/*|dams:function/*|dams:genreForm/*|dams:iconography/*|dams:name/*|dams:occupation/*|dams:otherName/*|dams:personalName/*|dams:scientificName/*|dams:stylePeriod/*|dams:technique/*|dams:temporal/*|dams:topic/*|dams:complexSubject/*">
-        <subject>
-          <xsl:choose>
-            <xsl:when test="mads:isMemberOfMADSScheme/mads:MADSScheme">
-              <xsl:for-each select="mads:isMemberOfMADSScheme/mads:MADSScheme">
-                <xsl:call-template name="subject-attributes"/>
-              </xsl:for-each>
-            </xsl:when>
-            <xsl:when test="mads:isMemberOfMADSScheme/@rdf:resource">
-              <xsl:variable name="sid" select="mads:isMemberOfMADSScheme/@rdf:resource"/>
-              <xsl:for-each select="//mads:MADSScheme[@rdf:about=$sid]">
-                <xsl:call-template name="subject-attributes"/>
-              </xsl:for-each>
-            </xsl:when>
-          </xsl:choose>
-
-          <xsl:value-of select="mads:authoritativeLabel"/>
-        </subject>
+      <xsl:for-each select="dams:builtWorkPlace|dams:conferenceName|dams:corporateName|dams:culturalContext|dams:familyName|dams:function|dams:genreForm|dams:iconography|dams:name|dams:occupation|dams:otherName|dams:personalName|dams:scientificName|dams:stylePeriod|dams:technique|dams:temporal|dams:topic|dams:complexSubject|dams:geographic">
+        <xsl:choose>
+          <xsl:when test="@rdf:resource">
+            <xsl:variable name="sid" select="@rdf:resource"/>
+            <xsl:for-each select="//*[@rdf:about=$sid]">
+              <xsl:call-template name="subject-element"/>
+            </xsl:for-each>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:for-each select="*">
+              <xsl:call-template name="subject-element"/>
+            </xsl:for-each>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:for-each>
     </subjects>
 
@@ -237,6 +259,26 @@
         <xsl:otherwise                          >Created</xsl:otherwise>
       </xsl:choose>
     </xsl:attribute>
+  </xsl:template>
+
+  <xsl:template name="subject-element">
+    <subject>
+      <xsl:choose>
+        <xsl:when test="mads:isMemberOfMADSScheme/mads:MADSScheme">
+          <xsl:for-each select="mads:isMemberOfMADSScheme/mads:MADSScheme">
+            <xsl:call-template name="subject-attributes"/>
+          </xsl:for-each>
+        </xsl:when>
+        <xsl:when test="mads:isMemberOfMADSScheme/@rdf:resource">
+          <xsl:variable name="sid" select="mads:isMemberOfMADSScheme/@rdf:resource"/>
+          <xsl:for-each select="//mads:MADSScheme[@rdf:about=$sid]">
+            <xsl:call-template name="subject-attributes"/>
+          </xsl:for-each>
+        </xsl:when>
+      </xsl:choose>
+
+      <xsl:value-of select="mads:authoritativeLabel"/>
+    </subject>
   </xsl:template>
 
   <xsl:template name="subject-attributes">
