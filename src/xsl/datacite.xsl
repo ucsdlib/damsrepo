@@ -157,7 +157,13 @@
     <xsl:if test="dams:note/dams:Note[dams:type='description' or dams:type='methods']">
       <descriptions>
         <xsl:for-each select="dams:note/dams:Note[dams:type='description' or dams:type='methods']">
-          <description descriptionType="Abstract">
+          <xsl:variable name="descriptionType">
+            <xsl:choose>
+              <xsl:when test="dams:type = 'methods'">Methods</xsl:when>
+              <xsl:otherwise>Abstract</xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable>
+          <description descriptionType="{$descriptionType}">
             <xsl:value-of select="rdf:value"/>
           </description>
         </xsl:for-each>
