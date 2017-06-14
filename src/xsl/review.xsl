@@ -903,16 +903,15 @@
 		<xsl:param name="ark"/>
 		<xsl:param name="propName"/>
 		<xsl:param name="collections"/>
-		<xsl:variable name="collection" select="$collections/value[contains(collection,$ark)]"/>
 		<xsl:variable name="uTitle">
 			<xsl:choose>
-				<xsl:when test="$collection"><xsl:value-of select="$collection/title"/></xsl:when>
+				<xsl:when test="$collections and $collections/value[contains(collection,$ark)]"><xsl:value-of select="$collections/value[contains(collection,$ark)]/title"/></xsl:when>
 				<xsl:otherwise><xsl:value-of select="$ark"/></xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
 		<xsl:variable name="uType">
 			<xsl:choose>
-				<xsl:when test="$collection"><xsl:value-of select="$collection/type"/></xsl:when>
+				<xsl:when test="$collections and $collections/value[contains(collection,$ark)]"><xsl:value-of select="$collections/value[contains(collection,$ark)]/type"/></xsl:when>
 				<xsl:when test="starts-with($propName, 'has')"><xsl:value-of select="substring-after($propName, 'has')"/></xsl:when>
 				<xsl:otherwise><xsl:value-of select="$propName"/></xsl:otherwise>
 			</xsl:choose>
