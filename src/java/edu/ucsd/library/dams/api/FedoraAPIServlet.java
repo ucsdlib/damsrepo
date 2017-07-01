@@ -126,6 +126,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	// date format
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+	private static String VISIBILITY_LOCAL = "local";
+	private static String VISIBILITY_PUBLIC_DOMAIN = "public domain";
+	private static String VISIBILITY_UNDER_COPYRIGHT = "under copyright";
+
 	// xslt
 	Transformer objectContentTransform;
 	Transformer objectProfileTransform;
@@ -972,6 +976,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		if ( rightsHolder == null ) { rightsHolder = "unknown"; }
 
 		// collection visibility overrides object access control
+		boolean localVisibilityOverride = false;
 		if ( colVisibility != null && colVisibility.size() > 0 )
 		{
 			for ( int i = 0; i < colVisibility.size(); i++ )
@@ -982,6 +987,12 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 				{
 					log.info("accessGroup(" + discover + "): " + roleAdmin);
 					return roleAdmin;
+				}
+				else if ( e.getText().equals(VISIBILITY_LOCAL) )
+				{
+					// visibility: UCSD local access
+					log.info("Collection visibility overriden: accessGroup(" + discover + "): " + roleLocal);
+					localVisibilityOverride = true;
 				}
 			}
 		}
@@ -1006,6 +1017,12 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 						log.info("accessGroup(" + discover + "): " + roleAdmin);
 						return roleAdmin;
 					}
+					else if ( parentColVisibility.equals(VISIBILITY_LOCAL) )
+					{
+						// visibility: UCSD local access
+						log.info("Collection visibility overriden: accessGroup(" + discover + "): " + roleLocal);
+						localVisibilityOverride = true;
+					}
 				}
 			}
 		}
@@ -1029,12 +1046,17 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			// suppress discovery of hidden objects
 			accessGroup = roleAdmin;
 		}
-		else if (    copyright.equalsIgnoreCase("public domain") ||
-				( copyright.equalsIgnoreCase("under copyright") &&
-				rightsHolder.equalsIgnoreCase(localCopyright) )      )
+		else if ( copyright.equalsIgnoreCase(VISIBILITY_PUBLIC_DOMAIN)
+					|| ( copyright.equalsIgnoreCase(VISIBILITY_UNDER_COPYRIGHT) && rightsHolder.equalsIgnoreCase(localCopyright) )
+					|| displayPermission )
 		{
-			// public domain or locally-owned
-			if ( displayRestriction )
+			// public domain, locally-owned or display permitted
+			if ( localPermission || localVisibilityOverride )
+			{
+				// overridden: local
+				accessGroup = roleLocal;
+			}
+			else if ( displayRestriction )
 			{
 				// overridden: admin only
 				accessGroup = roleAdmin;
@@ -1047,13 +1069,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		}
 		else
 		{
-			// third party or unknown copyright
-			if ( !displayRestriction && displayPermission )
-			{
-				// overriden: public
-				accessGroup = roleDefault;
-			}
-			else if ( !displayRestriction && localPermission )
+			// third party or unknown copyright with no display permissions
+			if ( localPermission )
 			{
 				// overriden: local-only
 				accessGroup = roleLocal;
