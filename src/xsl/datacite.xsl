@@ -18,6 +18,7 @@
 
       <xsl:for-each select="dams:AssembledCollection|dams:ProvenanceCollection|dams:ProvenanceCollectionPart">
         <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType>Dataset</resourceType>
         <xsl:call-template name="datacite"/>
       </xsl:for-each>
 
@@ -36,6 +37,7 @@
         <xsl:choose>
           <xsl:when test="$unit = 'rdcp'">
             <resourceType resourceTypeGeneral="Dataset"/>
+            <resourceType>Dataset</resourceType>
           </xsl:when>
           <xsl:otherwise>
             <xsl:for-each select="dams:typeOfResource[1]">
@@ -48,6 +50,7 @@
                 </xsl:when>
                 <xsl:when test="text() = 'data'">
                   <resourceType resourceTypeGeneral="Dataset"/>
+                  <resourceType>Dataset</resourceType>
                 </xsl:when>
                 <xsl:when test="text() = 'sound recording'">
                   <resourceType resourceTypeGeneral="Sound"/>
