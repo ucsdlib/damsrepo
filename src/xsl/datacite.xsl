@@ -35,7 +35,7 @@
         </xsl:variable>
         <xsl:choose>
           <xsl:when test="$unit = 'rdcp'">
-            <resourceType resourceTypeGeneral="Dataset"/>
+            <resourceType resourceTypeGeneral="Dataset">Dataset</resourceType>
           </xsl:when>
           <xsl:otherwise>
             <xsl:for-each select="dams:typeOfResource[1]">
