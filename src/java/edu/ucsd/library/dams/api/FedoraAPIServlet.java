@@ -1033,12 +1033,22 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			accessGroup = roleAdmin;
 		}
+		else if ( visibility != null && visibility.equals("public") )
+		{
+			accessGroup = roleDefault;
+		}
+		else if ( visibility != null && visibility.equals("local") && discover )
+		{
+			// UCSD local collection visibility for metadata-only public display
+			accessGroup = roleDefault;
+		}
 		else if ( visibility != null && visibility.equals("local") )
 		{
 			accessGroup = roleLocal;
 		}
-		else if ( visibility != null && visibility.equals("public") )
+		else if ( discover && (localPermission || metadataPermission) )
 		{
+			// UCSD IP only / metadata-only for public display
 			accessGroup = roleDefault;
 		}
 		else if ( suppressDiscovery && discover )
