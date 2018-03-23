@@ -1027,22 +1027,25 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			}
 		}
 
+		if (visibility == null)
+			visibility = "";
+
 		// logic
 		String accessGroup = null;
-		if ( visibility != null && visibility.equals("curator") )
+		if ( visibility.equals("curator") )
 		{
 			accessGroup = roleAdmin;
 		}
-		else if ( visibility != null && visibility.equals("public") )
+		else if ( visibility.equals("public") )
 		{
 			accessGroup = roleDefault;
 		}
-		else if ( visibility != null && visibility.equals("local") && discover )
+		else if ( visibility.equals("local") && discover )
 		{
 			// UCSD local collection visibility for metadata-only public display
 			accessGroup = roleDefault;
 		}
-		else if ( visibility != null && visibility.equals("local") )
+		else if ( visibility.equals("local") )
 		{
 			accessGroup = roleLocal;
 		}
