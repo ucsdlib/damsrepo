@@ -1083,7 +1083,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		else
 		{
 			// third party or unknown copyright with no display permissions
-			if ( localPermission )
+			if ( localPermission || localVisibilityOverride && metadataPermission )
 			{
 				// overriden: local-only
 				accessGroup = roleLocal;
