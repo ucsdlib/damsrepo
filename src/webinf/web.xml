@@ -24,6 +24,7 @@
   <servlet>
     <servlet-name>DAMSAPIServlet</servlet-name>
     <servlet-class>edu.ucsd.library.dams.api.DAMSAPIServlet</servlet-class>
+    <load-on-startup>20</load-on-startup>
   </servlet>
   <servlet>
     <servlet-name>FedoraAPIServlet</servlet-name>
@@ -32,6 +33,7 @@
   <servlet>
     <servlet-name>FileStoreServlet</servlet-name>
     <servlet-class>edu.ucsd.library.dams.api.FileStoreServlet</servlet-class>
+    <load-on-startup>20</load-on-startup>
   </servlet>
   <servlet>
     <servlet-name>SimpleMinterServlet</servlet-name>
