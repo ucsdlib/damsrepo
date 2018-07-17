@@ -168,6 +168,8 @@ import edu.ucsd.library.dams.util.XMLOutputStreamer;
 **/
 public class DAMSAPIServlet extends HttpServlet
 {
+	private static int MAX_INDEX_TRY = 2; // maximum number of tries for object indexing
+
 	//========================================================================
 	// Servlet init and shared state
 	//========================================================================
@@ -510,19 +512,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				try
 				{
-					queueConnectionFactory = new ActiveMQConnectionFactory(
-						queueUrl
-					);
-					queueConnection = queueConnectionFactory.createConnection();
-					queueConnection.start();
-					queueSession = queueConnection.createSession(
-						false, Session.AUTO_ACKNOWLEDGE
-					);
-					queueProducer= queueSession.createProducer(
-						queueSession.createTopic(queueName)
-					);
-					queueProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-					log.info("JMS Queue: " + queueUrl + "/" + queueName);
+					initJmsSession(queueUrl, queueName);
 				}
 				catch ( Exception ex )
 				{
@@ -3686,28 +3676,56 @@ public class DAMSAPIServlet extends HttpServlet
 		String error = null;
 		if ( queueEnabled && queueSession != null )
 		{
-			try
-			{
-				TextMessage msg = queueSession.createTextMessage(
-					"DAMS Queue Message: " + objid + " (" + type + ")"
-				);
-				msg.setStringProperty("pid",objid);
-				msg.setStringProperty("methodName",type);
+			int numOfTry = 0;
 
-				if ( priority < 1 || priority > 9 )
-				{
-					priority = DEFAULT_PRIORITY;
-				}
-				queueProducer.send(
-					msg, queueProducer.getDeliveryMode(),
-					priority, queueProducer.getTimeToLive()
-				);
-			}
-			catch ( Exception ex )
+			do
 			{
-				log.error("Error sending event to queue", ex );
-				error = "Error sending object to queue: " + ex.toString();
-			}
+				try
+				{
+					TextMessage msg = queueSession.createTextMessage(
+						"DAMS Queue Message: " + objid + " (" + type + ")"
+					);
+					msg.setStringProperty("pid",objid);
+					msg.setStringProperty("methodName",type);
+	
+					if ( priority < 1 || priority > 9 )
+					{
+						priority = DEFAULT_PRIORITY;
+					}
+					queueProducer.send(
+						msg, queueProducer.getDeliveryMode(),
+						priority, queueProducer.getTimeToLive()
+					);
+	
+					error = "";
+					break;
+				}
+				catch ( Exception ex )
+				{
+					log.error( "Error sending event to queue", ex );
+					error = "Error sending object to queue: " + ex.toString();
+	
+					if (queueSession != null)
+					{
+					  try
+					  {
+						  queueSession.close();
+						  queueConnection.close();
+					  } catch (JMSException e) {}
+					}
+	
+					try
+					{
+						// re-initialize the JMS session.
+						initJmsSession(queueUrl, queueName);
+					}
+					catch (JMSException e)
+					{
+						log.error( "Error sending event to queue", e );
+						error = "Error sending object to queue: " + e.toString();
+					}
+				}
+			} while (++numOfTry < MAX_INDEX_TRY);
 		}
 		return error;
 	}
@@ -3730,6 +3748,22 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 		}
 		return result;
+	}
+
+	private void initJmsSession(String queueUrl, String queueName) throws JMSException {
+		queueConnectionFactory = new ActiveMQConnectionFactory(
+			queueUrl
+		);
+		queueConnection = queueConnectionFactory.createConnection();
+		queueConnection.start();
+		queueSession = queueConnection.createSession(
+			false, Session.AUTO_ACKNOWLEDGE
+		);
+		queueProducer= queueSession.createProducer(
+			queueSession.createTopic(queueName)
+		);
+		queueProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+		log.info("JMS Queue: " + queueUrl + "/" + queueName);
 	}
 
 	protected void createEvent( TripleStore ts, TripleStore es, FileStore fs,
