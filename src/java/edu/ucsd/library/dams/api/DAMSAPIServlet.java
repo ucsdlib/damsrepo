@@ -3697,7 +3697,7 @@ public class DAMSAPIServlet extends HttpServlet
 						priority, queueProducer.getTimeToLive()
 					);
 	
-					error = "";
+					error = null;
 					break;
 				}
 				catch ( Exception ex )
