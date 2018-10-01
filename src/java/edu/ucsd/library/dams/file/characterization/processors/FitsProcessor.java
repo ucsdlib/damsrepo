@@ -21,8 +21,11 @@ import static edu.ucsd.library.dams.file.characterization.model.MetadataConstant
 import static edu.ucsd.library.dams.file.characterization.model.MetadataConstants.WELL_FORMED;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -50,12 +53,22 @@ public class FitsProcessor extends Processor {
 
     private static Logger log = Logger.getLogger(FitsProcessor.class);
 
-    public FitsProcessor() {
+    private String fitsConfig = null;
+
+    public FitsProcessor() throws FileNotFoundException {
         this("fits");
     }
 
-    public FitsProcessor(String command) {
+    public FitsProcessor(String command) throws FileNotFoundException {
+        this(command, null);
+    }
+
+    public FitsProcessor(String command, String fitsConfig) throws FileNotFoundException {
         super(command);
+        this.fitsConfig = fitsConfig;
+        if (StringUtils.isNotBlank(fitsConfig) && Files.notExists(Paths.get(fitsConfig))) {
+          throw new FileNotFoundException("FITS configuration file is not found: " + fitsConfig);
+        }
     }
 
     @Override
@@ -64,6 +77,10 @@ public class FitsProcessor extends Processor {
         cmdParams.add(command);
         cmdParams.add("-i");
         cmdParams.add(sourceFile);
+        if (StringUtils.isNotEmpty(fitsConfig)) {
+            cmdParams.add("-f");
+            cmdParams.add(fitsConfig);
+        }
  
         String rawOutput = exec(cmdParams);
 
@@ -132,14 +149,7 @@ public class FitsProcessor extends Processor {
             metadata.put(DATE_CREATED, (StringUtils.isNotBlank(dateCreated) ? parseDate(dateCreated) : null));
 
             // date modified
-            String dateValue = getValue(fitsNode, "fits:fileinfo/fits:lastmodified");
-            if (StringUtils.isNotBlank(dateValue)) {
-                metadata.put(DATE_MODIFIED, parseDate(getValue(fitsNode, "fits:fileinfo/fits:lastmodified")));
-            } else {
-                // last modified in OIS File Information (in milliseconds)
-                dateValue = getValue(fitsNode, "fits:fileinfo/fits:fslastmodified");
-                metadata.put(DATE_MODIFIED, new Date(Long.parseLong(dateValue)));
-            }
+            metadata.put(DATE_MODIFIED, extractDateModified(fitsNode));
 
             // filename
             metadata.put(FILE_NAME, getValue(fitsNode, "fits:fileinfo/fits:filename"));
@@ -172,11 +182,7 @@ public class FitsProcessor extends Processor {
             }
 
             // image quality
-            String imageWidth = getValue(fitsNode, "fits:metadata/fits:image/fits:imageWidth");
-            String imageHeight = getValue(fitsNode, "fits:metadata/fits:image/fits:imageHeight");
-            if (StringUtils.isNotBlank(imageWidth) || StringUtils.isNotBlank(imageHeight)) {
-                metadata.put(QUALITY, imageWidth + "x" + imageHeight);
-            }
+            metadata.put(QUALITY, extractImageQuality(fitsNode));
 
             // image producer
             metadata.put(IMAGE_PRODUCER, getValue(fitsNode, "fits:metadata/fits:image/fits:imageProducer"));
@@ -194,16 +200,57 @@ public class FitsProcessor extends Processor {
             }
 
             if (StringUtils.isBlank((String)metadata.get(QUALITY))) {
-                // audio quality
-                String bitDepth = getValue(fitsNode, "fits:metadata/fits:audio/fits:bitDepth");
-                String sampleRate = getValue(fitsNode, "fits:metadata/fits:audio/fits:sampleRate");
-                String channels = getValue(fitsNode, "fits:metadata/fits:audio/fits:channels");
-                if (StringUtils.isNotBlank(bitDepth) || StringUtils.isNotBlank(sampleRate) || StringUtils.isNotBlank(channels)) {
-                    metadata.put(QUALITY, audioQuality(bitDepth, sampleRate, "Hz", channels)) ;
-                }
+                // extract and format the audio quality
+                String quality = extractAudioQuality(fitsNode);
+                if (StringUtils.isBlank(quality))
+                    // extract and format the video quality if decide
+                    quality = extractVideoQuality(fitsNode);
+
+                metadata.put(QUALITY, quality);
             }
         }
         return metadata;
+    }
+
+    private String extractAudioQuality(Node fitsNode) {
+      // audio quality
+      String bitDepth = getValue(fitsNode, "fits:metadata/fits:audio/fits:bitDepth");
+      String sampleRate = getValue(fitsNode, "fits:metadata/fits:audio/fits:sampleRate");
+      String channels = getValue(fitsNode, "fits:metadata/fits:audio/fits:channels");
+      if (StringUtils.isNotBlank(bitDepth) || StringUtils.isNotBlank(sampleRate) || StringUtils.isNotBlank(channels)) {
+          return audioQuality(bitDepth, sampleRate, "Hz", channels);
+      }
+      return null;
+    }
+
+    private String extractVideoQuality(Node fitsNode) {
+      // This is a place holder to extract quality value from metadata/video section if prefer
+      return null;
+    }
+
+    private String extractImageQuality(Node fitsNode) {
+      // image quality
+      String imageWidth = getValue(fitsNode, "fits:metadata/fits:image/fits:imageWidth");
+      String imageHeight = getValue(fitsNode, "fits:metadata/fits:image/fits:imageHeight");
+      if (StringUtils.isNotBlank(imageWidth) || StringUtils.isNotBlank(imageHeight)) {
+          return imageWidth + "x" + imageHeight;
+      }
+      return null;
+    }
+
+    private Date extractDateModified(Node fitsNode) {
+      Date dateModified = null;
+      // date modified
+      String dateValue = getValue(fitsNode, "fits:fileinfo/fits:lastmodified");
+      if (StringUtils.isNotBlank(dateValue)) {
+          dateModified = parseDate(getValue(fitsNode, "fits:fileinfo/fits:lastmodified"));
+      } else {
+          // last modified in OIS File Information (in milliseconds)
+          dateValue = getValue(fitsNode, "fits:fileinfo/fits:fslastmodified");
+          if (StringUtils.isNotBlank(dateValue))
+              dateModified = new Date(Long.parseLong(dateValue));
+      }
+      return dateModified;
     }
 
     /*
@@ -231,12 +278,12 @@ public class FitsProcessor extends Processor {
      */
     private static String audioQuality(String bits, String freq, String units, String chan) {
         String qual = "";
-        if ( bits != null ) { qual += bits + "-bit"; }
-        if ( freq != null ) {
+        if ( StringUtils.isNotBlank(bits) ) { qual += bits + "-bit"; }
+        if ( StringUtils.isNotBlank(freq) ) {
             if ( !qual.equals("") ) { qual += ", "; }
             qual += freq + " " + units;
         }
-        if ( chan != null ) {
+        if ( StringUtils.isNotBlank(chan) ) {
             if ( !qual.equals("") ) { qual += ", "; }
             if ( chan.equals("1") ) {
                 qual += "Single channel (Mono)";
