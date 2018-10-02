@@ -258,12 +258,13 @@
   </target>
 
   <!-- test-compile -->
-  <target name="test-compile" description="Compile tests">
+  <target name="test-compile" description="Compile tests" depends="compile">
     <mkdir dir="${testexec}"/>
     <javac destdir="${testexec}" srcdir="${test}"
         deprecation="on" debug="true" debuglevel="lines,source" target="1.8"
         includeantruntime="false" source="1.8">
       <classpath refid="classpath"/>
+      <classpath location="${tmp}/classes"/>
     </javac>
   </target>
   <target name="test" description="Run tests" depends="compile,test-compile">
@@ -271,6 +272,7 @@
       <sysproperty key="dams.samples" value="${src}/sample"/>
       <formatter type="plain"/>
       <classpath refid="classpath"/>
+      <classpath location="${tmp}/classes"/>
       <classpath>
         <pathelement path="${testexec}"/>
       </classpath>
@@ -278,6 +280,24 @@
         <fileset dir="${test}">
           <include name="**/*Test*.java"/>
           <exclude name="**/AbstractIntegrationTest.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+  <target name="junit" depends="distclean,compile,test-compile">
+    <junit showoutput="true" printsummary="withOutAndErr" haltonfailure="yes">
+      <sysproperty key="dams.samples" value="${src}/sample"/>
+      <formatter type="plain"/>
+      <classpath refid="classpath"/>
+      <classpath location="${tmp}/classes"/>
+      <classpath>
+        <pathelement path="${testexec}"/>
+      </classpath>
+      <batchtest todir="${tmp}">
+        <fileset dir="${test}">
+          <include name="**/*Test*.java"/>
+          <exclude name="**/integration/*.java"/>
         </fileset>
       </batchtest>
     </junit>
