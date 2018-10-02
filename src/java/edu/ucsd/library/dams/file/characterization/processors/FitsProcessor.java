@@ -98,7 +98,51 @@ public class FitsProcessor extends Processor {
 
         ns.addNamespace( nsPrefix, nsURI );  
         xpath.setNamespaceContext(ns);
-        return xpath.valueOf(node);
+
+        Node selectedNode = null;
+        List<Node> nodeList = xpath.selectNodes(node);
+
+        if (nodeList.size() > 1) {
+            // conflicting values: use value from Jhove, ExifTool, file utility in order if exists
+            for (Node n : nodeList) {
+                Node toolNode = null;
+                if (n.getNodeType() == Node.ATTRIBUTE_NODE) {
+                    // handle conflicting attributes values by tool
+                    xpath = DocumentHelper.createXPath("../"+ nsPrefix + ":tool/@toolname");
+                    xpath.setNamespaceContext(ns);
+                    toolNode = xpath.selectSingleNode(n);
+                } else {
+                    toolNode = n.selectSingleNode("@toolname");
+                }
+
+                if (toolNode != null) {
+                    String toolName =  toolNode.getStringValue();
+
+                    if ( selectedNode == null && toolName.equals("file utility")){
+                        selectedNode = n;
+                    } else if (toolName.equals("Exiftool")) {
+                        selectedNode = n;
+                    } else if (toolName.equals("Jhove")) {
+                        selectedNode = n;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // use the first one if no results from Jhove, ExifTool and file utility
+        if (selectedNode == null && nodeList.size() > 0) {
+            selectedNode = nodeList.get(0);
+        }
+
+        String value = null;
+        if (selectedNode != null) {
+            if (selectedNode.getNodeType() == Node.ATTRIBUTE_NODE)
+                value = selectedNode.getStringValue();
+            else
+                value = selectedNode.getText();
+        }
+        return value;
     }
 
     @Override
