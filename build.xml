@@ -161,7 +161,7 @@
       <fileset refid="lib1"/>
     </copy>
     <copy todir="${webapp}/WEB-INF/classes">
-      <fileset dir="${props}" includes="**/*.properties, jhove.conf"/>
+      <fileset dir="${props}" includes="**/*.properties, jhove.conf, fits.xml"/>
     </copy>
     <copy todir="${webapp}/WEB-INF/xsl">
       <fileset dir="${xsl}" includes="**/*.*"/>

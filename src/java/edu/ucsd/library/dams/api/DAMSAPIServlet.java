@@ -137,10 +137,13 @@ import edu.ucsd.library.dams.file.FileStore;
 import edu.ucsd.library.dams.file.FileStoreUtil;
 import edu.ucsd.library.dams.file.ImageMagick;
 import edu.ucsd.library.dams.file.Ffmpeg;
+import edu.ucsd.library.dams.file.characterization.CharacterizationService;
+import edu.ucsd.library.dams.file.characterization.model.TechnicalMetadata;
+import edu.ucsd.library.dams.file.characterization.processors.ChecksumProcessor;
+import edu.ucsd.library.dams.file.characterization.processors.FfmpegProcessor;
+import edu.ucsd.library.dams.file.characterization.processors.FitsProcessor;
+import edu.ucsd.library.dams.file.characterization.processors.Processor;
 import edu.ucsd.library.dams.file.impl.LocalStore;
-import edu.ucsd.library.dams.jhove.FfmpegUtil;
-import edu.ucsd.library.dams.jhove.JhoveInfo;
-import edu.ucsd.library.dams.jhove.MyJhoveBase;
 import edu.ucsd.library.dams.model.DAMSObject;
 import edu.ucsd.library.dams.model.Event;
 import edu.ucsd.library.dams.triple.ArkTranslator;
@@ -241,7 +244,8 @@ public class DAMSAPIServlet extends HttpServlet
 	private String derivativesExt;              // extension for derivs
 	private String magickCommand; 				// ImageMagick command
 	private String ffmpegCommand; 				// ffmpeg command
-	private long jhoveMaxSize;                  // local file cache size limit
+
+	private List<Processor> characterizationProcessors; // processors for characterization
 
 	// number detection
 	private static Pattern numberPattern = null;
@@ -482,21 +486,17 @@ public class DAMSAPIServlet extends HttpServlet
 			ffmpegCommand = props.getProperty("ffmpeg");
 			if ( ffmpegCommand == null )
 				ffmpegCommand = "ffmpeg";
-			
-			// Jhove configuration
-			String jhoveConf = props.getProperty("jhove.conf");
-			if ( jhoveConf != null )
-				MyJhoveBase.setJhoveConfig(jhoveConf);
-			// Jhove zip model configuration
-			String jhoveZipModelCommand = props.getProperty("jhove.zipModel.command");
-			if ( StringUtils.isNotBlank(jhoveZipModelCommand) )
-				MyJhoveBase.setZipModelCommand(jhoveZipModelCommand);
-			// Jhove gzip model configuration
-			String jhoveGzipModelCommand = props.getProperty("jhove.gzipModel.command");
-			if ( StringUtils.isNotBlank(jhoveGzipModelCommand) )
-				MyJhoveBase.setGzipModelCommand(jhoveGzipModelCommand);
 
-			jhoveMaxSize = getPropLong( props, "jhove.maxSize", -1L );
+			// FITS configuration
+			String fitsConfig = props.getProperty("characterization.fits.config");
+			if (StringUtils.isBlank(fitsConfig))
+				fitsConfig = context.getRealPath("/WEB-INF/classes/fits.xml");
+
+			// FITS command
+			String fitsCommand = props.getProperty("characterization.fits.command");
+
+			// Processors for file characterization
+			characterizationProcessors = getCharacterizationProcessors(fitsCommand, fitsConfig, ffmpegCommand);
 
 			// ldap for group lookup
 			ldaputil = new LDAPUtil( props );
@@ -569,6 +569,22 @@ public class DAMSAPIServlet extends HttpServlet
 		return info;
 	}
 
+	/*
+	 * Initialize the processors for technical metadata extraction with FITS, FFMPEG etc.
+	 * @param fitsCommand
+	 * @param fitsConfig
+	 * @param ffmpegCommand
+	 * @return List<Processor>
+	 */
+	private List<Processor> getCharacterizationProcessors(String fitsCommand, String fitsConfig, String ffmpegCommand)
+			throws FileNotFoundException {
+		Processor[] charProcessorArr = {
+				new FitsProcessor(fitsCommand, fitsConfig),
+				new FfmpegProcessor(ffmpegCommand),
+				new ChecksumProcessor()
+	    };
+		return Arrays.asList(charProcessorArr);
+	}
 
 	//========================================================================
 	// REST API methods
@@ -2242,7 +2258,7 @@ public class DAMSAPIServlet extends HttpServlet
 			}
 			else
 			{
-				// extract technical metadata using jhove
+				// extract technical metadata
 				File localFile = getParamFile(params,"local",null);
 
 				if ( fs instanceof LocalStore )
@@ -2250,7 +2266,7 @@ public class DAMSAPIServlet extends HttpServlet
 					// use localstore version if possible
 					sourceFile = fs.getPath( objid, cmpid, fileid );
 					log.info(
-						"Jhove extraction, source=localStore: " + sourceFile
+						"Technical metadata extraction, source=localStore: " + sourceFile
 					);
 				}
 				else if ( localFile != null )
@@ -2258,7 +2274,7 @@ public class DAMSAPIServlet extends HttpServlet
 					// otherwise, use staged source file
 					sourceFile = localFile.getAbsolutePath();
 					log.info(
-						"Jhove extraction, source=local file: " + sourceFile
+						"Technical metadata extraction, source=local file: " + sourceFile
 					);
 				}
 				else
@@ -2268,34 +2284,17 @@ public class DAMSAPIServlet extends HttpServlet
 					File srcFile = File.createTempFile( "jhovetmp",  fileExt);
 					long fileSize = fs.length(objid, cmpid, fileid);
 
-					// make sure file is not too large to copy locally...
-					if ( jhoveMaxSize != -1L && fileSize > jhoveMaxSize )
-					{
-						return error(
-							SC_REQUEST_ENTITY_TOO_LARGE,
-							"File is too large to retrieve for local processing"
-							+ " (maxSize=" + jhoveMaxSize + "): " + fid.getId(), null
-						);
-					}
-					else if ( fileSize > srcFile.getFreeSpace() )
-					{
-						return error(
-							SC_REQUEST_ENTITY_TOO_LARGE,
-							"There is not enough disk space to create a temp"
-							+ " file for " + fid.getId(), null
-						);
-					}
 					srcDelete = true;
 					FileOutputStream fos = new FileOutputStream(srcFile);
 					fs.read( objid, cmpid, fileid, fos );
 					fos.close();
 					sourceFile = srcFile.getAbsolutePath();
 					log.info(
-						"Jhove extraction, source=cached file: " + sourceFile
+						"Technical metadata extraction, source=cached file: " + sourceFile
 					);
 				}
 
-				m = jhoveExtraction( sourceFile );
+				m = characterized( sourceFile, characterizationProcessors );
 			}
 
 			// User submitted properties: use, dateCreated, sourceFilename, and
@@ -2419,7 +2418,7 @@ public class DAMSAPIServlet extends HttpServlet
 						true, m.get("status")
 					);
 				}
-				return status( "Jhove extracted and saved successfully" );
+				return status( "Technical metadata extracted and saved successfully" );
 			}
 			else
 			{
@@ -2431,8 +2430,8 @@ public class DAMSAPIServlet extends HttpServlet
 		}
 		catch ( Exception ex )
 		{
-			log.error( "Error Jhove extraction", ex );
-			return error( "Error Jhove extraction", ex );
+			log.error( "Error technical metadata extraction", ex );
+			return error( "Error technical metadata extraction", ex );
 		}
 		finally
 		{
@@ -4898,12 +4897,13 @@ public class DAMSAPIServlet extends HttpServlet
 		return path;
 	}
 	/**
-	 * Extract technical metadata with Jhove
+	 * Extract technical metadata
 	 * @param srcFilename
 	 * @return
 	 * @throws Exception
 	 */
-	public static Map<String, String> jhoveExtraction(String srcFilename) throws Exception
+	public static Map<String, String> characterized(String srcFilename, List<Processor> processors) 
+			throws Exception
 	{
 		/*
 		data dictionary:
@@ -4925,21 +4925,21 @@ public class DAMSAPIServlet extends HttpServlet
 			use                	user-specified/type from mime, role=service?
 
 	*/
-		MyJhoveBase jhove = MyJhoveBase.getMyJhoveBase();
-		JhoveInfo data = jhove.getJhoveMetaData(srcFilename);
+
+		TechnicalMetadata data = CharacterizationService.extractMetadata(srcFilename, processors);
 		Map<String, String> props = new HashMap<String, String>();
 		props.put("size", String.valueOf(data.getSize()));
-		props.put("mimeType", data.getMIMEtype());
+		props.put("mimeType", data.getMimeType());
 		props.put("formatName", data.getFormat());
 		props.put("formatVersion", data.getVersion());
 		props.put("dateCreated", dateFormat.format(data.getDateModified()));
 		props.put("quality", data.getQuality());
 		props.put("duration", data.getDuration());
-		props.put("sourceFileName", data.getLocalFileName());
+		props.put("sourceFileName", data.getFileName());
 		props.put("sourcePath", data.getFilePath());
-		props.put("crc32checksum", data.getCheckSum_CRC32());
-		props.put("md5checksum", data.getChecksum_MD5());
-		props.put("sha1checksum", data.getChecksum_SHA());
+		props.put("crc32checksum", data.getChecksumCRC32());
+		props.put("md5checksum", data.getChecksumMD5());
+		props.put("sha1checksum", data.getChecksumSHA());
 		props.put("status", data.getStatus());
 		return props;
 	}
@@ -5414,10 +5414,10 @@ System.out.println("getParamInt: " + key + ", " + s);
 			
 			addProperty(props, "ffmpeg", varNamePrefix);
 			addProperty(props, "magick.convert", varNamePrefix);
-			addProperty(props, "jhove.conf", varNamePrefix);
-			addProperty(props, "jhove.maxSize", varNamePrefix);
-			addProperty(props, "jhove.zipModel.command", varNamePrefix);
-			addProperty(props, "jhove.gzipModel.command", varNamePrefix);
+
+			// FITS command and configration for file characterization
+			addProperty(props, "characterization.fits.config", varNamePrefix);
+			addProperty(props, "characterization.fits.command", varNamePrefix);
 			
 			//#namespaces and identifiers
 			addProperty(props, "minters.default", varNamePrefix);
