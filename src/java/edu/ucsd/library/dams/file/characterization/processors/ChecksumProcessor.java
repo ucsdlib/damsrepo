@@ -2,7 +2,7 @@ package edu.ucsd.library.dams.file.characterization.processors;
 
 import static edu.ucsd.library.dams.file.characterization.model.MetadataConstants.CHECKSUM_CRC32;
 import static edu.ucsd.library.dams.file.characterization.model.MetadataConstants.CHECKSUM_MD5;
-import static edu.ucsd.library.dams.file.characterization.model.MetadataConstants.CHECKSUM_SHA;
+import static edu.ucsd.library.dams.file.characterization.model.MetadataConstants.CHECKSUM_SHA1;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -49,7 +49,7 @@ public class ChecksumProcessor extends Processor {
             Map<String, String> checksums = Checksum.checksums(in, null, crc32Checksum, md5Checksum, sha1Checksum, false, false);
             metadata.put(CHECKSUM_CRC32, checksums.get("crc32"));
             metadata.put(CHECKSUM_MD5, checksums.get("md5"));
-            metadata.put(CHECKSUM_SHA, checksums.get("sha1"));
+            metadata.put(CHECKSUM_SHA1, checksums.get("sha1"));
             return metadata;
         }
     }

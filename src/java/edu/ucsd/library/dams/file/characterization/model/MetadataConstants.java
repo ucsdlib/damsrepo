@@ -40,7 +40,7 @@ public class MetadataConstants {
 
     public static final String CHECKSUM_MD5 = "checksumMD5";
 
-    public static final String CHECKSUM_SHA = "checksumSHA";
+    public static final String CHECKSUM_SHA1 = "checksumSHA";
 
     public static final String IMAGE_PRODUCER = "imageProducer";
 
