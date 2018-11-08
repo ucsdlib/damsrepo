@@ -1025,7 +1025,8 @@ public class DAMSAPIServlet extends HttpServlet
 				String[] ids = getParamArray(params,"id",null);
 				int priority = getParamInt( params, "priority", DEFAULT_PRIORITY );
 				String type = getParamString( params, "type", "modifyObject" );
-				info = indexQueue( ids, type, priority );
+				String action = getParamString( params, "action", null );
+				info = indexQueue( ids, type, priority, ts, es, action );
 			}
 			// POST /queue
 			else if ( path.length == 2 && path[1].equals("queue") )
@@ -1034,7 +1035,7 @@ public class DAMSAPIServlet extends HttpServlet
 				params = bundle.getParams();
 				String[] ids = getParamArray( params,"id",null);
                 int priority = getParamInt( params, "priority", DEFAULT_PRIORITY );
-				info = indexQueue( ids, "modifyObject", priority );
+				info = indexQueue( ids, "modifyObject", priority, ts, es );
 			}
 			// POST /next_id
 			else if ( path.length == 2 && path[1].equals("next_id") )
@@ -1121,7 +1122,8 @@ public class DAMSAPIServlet extends HttpServlet
 				int priority = getParamInt( req, "priority", DEFAULT_PRIORITY );
 				boolean isCollection = isCollection(ts, es, path[2]);
 				String indexType = isCollection ? "modifyCollection" : "modifyObject";
-				info = indexQueue( ids, indexType, priority );
+				String action = getParamString( req, "action", null );
+				info = indexQueue( ids, indexType, priority, ts, es, action );
 			}
 			// POST /objects/bb1234567x/serialize
 			else if ( path.length == 4 && path[1].equals("objects")
@@ -1520,16 +1522,16 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				InputBundle input = input(req);
 				String[] ids = input.getParams().get("id");
-                int priority = getParamInt( input.getParams(), "priority", DEFAULT_PRIORITY );
-				info = indexQueue( ids, "purgeObject", priority );
+				int priority = getParamInt( input.getParams(), "priority", DEFAULT_PRIORITY );
+				info = indexQueue( ids, "purgeObject", priority, ts, es );
 			}
 			// DELETE /queue
 			else if ( path.length == 2 && path[1].equals("queue") )
 			{
 				InputBundle input = input(req);
 				String[] ids = input.getParams().get("id");
-                int priority = getParamInt( input.getParams(), "priority", DEFAULT_PRIORITY );
-				info = indexQueue( ids, "purgeObject", priority );
+				int priority = getParamInt( input.getParams(), "priority", DEFAULT_PRIORITY );
+				info = indexQueue( ids, "purgeObject", priority, ts, es );
 			}
 			// DELETE /objects/bb1234567x
 			else if ( path.length == 3 && path[1].equals("objects") )
@@ -1544,7 +1546,7 @@ public class DAMSAPIServlet extends HttpServlet
 				{
 					String[] ids = { path[2] };
 					String indexType = isCollection ? "purgeCollection" : "purgeObject";
-					info = indexQueue( ids, indexType, DEFAULT_PRIORITY );
+					info = indexQueue( ids, indexType, DEFAULT_PRIORITY, ts, es );
 				}
 			}
 			// DELETE /objects/bb1234567x/index
@@ -1553,7 +1555,7 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				String[] ids = new String[]{ path[2] };
                 int priority = getParamInt( req, "priority", DEFAULT_PRIORITY );
-				info = indexQueue( ids, "purgeObject", priority );
+				info = indexQueue( ids, "purgeObject", priority, ts, es );
 			}
 			// DELETE /objects/bb1234567x/selective
 			else if ( path.length == 4 && path[1].equals("objects")
@@ -3621,10 +3623,28 @@ public class DAMSAPIServlet extends HttpServlet
 	 * Bulk indexing queue.
 	 * @param ids Array of object ids
 	 * @param type 'purgeObject' for deletes, 'modifyObject' for other operations.
-     * @param priority Value from 0 (lowest) to 9 (highest) -- any other value is treated
+	 * @param priority Value from 0 (lowest) to 9 (highest) -- any other value is treated
 	 *   as the default priority (4).
+	 * @param ts the tripleStore to retrieve data from
+	 * @param es the event tripleStore
 	**/
-	private Map indexQueue( String[] ids, String type, int priority )
+	private Map indexQueue( String[] ids, String type, int priority, TripleStore ts, TripleStore es )
+	{
+		return indexQueue( ids, type, priority, ts, es, null );
+	}
+
+	/**
+	 * Bulk indexing queue.
+	 * @param ids Array of object ids
+	 * @param type 'purgeObject' for deletes, 'modifyObject' for other operations.
+	 * @param priority Value from 0 (lowest) to 9 (highest) -- any other value is treated
+	 *   as the default priority (4).
+	 * @param ts the tripleStore to retrieve data from
+	 * @param es the event tripleStore
+	 * @param action the action/event
+	 * @throws TripleStoreException 
+	**/
+	private Map indexQueue( String[] ids, String type, int priority, TripleStore ts, TripleStore es, String action )
 	{
 		Map info = null;
 
@@ -3654,6 +3674,17 @@ public class DAMSAPIServlet extends HttpServlet
 		else
 		{
 			info = new LinkedHashMap();
+			try
+			{
+				if (StringUtils.isNotBlank(action)) {
+					action = action.toLowerCase();
+					String eventType = action.contains("released") ? Event.RECORD_RELEASED : action.contains("removed") ?
+							Event.RECORD_REMOVED : action.contains("added") ? Event.RECORD_ADDED : action;
+					for (String id : ids) {
+						createEvent( ts, es, null, id, null, null, eventType, true, null );
+					}
+				}
+			} catch ( Exception ex2 ) { log.error("Error " + action + " event",ex2); }
 		}
 		info.put( "queueTotal", queueTotal );
 		info.put( "queueSuccess", queueTotal );

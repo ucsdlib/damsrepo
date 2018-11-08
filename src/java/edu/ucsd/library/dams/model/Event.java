@@ -26,6 +26,9 @@ public class Event
 	public static String RECORD_DELETED      = "record deleted";
 	public static String RECORD_INDEXED      = "record indexed";
 	public static String RECORD_TRANSFORMED  = "record transformed";
+	public static String RECORD_RELEASED    = "record released";
+	public static String RECORD_ADDED      = "record added";
+	public static String RECORD_REMOVED       = "record removed";
 	public static String OBJECT_REPLICATED   = "object replicated";
 	public static String OBJECT_VALIDATED    = "object validated";
 
