@@ -36,6 +36,7 @@ import org.dom4j.DocumentHelper;
 public class Ezid {
 	private DefaultHttpClient client;
 	private String mintURL;
+	private String updateURL;
 
 	/**
 	 * Default constructor.
@@ -46,6 +47,7 @@ public class Ezid {
 	**/
 	public Ezid( String host, String shoulder, String user, String pass ) {
 		mintURL = host + "/shoulder/" + shoulder;
+		updateURL = host + "/id/";
 
 		// setup httpclient with authentication
 		client = new DefaultHttpClient();
@@ -89,6 +91,30 @@ public class Ezid {
 		}
 	}
 
+	 /**
+     * Update a DOI identifier.
+     * @param url Object URL
+     * @param dataciteXML DataCite XML content
+     * @param DOI identifier
+    **/
+    public void updateDOI( String url, String dataciteXML, String doi ) throws IOException, EzidException {
+        HttpPost post = new HttpPost(updateURL+doi);
+        Map<String,String> params = new HashMap<>();
+        params.put("_target", url);
+        params.put("_profile", "datacite");
+        params.put("datacite", dataciteXML);
+        String anvl = toAnvl(params);
+        post.setEntity(new StringEntity(anvl, "UTF-8"));
+        post.setHeader("Content-Type", "text/plain; charset=UTF-8");
+
+        // execute request
+        HttpResponse response = client.execute(post);
+        String body = EntityUtils.toString(response.getEntity());
+
+        if ( response.getStatusLine().getStatusCode() != 200 ) {
+            throw new EzidException(body);
+        }
+    }
     /**
      * Validate that DAMS XML contains the required information to mint a DOI.
      * @param damsXML DAMS4 XML content
@@ -117,6 +143,24 @@ public class Ezid {
             || citation.substring(0, citation.indexOf(" (")).trim().equals("") )
         {
             throw new EzidException("Record does not contain Preferred Citation");
+        }
+    }
+
+    /**
+     * Validate that DAMS XML contains a DOI.
+     * @param damsXML DAMS4 XML content
+     * @throws EzidException if the validation fails
+     * @returns DOI identifier
+    **/
+    public static String doi_validate( Document doc ) throws DocumentException, EzidException {
+        // pre-validate
+
+        String doi = doc.valueOf("/rdf:RDF/*/dams:note/dams:Note[(dams:displayLabel = 'DOI') and contains(rdf:value, 'http://doi.org/')]/rdf:value");
+        if ( doi == null )
+        {
+            throw new EzidException("Record does not have a DOI assigned");
+        } else {
+            return doi.replaceAll("http://doi.org/","doi:");
         }
     }
 

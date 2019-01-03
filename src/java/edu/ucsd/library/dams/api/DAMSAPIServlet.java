@@ -1082,7 +1082,24 @@ public class DAMSAPIServlet extends HttpServlet
 					log.error("Error minting DOI", ex );
 					info = error("Error minting DOI: " + ex.getMessage(), ex);
 				}
-			}
+			} 
+            // POST /objects/bb1234567x/update_doi
+            else if ( path.length == 4 && path[1].equals("objects") 
+                    && path[3].equals("update_doi"))
+            {
+                try
+                {
+                    ts = triplestore(params);
+                    es = events(params);
+                    cacheRemove(path[2]);
+                    info = updateDOI( path[2], ts, es, fs, res );
+                }
+                catch ( Exception ex )
+                {
+                    log.error("Error updating DOI", ex );
+                    info = error("Error updating DOI: " + ex.getMessage(), ex);
+                }
+            }			
 			// POST /objects/bb1234567x/merge
 			else if ( path.length == 4 && path[1].equals("objects") 
 					&& path[3].equals("merge"))
@@ -3432,6 +3449,56 @@ public class DAMSAPIServlet extends HttpServlet
 		return info;
 	}
 
+    private Map updateDOI( String objid, TripleStore ts, TripleStore es, FileStore fs,
+        HttpServletResponse res ) throws Exception
+    {
+        // make sure ezid is configured
+        if ( ezid == null )
+        {
+            return error(SC_BAD_REQUEST, "DOI minting is not configured", null);
+        }
+
+        // load object XML
+        Map m = objectShow( objid, ts, es );
+        String xml = null;
+        // path for Object, Collection?
+        String targetPath = "", doi = "";
+        if ( m.get("obj") != null )
+        {
+            DAMSObject obj = (DAMSObject)m.get("obj");
+            xml = obj.getRDFXML(true);
+            targetPath = findTargetPath(objid, obj.asModel(false));
+        }
+
+        String targetUrl = ezidTargetUrl + targetPath + "/" + objid;
+        Document doc = DocumentHelper.parseText(xml);
+        
+        // pre-validate and retrieve doi
+        try
+        {
+            doi = Ezid.doi_validate(doc);
+        }
+        catch ( EzidException ex )
+        {
+            return error(SC_BAD_REQUEST, targetUrl + ": " + ex.getMessage(), null);
+        }
+
+        // transform to datacite format with XSL
+        String datacite = xslt( xml, "datacite.xsl", null, null );
+
+        // update doi
+        ezid.updateDOI( targetUrl, datacite, doi );
+        log.info("Updated DOI: " + doi + " for " + targetUrl);
+
+        Map info = objectEdit( objid, false, new ByteArrayInputStream(doc.asXML().getBytes()),
+                "all", null, null, null, ts, es, fs );
+
+        // queue for reindexing
+        indexQueue( objid, "modifyObject", DEFAULT_PRIORITY );
+
+        info.put("message", "Updated DOI: " + doi);
+        return info;
+    }
 	/**
 	 * Retrieve the RDF/XML for an object, and transform it using XSLT (passing
 	 * the fileid as a parameter to the stylesheet).
