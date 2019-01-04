@@ -148,12 +148,6 @@
       </dates>
     </xsl:if>
 
-    <alternateIdentifiers>
-      <alternateIdentifier alternateIdentifierType="ARK">
-        <xsl:value-of select="/rdf:RDF/*/@rdf:about"/>
-      </alternateIdentifier>
-    </alternateIdentifiers>
-
     <xsl:if test="dams:note/dams:Note[dams:type='description' or dams:type='methods']">
       <descriptions>
         <xsl:for-each select="dams:note/dams:Note[dams:type='description' or dams:type='methods']">
