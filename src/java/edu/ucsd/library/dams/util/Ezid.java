@@ -155,12 +155,12 @@ public class Ezid {
     public static String doi_validate( Document doc ) throws DocumentException, EzidException {
         // pre-validate
 
-        String doi = doc.valueOf("/rdf:RDF/*/dams:note/dams:Note[(dams:displayLabel = 'DOI') and contains(rdf:value, 'http://doi.org/')]/rdf:value");
+        String doi = doc.valueOf("/rdf:RDF/*/dams:note/dams:Note[(dams:type = 'preferred citation' or dams:type = 'identifier') and contains(rdf:value, 'doi.org/')]/rdf:value");
         if ( doi == null )
         {
             throw new EzidException("Record does not have a DOI assigned");
         } else {
-            return doi.replaceAll("http://doi.org/","doi:");
+            return doi.substring(doi.indexOf("doi.org/")).replaceAll("doi.org/","doi:");
         }
     }
 
