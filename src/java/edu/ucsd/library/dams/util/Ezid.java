@@ -7,10 +7,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 // http client
 import org.apache.http.HttpResponse;
@@ -164,19 +163,13 @@ public class Ezid {
             throw new EzidException("Record does not have a DOI assigned");
         } else {
             doi = doi.substring(doi.indexOf("doi.org/"));
-            if(doi.length() > 26) {
-                doi = doi.substring(0, strIndexOf(doi,"(/)[A-Z]+[0-9]+")+9);
+            String[] arrOfStr = doi.split(" ");
+            if(arrOfStr[0].contains("\">")) {
+               doi = arrOfStr[0].substring(0, arrOfStr[0].indexOf("\">")); 
+            } else {
+               doi = arrOfStr[0]; 
             }
             return doi.substring(doi.indexOf("doi.org/")).replaceAll("doi.org/","doi:");
-        }
-    }
-
-    private static int strIndexOf(String s, String pattern) {
-        Matcher m = Pattern.compile(pattern).matcher(s);
-        if (m.find()) {
-            return m.start();
-        } else {
-            return -1;
         }
     }
 
