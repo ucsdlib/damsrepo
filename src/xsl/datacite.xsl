@@ -4,16 +4,16 @@
     xmlns:mads="http://www.loc.gov/mads/rdf/v1#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-    xmlns="http://datacite.org/schema/kernel-3"
+    xmlns="http://datacite.org/schema/kernel-4"
     exclude-result-prefixes="dams mads rdf">
 
   <xsl:output method="xml" indent="yes"/>
 
   <!-- wrapper -->
   <xsl:template match="/rdf:RDF">
-    <resource xmlns="http://datacite.org/schema/kernel-3"
+    <resource xmlns="http://datacite.org/schema/kernel-4"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://datacite.org/schema/kernel-3 http://schema.datacite.org/meta/kernel-3/metadata.xsd">
+      xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd">
       <identifier identifierType="DOI">(:tba)</identifier>
 
       <xsl:for-each select="dams:AssembledCollection|dams:ProvenanceCollection|dams:ProvenanceCollectionPart">
@@ -233,8 +233,85 @@
       </xsl:for-each>
     </xsl:if>
 
+    <xsl:if test="dams:cartographics/dams:Cartographics/dams:polygon">
+      <xsl:for-each select="dams:cartographics/dams:Cartographics/dams:polygon[1]">
+        <geoLocations>
+          <geoLocation>
+            <geoLocationPolygon>
+              <xsl:call-template name="polygon">
+                <xsl:with-param name="point" select="."/>
+              </xsl:call-template>
+            </geoLocationPolygon>
+          </geoLocation>
+        </geoLocations>
+      </xsl:for-each>
+    </xsl:if>
+ 
+    <xsl:if test="dams:cartographics/dams:Cartographics/dams:line">
+      <xsl:for-each select="dams:cartographics/dams:Cartographics/dams:line[1]">
+        <xsl:variable name="latitudes">
+          <xsl:call-template name="geo_string">
+            <xsl:with-param name="point" select="."/>
+            <xsl:with-param name="type" select="'latitude'"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="min_lat">
+          <xsl:call-template name="getMin">
+            <xsl:with-param name="string" select="normalize-space($latitudes)"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="max_lat">
+          <xsl:call-template name="getMax">
+            <xsl:with-param name="string" select="normalize-space($latitudes)"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="longitudes">
+          <xsl:call-template name="geo_string">
+            <xsl:with-param name="point" select="."/>
+            <xsl:with-param name="type" select="'longitude'"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="min_lon">
+          <xsl:call-template name="getMin">
+            <xsl:with-param name="string" select="normalize-space($longitudes)"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="max_lon">
+          <xsl:call-template name="getMax">
+            <xsl:with-param name="string" select="normalize-space($longitudes)"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <geoLocations>
+          <geoLocation>
+            <geoLocationBox>
+              <xsl:call-template name="box_longitude">
+                <xsl:with-param name="maxLon" select="number(normalize-space($max_lon))"/>
+                <xsl:with-param name="minLon" select="number(normalize-space($min_lon))"/>
+              </xsl:call-template>
+              <southBoundLatitude><xsl:value-of select="normalize-space($min_lat)"/></southBoundLatitude>
+              <northBoundLatitude><xsl:value-of select="normalize-space($max_lat)"/></northBoundLatitude>
+            </geoLocationBox>
+          </geoLocation>
+        </geoLocations>
+      </xsl:for-each>
+    </xsl:if>
   </xsl:template>
 
+  <xsl:template name="box_longitude">
+    <xsl:param name="maxLon"/>
+    <xsl:param name="minLon"/>
+    <xsl:choose>
+      <xsl:when test="180 >= ($maxLon - $minLon)">
+        <westBoundLongitude><xsl:value-of select="$minLon"/></westBoundLongitude>
+        <eastBoundLongitude><xsl:value-of select="$maxLon"/></eastBoundLongitude>
+      </xsl:when>
+      <xsl:otherwise>
+        <westBoundLongitude><xsl:value-of select="$maxLon"/></westBoundLongitude>
+        <eastBoundLongitude><xsl:value-of select="$minLon"/></eastBoundLongitude>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
   <!-- tokenize creator list on semicolons -->
   <xsl:template name="creator">
     <xsl:param name="name"/>
@@ -311,6 +388,137 @@
       </xsl:if>
     </xsl:for-each>
 
+  </xsl:template>
+
+  <!-- tokenize polygon list on space -->
+  <xsl:template name="polygon">
+    <xsl:param name="point"/>
+    <xsl:variable name="before" select="substring-before(concat($point,' '), ' ')"/>
+    <xsl:variable name="after" select="substring-after($point, ' ')"/>
+    <xsl:variable name="lat" select="substring-before($before, ',')"/>
+    <xsl:variable name="rest" select="substring-after($before, ',')"/>
+    <xsl:variable name="lon">
+      <xsl:choose>
+        <xsl:when test="contains($rest, ',')">
+          <xsl:value-of select="substring-before($rest, ',')"/>
+        </xsl:when>
+        <xsl:otherwise><xsl:value-of select="$rest"/></xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <polygonPoint>
+      <pointLongitude><xsl:value-of select="$lon"/></pointLongitude>
+      <pointLatitude><xsl:value-of select="$lat"/></pointLatitude>
+    </polygonPoint>              
+    <xsl:if test="$after != ''">
+      <xsl:call-template name="polygon">
+        <xsl:with-param name="point" select="$after"/>
+      </xsl:call-template>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template name="geo_string">
+    <xsl:param name="point"/>
+    <xsl:param name="type"/>
+    <xsl:variable name="before" select="substring-before(concat($point,' '), ' ')"/>
+    <xsl:variable name="lat" select="substring-before($before, ',')"/>
+    <xsl:variable name="after" select="substring-after($point, ' ')"/>
+    <xsl:variable name="rest" select="substring-after($before, ',')"/>
+    <xsl:variable name="lon">
+      <xsl:choose>
+        <xsl:when test="contains($rest, ',')">
+          <xsl:value-of select="substring-before($rest, ',')"/>
+        </xsl:when>
+        <xsl:otherwise><xsl:value-of select="$rest"/></xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="contains($type, 'longitude')">
+        <xsl:value-of select="$lon"/>,
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$lat"/>,
+      </xsl:otherwise>
+    </xsl:choose>    
+    <xsl:if test="$after != ''">
+      <xsl:call-template name="geo_string">
+        <xsl:with-param name="point" select="$after"/>
+        <xsl:with-param name="type" select="$type"/>
+      </xsl:call-template>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template name="getMax">
+        <xsl:param name="string"/>
+        <xsl:variable name="firstNbr" select="number(substring-before(concat($string,','),','))"/>
+        <xsl:variable name="secondNbr">
+            <xsl:if test="contains($string,',')">
+                <xsl:value-of select="number(substring-before(concat(substring-after($string,','),','),','))"/>
+            </xsl:if>
+        </xsl:variable>
+        <xsl:variable name="remainingNbrs" select="substring-after(substring-after($string,','),',')"/>
+        <xsl:variable name="modString">
+            <xsl:choose>
+                <xsl:when test="$firstNbr > $secondNbr">
+                    <!--Move $firstNbr to the end.-->
+                    <xsl:value-of select="$remainingNbrs"/>
+                    <xsl:if test="string($remainingNbrs)">,</xsl:if>
+                    <xsl:value-of select="$firstNbr"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <!--Drop $firstNbr.-->
+                    <xsl:value-of select="$secondNbr"/>
+                    <xsl:if test="string($remainingNbrs)">,</xsl:if>
+                    <xsl:value-of select="$remainingNbrs"/>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+        <xsl:choose>
+            <xsl:when test="string($secondNbr)">
+                <xsl:call-template name="getMax">
+                    <xsl:with-param name="string" select="$modString"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$firstNbr"/>
+            </xsl:otherwise>
+        </xsl:choose>
+  </xsl:template>
+ 
+  <xsl:template name="getMin">
+        <xsl:param name="string"/>
+        <xsl:variable name="firstNbr" select="number(substring-before(concat($string,','),','))"/>
+        <xsl:variable name="secondNbr">
+            <xsl:if test="contains($string,',')">
+                <xsl:value-of select="number(substring-before(concat(substring-after($string,','),','),','))"/>
+            </xsl:if>
+        </xsl:variable>
+        <xsl:variable name="remainingNbrs" select="substring-after(substring-after($string,','),',')"/>
+        <xsl:variable name="modString">
+            <xsl:choose>
+                <xsl:when test="$secondNbr > $firstNbr">
+                    <!--Move $firstNbr to the end.-->
+                    <xsl:value-of select="$remainingNbrs"/>
+                    <xsl:if test="string($remainingNbrs)">,</xsl:if>
+                    <xsl:value-of select="$firstNbr"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <!--Drop $firstNbr.-->
+                    <xsl:value-of select="$secondNbr"/>
+                    <xsl:if test="string($remainingNbrs)">,</xsl:if>
+                    <xsl:value-of select="$remainingNbrs"/>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+        <xsl:choose>
+            <xsl:when test="string($secondNbr)">
+                <xsl:call-template name="getMin">
+                    <xsl:with-param name="string" select="$modString"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$firstNbr"/>
+            </xsl:otherwise>
+        </xsl:choose>
   </xsl:template>
 
 <xsl:template name="lastIndexOf">
