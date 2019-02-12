@@ -1072,6 +1072,9 @@ public class DAMSAPIServlet extends HttpServlet
 			{
 				try
 				{
+					InputBundle bundle = input( req );
+					params = bundle.getParams();
+
 					ts = triplestore(params);
 					es = events(params);
 					cacheRemove(path[2]);
@@ -1089,6 +1092,9 @@ public class DAMSAPIServlet extends HttpServlet
             {
                 try
                 {
+                    InputBundle bundle = input( req );
+                    params = bundle.getParams();
+
                     ts = triplestore(params);
                     es = events(params);
                     cacheRemove(path[2]);
