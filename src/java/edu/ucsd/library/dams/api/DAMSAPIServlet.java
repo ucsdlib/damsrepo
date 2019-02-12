@@ -3490,12 +3490,7 @@ public class DAMSAPIServlet extends HttpServlet
         ezid.updateDOI( targetUrl, datacite, doi );
         log.info("Updated DOI: " + doi + " for " + targetUrl);
 
-        Map info = objectEdit( objid, false, new ByteArrayInputStream(doc.asXML().getBytes()),
-                "all", null, null, null, ts, es, fs );
-
-        // queue for reindexing
-        indexQueue( objid, "modifyObject", DEFAULT_PRIORITY );
-
+        Map info = new HashMap();
         info.put("message", "Updated DOI: " + doi);
         return info;
     }
