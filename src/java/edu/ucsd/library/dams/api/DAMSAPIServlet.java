@@ -3401,11 +3401,13 @@ public class DAMSAPIServlet extends HttpServlet
 		String xml = null;
 		// path for Object, Collection?
 		String targetPath = "";
+
+		DAMSObject damsObj = null;
 		if ( m.get("obj") != null )
 		{
-			DAMSObject obj = (DAMSObject)m.get("obj");
-			xml = obj.getRDFXML(true);
-			targetPath = findTargetPath(objid, obj.asModel(false));
+			damsObj = (DAMSObject)m.get("obj");
+			xml = damsObj.getRDFXML(true);
+			targetPath = findTargetPath(objid, damsObj.asModel(false));
 		}
 
 		String targetUrl = ezidTargetUrl + targetPath + "/" + objid;
@@ -3428,7 +3430,7 @@ public class DAMSAPIServlet extends HttpServlet
 		log.info("Minted DOI: " + doiURL + " for " + targetUrl);
 
 		// add doi to object
-		Document doc = DocumentHelper.parseText(xml);
+		Document doc = DocumentHelper.parseText(damsObj.getRDFXML(false));
 		Element obj = (Element)doc.getRootElement().elements().get(0);
 		Element doiNote = obj.addElement("dams:note").addElement("dams:Note");
 		doiNote.addElement("dams:type").setText("identifier");
