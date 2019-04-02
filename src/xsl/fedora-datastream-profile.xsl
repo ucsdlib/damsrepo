@@ -23,7 +23,6 @@
         xsi:schemaLocation="http://www.fedora.info/definitions/1/0/management/ http://www.fedora.info/definitions/1/0/datastreamProfile.xsd">
       <dsLabel><xsl:value-of select="$fileid"/></dsLabel>
       <dsFormatURI></dsFormatURI>
-      <dsControlGroup>X</dsControlGroup>
       <dsVersionable>false</dsVersionable>
       <dsInfoType></dsInfoType>
       <dsLocation><xsl:value-of select="$objid"/>+<xsl:value-of select="$dsid"/></dsLocation>
@@ -33,6 +32,7 @@
       <xsl:choose>
         <xsl:when test="$fileid != ''">
           <xsl:for-each select="//dams:File[contains(@rdf:about,$fileid) and substring-after(@rdf:about,$fileid) = ''][1]">
+            <dsControlGroup>M</dsControlGroup>
             <xsl:choose>
               <xsl:when test="dams:dateCreated">
                 <dsCreateDate><xsl:value-of select="dams:dateCreated"/></dsCreateDate>
@@ -68,6 +68,7 @@
           </xsl:for-each>
         </xsl:when>
         <xsl:otherwise>
+          <dsControlGroup>X</dsControlGroup>
           <dsMIME>application/rdf+xml</dsMIME>
           <dsSize><xsl:value-of select="$objectSize"/></dsSize>
           <dsChecksumType>DISABLED</dsChecksumType>
