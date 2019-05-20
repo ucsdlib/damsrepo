@@ -80,12 +80,12 @@ public class FileStoreUtil
 	{
 		if ( s == null ) { return null; }
 		String result = "";
-		for( int i = 0; i < (s.length() - 1); i += 2 )
-		{
-			result += s.substring(i,i+2);
-			result += "/";
+		String leftOver = s;
+		while(leftOver.length() > 2) {
+			result += leftOver.substring(0, 2) + "/";
+			leftOver = leftOver.substring(2);
 		}
-		return result;
+		return result + leftOver + "/";
 	}
 
 	/**
