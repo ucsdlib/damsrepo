@@ -13,6 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import edu.ucsd.library.dams.file.impl.LocalStore;
@@ -197,5 +198,15 @@ public class FileStoreUtil
         }
         catch ( Exception ex ) { throw new FileStoreException(ex); }
 		return bytesRead;
+    }
+
+    /**
+     * Construct file uri
+     * @param oid [String] object ark
+     * @param cid [String] component id
+     * @param fid [String] file id
+     */
+    public static String getFileUri(String oid, String cid, String fid) {
+        return "/" + oid + "/" + (StringUtils.isNotBlank(cid) ? cid + "/" : "") + fid;
     }
 }

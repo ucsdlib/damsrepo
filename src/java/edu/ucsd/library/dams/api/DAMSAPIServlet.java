@@ -249,9 +249,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 	// number detection
 	private static Pattern numberPattern = null;
-	private static SimpleDateFormat dateFormat = new SimpleDateFormat(
-		"yyyy-MM-dd'T'hh:mm:ssZ"
-	);
+	private static String dateFormat = "yyyy-MM-dd'T'hh:mm:ssZ";
 
 	// ldap for group lookup
 	private LDAPUtil ldaputil;
@@ -4429,7 +4427,7 @@ public class DAMSAPIServlet extends HttpServlet
 		Map info = new LinkedHashMap();
 		info.put( "statusCode", statusCode );
 		info.put( "message", msg );
-        info.put( "timestamp", dateFormat.format(new Date()) );
+        info.put( "timestamp", new SimpleDateFormat(dateFormat).format( new Date()) );
 		return info;
 	}
 
@@ -5033,7 +5031,7 @@ public class DAMSAPIServlet extends HttpServlet
 		props.put("mimeType", data.getMimeType());
 		props.put("formatName", data.getFormat());
 		props.put("formatVersion", data.getVersion());
-		props.put("dateCreated", dateFormat.format(data.getDateModified()));
+		props.put("dateCreated", new SimpleDateFormat(dateFormat).format(data.getDateModified()));
 		props.put("quality", data.getQuality());
 		props.put("duration", data.getDuration());
 		props.put("sourceFileName", data.getFileName());
