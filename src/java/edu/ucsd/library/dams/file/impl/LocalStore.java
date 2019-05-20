@@ -39,9 +39,7 @@ public class LocalStore implements FileStore
 	protected int baseLength = 0;
 	protected File trashDir = null;
 	protected static String orgCode = null;
-	protected static SimpleDateFormat df = new SimpleDateFormat(
-		"EEE, d MMM yyyy HH:mm:ss Z"
-	);
+	protected static final String DATE_FORMAT = "EEE, d MMM yyyy HH:mm:ss Z";
 
 
 /*****************************************************************************/
@@ -168,26 +166,43 @@ public class LocalStore implements FileStore
 	public Map<String,String> meta( String objectID, String componentID, String fileID )
 		throws FileStoreException
 	{
-		File f = getFile(objectID, componentID, fileID);
 		Map<String,String> md = new HashMap<String,String>();
-    	//Content-Length: 18961492
-		md.put( "Content-Length", String.valueOf(f.length()) );
 
-    	//Content-Type: image/tiff
-		md.put( "Content-Type", new FileDataSource(fileID).getContentType() );
+		try
+		{
+			File f = getFile(objectID, componentID, fileID);
 
-    	//Date: Mon, 07 May 2012 14:53:50 GMT
-		md.put( "Date", df.format(new Date()) );
+			//Content-Length: 18961492
+			md.put( "Content-Length", String.valueOf(f.length()) );
 
-    	//Last-Modified: Mon, 07 May 2012 14:43:45 GMT
-		Date d = new Date( f.lastModified() );
-		md.put( "Last-Modified", df.format(d) );
+			//Content-Type: image/tiff
+			md.put( "Content-Type", new FileDataSource(fileID).getContentType() );
 
-    	//Etag: 10138fc0c679dd74d0ae50d7c38ebe5c
-		// XXX: we could generate this...
+			//Date: Mon, 07 May 2012 14:53:50 GMT
+			// SimpleDateFormat is not thread safe, use new instance for each thread.
+			SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT);
+			md.put( "Date", df.format(new Date()) );
 
-    	//Accept-Ranges: bytes
-		// XXX: not useful
+			//Last-Modified: Mon, 07 May 2012 14:43:45 GMT
+			Date d = new Date( f.lastModified() );
+			md.put( "Last-Modified", df.format(d) );
+
+			//Etag: 10138fc0c679dd74d0ae50d7c38ebe5c
+			// XXX: we could generate this...
+
+			//Accept-Ranges: bytes
+			// XXX: not useful
+		}
+		catch (ArrayIndexOutOfBoundsException ex)
+		{
+			logError(objectID, componentID, fileID, ex, "metada");
+			throw ex;
+		}
+		catch (Exception ex)
+		{
+			logError(objectID, componentID, fileID, ex, "metada");
+			throw ex;
+		}
 
 		return md;
 	}
@@ -351,10 +366,21 @@ public class LocalStore implements FileStore
 	**/
 	public File getFile( String objectID, String componentID, String fileID )
 	{
-		if ( componentID == null ) { componentID = "0"; }
-		String file = stem(objectID) + componentID + "-" + fileID;
-		File f = new File( dir(objectID), file );
-		log.debug("getFile: " + f.getAbsolutePath() );
+		File f = null;
+		String file = null;
+		try
+		{
+			if ( componentID == null ) { componentID = "0"; }
+			file = stem(objectID) + componentID + "-" + fileID;
+			f = new File( dir(objectID), file );
+			log.debug("getFile: " + f.getAbsolutePath() );
+		}
+		catch (ArrayIndexOutOfBoundsException ex) {
+			logError(objectID, componentID, fileID, ex, "get file");
+		} 
+		catch (Exception ex) {
+			logError(objectID, componentID, fileID, ex, "get file");
+		}
 		return f;
 	}
 
@@ -376,5 +402,15 @@ public class LocalStore implements FileStore
 		String file = stem(objectID) + componentID + "-" + fileID;
 		File trashPath = new File( trashDir, FileStoreUtil.pairPath(objectID) );
 		return new File( trashPath, file );
+	}
+
+	/**
+	 * Log error message
+	 * @param 
+	 * @param e [Exception]
+	 * @param hint [String] error hint
+	 */
+	private void logError(String oid, String cid, String fid, Exception e, String hint) {
+		log.error("Error " + hint + " " + FileStoreUtil.getFileUri(oid, cid, fid) + ": " + e.getMessage());
 	}
 }

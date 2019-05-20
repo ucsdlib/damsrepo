@@ -124,7 +124,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	private static Logger log = Logger.getLogger(FedoraAPIServlet.class);
 
 	// date format
-	private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	private static String dateFormat = "yyyy-MM-dd";
 
 	private static String VISIBILITY_LOCAL = "local";
 	private static String VISIBILITY_PUBLIC_DOMAIN = "public domain";
@@ -1122,7 +1122,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	// check whether a permission/restriction is current
 	private static boolean currentDates( Element e )
 	{
-		String currDate = dateFormat.format( new Date() );
+		String currDate = new SimpleDateFormat(dateFormat).format( new Date() );
 		String begin = e.valueOf("dams:beginDate");
 		String end = e.valueOf("dams:endDate");
 		
