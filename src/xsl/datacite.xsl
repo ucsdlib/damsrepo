@@ -224,10 +224,12 @@
             <xsl:otherwise><xsl:value-of select="$rest"/></xsl:otherwise>
           </xsl:choose>
         </xsl:variable>
-        <xsl:variable name="coords" select="normalize-space(concat($lat,' ',$lon))"/>
         <geoLocations>
           <geoLocation>
-            <geoLocationPoint><xsl:value-of select="$coords"/></geoLocationPoint>
+            <geoLocationPoint>
+              <pointLongitude><xsl:value-of select="normalize-space($lon)"/></pointLongitude>
+              <pointLatitude><xsl:value-of select="normalize-space($lat)"/></pointLatitude>
+            </geoLocationPoint>
           </geoLocation>
         </geoLocations>
       </xsl:for-each>
