@@ -27,9 +27,6 @@
         <xsl:when test="/rdf:RDF/*/dams:event/dams:DAMSEvent/dams:eventDate">
           <xsl:value-of select="/rdf:RDF/*/dams:event/dams:DAMSEvent/dams:eventDate"/>
         </xsl:when>
-        <xsl:otherwise>
-          <xsl:text>1999-12-31T23:59:59-0800</xsl:text>
-        </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
 
@@ -50,9 +47,6 @@
         <xsl:when test="/rdf:RDF/*/dams:event/dams:DAMSEvent/dams:eventDate">
           <xsl:value-of select="/rdf:RDF/*/dams:event/dams:DAMSEvent/dams:eventDate"/>
         </xsl:when>
-        <xsl:otherwise>
-          <xsl:text>1999-12-31T23:59:59-0800</xsl:text>
-        </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
 
