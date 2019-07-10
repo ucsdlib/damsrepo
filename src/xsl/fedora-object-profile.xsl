@@ -10,17 +10,45 @@
       <xsl:value-of select="local-name(/rdf:RDF/*)"/>
     </xsl:variable>
 
+    <!-- XXX find record created date if there are multiple events -->
+    <xsl:variable name="createdDate">
+      <xsl:choose>
+        <xsl:when test="/rdf:RDF/*/dams:event/dams:DAMSEvent[contains(dams:type,'record created')]">
+          <xsl:value-of select="/rdf:RDF/*/dams:event/dams:DAMSEvent[contains(dams:type,'record created')]/dams:eventDate"/>
+        </xsl:when>
+        <xsl:when test="/rdf:RDF/*/dams:event/dams:DAMSEvent[contains(dams:type,'record edited')]">
+          <xsl:for-each select="/rdf:RDF/*/dams:event/dams:DAMSEvent[contains(dams:type,'record edited')]">
+            <xsl:sort select="dams:eventDate" order="ascending"/>
+            <xsl:if test="position()=1">
+              <xsl:value-of select="dams:eventDate"/>
+            </xsl:if>
+          </xsl:for-each>
+        </xsl:when>
+        <xsl:when test="/rdf:RDF/*/dams:event/dams:DAMSEvent/dams:eventDate">
+          <xsl:value-of select="/rdf:RDF/*/dams:event/dams:DAMSEvent/dams:eventDate"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>1999-12-31T23:59:59-0800</xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <!-- XXX find latest date if there are multiple modification events -->
     <xsl:variable name="timestamp">
       <xsl:choose>
-        <xsl:when test="//dams:DAMSEvent[contains(dams:type,'modification')]">
-          <xsl:value-of select="//dams:DAMSEvent[contains(dams:type,'modification')]/dams:eventDate"/>
+        <xsl:when test="/rdf:RDF/*/dams:event/dams:DAMSEvent[contains(dams:type,'record edited')]">
+          <xsl:for-each select="/rdf:RDF/*/dams:event/dams:DAMSEvent[contains(dams:type,'record edited')]">
+            <xsl:sort select="dams:eventDate" order="descending"/>
+            <xsl:if test="position()=1">
+              <xsl:value-of select="dams:eventDate"/>
+            </xsl:if>
+          </xsl:for-each>
         </xsl:when>
-        <xsl:when test="//dams:DAMSEvent[contains(dams:type,'creation')]">
-          <xsl:value-of select="//dams:DAMSEvent[contains(dams:type,'creation')]/dams:eventDate"/>
+        <xsl:when test="/rdf:RDF/*/dams:event/dams:DAMSEvent[contains(dams:type,'record created')]">
+          <xsl:value-of select="/rdf:RDF/*/dams:event/dams:DAMSEvent[contains(dams:type,'record created')]/dams:eventDate"/>
         </xsl:when>
-        <xsl:when test="//dams:DAMSEvent/dams:eventDate">
-          <xsl:value-of select="//dams:DAMSEvent/dams:eventDate"/>
+        <xsl:when test="/rdf:RDF/*/dams:event/dams:DAMSEvent/dams:eventDate">
+          <xsl:value-of select="/rdf:RDF/*/dams:event/dams:DAMSEvent/dams:eventDate"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:text>1999-12-31T23:59:59-0800</xsl:text>
@@ -48,7 +76,7 @@
         <model>info:fedora/afmodel:<xsl:value-of select="$type"/></model>
         <model>info:fedora/fedora-system:FedoraObject-3.0</model>
       </objModels>
-      <objCreateDate><xsl:value-of select="$timestamp"/></objCreateDate>
+      <objCreateDate><xsl:value-of select="$createdDate"/></objCreateDate>
       <objLastModDate><xsl:value-of select="$timestamp"/></objLastModDate>
       <objDissIndexViewURL><xsl:value-of select="$baseURL"/>/dams/fedora/objects/<xsl:value-of select="$objid"/>/methods/fedora-system%3A3/viewMethodIndex</objDissIndexViewURL>
       <objItemIndexViewURL><xsl:value-of select="$baseURL"/>/dams/fedora/objects/<xsl:value-of select="$objid"/>/methods/fedora-system%3A3/viewItemIndex</objItemIndexViewURL>
