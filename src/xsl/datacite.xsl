@@ -11,9 +11,9 @@
 
   <!-- wrapper -->
   <xsl:template match="/rdf:RDF">
-    <resource xmlns="http://datacite.org/schema/kernel-4"
+    <resource xmlns="http://schema.datacite.org/meta/kernel-4.0/"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd">
+      xsi:schemaLocation="http://schema.datacite.org/meta/kernel-4.0/ http://schema.datacite.org/meta/kernel-4.0/metadata.xsd">
       <identifier identifierType="DOI">(:tba)</identifier>
 
       <xsl:for-each select="dams:AssembledCollection|dams:ProvenanceCollection|dams:ProvenanceCollectionPart">
