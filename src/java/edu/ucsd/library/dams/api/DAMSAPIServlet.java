@@ -3659,17 +3659,18 @@ public class DAMSAPIServlet extends HttpServlet
 			Identifier sub = createID( objid, cmpid, null );
 			Identifier fileID = createID( objid, cmpid, fileid );
 			Identifier hasFile = Identifier.publicURI( prNS + "hasFile" );
-			Identifier sourceCapture = null;
+			List<Identifier> keepPres = new ArrayList<>();
+			keepPres.add(Identifier.publicURI(prNS + "event"));
 			if ( keepSourceCapture )
 			{
-				sourceCapture = Identifier.publicURI( prNS + "sourceCapture" );
+				keepPres.add(Identifier.publicURI( prNS + "sourceCapture" ));
 			}
 
 			// delete file metadata (n.b. first arg is object identifer, not
 			// the subject of the triple, so this works for files attached
 			// to components, etc.)
 			TripleStoreUtil.recursiveDelete(
-				parent, sub, hasFile, fileID, sourceCapture, ts
+				parent, sub, hasFile, fileID, keepPres, ts
 			);
 
 			// delete links from object/components

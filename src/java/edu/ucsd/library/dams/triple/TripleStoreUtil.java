@@ -557,7 +557,7 @@ public class TripleStoreUtil
 	 * @param keepPre If not null, do not delete triples with this predicate.
 	**/
 	public static void recursiveDelete( Identifier parent, Identifier sub,
-		Identifier pre, Identifier obj, Identifier keepPre, TripleStore ts )
+		Identifier pre, Identifier obj, List<Identifier> keepPres, TripleStore ts )
 		throws TripleStoreException
 	{
 		// iterate through all statements for the object & classify by subject
@@ -576,12 +576,12 @@ public class TripleStoreUtil
 		}
 
 		// recursively remove statements
-		recursiveDelete( sub, pre, obj, keepPre, map, ts );
+		recursiveDelete( sub, pre, obj, keepPres, map, ts );
 
 		// if obj is public URI, delete all children of it *within this object*
 		if ( obj != null && !obj.isBlankNode() )
 		{
-			recursiveDelete( obj, null, null, keepPre, map, ts );
+			recursiveDelete( obj, null, null, keepPres, map, ts );
 		}
 	}
 
@@ -589,7 +589,7 @@ public class TripleStoreUtil
 	 * Recursively delete statements.
 	**/
 	private static void recursiveDelete( Identifier sub, Identifier pre,
-		Identifier obj, Identifier keepPre, Map<String,List<Statement>> map,
+		Identifier obj, List<Identifier> keepPres, Map<String,List<Statement>> map,
 		TripleStore ts ) throws TripleStoreException
 	{
 		List<Statement> list = map.get( sub.getId() );
@@ -597,7 +597,7 @@ public class TripleStoreUtil
 		{
 			Statement s = list.get(i);
 			Identifier currPre = s.getPredicate();
-			if ( (keepPre == null || !currPre.equals(keepPre))
+			if ( (keepPres == null || !containsIdentifier(keepPres, currPre))
 				&& (pre == null || currPre.equals(pre) ) )
 			{
 				if ( obj == null || s.getObject().equals(obj) )
@@ -611,13 +611,32 @@ public class TripleStoreUtil
 						Identifier o = s.getObject();
 						if ( o.isBlankNode() )
 						{
-							recursiveDelete( o, null, null, keepPre, map, ts );
+							recursiveDelete( o, null, null, keepPres, map, ts );
 						}
 					}
 				}
 			}
 		}
 	}
+
+	/*
+	 * Find a match of an identifier
+	 * @param pres
+	 * @param pre
+	 * @return
+	 */
+	private static boolean containsIdentifier(List<Identifier> ids, Identifier id) {
+		if (ids != null) {
+			for (Identifier i : ids) {
+				if (i.getId().equals(id.getId())) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	public static void removeStatement( TripleStore ts, Statement stmt )
 		throws TripleStoreException
 	{
