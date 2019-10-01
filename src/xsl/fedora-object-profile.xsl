@@ -10,6 +10,16 @@
       <xsl:value-of select="local-name(/rdf:RDF/*)"/>
     </xsl:variable>
 
+    <!-- XXX find latest timestamp for file ingest -->
+    <xsl:variable name="fileTimestamp">
+      <xsl:for-each select="/rdf:RDF//dams:File/dams:event/dams:DAMSEvent[contains(dams:type,'file')]">
+        <xsl:sort select="dams:eventDate" order="descending"/>
+        <xsl:if test="position()=1">
+          <xsl:value-of select="dams:eventDate"/>
+        </xsl:if>
+      </xsl:for-each>
+    </xsl:variable>
+
     <!-- XXX find record created date if there are multiple events -->
     <xsl:variable name="createdDate">
       <xsl:choose>
@@ -40,15 +50,24 @@
           <xsl:for-each select="/rdf:RDF/*/dams:event/dams:DAMSEvent[contains(dams:type,'record edited')]">
             <xsl:sort select="dams:eventDate" order="descending"/>
             <xsl:if test="position()=1">
-              <xsl:value-of select="dams:eventDate"/>
+              <xsl:call-template name="selectTimestamp">
+                <xsl:with-param name="recordTimestamp"><xsl:value-of select="dams:eventDate" /></xsl:with-param>
+                <xsl:with-param name="fileTimestamp"><xsl:value-of select="$fileTimestamp" /></xsl:with-param>
+              </xsl:call-template>
             </xsl:if>
           </xsl:for-each>
         </xsl:when>
         <xsl:when test="/rdf:RDF/*/dams:event/dams:DAMSEvent[contains(dams:type,'record created')]">
-          <xsl:value-of select="/rdf:RDF/*/dams:event/dams:DAMSEvent[contains(dams:type,'record created')]/dams:eventDate"/>
+          <xsl:call-template name="selectTimestamp">
+            <xsl:with-param name="recordTimestamp"><xsl:value-of select="/rdf:RDF/*/dams:event/dams:DAMSEvent[contains(dams:type,'record created')]/dams:eventDate" /></xsl:with-param>
+            <xsl:with-param name="fileTimestamp"><xsl:value-of select="$fileTimestamp" /></xsl:with-param>
+          </xsl:call-template>
         </xsl:when>
         <xsl:when test="/rdf:RDF/*/dams:event/dams:DAMSEvent/dams:eventDate">
-          <xsl:value-of select="/rdf:RDF/*/dams:event/dams:DAMSEvent/dams:eventDate"/>
+          <xsl:call-template name="selectTimestamp">
+            <xsl:with-param name="recordTimestamp"><xsl:value-of select="/rdf:RDF/*/dams:event/dams:DAMSEvent/dams:eventDate"/></xsl:with-param>
+            <xsl:with-param name="fileTimestamp"><xsl:value-of select="$fileTimestamp" /></xsl:with-param>
+          </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
           <xsl:text>1999-12-31T23:59:59-0800</xsl:text>
@@ -82,5 +101,16 @@
       <objItemIndexViewURL><xsl:value-of select="$baseURL"/>/dams/fedora/objects/<xsl:value-of select="$objid"/>/methods/fedora-system%3A3/viewItemIndex</objItemIndexViewURL>
       <objState>A</objState>
     </objectProfile>
+  </xsl:template>
+
+  <xsl:template name="selectTimestamp">
+    <xsl:param name="recordTimestamp" />
+    <xsl:param name="fileTimestamp" />
+    <xsl:choose>
+      <xsl:when test="string-length($fileTimestamp) > 0 and translate($fileTimestamp, '-:T:+', '') > translate($recordTimestamp, '-:T:+', '')">
+        <xsl:value-of select="$fileTimestamp"/>
+      </xsl:when>
+      <xsl:otherwise><xsl:value-of select="$recordTimestamp"/></xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 </xsl:stylesheet>
