@@ -129,6 +129,7 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	private static String VISIBILITY_LOCAL = "local";
 	private static String VISIBILITY_PUBLIC_DOMAIN = "public domain";
 	private static String VISIBILITY_UNDER_COPYRIGHT = "under copyright";
+	private static String VISIBILITY_SUPPRESS_DISCOVERY = "suppressDiscovery";
 
 	// xslt
 	Transformer objectContentTransform;
@@ -956,7 +957,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			"/rdf:RDF/dams:Object//dams:Permission[dams:type='metadataDisplay']"
 		);
 		boolean suppressDiscovery = findCurrent( doc,
-			"/rdf:RDF/dams:Object//dams:Restriction[dams:type='suppressDiscovery']"
+			"/rdf:RDF/dams:Object//dams:Restriction[dams:type='" + VISIBILITY_SUPPRESS_DISCOVERY + "']"
+		);
+        boolean clrSuppressDiscovery = findCurrent( doc,
+			"//*[contains(@rdf:about, '" + objid + "') and contains(local-name(), 'Collection')]/dams:visibility[text() = '" + VISIBILITY_SUPPRESS_DISCOVERY + "']"
 		);
 		String visibility = doc.valueOf(
 			"//*[contains(@rdf:about, '" + objid + "')]/dams:visibility"
@@ -1058,6 +1062,10 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 		{
 			// suppress discovery of hidden objects
 			accessGroup = roleAdmin;
+		}
+		else if ( clrSuppressDiscovery && !discover ) {
+			// allow read access of a hidden CLR
+			accessGroup = roleDefault;
 		}
 		else if ( copyright.equalsIgnoreCase(VISIBILITY_PUBLIC_DOMAIN)
 					|| ( copyright.equalsIgnoreCase(VISIBILITY_UNDER_COPYRIGHT) && rightsHolder.equalsIgnoreCase(localCopyright) )
