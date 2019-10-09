@@ -93,7 +93,7 @@
     <mkdir dir="${webapp}/WEB-INF"/>
     <mkdir dir="${webapp}/WEB-INF/lib"/>
     <mkdir dir="${webapp}/WEB-INF/classes"/>
-  	<mkdir dir="${webapp}/WEB-INF/xsl"/>
+    <mkdir dir="${webapp}/WEB-INF/xsl"/>
   </target>
 
   <!-- compile -->
@@ -129,6 +129,10 @@
     <!-- compiled classes -->
     <copy todir="${tmp}/classes">
       <fileset dir="${webapp}/WEB-INF/classes"/>
+    </copy>
+
+    <copy todir="${tmp}/test">
+      <fileset dir="${test}" includes="**/*"/>
     </copy>
 
     <!-- sample files -->
@@ -296,7 +300,7 @@
       </classpath>
       <batchtest todir="${tmp}">
         <fileset dir="${test}">
-          <include name="**/*Test*.java"/>
+          <include name="**/*Test.java"/>
           <exclude name="**/integration/*.java"/>
         </fileset>
       </batchtest>
