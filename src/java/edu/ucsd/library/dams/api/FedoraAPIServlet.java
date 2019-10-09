@@ -901,8 +901,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 			{
 				params.remove("rightsDS"); // remove dummy param
 				Document doc = DocumentHelper.parseText(rdfxml);
-				String discoverGroup = accessGroup( doc, true, objid );
-				String accessGroup = accessGroup( doc, false, objid );
+				String discoverGroup = accessGroup( doc, true, objid, roleAdmin, roleLocal, roleDefault, localCopyright );
+				String accessGroup = accessGroup( doc, false, objid, roleAdmin, roleLocal, roleDefault, localCopyright );
 				params.put("adminGroup", new String[]{roleAdmin});
 				params.put("adminGroup2", new String[]{roleAdmin2});
 				if ( !accessGroup.equals(roleAdmin) )
@@ -935,7 +935,8 @@ TXT DELETE /objects/[oid]/datastreams/[fid] (ts/arr) fileDelete
 	}
 
 	// determine access group
-	private String accessGroup( Document doc, boolean discover, String objid )
+	public static String accessGroup( Document doc, boolean discover, String objid,
+	        String roleAdmin, String roleLocal, String roleDefault, String localCopyright )
 	{
 		// relevant values
 		String copyright = doc.valueOf(

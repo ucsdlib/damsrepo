@@ -1,0 +1,352 @@
+<rdf:RDF
+    xmlns:mads="http://www.loc.gov/mads/rdf/v1#"
+    xmlns:damsid="http://library.ucsd.edu/ark:/20775/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:dams="http://library.ucsd.edu/ontology/dams#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  <dams:AssembledCollection rdf:about="http://library.ucsd.edu/ark:/20775/bb3485072m">
+    <dams:topic>
+      <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bb64875645">
+        <mads:elementList rdf:parseType="Collection">
+          <mads:TopicElement>
+            <mads:elementValue>Cyber-archaeology</mads:elementValue>
+          </mads:TopicElement>
+        </mads:elementList>
+        <mads:authoritativeLabel>Cyber-archaeology</mads:authoritativeLabel>
+      </mads:Topic>
+    </dams:topic>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:role>
+          <mads:Authority rdf:about="http://library.ucsd.edu/ark:/20775/bb67931665">
+            <mads:isMemberOfMADSScheme>
+              <rdf:Description rdf:about="http://library.ucsd.edu/ark:/20775/bb4199285v">
+                <mads:code>Creator</mads:code>
+              </rdf:Description>
+            </mads:isMemberOfMADSScheme>
+            <mads:code>cre</mads:code>
+            <mads:authoritativeLabel>creator</mads:authoritativeLabel>
+            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd3518446h"/>
+          </mads:Authority>
+        </dams:role>
+        <dams:personalName>
+          <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bb2188131h">
+            <mads:elementList rdf:parseType="Collection">
+              <mads:FullNameElement>
+                <mads:elementValue>Cox, Grant</mads:elementValue>
+              </mads:FullNameElement>
+            </mads:elementList>
+            <mads:authoritativeLabel>Cox, Grant</mads:authoritativeLabel>
+          </mads:PersonalName>
+        </dams:personalName>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:topic>
+      <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bb6386122n">
+        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb5089182f"/>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:TopicElement>
+            <mads:elementValue>3D reconstruction</mads:elementValue>
+          </mads:TopicElement>
+        </mads:elementList>
+        <mads:hasCloseExternalAuthority rdf:resource="https://en.wikipedia.org/wiki/3D_reconstruction"/>
+        <mads:hasExactExternalAuthority rdf:resource="https://www.wikidata.org/wiki/Q4464732"/>
+        <mads:authoritativeLabel>3D reconstruction</mads:authoritativeLabel>
+      </mads:Topic>
+    </dams:topic>
+    <dams:note>
+      <dams:Note>
+        <rdf:value>8 digital objects.</rdf:value>
+        <dams:type>extent</dams:type>
+      </dams:Note>
+    </dams:note>
+    <dams:topic>
+      <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bb6727422h">
+        <mads:elementList rdf:parseType="Collection">
+          <mads:TopicElement>
+            <mads:elementValue>Digital archaeology</mads:elementValue>
+          </mads:TopicElement>
+        </mads:elementList>
+        <mads:hasCloseExternalAuthority rdf:resource="https://en.wikipedia.org/wiki/Digital_archaeology"/>
+        <mads:hasExactExternalAuthority rdf:resource="https://www.wikidata.org/wiki/Q39046232"/>
+        <mads:authoritativeLabel>Digital archaeology</mads:authoritativeLabel>
+      </mads:Topic>
+    </dams:topic>
+    <dams:scopeContentNote>
+      <dams:ScopeContentNote>
+        <dams:displayLabel>Scope and Contents</dams:displayLabel>
+        <dams:type>scopeAndContent</dams:type>
+        <rdf:value>This collection includes 3-D models, derived 3-D renders, Unity 3D asset packages, a Win64 3-D app, and related metadata that reconstruct both spatially and temporally (4-D) the ‘Shrine’ 10 sequence at the Neolithic site of Çatalhöyük, Turkey</rdf:value>
+      </dams:ScopeContentNote>
+    </dams:scopeContentNote>
+    <dams:topic>
+      <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bb8980001x">
+        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb76830627"/>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:TopicElement>
+            <mads:elementValue>3D modeling</mads:elementValue>
+          </mads:TopicElement>
+        </mads:elementList>
+        <mads:hasCloseExternalAuthority rdf:resource="https://en.wikipedia.org/wiki/3D_modeling"/>
+        <mads:hasExactExternalAuthority rdf:resource="https://www.wikidata.org/wiki/Q568742"/>
+        <mads:authoritativeLabel>3D modeling</mads:authoritativeLabel>
+      </mads:Topic>
+    </dams:topic>
+    <dams:relatedResource>
+      <dams:RelatedResource>
+        <dams:uri rdf:resource="http://worldheritage.ucmerced.edu/projects"/>
+        <dams:description>World Heritage Projects, UC Merced</dams:description>
+        <dams:type>related</dams:type>
+      </dams:RelatedResource>
+    </dams:relatedResource>
+    <dams:topic>
+      <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bb1573791q">
+        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb02768514"/>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:TopicElement>
+            <mads:elementValue>Archaeological visualization</mads:elementValue>
+          </mads:TopicElement>
+        </mads:elementList>
+        <mads:authoritativeLabel>Archaeological visualization</mads:authoritativeLabel>
+      </mads:Topic>
+    </dams:topic>
+    <dams:topic>
+      <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bb7784503v">
+        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb1606973m"/>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:TopicElement>
+            <mads:elementValue>3D Visualization</mads:elementValue>
+          </mads:TopicElement>
+        </mads:elementList>
+        <mads:authoritativeLabel>3D Visualization</mads:authoritativeLabel>
+      </mads:Topic>
+    </dams:topic>
+    <dams:typeOfResource>still image</dams:typeOfResource>
+    <dams:relatedResource>
+      <dams:RelatedResource>
+        <dams:uri rdf:resource="http://www.catalhoyuk.com/"/>
+        <dams:description>Çatalhöyük Research Project</dams:description>
+        <dams:type>related</dams:type>
+      </dams:RelatedResource>
+    </dams:relatedResource>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:role>
+          <mads:Authority rdf:about="http://library.ucsd.edu/ark:/20775/bb0138055k">
+            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bd0862719g"/>
+            <mads:isMemberOfMADSScheme>
+              <mads:MADSScheme rdf:about="http://library.ucsd.edu/ark:/20775/bb6929687d">
+                <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb4885181q"/>
+                <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb43699375"/>
+                <mads:hasExactExternalAuthority rdf:resource="http://id.loc.gov/vocabulary/relators"/>
+                <rdfs:label>MARC Relator Codes</rdfs:label>
+              </mads:MADSScheme>
+            </mads:isMemberOfMADSScheme>
+            <mads:authoritativeLabel>researcher</mads:authoritativeLabel>
+          </mads:Authority>
+        </dams:role>
+        <dams:personalName>
+          <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bb6146263b">
+            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb54977932"/>
+            <mads:elementList rdf:parseType="Collection">
+              <mads:FullNameElement>
+                <mads:elementValue>Busacca, Gesualdo</mads:elementValue>
+              </mads:FullNameElement>
+            </mads:elementList>
+            <mads:authoritativeLabel>Busacca, Gesualdo</mads:authoritativeLabel>
+          </mads:PersonalName>
+        </dams:personalName>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:unit>
+      <dams:Unit rdf:about="http://library.ucsd.edu/ark:/20775/bb6827300d">
+        <dams:code>rdcp</dams:code>
+        <dams:unitDescription>ResearchCyberinfrastructure (RCI) is a UCSD-sponsored program that offers campus researchers facilities, storage, data curation, computing, and networking to facilitate their research using shared cyberinfrastructure services across campus.</dams:unitDescription>
+        <dams:unitGroup>dams-rci</dams:unitGroup>
+        <dams:unitName>UCSD Research Data Collections</dams:unitName>
+        <dams:unitURI>http://rci.ucsd.edu/</dams:unitURI>
+      </dams:Unit>
+    </dams:unit>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:role>
+          <mads:Authority rdf:about="http://library.ucsd.edu/ark:/20775/bb5735317d">
+            <mads:authoritativeLabel>Principal investigator</mads:authoritativeLabel>
+            <mads:code>pri</mads:code>
+          </mads:Authority>
+        </dams:role>
+        <dams:personalName>
+          <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bb2289574j">
+            <mads:elementList rdf:parseType="Collection">
+              <mads:FullNameElement>
+                <mads:elementValue>Lercari, Nicola</mads:elementValue>
+              </mads:FullNameElement>
+            </mads:elementList>
+            <mads:authoritativeLabel>Lercari, Nicola</mads:authoritativeLabel>
+          </mads:PersonalName>
+        </dams:personalName>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:typeOfResource>software</dams:typeOfResource>
+    <dams:geographic>
+      <mads:Geographic rdf:about="http://library.ucsd.edu/ark:/20775/bb03782943">
+        <mads:hasCloseExternalAuthority rdf:resource="https://www.wikidata.org/wiki/Q192522"/>
+        <mads:hasExactExternalAuthority rdf:resource="https://viaf.org/viaf/246590941/#Çatal_Hüyük"/>
+        <mads:authoritativeLabel>Çatalhöyük</mads:authoritativeLabel>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:GeographicElement>
+            <mads:elementValue>Çatalhöyük</mads:elementValue>
+          </mads:GeographicElement>
+        </mads:elementList>
+        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb71019039"/>
+      </mads:Geographic>
+    </dams:geographic>
+    <dams:date>
+      <dams:Date>
+        <rdf:value>2018</rdf:value>
+        <dams:type>issued</dams:type>
+      </dams:Date>
+    </dams:date>
+    <dams:visibility>suppressDiscovery</dams:visibility>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:role>
+          <mads:Authority rdf:about="http://library.ucsd.edu/ark:/20775/bb3585182w">
+            <mads:authoritativeLabel>contributor</mads:authoritativeLabel>
+            <mads:isMemberOfMADSScheme rdf:resource="http://library.ucsd.edu/ark:/20775/bb6929687d"/>
+          </mads:Authority>
+        </dams:role>
+        <dams:personalName>
+          <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bb4883454b">
+            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb80575428"/>
+            <mads:elementList rdf:parseType="Collection">
+              <mads:FullNameElement>
+                <mads:elementValue>Campiani, Arianna</mads:elementValue>
+              </mads:FullNameElement>
+            </mads:elementList>
+            <mads:authoritativeLabel>Campiani, Arianna</mads:authoritativeLabel>
+          </mads:PersonalName>
+        </dams:personalName>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:date>
+      <dams:Date>
+        <rdf:value>2017</rdf:value>
+        <dams:type>creation</dams:type>
+      </dams:Date>
+    </dams:date>
+    <dams:relatedResource>
+      <dams:RelatedResource>
+        <dams:uri rdf:resource="https://library.ucsd.edu/dc/collection/bb2940140d"/>
+        <dams:description>2019 version (post-peer review) of this collection</dams:description>
+        <dams:type>related</dams:type>
+      </dams:RelatedResource>
+    </dams:relatedResource>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bb67931665"/>
+        <dams:personalName>
+          <mads:PersonalName rdf:about="http://library.ucsd.edu/ark:/20775/bb08911926">
+            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb8297403m"/>
+            <mads:elementList rdf:parseType="Collection">
+              <mads:FullNameElement>
+                <mads:elementValue>Aboulhosn, Jad</mads:elementValue>
+              </mads:FullNameElement>
+            </mads:elementList>
+            <mads:authoritativeLabel>Aboulhosn, Jad</mads:authoritativeLabel>
+          </mads:PersonalName>
+        </dams:personalName>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:title>
+      <mads:Title>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:MainTitleElement>
+            <mads:elementValue>Data from: A Glimpse through Time and Space: Visualizing Social Memory and History-making at Çatalhöyük</mads:elementValue>
+          </mads:MainTitleElement>
+        </mads:elementList>
+        <mads:authoritativeLabel>Data from: A Glimpse through Time and Space: Visualizing Social Memory and History-making at Çatalhöyük</mads:authoritativeLabel>
+      </mads:Title>
+    </dams:title>
+    <dams:topic>
+      <mads:Topic rdf:about="http://library.ucsd.edu/ark:/20775/bb4133542z">
+        <mads:elementList rdf:parseType="Collection">
+          <mads:TopicElement>
+            <mads:elementValue>Neolithic archaeology</mads:elementValue>
+          </mads:TopicElement>
+        </mads:elementList>
+        <mads:authoritativeLabel>Neolithic archaeology</mads:authoritativeLabel>
+      </mads:Topic>
+    </dams:topic>
+    <dams:geographic>
+      <mads:Geographic rdf:about="http://library.ucsd.edu/ark:/20775/bb6078953m">
+        <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb47820119"/>
+        <mads:elementList rdf:parseType="Collection">
+          <mads:GeographicElement>
+            <mads:elementValue>Near East</mads:elementValue>
+          </mads:GeographicElement>
+        </mads:elementList>
+        <mads:hasExactExternalAuthority rdf:resource="http://id.worldcat.org/fast/1241586"/>
+        <mads:authoritativeLabel>Near East</mads:authoritativeLabel>
+      </mads:Geographic>
+    </dams:geographic>
+    <dams:note>
+      <dams:Note>
+        <dams:type>funding</dams:type>
+        <rdf:value>This work is funded by the University of California Office of the President's Research Catalyst Award for "At-Risk Cultural Heritage and the Digital Humanities",
+Grant ID: CA-16-376911, PI: Thomas E. Levy (UCSD), Co-PI: Nicola Lercari (UC Merced), and Stanford IRiSS Seed Grant program.</rdf:value>
+      </dams:Note>
+    </dams:note>
+    <dams:relationship>
+      <dams:Relationship>
+        <dams:role rdf:resource="http://library.ucsd.edu/ark:/20775/bb3585182w"/>
+        <dams:corporateName>
+          <mads:CorporateName rdf:about="http://library.ucsd.edu/ark:/20775/bb95943436">
+            <dams:event rdf:resource="http://library.ucsd.edu/ark:/20775/bb5737652x"/>
+            <mads:elementList rdf:parseType="Collection">
+              <mads:NameElement>
+                <mads:elementValue>UC Merced</mads:elementValue>
+              </mads:NameElement>
+            </mads:elementList>
+            <mads:authoritativeLabel>UC Merced</mads:authoritativeLabel>
+          </mads:CorporateName>
+        </dams:corporateName>
+      </dams:Relationship>
+    </dams:relationship>
+    <dams:note>
+      <dams:Note>
+        <dams:type>preferred citation</dams:type>
+        <rdf:value>Lercari, Nicola; Cox, Grant; Busacca, Gesualdo; Campiani, Arianna; Aboulhosn, Jad (2018). Data from: A Glimpse through Time and Space: Visualizing Social Memory and History-making at Çatalhöyük. UC San Diego Library Digital Collections. https://doi.org/10.6075/J0SX6BDP</rdf:value>
+      </dams:Note>
+    </dams:note>
+    <dams:date>
+      <dams:Date>
+        <dams:endDate>2017-12-31</dams:endDate>
+        <dams:beginDate>2017-01-01</dams:beginDate>
+        <dams:encoding>w3cdtf</dams:encoding>
+      </dams:Date>
+    </dams:date>
+    <dams:note>
+      <dams:Note>
+        <dams:type>description</dams:type>
+        <rdf:value>This collection was updated in 2019. The updated version is available at https://doi.org/10.6075/J0WD3XX2. 
+
+This collection includes a set of 3-D models, derived 3-D renders, Unity 3D game engine-ready asset packages, and a full executable Win64 version of a 3-D reconstruction app, and related metadata that reconstruct both spatially and temporally (4-D) the ‘Shrine’ 10 sequence at the Neolithic site of Çatalhöyük, Turkey. 
+
+The ‘Shrine’ 10 sequence is made of four superimposed buildings – or five, depending on whether ‘Shrines’ VI.A.10 and VI.B.10 are considered two separate buildings or two phases of the same one. It was uncovered at Çatalhöyük between Mellaart’s excavation in the 1960s and more recent archaeological work conducted in the framework of the Çatalhöyük Research Project, under the direction of Ian Hodder. With its multiple rebuilds, the sequence covers a significant part of the entire site’s sequence, spanning from the later part of its early period (c. 7100-6700 BC) to its entire middle period (c. 6700-6500 BC), with an estimated time range of about 300 years. Houses that are rebuilt multiple times also tend to be more elaborated (both architecturally and symbolically) and to contain multiple burials. In particular, the link between burials and multiple rebuilds is crucial, as it signals the extended time depth of a household both through ancestral connection – i.e. the physical presence of human remains buried below the house’s floors – and by the physical endurance of the house itself. For this reason, buildings that comprise multiple rebuilds, architectural and symbolic elaboration, and multiple burials have been termed ‘history houses’ by Hodder and Pels (2010), and are interpreted as houses that achieved an important social and symbolic status within the wider community, although this socio-symbolic importance does not seem to correlate with greater wealth or preferential access to resources.
+
+The archaeological research necessary to create the 3-D models featured in this collection was conducted by Gesualdo Busacca, Arianna Campiani, and Nicola Lercari in 2016-2018. The 3-D models were created by Grant Cox (ArtasMedia) while the Unity app was created by Jad Aboulhosn. 3D models are archived in .fbx and .x3d (to be added to this collection in October 2018) file formats to guarantee interoperability between different digital content creation and 3D visualization platforms. The models were created in Autodesk 3D Studio Max using standard polygonal modeling. They include “baked” textures to be easily imported in Unity 3D or Unreal game development ecosystems and enable virtual reality exploration. Grant Cox also created the 3-D renders in V-Ray for 3DS Max. Unity asset packages are also archived to guarantee easier replicability of the results in the game engine Unity 3D. A fully functional Win64 executable is also archive to allow for 4-D simulation exploration without the need to re-create our work in Unity 3D.
+
+Instructions on how to reuse the data are included in the technical detail of each item.</rdf:value>
+      </dams:Note>
+    </dams:note>
+    <dams:typeOfResource>three dimensional object</dams:typeOfResource>
+    <dams:relatedResource>
+      <dams:RelatedResource>
+        <dams:type>thumbnail</dams:type>
+        <dams:uri rdf:resource="https://library.ucsd.edu/assets/dams/collections/thumbnails/bb3485072m.jpg"/>
+      </dams:RelatedResource>
+    </dams:relatedResource>
+  </dams:AssembledCollection>
+</rdf:RDF>
