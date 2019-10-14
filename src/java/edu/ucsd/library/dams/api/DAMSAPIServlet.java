@@ -3424,7 +3424,7 @@ public class DAMSAPIServlet extends HttpServlet
 
 		// mint doi
 		String doi = ezid.mintDOI( targetUrl, datacite );
-		String doiURL = doi.replaceAll("doi:","http://doi.org/");
+		String doiURL = doi.replaceAll("doi:","https://doi.org/");
 		log.info("Minted DOI: " + doiURL + " for " + targetUrl);
 
 		// add doi to object
