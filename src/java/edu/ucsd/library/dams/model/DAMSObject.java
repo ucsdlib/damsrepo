@@ -507,6 +507,7 @@ public class DAMSObject
 			linkedCollections( id, linkedCols );
 
 			Set<Identifier> allMembers = new HashSet<Identifier>();
+			allMembers.addAll(  memberObjects( id ) );
 			for ( int i = 0; i < linkedCols.size(); i++ )
 			{
 				Identifier colid = linkedCols.get(i);
